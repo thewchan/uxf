@@ -1,0 +1,53 @@
+py/uxf.py
+py/uxfconvert.py # TODO see below
+
+README.md
+
+misc/epd2uxf.py
+misc/md2html.sh
+
+test/regression.py
+
+setup.py
+uxf.vim # for syntax/uxf.vim TODO
+
+pypi.sh
+st.sh
+
+test/test0.uxf
+test/test1.uxf
+test/test2.uxf
+test/test3.uxf
+test/test4.uxf
+test/test5.uxf
+test/test6.uxf
+test/test7.uxf
+test/test8.uxf
+test/test9.uxf
+test/test10.uxf
+test/test11.uxf
+
+test/expected/test0.uxf
+test/expected/test1.uxf
+test/expected/test2.uxf
+test/expected/test3.uxf
+test/expected/test4.uxf
+test/expected/test5.uxf
+test/expected/test6.uxf
+test/expected/test7.uxf
+test/expected/test8.uxf
+test/expected/test9.uxf
+test/expected/test10.uxf
+test/expected/test11.uxf
+
+# TODO
+# uxfconvert [-z|--compress] [-i|--indent=n]
+#	     <infile.{csv,ini,json,uxf,sqlite,toml,xml,yaml}>
+#	     [<outfile.{csv,ini,json,uxf,sqlite,toml,xml,yaml}>]
+# indent is 0-8
+# some conversions are lossy
+# # need equiv of _Writer?
+
+# uxf.py uxf.rs uxf.cpp uxf.java uxf.rb ...
+
+# vim: syn=yaml

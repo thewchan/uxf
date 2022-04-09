@@ -1,0 +1,7 @@
+README.md
+setup.py
+py/pxd.py
+py/pxd1.egg-info/PKG-INFO
+py/pxd1.egg-info/SOURCES.txt
+py/pxd1.egg-info/dependency_links.txt
+py/pxd1.egg-info/top_level.txt
