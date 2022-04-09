@@ -1,12 +1,12 @@
-# uxf
+# UXF
 
-Uniform eXchange Format (_uxf_) is a plain text human readable storage
+Uniform eXchange Format (UXF) is a plain text human readable storage
 format that may serve as a convenient alternative to csv, ini, json, sqlite,
 toml, xml, or yaml.
 
 ## Datatypes
 
-_uxf_ supports fourteen datatypes.
+UXF supports fourteen datatypes.
 
 |**Type**   |**Example(s) # notes**|
 |-----------|----------------------|
@@ -34,11 +34,11 @@ number of values in any given row is equal to the number of field names.
 
 ## Examples
 
-### Minimal empty _uxf_
+### Minimal empty UXF
 
     uxf 1.0
 
-### CSV to _uxf_
+### CSV to UXF
 
 #### CSV
 
@@ -47,7 +47,7 @@ number of values in any given row is equal to the number of field names.
     "2022-10-02",4.49,1,"HV2-K9","Hammer, 2lb"
     "2022-10-02",5.89,1,"SX4-D1","Eversure Sealant, 13-floz"
 
-#### _uxf_ equivalent
+#### UXF equivalent
 
 The most obvious translation would be to a `list` of ``list``s:
 
@@ -64,7 +64,7 @@ is the first row data values or column titles? (For software this isn't
 always obvious, for example, if all the values are strings.) Not to mention
 the fact that we have to use a nested `list` of ``list``s.
 
-The most appropriate _uxf_ equivalent is to use a _uxf_ `Table`:
+The most appropriate UXF equivalent is to use a UXF `Table`:
 
     uxf 1.0 Price List
     [= <Price List> <Date> <Price> <Quantity> <ID> <Description> =
@@ -76,7 +76,7 @@ The most appropriate _uxf_ equivalent is to use a _uxf_ `Table`:
 Notice that the _first_ `Table` `str` is the name of the table itself,
 with the rest being the field names. Also note that there's no need to
 group rows into lines (although doing so is common and easier for human
-readability), since the _uxf_ processor will know how many values go
+readability), since the UXF processor will know how many values go
 into each row based on the number of field names.
 
 Although a ``Table``'s names are ``str``s, it is perfectly possible to
@@ -101,7 +101,7 @@ and maximum values, and in one case a COBOL-style picture.
 Note that if you need to include `&`, `<` or `>` inside a `str`, you
 must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
 
-### INI to _uxf_
+### INI to UXF
 
 #### INI
 
@@ -119,7 +119,7 @@ must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
     recent1=/tmp/test2.uxf
     recent2=C:\Users\mark\test3.uxf
 
-#### _uxf_ equivalent
+#### UXF equivalent
 
     uxf 1.0 MyApp 1.2.0 Config
     {
@@ -178,9 +178,9 @@ changed the _x_, _y_ coordinates and the _width_ and _height_ into `pos` and
 `size` ``NTuple``s. Of course we could have used a single `NTuple`,
 e.g., `<geometry> (:615 252 592 636:)`.
 
-### Database to _uxf_
+### Database to UXF
 
-A database normally consists of one or more tables. A _uxf_ equivalent using
+A database normally consists of one or more tables. A UXF equivalent using
 a `list` of ``Table``s is easily made.
 
     uxf 1.0 MyApp Data
@@ -233,9 +233,9 @@ _Implementations in additional languages are planned._
 - Run: `python3 -m uxf -h` _# this shows the command line help_
 - Use: `import uxf` _# see the `uxf.py` module docs for the API_
 
-Most Python types map losslessly to and from _uxf_ types. In particular:
+Most Python types map losslessly to and from UXF types. In particular:
 
-|**Python Type**     |**uxf type**|
+|**Python Type**     |**UXF type**|
 |--------------------|------------|
 |`None`              | `null`     |
 |`bool`              | `bool`     |
@@ -254,9 +254,9 @@ If `one_way_conversion` is `False` then any other Python type passed in the
 data passed to `write()` will produce an error.
 
 If `one_way_conversion` is `True` then the following conversions are applied
-when converting to _uxf_ data:
+when converting to UXF data:
 
-|**Python Type (in)**|**uxf type/Python Type (out)**|
+|**Python Type (in)**|**UXF type/Python Type (out)**|
 |--------------------|-------------|
 |`bytearray`         | `bytes`     |
 |`complex`           | `uxf.NTuple` _# with two items_|
@@ -320,17 +320,17 @@ However, `Table` values may only be scalars (i.e., of type `null`, `bool`,
 `int`, `real`, `date`, `datetime`, `str`, or `bytes`), not ``map``s,
 ``list``s, ``NTuple``s or ``Table``s.
 
-For ``datetime``s, support may vary across different _uxf_ libraries and
+For ``datetime``s, support may vary across different UXF libraries and
 might _not_ include timezone support. For example, the Python library
 only supports timezones as time offsets; for `Z` etc, the `dateutil`
 module must be installed, but even that doesn't necessarily support the full
 ISO8601 specification.
 
-Note that a _uxf_ reader (writer) must be able to read (write) a plain text
+Note that a UXF reader (writer) must be able to read (write) a plain text
 _or_ gzipped plain text `.uxf` file containing UTF-8 encoded text.
 
-Note also that uxf readers and writers should not care about the actual file
+Note also that UXF readers and writers should not care about the actual file
 extension since users are free to use their own.
 
-_uxf_ logo ![uxf logo](uxf.svg)
+UXF logo ![uxf logo](uxf.svg)
 

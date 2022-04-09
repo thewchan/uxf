@@ -3,7 +3,7 @@
 # License: GPLv3
 
 '''
-uxf is a plain text human readable storage format that may serve as a
+UXF is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
 The uxf module can be used as an executable. Run
@@ -16,13 +16,13 @@ uxf's public API provides two functions and three classes.
 
     def read(filename_or_filelike): -> (data, custom_header)
 
-In the returned 2-tuple the data is a dict (i.e., a uxf map), list, or
+In the returned 2-tuple the data is a dict (i.e., a UXF map), list, or
 uxf.Table, and the custom_header is a (possibly empty) custom string.
 
     def write(filename_or_filelike, data, custom)
 
 This writes the data (and custom header if supplied) into the given file as
-uxf data. The data must be a single dict, list, or uxf.Table.
+UXF data. The data must be a single dict, list, or uxf.Table.
 
     class Error
 
@@ -42,8 +42,8 @@ storing complex numbers, points (2D or 3D), IP addresses, and RGB and RGBA
 values.
 
 Note that the __version__ is the module version (i.e., the versio of this
-implementation), while the VERSION is the maximum uxf version that this
-module can read (and the uxf version that it writes).
+implementation), while the VERSION is the maximum UXF version that this
+module can read (and the UXF version that it writes).
 '''
 
 import collections
@@ -69,8 +69,8 @@ UTF8 = 'utf-8'
 
 def read(filename_or_filelike, *, warn_is_error=False):
     '''
-    Returns a 2-tuple, the first item of which is a dict (i.e., a uxf map),
-    list, or uxf.Table containing all the uxf data read. The second item is
+    Returns a 2-tuple, the first item of which is a dict (i.e., a UXF map),
+    list, or uxf.Table containing all the UXF data read. The second item is
     the custom string (if any) from the file's header.
 
     filename_or_filelike is sys.stdin or a filename or an open readable file
@@ -144,19 +144,19 @@ class _Lexer(_ErrorMixin):
     def scan_header(self):
         i = self.text.find('\n')
         if i == -1:
-            self.error('missing uxf file header or empty file')
+            self.error('missing UXF file header or empty file')
         self.pos = i
         parts = self.text[:i].split(None, 2)
         if len(parts) < 2:
-            self.error('invalid uxf file header')
+            self.error('invalid UXF file header')
         if parts[0] != 'uxf':
-            self.error('not a uxf file')
+            self.error('not a UXF file')
         try:
             version = float(parts[1])
             if version > VERSION:
                 self.warn(f'version ({version}) > current ({VERSION})')
         except ValueError:
-            self.warn('failed to read uxf file version number')
+            self.warn('failed to read UXF file version number')
         if len(parts) > 2:
             self.custom = parts[2]
 
@@ -615,7 +615,7 @@ class _Parser(_ErrorMixin):
             state = self.states[-1]
             if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
-                    self.error(f'expected dict (uxf map), list, or '
+                    self.error(f'expected dict (UXF map), list, or '
                                f'uxf.Table, got {token}')
                 self.states.pop() # _Expect.COLLECTION
                 self._on_collection_start(token.kind)
@@ -661,7 +661,7 @@ class _Parser(_ErrorMixin):
             self.states.append(_Expect.TABLE_NAME)
             self._on_collection_start_helper(Table)
         else:
-            self.error('expected to create dict (uxf map), list, or '
+            self.error('expected to create dict (UXF map), list, or '
                        f'uxf.Table, not {kind}')
 
 
@@ -727,7 +727,7 @@ class _Parser(_ErrorMixin):
             self.keys.append(token.value)
             self.states[-1] = _Expect.DICT_VALUE
         else:
-            self.error('dict (uxf map) keys may only be int, date, '
+            self.error('dict (UXF map) keys may only be int, date, '
                        f'datetime, str, or bytes, got {token}')
 
 
@@ -780,8 +780,8 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded).
 
-    data is a list, dict (i.e., uxf map), or uxf.Table that this function
-    will write to the filename_or_filelike in uxf format.
+    data is a list, dict (i.e., UXF map), or uxf.Table that this function
+    will write to the filename_or_filelike in UXF format.
 
     custom is an optional short user string (with no newlines), e.g., a file
     type description.
