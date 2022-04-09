@@ -42,7 +42,8 @@ dub.selections.json
 .mypy_cache
 zig-cache
 *.html
-*.pxd
+*.uxf
 build/
 dist/
-py/pxd.egg-info/
+py/uxf.egg-info/
+test/actual
