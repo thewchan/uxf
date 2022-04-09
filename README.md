@@ -225,11 +225,11 @@ _Implementations in additional languages are planned._
 
 |**Library**|**Language**|**Notes**|
 |-----------|------------|---------|
-|uxf1       | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available.|
+|uxf        | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available.|
 
 ### Python Notes
 
-- Install: `python3 -m pip install uxf1` _# notice the `1`_
+- Install: `python3 -m pip install uxf`
 - Run: `python3 -m uxf -h` _# this shows the command line help_
 - Use: `import uxf` _# see the `uxf.py` module docs for the API_
 
