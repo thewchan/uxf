@@ -24,6 +24,7 @@ UXF supports fourteen datatypes.
 |`table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
+(The name we use for a `map` _key-value_ pair is _item_.)
 
 Map and list values may be of _any_ type (including nested ``map``s and
 ``list``s).
@@ -152,10 +153,11 @@ For example, here's an alternative:
     }
 
 Here, we've moved the _Files_ into _General_ and changed the _Files_ from a
-`table` to a two-item `map` with the second item being a `list` of
+`table` to a two-item `map` with the second item's value being a `list` of
 filenames. We've also changed the _x_, _y_ coordinates and the _width_ and
-_height_ into `pos` and `size` ``ntuple``s. Of course we could have used a
-single `ntuple`, e.g., `<geometry> (:615 252 592 636:)`.
+_height_ into items with `pos` and `size` keys and `ntuple` values. Of
+course we could have used a single item with an `ntuple` value, e.g.,
+`<geometry> (:615 252 592 636:)`.
 
 ### Database to UXF
 
