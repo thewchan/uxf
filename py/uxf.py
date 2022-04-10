@@ -644,9 +644,9 @@ class _Parser(_ErrorMixin):
             elif state is _Expect.TABLE_VALUE:
                 self._handle_table_value(token)
             elif state is _Expect.DICT_KEY:
-                self._handle_dict_key(token)
+                self._handle_map_key(token)
             elif state is _Expect.DICT_VALUE:
-                self._handle_dict_value(token)
+                self._handle_map_value(token)
             elif state is _Expect.EOF:
                 if token.kind is not _Kind.EOF:
                     self.error(f'expected EOF, got {token}')
@@ -735,7 +735,7 @@ class _Parser(_ErrorMixin):
                        f'date, datetime, str, or bytes, got {token}')
 
 
-    def _handle_dict_key(self, token):
+    def _handle_map_key(self, token):
         if token.kind is _Kind.DICT_END:
             self._on_collection_end(token)
         elif token.kind in {
@@ -748,13 +748,13 @@ class _Parser(_ErrorMixin):
                        f'datetime, str, or bytes, got {token}')
 
 
-    def _handle_dict_value(self, token):
+    def _handle_map_value(self, token):
         if self._is_collection_start(token.kind):
-            # this adds a new list, dict, or table to the stack
+            # this adds a new list, map, or table to the stack
             self._on_collection_start(token.kind)
-            # this adds a key-value item to the dict that contains the above
-            # list, dict, or table, the key being the key acquired earlier,
-            # the value being the new list, dict, or table
+            # this adds a key-value item to the map that contains the above
+            # list, map, or table, the key being the key acquired earlier,
+            # the value being the new list, map, or table
             self.stack[-2][self.keys[-1]] = self.stack[-1]
         elif self._is_collection_end(token.kind):
             self.states[-1] = _Expect.DICT_KEY
@@ -768,7 +768,7 @@ class _Parser(_ErrorMixin):
 
     def _handle_any_value(self, token):
         if self._is_collection_start(token.kind):
-            # this adds a new list, dict, or table to the stack
+            # this adds a new list, map, or table to the stack
             self._on_collection_start(token.kind)
         elif self._is_collection_end(token.kind):
             self.states.pop()
@@ -843,7 +843,7 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_value(self, item, indent=0, *, pad, dict_value=False):
+    def write_value(self, item, indent=0, *, pad, map_value=False):
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
             if self.one_way_conversion:
                 item = list(item)
@@ -852,90 +852,89 @@ class _Writer:
                             'one_way_conversion is True')
         if isinstance(item, list):
             return self.write_list(item, indent, pad=pad,
-                                   dict_value=dict_value)
+                                   map_value=map_value)
         if isinstance(item, dict):
-            return self.write_dict(item, indent, pad=pad,
-                                   dict_value=dict_value)
+            return self.write_map(item, indent, pad=pad,
+                                  map_value=map_value)
         if isinstance(item, Table):
             return self.write_table(item, indent, pad=pad,
-                                    dict_value=dict_value)
+                                    map_value=map_value)
         return self.write_scalar(item, indent=indent, pad=pad,
-                                 dict_value=dict_value)
+                                 map_value=map_value)
 
 
-    def write_list(self, item, indent=0, *, pad, dict_value=False):
-        tab = '' if dict_value else pad * indent
+    def write_list(self, item, indent=0, *, pad, map_value=False):
+        tab = '' if map_value else pad * indent
         if len(item) == 0:
-            self.file.write(f'{tab}[]')
-            return False
-        self.file.write(f'{tab}[')
-        indent += 1
-        is_scalar = _is_scalar(item[0])
-        if is_scalar:
-            kwargs = dict(indent=0, pad=' ', dict_value=False)
+            self.file.write(f'{tab}[]\n')
         else:
-            self.file.write('\n')
-            kwargs = dict(indent=indent, pad=pad, dict_value=False)
-        for value in item:
-            self.write_value(value, **kwargs)
+            self.file.write(f'{tab}[')
+            indent += 1
+            is_scalar = _is_scalar(item[0])
             if is_scalar:
-                kwargs['indent'] = 1 # 0 for first item
-        tab = pad * (indent - 1)
-        self.file.write(']\n' if is_scalar else f'{tab}]\n')
+                kwargs = dict(indent=0, pad=' ', map_value=False)
+            else:
+                self.file.write('\n')
+                kwargs = dict(indent=indent, pad=pad, map_value=False)
+            for value in item:
+                self.write_value(value, **kwargs)
+                if is_scalar:
+                    kwargs['indent'] = 1 # 0 for first item
+            tab = pad * (indent - 1)
+            self.file.write(']\n' if is_scalar else f'{tab}]\n')
         return True
 
 
-    def write_dict(self, item, indent=0, *, pad, dict_value=False):
-        tab = '' if dict_value else pad * indent
+    def write_map(self, item, indent=0, *, pad, map_value=False):
+        tab = '' if map_value else pad * indent
         if len(item) == 0:
-            self.file.write(f'{tab}{{}}')
-            return False
+            self.file.write(f'{tab}{{}}\n')
         elif len(item) == 1:
             self.file.write(f'{tab}{{')
             key, value = list(item.items())[0]
             self.write_scalar(key, 1, pad=' ')
             self.file.write(' ')
-            self.write_value(value, 1, pad=' ', dict_value=True)
-            self.file.write('}}')
-            return False
-        self.file.write(f'{tab}{{\n')
-        indent += 1
-        for key, value in item.items():
-            self.write_scalar(key, indent, pad=pad)
-            self.file.write(' ')
-            if not self.write_value(value, indent, pad=pad,
-                                    dict_value=True):
-                self.file.write('\n')
-        tab = pad * (indent - 1)
-        self.file.write(f'{tab}}}\n')
+            self.write_value(value, 1, pad=' ', map_value=True)
+            self.file.write('}\n')
+        else:
+            self.file.write(f'{tab}{{\n')
+            indent += 1
+            for key, value in item.items():
+                self.write_scalar(key, indent, pad=pad)
+                self.file.write(' ')
+                if not self.write_value(value, indent, pad=pad,
+                                        map_value=True):
+                    self.file.write('\n')
+            tab = pad * (indent - 1)
+            self.file.write(f'{tab}}}\n')
         return True
 
 
-    def write_table(self, item, indent=0, *, pad, dict_value=False):
-        tab = '' if dict_value else pad * indent
+    def write_table(self, item, indent=0, *, pad, map_value=False):
+        tab = '' if map_value else pad * indent
         self.file.write(f'{tab}[= <{escape(item.name)}>')
         for name in item.fieldnames:
             self.file.write(f' <{escape(name)}>')
         if len(item) == 0:
-            self.file.write(' = =]')
-            return False
-        self.file.write(' =\n')
-        indent += 1
-        for record in item:
-            self.file.write(pad * indent)
-            sep = ''
-            for value in record:
-                self.file.write(sep)
-                self.write_scalar(value, pad=pad)
-                sep = ' '
-            self.file.write('\n')
-        tab = pad * (indent - 1)
-        self.file.write(f'{tab}=]\n')
+            self.file.write(' = =]\n')
+        else:
+            self.file.write(' =\n')
+            indent += 1
+            for record in item:
+                self.file.write(pad * indent)
+                sep = ''
+                for value in record:
+                    self.file.write(sep)
+                    self.write_scalar(value, pad=pad)
+                    sep = ' '
+                self.file.write('\n')
+            tab = pad * (indent - 1)
+            self.file.write(f'{tab}=]\n')
         return True
 
 
-    def write_scalar(self, item, indent=0, *, pad, dict_value=False):
-        if not dict_value:
+    def write_scalar(self, item, indent=0, *, pad, map_value=False):
+        if not map_value:
             self.file.write(pad * indent)
         if item is None:
             self.file.write('null')
