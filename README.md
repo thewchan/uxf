@@ -18,17 +18,17 @@ UXF supports fourteen datatypes.
 |`datetime`  |`2022-04-01T16:11:51` # ISO8601 (timezone support is library dependent)|
 |`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
-|`NTuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc. (For more numbers simply use a `list`.)
+|`ntuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc. (For more numbers simply use a `list`.)
 |`list`      |`[value1 value2 ... valueN]`|
 |`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
-|`Table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
+|`table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 
 Map and list values may be of _any_ type (including nested ``map``s and
 ``list``s).
 
-A `Table` starts with a table name, then field names, then values. The
+A `table` starts with a table name, then field names, then values. The
 number of values in any given row is equal to the number of field names.
 (See the examples below).
 
@@ -64,7 +64,7 @@ is the first row data values or column titles? (For software this isn't
 always obvious, for example, if all the values are strings.) Not to mention
 the fact that we have to use a nested `list` of ``list``s.
 
-The most appropriate UXF equivalent is to use a UXF `Table`:
+The most appropriate UXF equivalent is to use a UXF `table`:
 
     uxf 1.0 Price List
     [= <Price List> <Date> <Price> <Quantity> <ID> <Description> =
@@ -73,13 +73,13 @@ The most appropriate UXF equivalent is to use a UXF `Table`:
       2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
     =]
 
-Notice that the _first_ `Table` `str` is the name of the table itself,
+Notice that the _first_ `table` `str` is the name of the table itself,
 with the rest being the field names. Also note that there's no need to
 group rows into lines (although doing so is common and easier for human
 readability), since the UXF processor will know how many values go
 into each row based on the number of field names.
 
-Although a ``Table``'s names are ``str``s, it is perfectly possible to
+Although a ``table``'s names are ``str``s, it is perfectly possible to
 structure the strings to provide extra data for processing applications.
 For example:
 
@@ -146,7 +146,7 @@ For configuration data it is often convenient to use ``map``s with name
 keys and data values. In this case the overall data is a `map` which
 contains each configuration section. The values of each of the first two of
 the ``map``'s keys are themselves ``map``s. But for the third key's value
-we use a `Table`. Notice that we don't have to explicitly distinguish
+we use a `table`. Notice that we don't have to explicitly distinguish
 between one row and the next (although it is common to start new rows on new
 lines) since the number of fields (here, two, `kind` and `filename`),
 indicate how many values each row has.
@@ -175,13 +175,13 @@ For example, here's an alternative:
 Here, we've moved the _Files_ into _General_ and changed the recent
 files from per-file `map` items into a `list` of filenames. We've also
 changed the _x_, _y_ coordinates and the _width_ and _height_ into `pos` and
-`size` ``NTuple``s. Of course we could have used a single `NTuple`,
+`size` ``ntuple``s. Of course we could have used a single `ntuple`,
 e.g., `<geometry> (:615 252 592 636:)`.
 
 ### Database to UXF
 
 A database normally consists of one or more tables. A UXF equivalent using
-a `list` of ``Table``s is easily made.
+a `list` of ``table``s is easily made.
 
     uxf 1.0 MyApp Data
     [
@@ -200,7 +200,7 @@ a `list` of ``Table``s is easily made.
       =]
     ]
 
-Here we have a `list` of ``Table``s representing three database tables.
+Here we have a `list` of ``table``s representing three database tables.
 
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
@@ -208,7 +208,7 @@ invoice has an empty description.
 What if we wanted to add some extra configuration data to the database?
 
 One solution would be to make the first item in the `list` a `map`,
-with the remainder ``Table``s as now. Another solution would be to use a
+with the remainder ``table``s as now. Another solution would be to use a
 `map` for the container, something like:
 
     uxf 1.0 MyApp Data
@@ -245,10 +245,10 @@ Most Python types map losslessly to and from UXF types. In particular:
 |`datetime.datetime` | `datetime` |
 |`str`               | `str`      |
 |`bytes`             | `bytes`    |
-|`uxf.NTuple`        | `NTuple`   |
+|`uxf.NTuple`        | `ntuple`   |
 |`list`              | `list`     |
 |`dict`              | `map`      |
-|`uxf.Table`         | `Table    `|
+|`uxf.Table`         | `table    `|
 
 If `one_way_conversion` is `False` then any other Python type passed in the
 data passed to `write()` will produce an error.
@@ -259,7 +259,7 @@ when converting to UXF data:
 |**Python Type (in)**|**UXF type/Python Type (out)**|
 |--------------------|-------------|
 |`bytearray`         | `bytes`     |
-|`complex`           | `uxf.NTuple` _# with two items_|
+|`complex`           | `ntuple`/`uxf.NTuple` _# with two items_|
 |`set`               | `list`      |
 |`frozenset`         | `list`      |
 |`tuple`             | `list`      |
@@ -284,7 +284,7 @@ If you just want to create a small standalone `.pyz`, simply copy
 ## BNF
 
 A `.uxf` file consists of a mandatory header followed by a single
-optional `map`, `list`, or `Table`.
+optional `map`, `list`, or `table`.
 
     UXF      ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
@@ -308,7 +308,7 @@ optional `map`, `list`, or `Table`.
     OWS      ::= /[\s\n]*/
     RWS      ::= /[\s\n]+/ # in some cases RWS is actually optional
 
-For a `Table` the first `str` is the table's name and the second and
+For a `table` the first `str` is the table's name and the second and
 subsequent strings are field names. After the bare `=` come the table's
 values. There's no need to distinguish between one row and the next
 (although it is common to start new rows on new lines) since the number
@@ -316,9 +316,9 @@ of fields indicate how many values each row has.
 
 As the BNF shows, `map` and `list` values may be of _any_ type.
 
-However, `Table` values may only be scalars (i.e., of type `null`, `bool`,
+However, `table` values may only be scalars (i.e., of type `null`, `bool`,
 `int`, `real`, `date`, `datetime`, `str`, or `bytes`), not ``map``s,
-``list``s, ``NTuple``s or ``Table``s.
+``list``s, ``ntuple``s or ``table``s.
 
 For ``datetime``s, support may vary across different UXF libraries and
 might _not_ include timezone support. For example, the Python library

@@ -501,10 +501,10 @@ class Table:
     When a uxf.Table is iterated each row is returned as a namedtuple.
     '''
 
-    def __init__(self, *, name=None, fieldnames=None, items=None):
+    def __init__(self, *, name=None, fieldnames=None, records=None):
         '''
-        items can be a flat list of values (which will be put into a list of
-        lists with each sublist being len(fieldnames) long), or a list of
+        records can be a flat list of values (which will be put into a list
+        of lists with each sublist being len(fieldnames) long), or a list of
         lists in which case each list is _assumed_ to be len(fieldnames)
         long.
         '''
@@ -512,13 +512,13 @@ class Table:
         self._Class = None
         self.fieldnames = [] if fieldnames is None else fieldnames
         self.records = []
-        if items:
-            if isinstance(items, list):
+        if records:
+            if isinstance(records, list):
                 if self._Class is None:
                     self._make_class()
-                self.records = items
+                self.records = records
             else:
-                for value in items:
+                for value in records:
                     self.append(value)
 
 
