@@ -423,12 +423,13 @@ class NTuple:
     >>> nt[3], nt.d, nt.fourth
     (40, 40, 40)
 
-    Every item can be accessed by index 0 <= min(len(), 12) or by fieldname.
-    The first three items can be accessed as .x, .y, and .z, respectively.
-    All items can be accessed as .a, .b, .c, ..., .j, .k, .l, respectively,
-    and as .first, .second, .third, ..., .tenth, .eleventh, .twelth,
-    respectively. In addition, for NTuples of length two, the first item can
-    be accessed as .real and the second as .imag or .imaginary.
+    Every item can be accessed by index 0 <= min(len(), 11) or by fieldname.
+    The first three items can also be accessed as attributes .x, .y, and .z,
+    respectively. All items can be accessed as attributes .a, .b, .c, ...,
+    .j, .k, .l, respectively, and as .first, .second, .third, ..., .tenth,
+    .eleventh, .twelth, respectively. In addition, for NTuples of length
+    two, the first item can be accessed as attribute .real and the second as
+    .imag or .imaginary.
     '''
 
     __slots__ = ('_items',)
@@ -514,6 +515,9 @@ class Table:
 
     def __init__(self, *, name=None, fieldnames=None, records=None):
         '''
+        A Table may be created empty, e.g., Table(). However, if records is
+        not None, then both name and fieldnames must be given.
+
         records can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fieldnames) long), or a list of
         lists in which case each list is _assumed_ to be len(fieldnames)
@@ -524,6 +528,11 @@ class Table:
         self.fieldnames = [] if fieldnames is None else fieldnames
         self.records = []
         if records:
+            if not name:
+                raise Error('can\'t create an unnamed nonempty table')
+            if not fieldnames:
+                raise Error(
+                    'can\'t create a nonempty table without field names')
             if isinstance(records, list):
                 if self._Class is None:
                     self._make_class()
