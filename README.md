@@ -47,7 +47,7 @@ number of values in any given row is equal to the number of field names.
     "2022-10-02",4.49,1,"HV2-K9","Hammer, 2lb"
     "2022-10-02",5.89,1,"SX4-D1","Eversure Sealant, 13-floz"
 
-#### UXF equivalent
+#### UXF equivalents
 
 The most obvious translation would be to a `list` of ``list``s:
 
@@ -73,30 +73,12 @@ The most appropriate UXF equivalent is to use a UXF `table`:
       2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
     =]
 
-Notice that the _first_ `table` `str` is the name of the table itself,
-with the rest being the field names. Also note that there's no need to
-group rows into lines (although doing so is common and easier for human
-readability), since the UXF processor will know how many values go
+Notice that the _first_ `table` `str` is the name of the table itself, with
+the following ``str``s being the field names. Then, after the bare `=` that
+separates the names from the values, are the values themselves. There's no
+need to group rows into lines (although doing so is common and easier for
+human readability), since the UXF processor will know how many values go
 into each row based on the number of field names.
-
-Although a ``table``'s names are ``str``s, it is perfectly possible to
-structure the strings to provide extra data for processing applications.
-For example:
-
-    uxf 1.0 Price List
-    [= <Price List> <Date|type date min 2022-01-01>
-       <Price|type money min 0.0 max 999999.0> <Quantity|type int min 0 max 9999>
-       <ID|type str picture A(2)9-A9> <Description> =
-      2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
-      2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
-      2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
-    =]
-
-Here we've used a pipe (`|`) to separate field names from field
-attributes with attributes given as _name value_ pairs. The attributes
-are made up and could be anything you like. Here we've indicated the
-type of each field and for some a minimum value, for others both minimum
-and maximum values, and in one case a COBOL-style picture.
 
 Note that if you need to include `&`, `<` or `>` inside a `str`, you
 must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
@@ -119,7 +101,7 @@ must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
     recent1=/tmp/test2.uxf
     recent2=C:\Users\mark\test3.uxf
 
-#### UXF equivalent
+#### UXF equivalents
 
     uxf 1.0 MyApp 1.2.0 Config
     {
@@ -207,9 +189,9 @@ invoice has an empty description.
 
 What if we wanted to add some extra configuration data to the database?
 
-One solution would be to make the first item in the `list` a `map`,
-with the remainder ``table``s as now. Another solution would be to use a
-`map` for the container, something like:
+One solution would be to make the first item in the `list` a `map`, with the
+remainder ``table``s, as now. Another solution would be to use a `map` for
+the container, something like:
 
     uxf 1.0 MyApp Data
     {
