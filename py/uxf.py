@@ -219,7 +219,7 @@ class _Lexer(_ErrorMixin):
 
     def read_ntuple(self):
         self.pos += 1 # skip the leading : of (:
-        value = self.match_to(':', error_text='unterminated NTuple')
+        value = self.match_to(':', error_text='unterminated ntuple')
         if self.peek() != ')':
             self.error(f'expected \')\', got {self.peek()!r}')
         self.pos += 1 # skip the trailing ) of :)
@@ -401,7 +401,7 @@ class _Kind(enum.Enum):
 
 
 class NTuple:
-    '''Used to store a uxf.NTuple.
+    '''Used to store a UXF ntuple.
 
     A uxf.NTuple holds 2-12 ints or 2-12 floats.
 
@@ -424,9 +424,11 @@ class NTuple:
     (40, 40, 40)
 
     Every item can be accessed by index 0 <= min(len(), 12) or by fieldname.
-    The first three items can be accessed as x, y, and z, respectively.
-    All items can be accessed as a, b, c, ..., j, k, l, respectively, and as
-    first, second, third, ..., tenth, eleventh, twelth, respectively.
+    The first three items can be accessed as .x, .y, and .z, respectively.
+    All items can be accessed as .a, .b, .c, ..., .j, .k, .l, respectively,
+    and as .first, .second, .third, ..., .tenth, .eleventh, .twelth,
+    respectively. In addition, for NTuples of length two, the first item can
+    be accessed as .real and the second as .imag or .imaginary.
     '''
 
     __slots__ = ('_items',)
@@ -478,6 +480,11 @@ class NTuple:
             return self._items[10]
         if name in {'l', 'twelth'}:
             return self._items[11]
+        if len(self._items) == 2:
+            if name == 'real':
+                return self._items[0]
+            elif name in {'imag', 'imaginary'}:
+                return self._items[1]
         raise AttributeError(f'{self.__class__.__name__!r} object has '
                              f'no attribute {name!r}')
 
@@ -491,8 +498,12 @@ class NTuple:
         return f'{self.__class__.__name__}({items})'
 
 
+    def __len__(self):
+        return len(self._items)
+
+
 class Table:
-    '''Used to store a uxf.Table.
+    '''Used to store a UXF table.
 
     A uxf.Table has a list of fieldnames and a records list which is a
     lists of lists with each sublist having the same number of items as
@@ -537,9 +548,9 @@ class Table:
 
     def _make_class(self):
         if not self.name:
-            raise Error('can\'t use an unnamed Table')
+            raise Error('can\'t use an unnamed table')
         if not self.fieldnames:
-            raise Error('can\'t create a Table with no field names')
+            raise Error('can\'t create a table with no field names')
         self._Class = collections.namedtuple(
             _canonicalize(self.name, 'Table'),
             [_canonicalize(name, f'Field{i}')
@@ -548,9 +559,9 @@ class Table:
 
     def __iadd__(self, value):
         if not self.name:
-            raise Error('can\'t append to an unnamed Table')
+            raise Error('can\'t append to an unnamed table')
         if not self.fieldnames:
-            raise Error('can\'t append to a Table with no field names')
+            raise Error('can\'t append to a table with no field names')
         if isinstance(value, (list, tuple)): # or: collections.abc.Sequence?
             for v in value:
                 self.append(v)
@@ -573,6 +584,12 @@ class Table:
     def __str__(self):
         return (f'Table {self.name!r} {self.fieldnames!r} with '
                 f'{len(self.records)} records')
+
+
+    def __repr__(self):
+        return (f'{self.__class__.__name__}(name={self.name!r}, '
+                f'fieldnames={self.fieldnames!r}, '
+                f'records={self.records!r})')
 
 
 def _canonicalize(s, prefix):
@@ -691,7 +708,7 @@ class _Parser(_ErrorMixin):
 
     def _handle_table_name(self, token):
         if token.kind is not _Kind.TABLE_NAME:
-            self.error(f'expected Table name, got {token}')
+            self.error(f'expected table name, got {token}')
         self.stack[-1].name = token.value
         self.states[-1] = _Expect.TABLE_FIELD_NAME
 
@@ -701,7 +718,7 @@ class _Parser(_ErrorMixin):
             self.states[-1] = _Expect.TABLE_VALUE
         else:
             if token.kind is not _Kind.TABLE_FIELD_NAME:
-                self.error(f'expected Table field name, got {token}')
+                self.error(f'expected table field name, got {token}')
             self.stack[-1].append_fieldname(token.value)
 
 
@@ -714,7 +731,7 @@ class _Parser(_ErrorMixin):
                 _Kind.STR, _Kind.BYTES}:
             self.stack[-1] += token.value
         else:
-            self.error('Table values may only be null, bool, int, real, '
+            self.error('table values may only be null, bool, int, real, '
                        f'date, datetime, str, or bytes, got {token}')
 
 
@@ -733,11 +750,11 @@ class _Parser(_ErrorMixin):
 
     def _handle_dict_value(self, token):
         if self._is_collection_start(token.kind):
-            # this adds a new list, dict, or Table to the stack
+            # this adds a new list, dict, or table to the stack
             self._on_collection_start(token.kind)
             # this adds a key-value item to the dict that contains the above
-            # list, dict, or Table, the key being the key acquired earlier,
-            # the value being the new list, dict, or Table
+            # list, dict, or table, the key being the key acquired earlier,
+            # the value being the new list, dict, or table
             self.stack[-2][self.keys[-1]] = self.stack[-1]
         elif self._is_collection_end(token.kind):
             self.states[-1] = _Expect.DICT_KEY
@@ -751,7 +768,7 @@ class _Parser(_ErrorMixin):
 
     def _handle_any_value(self, token):
         if self._is_collection_start(token.kind):
-            # this adds a new list, dict, or Table to the stack
+            # this adds a new list, dict, or table to the stack
             self._on_collection_start(token.kind)
         elif self._is_collection_end(token.kind):
             self.states.pop()
@@ -906,9 +923,11 @@ class _Writer:
         indent += 1
         for record in item:
             self.file.write(pad * indent)
+            sep = ''
             for value in record:
+                self.file.write(sep)
                 self.write_scalar(value, pad=pad)
-                self.file.write(' ')
+                sep = ' '
             self.file.write('\n')
         tab = pad * (indent - 1)
         self.file.write(f'{tab}=]\n')
@@ -939,7 +958,7 @@ class _Writer:
             self.file.write(f'({item.hex().upper()})')
         elif isinstance(item, complex):
             if not self.one_way_conversion:
-                raise Error('can only convert complex to NTuple if '
+                raise Error('can only convert complex to ntuple if '
                             'one_way_conversion is True')
             self.file.write(
                 f'(:{_realstr(item.real)} {_realstr(item.imag)}:)')
