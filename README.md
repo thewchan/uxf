@@ -18,7 +18,7 @@ UXF supports fourteen datatypes.
 |`datetime`  |`2022-04-01T16:11:51` # ISO8601 (timezone support is library dependent)|
 |`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
-|`ntuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc. (For more numbers simply use a `list`.)
+|`ntuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
 |`list`      |`[value1 value2 ... valueN]`|
 |`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
 |`table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
@@ -64,7 +64,7 @@ is the first row data values or column titles? (For software this isn't
 always obvious, for example, if all the values are strings.) Not to mention
 the fact that we have to use a nested `list` of ``list``s.
 
-The most appropriate UXF equivalent is to use a UXF `table`:
+The most _appropriate_ UXF equivalent is to use a UXF `table`:
 
     uxf 1.0 Price List
     [= <Price List> <Date> <Price> <Quantity> <ID> <Description> =
@@ -128,10 +128,7 @@ For configuration data it is often convenient to use ``map``s with name
 keys and data values. In this case the overall data is a `map` which
 contains each configuration section. The values of each of the first two of
 the ``map``'s keys are themselves ``map``s. But for the third key's value
-we use a `table`. Notice that we don't have to explicitly distinguish
-between one row and the next (although it is common to start new rows on new
-lines) since the number of fields (here, two, `kind` and `filename`),
-indicate how many values each row has.
+we use a `table`.
 
 Of course, we can nest as deep as we like and mix ``map``s and ``list``s.
 For example, here's an alternative:
@@ -154,11 +151,11 @@ For example, here's an alternative:
       }
     }
 
-Here, we've moved the _Files_ into _General_ and changed the recent
-files from per-file `map` items into a `list` of filenames. We've also
-changed the _x_, _y_ coordinates and the _width_ and _height_ into `pos` and
-`size` ``ntuple``s. Of course we could have used a single `ntuple`,
-e.g., `<geometry> (:615 252 592 636:)`.
+Here, we've moved the _Files_ into _General_ and changed the _Files_ from a
+`table` to a two-item `map` with the second item being a `list` of
+filenames. We've also changed the _x_, _y_ coordinates and the _width_ and
+_height_ into `pos` and `size` ``ntuple``s. Of course we could have used a
+single `ntuple`, e.g., `<geometry> (:615 252 592 636:)`.
 
 ### Database to UXF
 
