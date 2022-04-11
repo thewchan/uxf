@@ -1,5 +1,5 @@
 py/uxf.py
-py/uxfconvert.py # TODO see below
+py/uxfconvert.py # TODO
 
 README.md
 
@@ -40,14 +40,8 @@ test/expected/test9.uxf
 test/expected/test10.uxf
 test/expected/test11.uxf
 
-# TODO
-# uxfconvert [-z|--compress] [-i|--indent=n]
-#	     <infile.{csv,ini,json,uxf,sqlite,toml,xml,yaml}>
-#	     [<outfile.{csv,ini,json,uxf,sqlite,toml,xml,yaml}>]
-# indent is 0-8
-# some conversions are lossy
-# # need equiv of _Writer?
-
-# uxf.py uxf.rs uxf.cpp uxf.java uxf.rb ...
+# TODO UXF libraries
+# for .js use Dart or TypeScript or similar that can output JS
+# uxf.rs uxf.cpp uxf.java uxf.rb ...
 
 # vim: syn=yaml
