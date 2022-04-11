@@ -12,27 +12,37 @@ The uxf module can be used as an executable. Run
 
 to see the command line help.
 
-uxf's public API provides two functions and three classes.
+uxf's public API provides two functions and five classes.
 
     def read(filename_or_filelike): -> (data, custom_header)
 
-In the returned 2-tuple the data is a dict (i.e., a UXF map), list, or
-uxf.Table, and the custom_header is a (possibly empty) custom string.
+In the returned 2-tuple the data is a Map, List, or Table, and the
+custom_header is a (possibly empty) custom string.
 
     def write(filename_or_filelike, data, custom)
 
 This writes the data (and custom header if supplied) into the given file as
-UXF data. The data must be a single dict, list, or uxf.Table.
+UXF data. The data must be a single Map, dict, List, list, or Table.
 
     class Error
 
 Used to propagate errors (and warnings if warn_is_error is True).
 
+    class List
+
+This is used to represent a UXF list. It is a list subclass that also has a
+.comment attribute.
+
+    class Map
+
+This is used to represent a UXF map. It is a dict subclass that also has a
+.comment attribute.
+
     class Table
 
-Used to store uxf.Tables. A uxf.Table has a list of fieldnames and a records
+Used to store UXF Tables. A Table has a list of fieldnames and a records
 list which is a lists of lists with each sublist having the same number of
-items as the number of fieldnames.
+items as the number of fieldnames. It also has a .comment attribute.
 
     class NTuple
 
@@ -60,7 +70,8 @@ except ImportError:
     isoparse = None
 
 
-__all__ = ('__version__', 'VERSION', 'read', 'write', 'Table', 'NTuple')
+__all__ = ('__version__', 'VERSION', 'read', 'write', 'List', 'Map',
+           'Table', 'NTuple')
 __version__ = '0.9.2' # uxf module version
 VERSION = 1.0 # uxf file format version
 
@@ -69,9 +80,9 @@ UTF8 = 'utf-8'
 
 def read(filename_or_filelike, *, warn_is_error=False):
     '''
-    Returns a 2-tuple, the first item of which is a dict (i.e., a UXF map),
-    list, or uxf.Table containing all the UXF data read. The second item is
-    the custom string (if any) from the file's header.
+    Returns a 2-tuple, the first item of which is a Map, List, or Table
+    containing all the UXF data read. The second item is the custom string
+    (if any) from the file's header.
 
     filename_or_filelike is sys.stdin or a filename or an open readable file
     (text mode UTF-8 encoded).
@@ -189,9 +200,19 @@ class _Lexer(_ErrorMixin):
         elif c == ']':
             self.add_token(_Kind.LIST_END)
         elif c == '{':
-            self.add_token(_Kind.DICT_BEGIN)
+            self.add_token(_Kind.MAP_BEGIN)
         elif c == '}':
-            self.add_token(_Kind.DICT_END)
+            self.add_token(_Kind.MAP_END)
+        elif c == '#':
+            if self.tokens and self.tokens[-1].kind in {
+                    _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN}:
+                if self.peek() != '<':
+                    self.error('a str must follow the # comment '
+                               f'introducer, got {c!r}')
+                self.read_comment()
+            else:
+                self.error('comments may only occur at the start of maps, '
+                           'lists, and tables')
         elif c == '<':
             self.read_string_or_name()
         elif c == '(':
@@ -208,6 +229,12 @@ class _Lexer(_ErrorMixin):
             self.read_const()
         else:
             self.error(f'invalid character encountered: {c!r}')
+
+
+    def read_comment(self):
+        self.pos += 1 # skip the leading <
+        value = self.match_to('>', error_text='unterminated string or name')
+        self.add_token(_Kind.COMMENT, unescape(value))
 
 
     def read_string_or_name(self):
@@ -386,8 +413,9 @@ class _Kind(enum.Enum):
     TABLE_END = enum.auto()
     LIST_BEGIN = enum.auto()
     LIST_END = enum.auto()
-    DICT_BEGIN = enum.auto()
-    DICT_END = enum.auto()
+    MAP_BEGIN = enum.auto()
+    MAP_END = enum.auto()
+    COMMENT = enum.auto()
     NTUPLE = enum.auto()
     NULL = enum.auto()
     BOOL = enum.auto()
@@ -503,17 +531,32 @@ class NTuple:
         return len(self._items)
 
 
+class List(list):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.comment = None
+
+
+class Map(dict):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.comment = None
+
+
 class Table:
     '''Used to store a UXF table.
 
-    A uxf.Table has a list of fieldnames and a records list which is a
-    lists of lists with each sublist having the same number of items as
-    the number of fieldnames.
+    A Table has a list of fieldnames and a records list which is a lists of
+    lists with each sublist having the same number of items as the number of
+    fieldnames. It also has a .comment attribute.
 
-    When a uxf.Table is iterated each row is returned as a namedtuple.
+    When a Table is iterated each row is returned as a namedtuple.
     '''
 
-    def __init__(self, *, name=None, fieldnames=None, records=None):
+    def __init__(self, *, name=None, fieldnames=None, records=None,
+                 comment=None):
         '''
         A Table may be created empty, e.g., Table(). However, if records is
         not None, then both name and fieldnames must be given.
@@ -522,11 +565,14 @@ class Table:
         of lists with each sublist being len(fieldnames) long), or a list of
         lists in which case each list is _assumed_ to be len(fieldnames)
         long.
+
+        comment is an optional str.
         '''
         self.name = name
         self._Class = None
         self.fieldnames = [] if fieldnames is None else fieldnames
         self.records = []
+        self.comment = comment
         if records:
             if not name:
                 raise Error('can\'t create an unnamed nonempty table')
@@ -592,13 +638,13 @@ class Table:
 
     def __str__(self):
         return (f'Table {self.name!r} {self.fieldnames!r} with '
-                f'{len(self.records)} records')
+                f'{len(self.records)} records #{self.comment!r}')
 
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(name={self.name!r}, '
                 f'fieldnames={self.fieldnames!r}, '
-                f'records={self.records!r})')
+                f'records={self.records!r}, comment={self.comment!r})')
 
 
 def _canonicalize(s, prefix):
@@ -639,10 +685,16 @@ class _Parser(_ErrorMixin):
                 break
             self.pos = token.pos
             state = self.states[-1]
+            if state is _Expect.COMMENT:
+                if token.kind is _Kind.COMMENT:
+                    self.stack[-1].comment = token.value
+                    continue
+                self.states.pop() # Didn't get a comment after all
+                state = self.states[-1]
             if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
-                    self.error(f'expected dict (UXF map), list, or '
-                               f'uxf.Table, got {token}')
+                    self.error(f'expected Map, dict, List, list, or '
+                               f'Table, got {token}')
                 self.states.pop() # _Expect.COLLECTION
                 self._on_collection_start(token.kind)
                 data = self.stack[0]
@@ -652,9 +704,9 @@ class _Parser(_ErrorMixin):
                 self._handle_field_name(token)
             elif state is _Expect.TABLE_VALUE:
                 self._handle_table_value(token)
-            elif state is _Expect.DICT_KEY:
+            elif state is _Expect.MAP_KEY:
                 self._handle_map_key(token)
-            elif state is _Expect.DICT_VALUE:
+            elif state is _Expect.MAP_VALUE:
                 self._handle_map_value(token)
             elif state is _Expect.EOF:
                 if token.kind is not _Kind.EOF:
@@ -667,28 +719,27 @@ class _Parser(_ErrorMixin):
 
 
     def _is_collection_start(self, kind):
-        return kind in {_Kind.DICT_BEGIN, _Kind.LIST_BEGIN,
+        return kind in {_Kind.MAP_BEGIN, _Kind.LIST_BEGIN,
                         _Kind.TABLE_BEGIN}
 
 
     def _is_collection_end(self, kind):
-        return kind in {_Kind.DICT_END, _Kind.LIST_END,
+        return kind in {_Kind.MAP_END, _Kind.LIST_END,
                         _Kind.TABLE_END}
 
 
     def _on_collection_start(self, kind):
-        if kind is _Kind.DICT_BEGIN:
-            self.states.append(_Expect.DICT_KEY)
-            self._on_collection_start_helper(dict)
+        if kind is _Kind.MAP_BEGIN:
+            self.states += [_Expect.MAP_KEY, _Expect.COMMENT]
+            self._on_collection_start_helper(Map)
         elif kind is _Kind.LIST_BEGIN:
-            self.states.append(_Expect.ANY_VALUE)
-            self._on_collection_start_helper(list)
+            self.states += [_Expect.ANY_VALUE, _Expect.COMMENT]
+            self._on_collection_start_helper(List)
         elif kind is _Kind.TABLE_BEGIN:
-            self.states.append(_Expect.TABLE_NAME)
+            self.states += [_Expect.TABLE_NAME, _Expect.COMMENT]
             self._on_collection_start_helper(Table)
         else:
-            self.error('expected to create dict (UXF map), list, or '
-                       f'uxf.Table, not {kind}')
+            self.error('expected to create Map, List, or Table, not {kind}')
 
 
     def _on_collection_start_helper(self, Class):
@@ -706,7 +757,7 @@ class _Parser(_ErrorMixin):
             if isinstance(self.stack[-1], list):
                 self.states.append(_Expect.ANY_VALUE)
             elif isinstance(self.stack[-1], dict):
-                self.states.append(_Expect.DICT_KEY)
+                self.states.append(_Expect.MAP_KEY)
             elif isinstance(self.stack[-1], Table):
                 self.states.append(_Expect.TABLE_VALUE)
             else:
@@ -745,16 +796,16 @@ class _Parser(_ErrorMixin):
 
 
     def _handle_map_key(self, token):
-        if token.kind is _Kind.DICT_END:
+        if token.kind is _Kind.MAP_END:
             self._on_collection_end(token)
         elif token.kind in {
                 _Kind.INT, _Kind.DATE, _Kind.DATE_TIME,
                 _Kind.STR, _Kind.BYTES}:
             self.keys.append(token.value)
-            self.states[-1] = _Expect.DICT_VALUE
+            self.states[-1] = _Expect.MAP_VALUE
         else:
-            self.error('dict (UXF map) keys may only be int, date, '
-                       f'datetime, str, or bytes, got {token}')
+            self.error('Map keys may only be int, date, datetime, str, '
+                       f'or bytes, got {token}')
 
 
     def _handle_map_value(self, token):
@@ -766,12 +817,12 @@ class _Parser(_ErrorMixin):
             # the value being the new list, map, or table
             self.stack[-2][self.keys[-1]] = self.stack[-1]
         elif self._is_collection_end(token.kind):
-            self.states[-1] = _Expect.DICT_KEY
+            self.states[-1] = _Expect.MAP_KEY
             self.stack.pop()
             if self.stack and isinstance(self.stack[-1], dict):
                 self.keys.pop()
         else: # a scalar
-            self.states[-1] = _Expect.DICT_KEY
+            self.states[-1] = _Expect.MAP_KEY
             self.stack[-1][self.keys.pop()] = token.value
 
 
@@ -781,8 +832,8 @@ class _Parser(_ErrorMixin):
             self._on_collection_start(token.kind)
         elif self._is_collection_end(token.kind):
             self.states.pop()
-            if self.states and self.states[-1] is _Expect.DICT_VALUE:
-                self.states[-1] = _Expect.DICT_KEY
+            if self.states and self.states[-1] is _Expect.MAP_VALUE:
+                self.states[-1] = _Expect.MAP_KEY
             self.stack.pop()
         else: # a scalar
             self.stack[-1].append(token.value)
@@ -791,12 +842,13 @@ class _Parser(_ErrorMixin):
 @enum.unique
 class _Expect(enum.Enum):
     COLLECTION = enum.auto()
-    DICT_KEY = enum.auto()
-    DICT_VALUE = enum.auto()
+    MAP_KEY = enum.auto()
+    MAP_VALUE = enum.auto()
     ANY_VALUE = enum.auto()
     TABLE_NAME = enum.auto()
     TABLE_FIELD_NAME = enum.auto()
     TABLE_VALUE = enum.auto()
+    COMMENT = enum.auto()
     EOF = enum.auto()
 
 
@@ -806,8 +858,8 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded).
 
-    data is a list, dict (i.e., UXF map), or uxf.Table that this function
-    will write to the filename_or_filelike in UXF format.
+    data is a Map, dict, List, list, or Table that this function will write
+    to the filename_or_filelike in UXF format.
 
     custom is an optional short user string (with no newlines), e.g., a file
     type description.
@@ -819,7 +871,7 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
 
     Set one_way_conversion to True to convert bytearray items to bytes,
     complex items to uxf.NTuples, and sets, frozensets, tuples, and
-    collections.deques to lists rather than raise an Error.
+    collections.deques to Lists rather than raise an Error.
     '''
     pad = ' ' * indent
     close = False
@@ -857,7 +909,7 @@ class _Writer:
             if self.one_way_conversion:
                 item = list(item)
             else:
-                raise Error(f'can only convert {type(item)} to list if '
+                raise Error(f'can only convert {type(item)} to List if '
                             'one_way_conversion is True')
         if isinstance(item, list):
             return self.write_list(item, indent, pad=pad,
@@ -874,10 +926,14 @@ class _Writer:
 
     def write_list(self, item, indent=0, *, pad, map_value=False):
         tab = '' if map_value else pad * indent
+        comment = getattr(item, 'comment', None)
         if len(item) == 0:
-            self.file.write(f'{tab}[]\n')
+            self.file.write(f'{tab}[]\n' if comment is None else
+                            f'{tab}[#<{escape(comment)}>]\n')
         else:
             self.file.write(f'{tab}[')
+            if comment is not None:
+                self.file.write(f'#<{escape(comment)}>')
             indent += 1
             is_scalar = _is_scalar(item[0])
             if is_scalar:
@@ -896,17 +952,22 @@ class _Writer:
 
     def write_map(self, item, indent=0, *, pad, map_value=False):
         tab = '' if map_value else pad * indent
+        comment = getattr(item, 'comment', None)
         if len(item) == 0:
-            self.file.write(f'{tab}{{}}\n')
+            self.file.write(f'{tab}{{}}\n' if comment is None else
+                            f'{tab}{{#<{escape(comment)}>}}\n')
         elif len(item) == 1:
             self.file.write(f'{tab}{{')
+            if comment is not None:
+                self.file.write(f'#<{escape(comment)}>')
             key, value = list(item.items())[0]
             self.write_scalar(key, 1, pad=' ')
             self.file.write(' ')
             self.write_value(value, 1, pad=' ', map_value=True)
             self.file.write('}\n')
         else:
-            self.file.write(f'{tab}{{\n')
+            self.file.write(f'{tab}{{\n' if comment is None else
+                            f'{tab}{{#<{escape(comment)}>\n')
             indent += 1
             for key, value in item.items():
                 self.write_scalar(key, indent, pad=pad)
@@ -921,7 +982,11 @@ class _Writer:
 
     def write_table(self, item, indent=0, *, pad, map_value=False):
         tab = '' if map_value else pad * indent
-        self.file.write(f'{tab}[= <{escape(item.name)}>')
+        comment = getattr(item, 'comment', None)
+        self.file.write(f'{tab}[=')
+        self.file.write(' ' if comment is None else
+                        f'#<{escape(comment)}> ')
+        self.file.write(f'<{escape(item.name)}>')
         for name in item.fieldnames:
             self.file.write(f' <{escape(name)}>')
         if len(item) == 0:

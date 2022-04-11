@@ -33,6 +33,9 @@ A `table` starts with a table name, then field names, then values. The
 number of values in any given row is equal to the number of field names.
 (See the examples below).
 
+Maps, lists, and tables may begin with a comment (see examples below and the
+BNF at the end).
+
 ## Examples
 
 ### Minimal empty UXF
@@ -136,16 +139,17 @@ For example, here's an alternative:
 
     uxf 1.0 MyApp 1.2.0 Config
     {
-      <General> {
+      <General> {#<Miscellaneous settings>
         <shapename> <Hexagon>
         <zoom> 150
         <showtoolbar> no
         <Files> {
           <current> <test1.uxf>
-          <recent> [</tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
+          <recent> [#<From most to least recent>
+	  </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
-      <Window> {
+      <Window> {#<Window dimensions and scale>
         <pos> (:615 252:)
         <size> (:592 636:)
         <scale> 1.1
@@ -159,13 +163,16 @@ _height_ into items with `pos` and `size` keys and `ntuple` values. Of
 course we could have used a single item with an `ntuple` value, e.g.,
 `<geometry> (:615 252 592 636:)`.
 
+Comments may be added at the start of any `map`, `list`, or `table`. Here
+we've added some (pretty useless) comments to two ``map``s and a `list`.
+
 ### Database to UXF
 
 A database normally consists of one or more tables. A UXF equivalent using
 a `list` of ``table``s is easily made.
 
     uxf 1.0 MyApp Data
-    [
+    [#<There is a 1:M relationship between the Invoices and Items tables>
       [= <Customers> <CID> <Company> <Address> <Contact> <Email> =
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
@@ -182,6 +189,7 @@ a `list` of ``table``s is easily made.
     ]
 
 Here we have a `list` of ``table``s representing three database tables.
+The `list` begins with a comment.
 
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
@@ -270,11 +278,12 @@ optional `map`, `list`, or `table`.
     UXF      ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DATA     ::= (MAP | LIST | TABLE)
-    MAP      ::= '{' OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
-    LIST     ::= '[' OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
-    TABLE    ::= '[=' (OWS STR){2,} '=' (RWS VALUE)* '=]'
+    MAP      ::= '{' COMMENT? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
+    LIST     ::= '[' COMMENT? OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
+    TABLE    ::= '[=' COMMENT? (OWS STR){2,} '=' (RWS VALUE)* '=]'
     NTUPLE   ::= '(:' (OWS INT) (RWS INT){1,11} OWS ':)'   # 2-12 ints or
               |  '(:' (OWS REAL) (RWS REAL){1,11} OWS ':)' # 2-12 floats
+    COMMENT  ::= OWS '#' STR
     KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
     ANYVALUE ::= (VALUE | LIST | MAP | TABLE | NTUPLE)
     VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES)
