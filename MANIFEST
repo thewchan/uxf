@@ -1,5 +1,5 @@
 py/uxf.py
-py/uxfconvert.py # TODO
+py/uxfconvert.py # TODO (2)
 
 README.md
 
@@ -9,7 +9,7 @@ misc/md2html.sh
 test/regression.py
 
 setup.py
-uxf.vim # for syntax/uxf.vim TODO use test7.uxf
+uxf.vim # for syntax/uxf.vim TODO (1) use test7.uxf
 
 pypi.sh
 st.sh
@@ -41,7 +41,7 @@ test/expected/test9.uxf
 test/expected/test10.uxf
 test/expected/test11.uxf
 
-# TODO UXF libraries
+# TODO (3) UXF libraries
 # for .js use Dart or TypeScript or similar that can output JS
 # uxf.rs uxf.cpp uxf.java uxf.rb ...
 
