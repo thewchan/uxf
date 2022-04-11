@@ -32,6 +32,6 @@ alternative to csv, ini, json, sqlite, toml, xml, or yaml.',
         ],
     package_dir={'': 'py'},
     py_modules=['uxf'],
-    scripts=['py/uxfconvert'],
+    scripts=['py/uxfconvert.py'],
     python_requires='>=3.8',
     )
