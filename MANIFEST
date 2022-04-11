@@ -9,7 +9,7 @@ misc/md2html.sh
 test/regression.py
 
 setup.py
-uxf.vim # for syntax/uxf.vim TODO
+uxf.vim # for syntax/uxf.vim TODO use test7.uxf
 
 pypi.sh
 st.sh
