@@ -164,7 +164,7 @@ course we could have used a single item with an `ntuple` value, e.g.,
 `<geometry> (:615 252 592 636:)`.
 
 Comments may be added at the start of any `map`, `list`, or `table`. Here
-we've added some (pretty useless) comments to two ``map``s and a `list`.
+we've added some example comments to two ``map``s and a `list`.
 
 ### Database to UXF
 
@@ -235,9 +235,13 @@ Most Python types map losslessly to and from UXF types. In particular:
 |`str`               | `str`      |
 |`bytes`             | `bytes`    |
 |`uxf.NTuple`        | `ntuple`   |
-|`list`              | `list`     |
-|`dict`              | `map`      |
+|`uxf.List`          | `list`     |
+|`uxf.Map`           | `map`      |
 |`uxf.Table`         | `table    `|
+
+A `uxf.List` is a Python `list` subclass with a `.comment` attribute.
+Similarly a `uxf.Map` is a Python `dict` subclass with a `.comment`
+attribute. And the `uxf.Table` class also has a `.comment` attribute.
 
 If `one_way_conversion` is `False` then any other Python type passed in the
 data passed to `write()` will produce an error.
@@ -245,14 +249,14 @@ data passed to `write()` will produce an error.
 If `one_way_conversion` is `True` then the following conversions are applied
 when converting to UXF data:
 
-|**Python Type (in)**|**UXF type/Python Type (out)**|
+|**Python Type (in)**|**UXF type / Python Type (out)**|
 |--------------------|-------------|
 |`bytearray`         | `bytes`     |
-|`complex`           | `ntuple`/`uxf.NTuple` _# with two items_|
-|`set`               | `list`      |
-|`frozenset`         | `list`      |
-|`tuple`             | `list`      |
-|`collections.deque` | `list`      |
+|`complex`           | `ntuple` / `uxf.NTuple` _# with two items_|
+|`set`               | `list` / `uxf.List` |
+|`frozenset`         | `list` / `uxf.List` |
+|`tuple`             | `list` / `uxf.List` |
+|`collections.deque` | `list` / `uxf.List` |
 
 If you have _lots_ of `complex` numbers it may be more compact and
 convenient to store them in a two-field table, something like `[=
