@@ -343,5 +343,12 @@ _or_ gzipped plain text `.uxf` file containing UTF-8 encoded text.
 Note also that UXF readers and writers should not care about the actual file
 extension since users are free to use their own.
 
-UXF logo ![uxf logo](uxf.svg)
+## Vim Support
 
+If you use the vim editor, simple color syntax highlighting is available.
+Copy `uxf.vim` into your `$VIM/syntax/` folder and add this line (or
+similar) to your `.vimrc` or `.gvimrc` file:
+
+    au BufRead,BufNewFile,BufEnter *.uxf set expandtab|set tabstop=2|set softtabstop=2|set shiftwidth=2|set ft=uxf
+
+UXF logo ![uxf logo](uxf.svg)
