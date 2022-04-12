@@ -12,7 +12,7 @@ The uxf module can be used as an executable. Run
 
 to see the command line help.
 
-uxf's public API provides two functions and five classes.
+uxf's public API provides three free functions and five classes.
 
     def read(filename_or_filelike): -> (data, custom_header)
 
@@ -23,6 +23,13 @@ custom_header is a (possibly empty) custom string.
 
 This writes the data (and custom header if supplied) into the given file as
 UXF data. The data must be a single Map, dict, List, list, or Table.
+
+    def naturalize(s)
+
+This takes a str and returns a bool or datetime.datetime or datetime.date or
+int or float if any of these can be parsed, otherwise returns the original
+string s. This is provided as a helper function (e.g., it is used by
+uxfconvert.py).
 
     class Error
 
@@ -70,8 +77,8 @@ except ImportError:
     isoparse = None
 
 
-__all__ = ('__version__', 'VERSION', 'read', 'write', 'List', 'Map',
-           'Table', 'NTuple')
+__all__ = ('__version__', 'VERSION', 'read', 'write', 'naturalize', 'List',
+           'Map', 'Table', 'NTuple')
 __version__ = '0.9.6' # uxf module version
 VERSION = 1.0 # uxf file format version
 
@@ -1067,6 +1074,38 @@ def _is_scalar(x):
     return x is None or isinstance(
         x, (bool, int, float, datetime.date, datetime.datetime, str, bytes,
             bytearray))
+
+
+def naturalize(s):
+    '''Given string s returns True or False if the string is 't', 'true',
+    'y', 'yes', 'f', 'false', 'n', 'no' (case-insensitive), or a
+    datetime.datetime if s holds a parsable ISO8601 datetime string, or a
+    datetime.date if s holds a parsable ISO8601 date string, or an int if s
+    holds a parsable int, or a float if s holds a parsable float, or failing
+    these returns the string s unchanged.
+    '''
+    us = s.upper()
+    if us in {'T', 'TRUE', 'Y', 'YES'}:
+        return True
+    if us in {'F', 'FALSE', 'N', 'NO'}:
+        return False
+    try:
+        if isoparse is not None and 'T' in s:
+            return isoparse(s)
+        return datetime.datetime.fromisoformat(s)
+    except ValueError:
+        try:
+            if isoparse is not None:
+                return isoparse(s).date()
+            return datetime.date.fromisoformat(s)
+        except ValueError:
+            try:
+                return int(s)
+            except ValueError:
+                try:
+                    return float(s)
+                except ValueError:
+                    return s
 
 
 if __name__ == '__main__':

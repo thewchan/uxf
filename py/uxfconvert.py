@@ -116,33 +116,12 @@ def _read_csv_to_data(config):
                     continue
                 else:
                     data = []
-            row = [naturalize(x) for x in row]
+            row = [uxf.naturalize(x) for x in row]
             if isinstance(data, uxf.Table):
                 data += row
             else:
                 data.append(row)
     return data, filename
-
-
-def naturalize(x):
-    ux = x.upper()
-    if ux in {'T', 'TRUE', 'Y', 'YES'}:
-        return True
-    if ux in {'F', 'FALSE', 'N', 'NO'}:
-        return False
-    try:
-        return datetime.datetime.fromisoformat(x)
-    except ValueError:
-        try:
-            return datetime.date.fromisoformat(x)
-        except ValueError:
-            try:
-                return int(x)
-            except ValueError:
-                try:
-                    return float(x)
-                except ValueError:
-                    return x
 
 
 def multi_csv_to_uxf(config):
