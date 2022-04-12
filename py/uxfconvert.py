@@ -83,9 +83,10 @@ def uxf_to_csv(config):
             writer.writerow(data.fieldnames)
             for row in data:
                 writer.writerow(row)
-    elif (isinstance(data, list) and data and
-            isinstance(data[0], list) and data[0] and not
-            isinstance(data[0][0], (dict, list, uxf.Table))):
+    elif (isinstance(data, (list, uxf.List)) and data and
+            isinstance(data[0], (list, uxf.List)) and data[0] and not
+            isinstance(data[0][0], (dict, list, uxf.Map, uxf.List,
+                                    uxf.Table))):
         with open(config.outfile, 'w') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             for row in data:

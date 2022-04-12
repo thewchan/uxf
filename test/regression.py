@@ -82,7 +82,7 @@ def compare(cmd, infile, actual, expected):
         else:
             print(f'{cmd}: {infile} FAIL {expected} != {actual}')
     except FileNotFoundError:
-            print(f'{cmd}: {infile} FAIL missing: {expected}')
+        print(f'{cmd}: {infile} FAIL missing: {expected}')
     return 0
 
 

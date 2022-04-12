@@ -30,13 +30,13 @@ Used to propagate errors (and warnings if warn_is_error is True).
 
     class List
 
-This is used to represent a UXF list. It is a list subclass that also has a
-.comment attribute.
+This is used to represent a UXF list. It is a collections.UserList subclass
+that also has a .comment attribute.
 
     class Map
 
-This is used to represent a UXF map. It is a dict subclass that also has a
-.comment attribute.
+This is used to represent a UXF map. It is a collections.UserDict subclass
+that also has a .comment attribute.
 
     class Table
 
@@ -536,14 +536,14 @@ class NTuple:
         return len(self._items)
 
 
-class List(list):
+class List(collections.UserList):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.comment = None
 
 
-class Map(dict):
+class Map(collections.UserDict):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -748,7 +748,7 @@ class _Parser(_ErrorMixin):
 
 
     def _on_collection_start_helper(self, Class):
-        if self.stack and isinstance(self.stack[-1], list):
+        if self.stack and isinstance(self.stack[-1], (list, List)):
             self.stack[-1].append(Class())
             self.stack.append(self.stack[-1][-1])
         else:
@@ -759,9 +759,9 @@ class _Parser(_ErrorMixin):
         self.states.pop()
         self.stack.pop()
         if self.stack:
-            if isinstance(self.stack[-1], list):
+            if isinstance(self.stack[-1], (list, List)):
                 self.states.append(_Expect.ANY_VALUE)
-            elif isinstance(self.stack[-1], dict):
+            elif isinstance(self.stack[-1], (dict, Map)):
                 self.states.append(_Expect.MAP_KEY)
             elif isinstance(self.stack[-1], Table):
                 self.states.append(_Expect.TABLE_VALUE)
@@ -824,7 +824,7 @@ class _Parser(_ErrorMixin):
         elif self._is_collection_end(token.kind):
             self.states[-1] = _Expect.MAP_KEY
             self.stack.pop()
-            if self.stack and isinstance(self.stack[-1], dict):
+            if self.stack and isinstance(self.stack[-1], (dict, Map)):
                 self.keys.pop()
         else: # a scalar
             self.states[-1] = _Expect.MAP_KEY
@@ -916,10 +916,10 @@ class _Writer:
             else:
                 raise Error(f'can only convert {type(item)} to List if '
                             'one_way_conversion is True')
-        if isinstance(item, list):
+        if isinstance(item, (list, List)):
             return self.write_list(item, indent, pad=pad,
                                    map_value=map_value)
-        if isinstance(item, dict):
+        if isinstance(item, (dict, Map)):
             return self.write_map(item, indent, pad=pad,
                                   map_value=map_value)
         if isinstance(item, Table):

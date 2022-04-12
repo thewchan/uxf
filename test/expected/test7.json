@@ -1,33 +1,38 @@
 {
   "General": {
-    "saved": {
-      "UXF:date": "2022-03-21"
-    },
-    "autosave": true,
-    "historysize": -35,
-    "volume": 0.7,
-    "files": {
-      "UXF:table": {
-        "comment": "Table comment",
-        "name": "Files",
-        "fieldnames": [
-          "kind",
-          "filename"
-        ],
-        "records": [
-          [
-            "current",
-            "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-          ],
-          [
-            "recent1",
-            "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-          ],
-          [
-            "recent2",
-            "/home/mark/data/playlists-all.tlm"
-          ]
-        ]
+    "UXF:map": {
+      "comment": "Map comment",
+      "map": {
+        "saved": {
+          "UXF:date": "2022-03-21"
+        },
+        "autosave": true,
+        "historysize": -35,
+        "volume": 0.7,
+        "files": {
+          "UXF:table": {
+            "comment": "Table comment",
+            "name": "Files",
+            "fieldnames": [
+              "kind",
+              "filename"
+            ],
+            "records": [
+              [
+                "current",
+                "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+              ],
+              [
+                "recent1",
+                "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+              ],
+              [
+                "recent2",
+                "/home/mark/data/playlists-all.tlm"
+              ]
+            ]
+          }
+        }
       }
     }
   },
@@ -54,22 +59,27 @@
       1,
       false
     ],
-    "Nested List of Lists": [
-      [
-        5,
-        "Classical",
-        true
-      ],
-      [
-        4,
-        "Modern Instrumental",
-        false
-      ],
-      [
-        1,
-        "New Acquistions",
-        false
-      ]
-    ]
+    "Nested List of Lists": {
+      "UXF:list": {
+        "comment": "List comment",
+        "list": [
+          [
+            5,
+            "Classical",
+            true
+          ],
+          [
+            4,
+            "Modern Instrumental",
+            false
+          ],
+          [
+            1,
+            "New Acquistions",
+            false
+          ]
+        ]
+      }
+    }
   }
 }
