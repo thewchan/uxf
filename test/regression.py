@@ -93,7 +93,7 @@ def cleanup():
     if os.path.exists('actual'):
         for name in os.listdir('actual'):
             name = f'actual/{name}'
-            if os.path.isfile(name) and name.endswith('.uxf'):
+            if os.path.isfile(name):
                 os.remove(name)
     else:
         os.mkdir('actual')
