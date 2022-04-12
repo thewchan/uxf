@@ -51,12 +51,15 @@ def test_uxf(uxf, uxffiles):
 
 def test_uxfconvert(uxfconvert, uxffiles, total, ok):
     files = [(name, name.replace('.uxf', '.json')) for name in uxffiles]
-    files += [('test1.uxf', 'test1.csv'), ('test2.uxf', 'test2.csv')]
+    files += [('test1.uxf', 'test1.csv'), ('test2.uxf', 'test2.csv'),
+              ('0.csv', '0.uxf'), ('1.csv', '1.uxf')]
     # TODO add tests for ini, sqlite, and xml
     for infile, outfile in files:
         total += 1
         actual = f'actual/{outfile}'
-        reply = subprocess.call([uxfconvert, infile, actual])
+        args = ([uxfconvert, '-f', infile, actual] if infile == '1.csv' else
+                [uxfconvert, infile, actual])
+        reply = subprocess.call(args)
         if reply != 0:
             print(f'uxfconvert: {infile} FAIL could not output {actual}')
         else:
@@ -65,11 +68,11 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok):
     total += 1
     actual = 'actual/1-2-csv.uxf'
     infile = '1.csv 2.csv'
-    reply = subprocess.call([uxfconvert, '1.csv', '2.csv', actual])
+    reply = subprocess.call([uxfconvert, '-f', '1.csv', '2.csv', actual])
     if reply != 0:
         print(f'uxfconvert: {infile} FAIL could not output {actual}')
     else:
-        expected = f'expected/{outfile}'
+        expected = 'expected/1-2-csv.uxf'
         ok += compare('uxfconvert', infile, actual, expected)
     return total, ok
 

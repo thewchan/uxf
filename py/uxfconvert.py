@@ -6,6 +6,7 @@ import argparse
 import csv
 import datetime
 import json
+import pathlib
 
 import uxf
 
@@ -21,7 +22,7 @@ def get_config():
                         help='default: 2, range 0-8')
     parser.add_argument('-z', '--compress', help='default: don\'t compress')
     parser.add_argument(
-        '-f', '--fieldnames',
+        '-f', '--fieldnames', action='store_true',
         help='if present first row is assumed to be field names; default: '
         'first row is values not fieldnames (only applies to csv infiles)')
     parser.add_argument('file', nargs='+',
@@ -97,44 +98,71 @@ def uxf_to_csv(config):
 
 
 def csv_to_uxf(config):
-    print('csv_to_uxf', config) # TODO
+    data, filename = _read_csv_to_data(config)
+    uxf.write(config.outfile, data=data, custom=filename,
+              one_way_conversion=True)
+
+
+def _read_csv_to_data(config):
+    data = None
+    filename = config.infiles[0]
+    with open(filename) as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if data is None:
+                if config.fieldnames:
+                    data = uxf.Table(name=pathlib.Path(filename).stem,
+                                     fieldnames=list(row))
+                    continue
+                else:
+                    data = []
+            row = [_classify(x) for x in row]
+            if isinstance(data, uxf.Table):
+                data += row
+            else:
+                data.append(row)
+    return data, filename
+
+
+def _classify(x):
+    ux = x.upper()
+    if ux in {'T', 'TRUE', 'Y', 'YES'}:
+        return True
+    if ux in {'F', 'FALSE', 'N', 'NO'}:
+        return False
+    try:
+        return datetime.datetime.fromisoformat(x)
+    except ValueError:
+        try:
+            return datetime.date.fromisoformat(x)
+        except ValueError:
+            try:
+                return int(x)
+            except ValueError:
+                try:
+                    return float(x)
+                except ValueError:
+                    return x
 
 
 def multi_csv_to_uxf(config):
-    print('multi_csv_to_uxf', config) # TODO
+    infiles = config.infiles
+    data = []
+    for infile in infiles:
+        config.infiles = [infile]
+        datum, _ = _read_csv_to_data(config)
+        data.append(datum)
+    uxf.write(config.outfile, data=data, custom=' '.join(infiles),
+              one_way_conversion=True)
 
 
 def uxf_to_json(config):
     data, _ = uxf.read(config.infiles[0])
     with open(config.outfile, 'wt', encoding='utf-8') as file:
-        json.dump(data, file, cls=JsonEncoder, indent=2)
+        json.dump(data, file, cls=_JsonEncoder, indent=2)
 
 
-def json_to_uxf(config):
-    print('json_to_uxf', config) # TODO
-
-
-def uxf_to_sqlite(config):
-    print('uxf_to_sqlite', config) # TODO
-
-
-def uxf_to_xml(config):
-    print('uxf_to_xml', config) # TODO
-
-
-def ini_to_uxf(config):
-    print('ini_to_uxf', config) # TODO
-
-
-def sqlite_to_uxf(config):
-    print('sqlite_to_uxf', config) # TODO
-
-
-def xml_to_uxf(config):
-    print('xml_to_uxf', config) # TODO
-
-
-class JsonEncoder(json.JSONEncoder):
+class _JsonEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
@@ -160,6 +188,30 @@ class JsonEncoder(json.JSONEncoder):
                 comment=obj.comment, name=obj.name,
                 fieldnames=obj.fieldnames, records=obj.records)}
         return json.JSONEncoder.default(self, obj)
+
+
+def json_to_uxf(config):
+    print('json_to_uxf', config) # TODO
+
+
+def ini_to_uxf(config):
+    print('ini_to_uxf', config) # TODO
+
+
+def uxf_to_sqlite(config):
+    print('uxf_to_sqlite', config) # TODO
+
+
+def sqlite_to_uxf(config):
+    print('sqlite_to_uxf', config) # TODO
+
+
+def uxf_to_xml(config):
+    print('uxf_to_xml', config) # TODO
+
+
+def xml_to_uxf(config):
+    print('xml_to_uxf', config) # TODO
 
 
 USAGE = '''
