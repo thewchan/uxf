@@ -349,6 +349,6 @@ If you use the vim editor, simple color syntax highlighting is available.
 Copy `uxf.vim` into your `$VIM/syntax/` folder and add this line (or
 similar) to your `.vimrc` or `.gvimrc` file:
 
-    au BufRead,BufNewFile,BufEnter *.uxf set expandtab|set tabstop=2|set softtabstop=2|set shiftwidth=2|set ft=uxf
+    au BufRead,BufNewFile,BufEnter *.uxf set ft=uxf|set expandtab|set tabstop=2|set softtabstop=2|set shiftwidth=2
 
 UXF logo ![uxf logo](uxf.svg)

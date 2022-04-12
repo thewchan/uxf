@@ -32,23 +32,6 @@ test/0.csv
 test/1.csv
 test/2.csv
 
-test/expected/test0.uxf
-test/expected/test1.uxf
-test/expected/test2.uxf
-test/expected/test3.uxf
-test/expected/test4.uxf
-test/expected/test5.uxf
-test/expected/test6.uxf
-test/expected/test7.uxf
-test/expected/test8.uxf
-test/expected/test9.uxf
-test/expected/test10.uxf
-test/expected/test11.uxf
-test/expected/test12.uxf
-test/expected/test13.uxf
-test/expected/0.uxf
-test/expected/1.uxf
-
 # TODO (2) UXF libraries
 # for .js use Dart or TypeScript or similar that can output JS
 # uxf.rs uxf.cpp uxf.java uxf.rb ...
