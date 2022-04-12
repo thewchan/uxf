@@ -79,7 +79,7 @@ def uxf_to_csv(config):
     data, _ = uxf.read(config.infiles[0])
     if isinstance(data, uxf.Table):
         with open(config.outfile, 'w') as file:
-            writer = csv.writer(file)
+            writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             writer.writerow(data.fieldnames)
             for row in data:
                 writer.writerow(row)
@@ -87,12 +87,20 @@ def uxf_to_csv(config):
             isinstance(data[0], list) and data[0] and not
             isinstance(data[0][0], (dict, list, uxf.Table))):
         with open(config.outfile, 'w') as file:
-            writer = csv.writer(file)
+            writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             for row in data:
                 writer.writerow(row)
     else:
         raise SystemExit('can only convert a UXF containing a single table '
                          'or a single list of lists of scalars to csv')
+
+
+def csv_to_uxf(config):
+    print('csv_to_uxf', config) # TODO
+
+
+def multi_csv_to_uxf(config):
+    print('multi_csv_to_uxf', config) # TODO
 
 
 def uxf_to_json(config):
@@ -101,36 +109,28 @@ def uxf_to_json(config):
         json.dump(data, file, cls=JsonEncoder, indent=2)
 
 
+def json_to_uxf(config):
+    print('json_to_uxf', config) # TODO
+
+
 def uxf_to_sqlite(config):
-    print('uxf_to_sqlite', config)
+    print('uxf_to_sqlite', config) # TODO
 
 
 def uxf_to_xml(config):
-    print('uxf_to_xml', config)
-
-
-def csv_to_uxf(config):
-    print('csv_to_uxf', config)
-
-
-def multi_csv_to_uxf(config):
-    print('multi_csv_to_uxf', config)
+    print('uxf_to_xml', config) # TODO
 
 
 def ini_to_uxf(config):
-    print('ini_to_uxf', config)
-
-
-def json_to_uxf(config):
-    print('json_to_uxf', config)
+    print('ini_to_uxf', config) # TODO
 
 
 def sqlite_to_uxf(config):
-    print('sqlite_to_uxf', config)
+    print('sqlite_to_uxf', config) # TODO
 
 
 def xml_to_uxf(config):
-    print('xml_to_uxf', config)
+    print('xml_to_uxf', config) # TODO
 
 
 class JsonEncoder(json.JSONEncoder):

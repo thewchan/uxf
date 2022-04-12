@@ -3,10 +3,10 @@ py/uxfconvert.py # TODO (1)
 
 README.md
 
+test/regression.py # TODO
+
 misc/epd2uxf.py
 misc/md2html.sh
-
-test/regression.py
 
 setup.py
 uxf.vim
