@@ -10,7 +10,6 @@ import uxf
 
 def main():
     config = get_config()
-    print(config)
 
 
 def get_config():
@@ -72,6 +71,50 @@ def get_config():
         parser.error('cannot perform the requested conversion')
     del config.file
     return config
+
+
+def uxf_to_csv(config):
+    pass
+
+
+def uxf_to_ini(config):
+    pass
+
+
+def uxf_to_json(config):
+    pass
+
+
+def uxf_to_sqlite(config):
+    pass
+
+
+def uxf_to_xml(config):
+    pass
+
+
+def csv_to_uxf(config):
+    pass
+
+
+def multi_csv_to_uxf(config):
+    pass
+
+
+def ini_to_uxf(config):
+    pass
+
+
+def json_to_uxf(config):
+    pass
+
+
+def sqlite_to_uxf(config):
+    pass
+
+
+def xml_to_uxf(config):
+    pass
 
 
 @enum.unique
