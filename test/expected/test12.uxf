@@ -1,17 +1,17 @@
 uxf 1.0 TLM Config
 {
-  <General> {#<Various configuration items>
+  <General> { #<Various configuration items>
     <saved> 2022-03-21
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> [=#<Another little comment> <Files> <kind> <filename> =
+    <files> [= #<Another little comment> <Files> <kind> <filename> =
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
     =]
   }
-  <Window> {#<Some numbers>
+  <Window> { #<Some numbers>
     <pos> (:383 124:)
     <size> (:590 536:)
     <scale> 1.1
@@ -20,16 +20,16 @@ uxf 1.0 TLM Config
   (:172 16 254 1:)  (:192 0 2 235:)  (:127 0 0 1:) ]
  <red> (:255 0 0:) <semi-transparent blue> (:0 0 255 80:)]
   <Magic> (1F8B)
-  <Nested Map> {#<Another comment this time in a nested map>
+  <Nested Map> { #<Another comment this time in a nested map>
     <Classical> [5 yes]
     <Modern Instrumental> [4 no]
     <New Acquistions> [1 no]
-    <Nested List of Lists> [#<Just a little list>
+    <Nested List of Lists> [ #<Just a little list>
       [5 <Classical> yes]
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> no]
     ]
-    <Nested Table> [=#<A table with a rather long comment just to
+    <Nested Table> [= #<A table with a rather long comment just to
 show what can be done.> <Categories> <CID> <Title> <Selected> =
       5 <Classical> yes
       4 <Modern Instrumental> no
@@ -39,7 +39,7 @@ show what can be done.> <Categories> <CID> <Title> <Selected> =
       7 <Uncategorized> no
       6 <Unpopular Pop> no
     =]
-    <Nested List of Tables> [#<Yet another comment in a list>
+    <Nested List of Tables> [ #<Yet another comment in a list>
       [= <Categories> <CID> <Title> <Selected> =
         5 <Classical> yes
         4 <Modern Instrumental> no
@@ -49,8 +49,7 @@ show what can be done.> <Categories> <CID> <Title> <Selected> =
         7 <Uncategorized> no
         6 <Unpopular Pop> no
       =]
-      [=#<Comments may appear at the beginning of any list,
-		     map or table> <Playlists> <PID> <Title> <CID> <Selected> =
+      [= #<Comments may appear at the beginning of any list, map or table> <Playlists> <PID> <Title> <CID> <Selected> =
         4 <ABBA> 2 no
         38 <Bach> 5 no
         39 <Bartok> 5 no

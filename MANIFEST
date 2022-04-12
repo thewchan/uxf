@@ -27,6 +27,7 @@ test/test9.uxf
 test/test10.uxf
 test/test11.uxf
 test/test12.uxf
+test/test13.uxf
 
 test/expected/test0.uxf
 test/expected/test1.uxf
@@ -40,6 +41,8 @@ test/expected/test8.uxf
 test/expected/test9.uxf
 test/expected/test10.uxf
 test/expected/test11.uxf
+test/expected/test12.uxf
+test/expected/test13.uxf
 
 # TODO (3) UXF libraries
 # for .js use Dart or TypeScript or similar that can output JS

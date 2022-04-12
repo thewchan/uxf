@@ -929,15 +929,17 @@ class _Writer:
         comment = getattr(item, 'comment', None)
         if len(item) == 0:
             self.file.write(f'{tab}[]\n' if comment is None else
-                            f'{tab}[#<{escape(comment)}>]\n')
+                            f'{tab}[ #<{escape(comment)}>]\n')
         else:
             self.file.write(f'{tab}[')
             if comment is not None:
-                self.file.write(f'#<{escape(comment)}>')
+                self.file.write(f' #<{escape(comment)}>')
             indent += 1
             is_scalar = _is_scalar(item[0])
             if is_scalar:
                 kwargs = dict(indent=0, pad=' ', map_value=False)
+                if comment is not None:
+                    self.file.write(' ')
             else:
                 self.file.write('\n')
                 kwargs = dict(indent=indent, pad=pad, map_value=False)
@@ -955,11 +957,11 @@ class _Writer:
         comment = getattr(item, 'comment', None)
         if len(item) == 0:
             self.file.write(f'{tab}{{}}\n' if comment is None else
-                            f'{tab}{{#<{escape(comment)}>}}\n')
+                            f'{tab}{{ #<{escape(comment)}> }}\n')
         elif len(item) == 1:
             self.file.write(f'{tab}{{')
             if comment is not None:
-                self.file.write(f'#<{escape(comment)}>')
+                self.file.write(f' #<{escape(comment)}>')
             key, value = list(item.items())[0]
             self.write_scalar(key, 1, pad=' ')
             self.file.write(' ')
@@ -967,7 +969,7 @@ class _Writer:
             self.file.write('}\n')
         else:
             self.file.write(f'{tab}{{\n' if comment is None else
-                            f'{tab}{{#<{escape(comment)}>\n')
+                            f'{tab}{{ #<{escape(comment)}>\n')
             indent += 1
             for key, value in item.items():
                 self.write_scalar(key, indent, pad=pad)
@@ -983,9 +985,9 @@ class _Writer:
     def write_table(self, item, indent=0, *, pad, map_value=False):
         tab = '' if map_value else pad * indent
         comment = getattr(item, 'comment', None)
-        self.file.write(f'{tab}[=')
-        self.file.write(' ' if comment is None else
-                        f'#<{escape(comment)}> ')
+        self.file.write(f'{tab}[= ')
+        if comment is not None:
+            self.file.write(f'#<{escape(comment)}> ')
         self.file.write(f'<{escape(item.name)}>')
         for name in item.fieldnames:
             self.file.write(f' <{escape(name)}>')

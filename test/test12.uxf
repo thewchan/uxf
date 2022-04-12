@@ -46,8 +46,7 @@ show what can be done.> <Categories> <CID> <Title> <Selected> =
                     7 <Uncategorized> no
                     6 <Unpopular Pop> no
                 =]
-                [= #<Comments may appear at the beginning of any list,
-		     map or table>
+                [= #<Comments may appear at the beginning of any list, map or table>
 		     <Playlists> <PID> <Title> <CID> <Selected> =
                     4 <ABBA> 2 no
                     38 <Bach> 5 no

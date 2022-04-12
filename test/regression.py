@@ -32,7 +32,7 @@ def main():
                     print(f'{name} OK')
                     ok += 1
                 else:
-                    print(f'{name} FAIL {actual} != {expected}')
+                    print(f'{name} FAIL {expected} != {actual}')
     print(f'{ok}/{total}', 'All OK' if total == ok else 'FAIL')
     if total == ok:
         cleanup()

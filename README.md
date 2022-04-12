@@ -15,13 +15,13 @@ UXF supports fourteen datatypes.
 |`int`       |`-192` `+234` `7891409`|
 |`real`      |`0.15` `0.7e-9` `2245.389` # standard and scientific with at least one digit before and after the point|
 |`date`      |`2022-04-01`  # basic ISO8601 YYYY-MM-DD format|
-|`datetime`  |`2022-04-01T16:11:51` # ISO8601 (timezone support is library dependent)|
-|`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
-|`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
+|`datetime`  |`2022-04-01T16:11:51` # ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent)|
+|`str`       |`<Some text which may include newlines>` # for &, <, >, use \&amp;, \&lt;, \&gt; respectively|
+|`bytes`     |`(20AC 65 66 48)` # must have an even number of case-insensitive hex digits; whitespace optional|
 |`ntuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
 |`list`      |`[value1 value2 ... valueN]`|
 |`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
-|`table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
+|`table`     |`[= <str0> <str1> ... <strN+1> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
@@ -35,6 +35,9 @@ number of values in any given row is equal to the number of field names.
 
 Maps, lists, and tables may begin with a comment (see examples below and the
 BNF at the end).
+
+Where whitespace is allowed (or required) it may be spaces, tabs, or
+newlines.
 
 ## Examples
 
@@ -55,7 +58,7 @@ BNF at the end).
 
 The most obvious translation would be to a `list` of ``list``s:
 
-    uxf 1.0 Price List
+    uxf 1.0
     [
       [<Price List> <Date> <Price> <Quantity> <ID> <Description>]
       [2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
@@ -76,6 +79,9 @@ The most _appropriate_ UXF equivalent is to use a UXF `table`:
       2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
       2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
     =]
+
+Here we begin by identifying the custom data our `.uxf` file contains by
+providing some descriptive text after the UXF introduction (`uxf 1.0`).
 
 Notice that the _first_ `table` `str` is the name of the table itself, with
 the following ``str``s being the field names. Then, after the bare `=` that
@@ -128,6 +134,11 @@ must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
       =]
     }
 
+UXF accepts both `no` and `false` for `bool` `false` and `yes` and `true`
+for `bool` `true`. We tend to use `no` and `yes` since they're shorter. (`0`
+and `1` can't be used as ``bool``s since the UXF processor would interpret
+them as ``int``s.)
+
 For configuration data it is often convenient to use ``map``s with name
 keys and data values. In this case the overall data is a `map` which
 contains each configuration section. The values of each of the first two of
@@ -139,17 +150,17 @@ For example, here's an alternative:
 
     uxf 1.0 MyApp 1.2.0 Config
     {
-      <General> {#<Miscellaneous settings>
+      <General> { #<Miscellaneous settings>
         <shapename> <Hexagon>
         <zoom> 150
         <showtoolbar> no
         <Files> {
           <current> <test1.uxf>
-          <recent> [#<From most to least recent>
+          <recent> [ #<From most to least recent>
 	  </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
-      <Window> {#<Window dimensions and scale>
+      <Window> { #<Window dimensions and scale>
         <pos> (:615 252:)
         <size> (:592 636:)
         <scale> 1.1
@@ -163,8 +174,15 @@ _height_ into items with `pos` and `size` keys and `ntuple` values. Of
 course we could have used a single item with an `ntuple` value, e.g.,
 `<geometry> (:615 252 592 636:)`.
 
-Comments may be added at the start of any `map`, `list`, or `table`. Here
-we've added some example comments to two ``map``s and a `list`.
+Here we've added some example comments to two ``map``s and a `list`. A
+comment is a `#` immediately followed by a `str`. As usual for UXF, the
+`str` must not contain &, <, > characters, but instead use the XML/HTML
+escapes.
+
+Comments may only be placed at the start of a `map`, `list`, or `table`.
+Since every `.uxf` file holds _one_ overarching `list`, `map`, or `table`
+containing all the other data, this makes it easy to add an overall comment
+at the beginning of the file.
 
 ### Database to UXF
 
@@ -172,7 +190,7 @@ A database normally consists of one or more tables. A UXF equivalent using
 a `list` of ``table``s is easily made.
 
     uxf 1.0 MyApp Data
-    [#<There is a 1:M relationship between the Invoices and Items tables>
+    [ #<There is a 1:M relationship between the Invoices and Items tables>
       [= <Customers> <CID> <Company> <Address> <Contact> <Email> =
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
@@ -194,17 +212,16 @@ The `list` begins with a comment.
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
 
-What if we wanted to add some extra configuration data to the database?
-
-One solution would be to make the first item in the `list` a `map`, with the
+What if we wanted to add some extra configuration data to the database? One
+solution would be to make the first item in the `list` a `map`, with the
 remainder ``table``s, as now. Another solution would be to use a `map` for
 the container, something like:
 
     uxf 1.0 MyApp Data
     {
-        <config> { <key1> _value1_ ... }
-        <tables> [
-            _list of tables as above_
+        <config> { #<Key-value configuration data goes here> }
+        <tables> [ #<The list of tables as above follows here>
+            
         ]
     }
 
@@ -222,7 +239,7 @@ _Implementations in additional languages are planned._
 - Run: `python3 -m uxf -h` _# this shows the command line help_
 - Use: `import uxf` _# see the `uxf.py` module docs for the API_
 
-Most Python types map losslessly to and from UXF types. In particular:
+Most Python types convert losslessly to and from UXF types. In particular:
 
 |**Python Type**     |**UXF type**|
 |--------------------|------------|
@@ -249,14 +266,14 @@ data passed to `write()` will produce an error.
 If `one_way_conversion` is `True` then the following conversions are applied
 when converting to UXF data:
 
-|**Python Type (in)**|**UXF type / Python Type (out)**|
-|--------------------|-------------|
-|`bytearray`         | `bytes`     |
-|`complex`           | `ntuple` / `uxf.NTuple` _# with two items_|
-|`set`               | `list` / `uxf.List` |
-|`frozenset`         | `list` / `uxf.List` |
-|`tuple`             | `list` / `uxf.List` |
-|`collections.deque` | `list` / `uxf.List` |
+|**Python Type (in)**|**UXF type**|**Python Type (out)**|
+|--------------------|------------|---------------------|
+|`bytearray`         | `bytes`    | `bytes`    |
+|`complex`           | `ntuple`   | `uxf.NTuple` _# with two items_|
+|`set`               | `list`     | `uxf.List` |
+|`frozenset`         | `list`     | `uxf.List` |
+|`tuple`             | `list`     | `uxf.List` |
+|`collections.deque` | `list`     | `uxf.List` |
 
 If you have _lots_ of `complex` numbers it may be more compact and
 convenient to store them in a two-field table, something like `[=
