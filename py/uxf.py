@@ -1077,17 +1077,17 @@ def _is_scalar(x):
 
 
 def naturalize(s):
-    '''Given string s returns True or False if the string is 't', 'true',
-    'y', 'yes', 'f', 'false', 'n', 'no' (case-insensitive), or a
-    datetime.datetime if s holds a parsable ISO8601 datetime string, or a
+    '''Given string s returns True if the string is 't', 'true', 'y', 'yes',
+    or False if the string is 'f', 'false', 'n', 'no' (case-insensitive), or
+    a datetime.datetime if s holds a parsable ISO8601 datetime string, or a
     datetime.date if s holds a parsable ISO8601 date string, or an int if s
     holds a parsable int, or a float if s holds a parsable float, or failing
     these returns the string s unchanged.
     '''
-    us = s.upper()
-    if us in {'T', 'TRUE', 'Y', 'YES'}:
+    u = s.upper()
+    if u in {'T', 'TRUE', 'Y', 'YES'}:
         return True
-    if us in {'F', 'FALSE', 'N', 'NO'}:
+    if u in {'F', 'FALSE', 'N', 'NO'}:
         return False
     try:
         if isoparse is not None and 'T' in s:

@@ -153,12 +153,12 @@ class _JsonEncoder(json.JSONEncoder):
         if isinstance(obj, (list, uxf.List)):
             comment = getattr(obj, 'comment', None)
             if comment is not None:
-                return {'UXF:list': {'comment': comment, 'list': list(obj)}}
+                return {'UXF:list': dict(comment=comment, list=list(obj))}
             return list(obj)
         if isinstance(obj, (dict, uxf.Map)):
             comment = getattr(obj, 'comment', None)
             if comment is not None:
-                return {'UXF:map': {'comment': comment, 'map': dict(obj)}}
+                return {'UXF:map': dict(comment=comment, map=dict(obj))}
             return dict(obj)
         if isinstance(obj, uxf.NTuple):
             return {'UXF:ntuple': obj.astuple}
