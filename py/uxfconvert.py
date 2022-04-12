@@ -3,23 +3,27 @@
 # License: GPLv3
 
 import argparse
-import enum
+import csv
+import datetime
+import json
 
 import uxf
 
 
 def main():
     config = get_config()
+    config.convert(config)
 
 
 def get_config():
     parser = argparse.ArgumentParser(usage=USAGE)
     parser.add_argument('-i', '--indent', type=int, default=2,
-                        help='default 2, range 0-8')
-    parser.add_argument('-z', '--compress', help='default don\'t compress')
-    parser.add_argument('-f', '--fieldnames',
-                        help='default first row is values not fieldnames '
-                        '(only applies to csv infiles)')
+                        help='default: 2, range 0-8')
+    parser.add_argument('-z', '--compress', help='default: don\'t compress')
+    parser.add_argument(
+        '-f', '--fieldnames',
+        help='if present first row is assumed to be field names; default: '
+        'first row is values not fieldnames (only applies to csv infiles)')
     parser.add_argument('file', nargs='+',
                         help='infile(s) and outfile as shown above')
     config = parser.parse_args()
@@ -27,14 +31,14 @@ def get_config():
         config.indent = 2 # sanitize rather than complain
     if len(config.file) < 2:
         parser.error('least two filenames are required')
-    config.mode = None
+    config.convert = None
     if len(config.file) > 2:
         if not config.file[-1].upper().endswith('.UXF'):
             parser.error('multiple infiles may only be converted to .uxf')
         for name in config.file[:-1]:
             if not name.upper().endswith('.CSV'):
                 parser.error('multiple infiles may only be .csv files')
-        config.mode = Mode.MULTI_CSV_TO_UXF
+        config.convert = multi_csv_to_uxf
         config.infiles = config.file[:-1]
         config.outfile = config.file[-1]
     else:
@@ -47,93 +51,118 @@ def get_config():
                          'python3 -m uxf infile.uxf outfile.uxf')
         if outfile.endswith('.UXF'):
             if infile.endswith('.CSV'):
-                config.mode = Mode.CSV_TO_UXF
+                config.convert = csv_to_uxf
             elif infile.endswith('.INI'):
-                config.mode = Mode.INI_TO_UXF
+                config.convert = ini_to_uxf
             elif infile.endswith(('.JSN', '.JSON')):
-                config.mode = Mode.JSON_TO_UXF
+                config.convert = json_to_uxf
             elif infile.endswith('.SQLITE'):
-                config.mode = Mode.SQLITE_TO_UXF
+                config.convert = sqlite_to_uxf
             elif infile.endswith('.XML'):
-                config.mode = Mode.XML_TO_UXF
+                config.convert = xml_to_uxf
         elif infile.endswith('.UXF'):
             if outfile.endswith('.CSV'):
-                config.mode = Mode.UXF_TO_CSV
-            elif outfile.endswith('.INI'):
-                config.mode = Mode.UXF_TO_INI
+                config.convert = uxf_to_csv
             elif outfile.endswith(('.JSN', '.JSON')):
-                config.mode = Mode.UXF_TO_JSON
+                config.convert = uxf_to_json
             elif outfile.endswith('.SQLITE'):
-                config.mode = Mode.UXF_TO_SQLITE
+                config.convert = uxf_to_sqlite
             elif outfile.endswith('.XML'):
-                config.mode = Mode.UXF_TO_XML
-    if config.mode is None:
+                config.convert = uxf_to_xml
+    if config.convert is None:
         parser.error('cannot perform the requested conversion')
     del config.file
     return config
 
 
 def uxf_to_csv(config):
-    pass
-
-
-def uxf_to_ini(config):
-    pass
+    data, _ = uxf.read(config.infiles[0])
+    if isinstance(data, uxf.Table):
+        with open(config.outfile, 'w') as file:
+            writer = csv.writer(file)
+            writer.writerow(data.fieldnames)
+            for row in data:
+                writer.writerow(row)
+    elif (isinstance(data, list) and data and
+            isinstance(data[0], list) and data[0] and not
+            isinstance(data[0][0], (dict, list, uxf.Table))):
+        with open(config.outfile, 'w') as file:
+            writer = csv.writer(file)
+            for row in data:
+                writer.writerow(row)
+    else:
+        raise SystemExit('can only convert a UXF containing a single table '
+                         'or a single list of lists of scalars to csv')
 
 
 def uxf_to_json(config):
-    pass
+    data, _ = uxf.read(config.infiles[0])
+    with open(config.outfile, 'wt', encoding='utf-8') as file:
+        json.dump(data, file, cls=JsonEncoder, indent=2)
 
 
 def uxf_to_sqlite(config):
-    pass
+    print('uxf_to_sqlite', config)
 
 
 def uxf_to_xml(config):
-    pass
+    print('uxf_to_xml', config)
 
 
 def csv_to_uxf(config):
-    pass
+    print('csv_to_uxf', config)
 
 
 def multi_csv_to_uxf(config):
-    pass
+    print('multi_csv_to_uxf', config)
 
 
 def ini_to_uxf(config):
-    pass
+    print('ini_to_uxf', config)
 
 
 def json_to_uxf(config):
-    pass
+    print('json_to_uxf', config)
 
 
 def sqlite_to_uxf(config):
-    pass
+    print('sqlite_to_uxf', config)
 
 
 def xml_to_uxf(config):
-    pass
+    print('xml_to_uxf', config)
 
 
-@enum.unique
-class Mode(enum.Enum):
-    UXF_TO_CSV = enum.auto()
-    UXF_TO_INI = enum.auto()
-    UXF_TO_JSON = enum.auto()
-    UXF_TO_SQLITE = enum.auto()
-    UXF_TO_XML = enum.auto()
-    CSV_TO_UXF = enum.auto()
-    MULTI_CSV_TO_UXF = enum.auto()
-    INI_TO_UXF = enum.auto()
-    JSON_TO_UXF = enum.auto()
-    SQLITE_TO_UXF = enum.auto()
-    XML_TO_UXF = enum.auto()
+class JsonEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return {'UXF:datetime': obj.isoformat()}
+        if isinstance(obj, datetime.date):
+            return {'UXF:date': obj.isoformat()}
+        if isinstance(obj, (bytes, bytearray)):
+            return {'UXF:bytes': obj.hex().upper()}
+        if isinstance(obj, (list, uxf.List)):
+            comment = getattr(obj, 'comment', None)
+            if comment is not None:
+                return {'UXF:list': {'comment': comment, 'list': list(obj)}}
+            return list(obj)
+        if isinstance(obj, (dict, uxf.Map)):
+            comment = getattr(obj, 'comment', None)
+            if comment is not None:
+                return {'UXF:map': {'comment': comment, 'map': dict(obj)}}
+            return dict(obj)
+        if isinstance(obj, uxf.NTuple):
+            return {'UXF:ntuple': obj.astuple}
+        if isinstance(obj, uxf.Table):
+            return {'UXF:table': dict(
+                comment=obj.comment, name=obj.name,
+                fieldnames=obj.fieldnames, records=obj.records)}
+        return json.JSONEncoder.default(self, obj)
 
 
 USAGE = '''
-uxfconvert.py <infile.uxf> <outfile.{csv,ini,json,sqlite,xml}>
+uxfconvert.py <infile.uxf> <outfile.{csv,json,sqlite,xml}>
 uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames]
     <infile.{csv,ini,json,sqlite,xml}> <outfile.uxf>
 uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames]
@@ -145,14 +174,14 @@ Not all conversions are possible; not all conversions are lossless.
 The primary purpose of this program is to provide a code example
 illustrating how to work with the uxf.py module and UXF data.
 
-To produce the smallest uxf output use options: -z -i0.
+To produce compact uxf output use options: -z -i0.
 
-If multiple csv files are given as infiles, the outfile will be a uxf
-containing a list of tables. If the fieldnames option is given the first
-line of each csv file will be assumed to be field names rather than values.
+If multiple csv files are given as infiles, the outfile will either be a
+list of tables (if the fieldnames option is given), or a list of lists of
+scalars otherwise.
 
 Converting from uxf to csv can only be done if the uxf contains a single
-table.
+table or a single list of lists of scalars.
 
 Converting sqlite to uxf only converts tables, so like many of the
 possible conversions, this conversion does not round-trip.
@@ -160,7 +189,7 @@ possible conversions, this conversion does not round-trip.
 Converting xml to uxf only works for the xml that is output by
 uxfconvert.py when converting from uxf to xml.
 
-uxf to uxf conversions are also supported by the uxf.py module, e.g.,
+Support for uxf to uxf conversions is provided by the uxf.py module, e.g.,
   python3 -m uxf infile.uxf outfile.uxf
 with the same indent and compress options.'''
 

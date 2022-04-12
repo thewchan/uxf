@@ -484,6 +484,11 @@ class NTuple:
         return f'(:{items}:)'
 
 
+    @property
+    def astuple(self):
+        return tuple(self._items)
+
+
     def __getattr__(self, name):
         if name in {'a', 'x', 'first'}:
             return self._items[0]
