@@ -116,7 +116,7 @@ def _read_csv_to_data(config):
                     continue
                 else:
                     data = []
-            row = [_classify(x) for x in row]
+            row = [naturalize(x) for x in row]
             if isinstance(data, uxf.Table):
                 data += row
             else:
@@ -124,7 +124,7 @@ def _read_csv_to_data(config):
     return data, filename
 
 
-def _classify(x):
+def naturalize(x):
     ux = x.upper()
     if ux in {'T', 'TRUE', 'Y', 'YES'}:
         return True

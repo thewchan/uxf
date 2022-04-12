@@ -15,7 +15,7 @@ uxf 1.0 TLM Config
         <Modern Instrumental> [4 no]
         <New Acquistions> [1 no]
         <Nested List of Lists> [#<List comment>
-            [5 <Classical> yes]
+            [5 <Classical &amp; &lt;Special&gt;> yes]
             [4 <Modern Instrumental> no]
             [1 <New Acquistions> no]
         ]

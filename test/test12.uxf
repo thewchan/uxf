@@ -23,7 +23,7 @@ uxf 1.0 TLM Config
         <New Acquistions> [1 no]
         <Nested List of Lists> [ #<Just a little list>
             [5 <Classical> yes]
-            [4 <Modern Instrumental> no]
+            [4 <Modern Instrumental &amp; &lt;Experimental&gt;> no]
             [1 <New Acquistions> no]
         ]
         <Nested Table> [= #<A table with a rather long comment just to
