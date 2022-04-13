@@ -2,11 +2,13 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+import contextlib
 import filecmp
 import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 
 os.chdir(os.path.dirname(__file__))
@@ -62,14 +64,16 @@ def test_uxf(uxf, uxffiles, *, verbose):
 
 
 def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
-    files = [(name, name.replace('.uxf', '.json')) for name in uxffiles]
-    files += [('t1.uxf', 't1.csv'), ('t2.uxf', 't2.csv'),
-              ('0.csv', '0.uxf'), ('1.csv', '1.uxf'), ('2.csv', '2.uxf')]
+    N, Y, F, FR = (0, 1, 2, 3)
+    files = [(name, name.replace('.uxf', '.json'), Y) for name in uxffiles]
+    files += [('t1.uxf', 't1.csv', N), ('t2.uxf', 't2.csv', N),
+              ('0.csv', '0.uxf', Y), ('1.csv', '1.uxf', F),
+              ('2.csv', '2.uxf', F)]
     # TODO add tests for ini, sqlite, and xml
-    for infile, outfile in files:
+    for infile, outfile, roundtrip in files:
         total += 1
         actual = f'actual/{outfile}'
-        cmd = ([uxfconvert, '-f', infile, actual] if infile == '1.csv' else
+        cmd = ([uxfconvert, '-f', infile, actual] if roundtrip == F else
                [uxfconvert, infile, actual])
         reply = subprocess.call(cmd)
         cmd = ' '.join(cmd)
@@ -77,7 +81,25 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
             print(f'{cmd} • FAIL (execute)')
         else:
             expected = f'expected/{outfile}'
-            ok += compare(cmd, infile, actual, expected, verbose=verbose)
+            n = compare(cmd, infile, actual, expected, verbose=verbose)
+            ok += n
+            if n:
+                if roundtrip in (Y, FR):
+                    total += 1
+                    new_actual = tempfile.gettempdir() + f'/{infile}'
+                    cmd = ([uxfconvert, '-f', actual, new_actual]
+                           if roundtrip == FR else
+                           [uxfconvert, actual, new_actual])
+                    reply = subprocess.call(cmd)
+                    cmd = ' '.join(cmd)
+                    if reply != 0:
+                        print(f'{cmd} • FAIL (execute roundtrip)')
+                    else:
+                        if compare(cmd, actual, new_actual, infile,
+                                   verbose=verbose):
+                            ok += 1
+                            with contextlib.suppress(FileNotFoundError):
+                                os.remove(new_actual)
     total += 1
     actual = 'actual/1-2-csv.uxf'
     infile = '1.csv 2.csv'
