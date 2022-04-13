@@ -12,17 +12,22 @@ The uxf module can be used as an executable. Run
 
 to see the command line help.
 
-uxf's public API provides three free functions and five classes.
+uxf's public API provides five free functions and five classes.
 
-    def read(filename_or_filelike): -> (data, custom_header)
+    def load(filename_or_filelike): -> (data, custom_header)
+    def loads(uxf_text): -> (data, custom_header)
 
 In the returned 2-tuple the data is a Map, List, or Table, and the
-custom_header is a (possibly empty) custom string.
+custom_header is a (possibly empty) custom string. See the function
+docs for additional options.
 
-    def write(filename_or_filelike, data, custom)
+    def dump(filename_or_filelike, data, custom)
+    def dumps(data, custom) -> uxf_text
 
-This writes the data (and custom header if supplied) into the given file as
-UXF data. The data must be a single Map, dict, List, list, or Table.
+dump() writes the data (and custom header if supplied) into the given file
+as UXF data. The data must be a single Map, dict, List, list, or Table.
+dumps() writes the same but into a string that's returned. See the function
+docs for additional options.
 
     def naturalize(s)
 
@@ -67,6 +72,7 @@ import collections
 import datetime
 import enum
 import gzip
+import io
 import re
 import sys
 from xml.sax.saxutils import escape, unescape
@@ -77,15 +83,15 @@ except ImportError:
     isoparse = None
 
 
-__all__ = ('__version__', 'VERSION', 'read', 'write', 'naturalize', 'List',
-           'Map', 'Table', 'NTuple')
-__version__ = '0.9.6' # uxf module version
+__all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
+           'naturalize', 'List', 'Map', 'Table', 'NTuple')
+__version__ = '0.9.7' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
 
 
-def read(filename_or_filelike, *, warn_is_error=False):
+def load(filename_or_filelike, *, warn_is_error=False):
     '''
     Returns a 2-tuple, the first item of which is a Map, List, or Table
     containing all the UXF data read. The second item is the custom string
@@ -96,18 +102,30 @@ def read(filename_or_filelike, *, warn_is_error=False):
 
     If warn_is_error is True warnings raise Error exceptions.
     '''
+    return loads(_read_text(filename_or_filelike),
+                 warn_is_error=warn_is_error)
+
+
+def loads(uxf_text, *, warn_is_error=False):
+    '''
+    Returns a 2-tuple, the first item of which is a Map, List, or Table
+    containing all the UXF data read. The second item is the custom string
+    (if any) from the file's header.
+
+    uxf_text must be a string of UXF data.
+
+    If warn_is_error is True warnings raise Error exceptions.
+    '''
     data = None
-    tokens, custom, text = _tokenize(
-        filename_or_filelike, warn_is_error=warn_is_error)
-    data = _parse(tokens, text=text, warn_is_error=warn_is_error)
+    tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error)
+    data = _parse(tokens, text=uxf_text, warn_is_error=warn_is_error)
     return data, custom
 
 
-def _tokenize(filename_or_filelike, *, warn_is_error=False):
-    text = _read_text(filename_or_filelike)
+def _tokenize(uxf_text, *, warn_is_error=False):
     lexer = _Lexer(warn_is_error=warn_is_error)
-    tokens = lexer.tokenize(text)
-    return tokens, lexer.custom, text
+    tokens = lexer.tokenize(uxf_text)
+    return tokens, lexer.custom, uxf_text
 
 
 def _read_text(filename_or_filelike):
@@ -864,8 +882,8 @@ class _Expect(enum.Enum):
     EOF = enum.auto()
 
 
-def write(filename_or_filelike, *, data, custom='', compress=False,
-          indent=2, one_way_conversion=False):
+def dump(filename_or_filelike, data, custom='', *, compress=False,
+         indent=2, one_way_conversion=False, use_true_false=False):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded).
@@ -879,11 +897,14 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     If compress is True and the filename_or_filelike is a file (not stdout)
     then gzip compression is used.
 
-    Set indent to 0 to minimize the file size.
+    Set indent to 0 (and use_true_false to True) to minimize the file size.
 
     Set one_way_conversion to True to convert bytearray items to bytes,
     complex items to uxf.NTuples, and sets, frozensets, tuples, and
     collections.deques to Lists rather than raise an Error.
+
+    If use_true_false is False (the default), bools are output as 'yes' or
+    'no'; but if use_true_false is True the are output as 'true' or 'false'.
     '''
     pad = ' ' * indent
     close = False
@@ -894,17 +915,45 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     else:
         file = filename_or_filelike
     try:
-        _Writer(file, custom, data, pad, one_way_conversion)
+        _Writer(file, custom, data, pad, one_way_conversion, use_true_false)
     finally:
         if close:
             file.close()
 
 
+def dumps(data, custom='', *, indent=2, one_way_conversion=False,
+          use_true_false=False):
+    '''
+    data is a Map, dict, List, list, or Table. This function will write the
+    data to a string in UXF format which will then be returned.
+
+    custom is an optional short user string (with no newlines), e.g., a file
+    type description.
+
+    Set indent to 0 (and use_true_false to True) to minimize the string's
+    size.
+
+    Set one_way_conversion to True to convert bytearray items to bytes,
+    complex items to uxf.NTuples, and sets, frozensets, tuples, and
+    collections.deques to Lists rather than raise an Error.
+
+    If use_true_false is False (the default), bools are output as 'yes' or
+    'no'; but if use_true_false is True the are output as 'true' or 'false'.
+    '''
+    pad = ' ' * indent
+    string = io.StringIO()
+    _Writer(string, custom, data, pad, one_way_conversion, use_true_false)
+    return string.getvalue()
+
+
 class _Writer:
 
-    def __init__(self, file, custom, data, pad, one_way_conversion):
+    def __init__(self, file, custom, data, pad, one_way_conversion,
+                 use_true_false):
         self.file = file
         self.one_way_conversion = one_way_conversion
+        self.yes = 'true' if use_true_false else 'yes'
+        self.no = 'false' if use_true_false else 'no'
         self.write_header(custom)
         self.write_value(data, pad=pad)
 
@@ -1027,7 +1076,7 @@ class _Writer:
         if item is None:
             self.file.write('null')
         elif isinstance(item, bool):
-            self.file.write('yes' if item else 'no')
+            self.file.write(self.yes if item else self.no)
         elif isinstance(item, int):
             self.file.write(str(item))
         elif isinstance(item, float):
@@ -1140,9 +1189,9 @@ To compress and minimize a .uxf file run: uxf.py -i0 -z infile.uxf outfile.uxf
         else:
             outfile = arg
     try:
-        data, custom = read(infile)
+        data, custom = load(infile)
         outfile = sys.stdout if outfile is None else outfile
-        write(outfile, data=data, custom=custom, compress=compress,
-              indent=indent)
+        dump(outfile, data=data, custom=custom, compress=compress,
+             indent=indent)
     except Error as err:
         print(f'Error:{err}')

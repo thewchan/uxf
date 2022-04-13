@@ -4,14 +4,22 @@
 
 import contextlib
 import filecmp
+import gzip
+import importlib.util
 import os
 import re
 import subprocess
 import sys
 import tempfile
+import textwrap
 import time
 
 os.chdir(os.path.dirname(__file__))
+module_name = 'uxf'
+spec = importlib.util.spec_from_file_location(module_name, '../py/uxf.py')
+uxf = importlib.util.module_from_spec(spec)
+sys.modules[module_name] = uxf
+spec.loader.exec_module(uxf)
 
 
 def main():
@@ -21,7 +29,8 @@ def main():
     uxffiles = sorted((name for name in os.listdir('.')
                        if os.path.isfile(name) and name.endswith('.uxf')),
                       key=by_number)
-    total, ok = test_uxf(uxf, uxffiles, verbose=verbose)
+    total, ok = test_uxf_files(uxf, uxffiles, verbose=verbose)
+    total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose)
     total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
                                 verbose=verbose)
     if total == ok:
@@ -47,7 +56,7 @@ def get_config():
     return uxf, uxfconvert, verbose
 
 
-def test_uxf(uxf, uxffiles, *, verbose):
+def test_uxf_files(uxf, uxffiles, *, verbose):
     total = ok = 0
     for name in uxffiles:
         total += 1
@@ -63,6 +72,41 @@ def test_uxf(uxf, uxffiles, *, verbose):
             if not verbose and not ok % 10:
                 print('.', end='', flush=True)
     return total, ok
+
+
+def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose):
+    for name in uxffiles:
+        total += 1
+        try:
+            with open(name, 'rt', encoding='utf-8') as file:
+                uxf_text = file.read()
+        except UnicodeDecodeError:
+            with gzip.open(name, 'rt', encoding='utf-8') as file:
+                uxf_text = file.read()
+        use_true_false = 'true' in uxf_text or 'false' in uxf_text
+        data, custom = uxf.loads(uxf_text)
+        new_uxf_text = uxf.dumps(data, custom, one_way_conversion=True,
+                                 use_true_false=use_true_false)
+        nws_uxf_text = normalize_uxf_text(uxf_text)
+        nws_new_uxf_text = normalize_uxf_text(new_uxf_text)
+        if nws_uxf_text == nws_new_uxf_text:
+            ok += 1
+            if verbose:
+                print(f'loads()/dumps() • {name} OK')
+            elif not ok % 10:
+                print('.', end='', flush=True)
+        else:
+            print(f'{name} • FAIL (loads()/dumps())')
+            if verbose:
+                print(f'LOADS = {nws_uxf_text}\nDUMPS = {nws_new_uxf_text}')
+    return total, ok
+
+
+def normalize_uxf_text(text):
+    i = text.find('\n') + 1
+    header, body = text[:i], text[i:]
+    body = ''.join(body.split()) # eliminate whitespace
+    return header + '\n'.join(textwrap.wrap(body, 40)) # easier to compare
 
 
 def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):

@@ -90,7 +90,7 @@ def _postprocess_other_args(parser, config):
 
 
 def uxf_to_csv(config):
-    data, _ = uxf.read(config.infiles[0])
+    data, _ = uxf.load(config.infiles[0])
     if isinstance(data, uxf.Table):
         with open(config.outfile, 'w') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
@@ -112,8 +112,8 @@ def uxf_to_csv(config):
 
 def csv_to_uxf(config):
     data, filename = _read_csv_to_data(config)
-    uxf.write(config.outfile, data=data, custom=filename,
-              one_way_conversion=True)
+    uxf.dump(config.outfile, data=data, custom=filename,
+             one_way_conversion=True)
 
 
 def _read_csv_to_data(config):
@@ -144,12 +144,12 @@ def multi_csv_to_uxf(config):
         config.infiles = [infile]
         datum, _ = _read_csv_to_data(config)
         data.append(datum)
-    uxf.write(config.outfile, data=data, custom=' '.join(infiles),
-              one_way_conversion=True)
+    uxf.dump(config.outfile, data=data, custom=' '.join(infiles),
+             one_way_conversion=True)
 
 
 def uxf_to_json(config):
-    data, _ = uxf.read(config.infiles[0])
+    data, _ = uxf.load(config.infiles[0])
     with open(config.outfile, 'wt', encoding=UTF8) as file:
         json.dump(data, file, cls=_JsonEncoder, indent=2)
 
@@ -186,7 +186,7 @@ def json_to_uxf(config):
     filename = config.infiles[0]
     with open(filename, 'rt', encoding=UTF8) as file:
         data = json.load(file, object_hook=_json_naturalize)
-    uxf.write(config.outfile, data=data, custom=filename)
+    uxf.dump(config.outfile, data=data, custom=filename)
 
 
 def _json_naturalize(d):
