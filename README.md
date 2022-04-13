@@ -234,8 +234,7 @@ _Implementations in additional languages are planned._
 
 |**Library**|**Language**|**Notes**|
 |-----------|------------|---------|
-|uxf        | Python 3   | Works out of the box with the standard library,
-and will use _dateutil_ if available. See also the [Python Notes]|
+|uxf        | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available. See also the [Python Notes](python-notes)|
 
 ### Python Notes
 
