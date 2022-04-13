@@ -6,11 +6,9 @@
 UXF is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
-The uxf module can be used as an executable. Run
+The uxf module can be used as an executable. To see the command line help run:
 
     python3 -m uxf -h
-
-to see the command line help.
 
 uxf's public API provides five free functions and five classes.
 
@@ -29,7 +27,7 @@ as UXF data. The data must be a single Map, dict, List, list, or Table.
 dumps() writes the same but into a string that's returned. See the function
 docs for additional options.
 
-    def naturalize(s)
+    def naturalize(s) -> object
 
 This takes a str and returns a bool or datetime.datetime or datetime.date or
 int or float if any of these can be parsed, otherwise returns the original
