@@ -234,7 +234,8 @@ _Implementations in additional languages are planned._
 
 |**Library**|**Language**|**Notes**|
 |-----------|------------|---------|
-|uxf        | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available.|
+|uxf        | Python 3   | Works out of the box with the standard library,
+and will use _dateutil_ if available. See also the [Python Notes]|
 
 ### Python Notes
 
@@ -263,11 +264,11 @@ A `uxf.List` is a Python `list` subclass with a `.comment` attribute.
 Similarly a `uxf.Map` is a Python `dict` subclass with a `.comment`
 attribute. And the `uxf.Table` class also has a `.comment` attribute.
 
-If `one_way_conversion` is `False` then any other Python type passed in the
-data passed to `write()` will produce an error.
+If `one_way_conversion` is `False` then any other Python type passed in
+the data passed to `write()` will produce an error.
 
-If `one_way_conversion` is `True` then the following conversions are applied
-when converting to UXF data:
+If `one_way_conversion` is `True` then the following conversions are
+applied when converting to UXF data:
 
 |**Python Type (in)**|**UXF type**|**Python Type (out)**|
 |--------------------|------------|---------------------|
