@@ -141,36 +141,75 @@ def uxf_to_json(config):
         json.dump(data, file, cls=_JsonEncoder, indent=2)
 
 
+JSON_DATETIME = 'UXF^datetime'
+JSON_DATE = 'UXF^date'
+JSON_BYTES = 'UXF^bytes'
+JSON_LIST = 'UXF^list'
+JSON_MAP = 'UXF^map'
+JSON_NTUPLE = 'UXF^ntuple'
+JSON_TABLE = 'UXF^table'
+COMMENT = 'comment'
+
+
 class _JsonEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
-            return {'UXF^datetime': obj.isoformat()}
+            return {JSON_DATETIME: obj.isoformat()}
         if isinstance(obj, datetime.date):
-            return {'UXF^date': obj.isoformat()}
+            return {JSON_DATE: obj.isoformat()}
         if isinstance(obj, (bytes, bytearray)):
-            return {'UXF^bytes': obj.hex().upper()}
+            return {JSON_BYTES: obj.hex().upper()}
         if isinstance(obj, (list, uxf.List)):
-            comment = getattr(obj, 'comment', None)
+            comment = getattr(obj, COMMENT, None)
             if comment is not None:
-                return {'UXF^list': dict(comment=comment, list=list(obj))}
+                return {JSON_LIST: dict(comment=comment, list=list(obj))}
             return list(obj)
         if isinstance(obj, (dict, uxf.Map)):
-            comment = getattr(obj, 'comment', None)
+            comment = getattr(obj, COMMENT, None)
             if comment is not None:
-                return {'UXF^map': dict(comment=comment, map=dict(obj))}
+                return {JSON_MAP: dict(comment=comment, map=dict(obj))}
             return dict(obj)
         if isinstance(obj, uxf.NTuple):
-            return {'UXF^ntuple': obj.astuple}
+            return {JSON_NTUPLE: obj.astuple}
         if isinstance(obj, uxf.Table):
-            return {'UXF^table': dict(
+            return {JSON_TABLE: dict(
                 comment=obj.comment, name=obj.name,
                 fieldnames=obj.fieldnames, records=obj.records)}
         return json.JSONEncoder.default(self, obj)
 
 
 def json_to_uxf(config):
-    print('json_to_uxf', config) # TODO
+    filename = config.infiles[0]
+    with open(filename, 'rt', encoding='utf-8') as file:
+        data = json.load(file, object_hook=_json_naturalize)
+    uxf.write(config.outfile, data=data, custom=filename,
+              one_way_conversion=True)
+
+
+def _json_naturalize(d):
+    if JSON_DATETIME in d:
+        return uxf.naturalize(d[JSON_DATETIME])
+    if JSON_DATE in d:
+        return uxf.naturalize(d[JSON_DATE])
+    if JSON_BYTES in d:
+        return bytes.fromhex(d[JSON_BYTES])
+    if JSON_LIST in d:
+        x = uxf.List(d[JSON_LIST]['list'])
+        x.comment = d[JSON_LIST][COMMENT]
+        return x
+    if JSON_MAP in d:
+        x = uxf.Map(d[JSON_MAP]['map'])
+        x.comment = d[JSON_MAP][COMMENT]
+        return x
+    elif JSON_NTUPLE in d:
+        return uxf.NTuple(*d[JSON_NTUPLE])
+    elif JSON_TABLE in d:
+        return uxf.Table(name=d[JSON_TABLE]['name'],
+                         fieldnames=d[JSON_TABLE]['fieldnames'],
+                         records=d[JSON_TABLE]['records'],
+                         comment=d[JSON_TABLE][COMMENT])
+    return d
 
 
 def ini_to_uxf(config):
@@ -201,7 +240,8 @@ uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames]
     <infile1.csv> [infile2.csv ... infileM.csv] <outfile.uxf>
 
 Converts to/from uxf format.
-Not all conversions are possible; not all conversions are lossless.
+
+Not all conversions are possible; not all conversions are lossless: see below.
 
 The primary purpose of this program is to provide a code example
 illustrating how to work with the uxf.py module and UXF data.
@@ -215,11 +255,14 @@ scalars otherwise.
 Converting from uxf to csv can only be done if the uxf contains a single
 table or a single list of lists of scalars.
 
-Converting sqlite to uxf only converts tables, so like many of the
-possible conversions, this conversion does not round-trip.
+Converting from uxf to json and back (i.e., using uxfconvert.py's own json
+format) should work with perfect fidelity.
 
-Converting xml to uxf only works for the xml that is output by
-uxfconvert.py when converting from uxf to xml.
+Converting sqlite to uxf only converts the sql tables and is unlikely to
+roundtrip.
+
+Converting from uxf to xml and back (i.e., using uxfconvert.py's own xml
+format) should work with perfect fidelity.
 
 Support for uxf to uxf conversions is provided by the uxf.py module, e.g.,
   python3 -m uxf infile.uxf outfile.uxf

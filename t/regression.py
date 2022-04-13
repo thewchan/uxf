@@ -64,16 +64,16 @@ def test_uxf(uxf, uxffiles, *, verbose):
 
 
 def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
-    N, Y, F, FR = (0, 1, 2, 3)
+    N, Y, NF, YR = (0, 1, 2, 3) # No, Yes, No with -f, Yes with -f
     files = [(name, name.replace('.uxf', '.json'), Y) for name in uxffiles]
     files += [('t1.uxf', 't1.csv', N), ('t2.uxf', 't2.csv', N),
-              ('0.csv', '0.uxf', Y), ('1.csv', '1.uxf', F),
-              ('2.csv', '2.uxf', F)]
+              ('0.csv', '0.uxf', N), ('1.csv', '1.uxf', NF),
+              ('2.csv', '2.uxf', NF)]
     # TODO add tests for ini, sqlite, and xml
     for infile, outfile, roundtrip in files:
         total += 1
         actual = f'actual/{outfile}'
-        cmd = ([uxfconvert, '-f', infile, actual] if roundtrip == F else
+        cmd = ([uxfconvert, '-f', infile, actual] if roundtrip == NF else
                [uxfconvert, infile, actual])
         reply = subprocess.call(cmd)
         cmd = ' '.join(cmd)
@@ -84,19 +84,23 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
             n = compare(cmd, infile, actual, expected, verbose=verbose)
             ok += n
             if n:
-                if roundtrip in (Y, FR):
+                if roundtrip in (Y, YR):
                     total += 1
                     new_actual = tempfile.gettempdir() + f'/{infile}'
-                    cmd = ([uxfconvert, '-f', actual, new_actual]
-                           if roundtrip == FR else
-                           [uxfconvert, actual, new_actual])
+                    cmd = ([uxfconvert, '-f', expected, new_actual]
+                           if roundtrip == YR else
+                           [uxfconvert, expected, new_actual])
                     reply = subprocess.call(cmd)
                     cmd = ' '.join(cmd)
                     if reply != 0:
                         print(f'{cmd} • FAIL (execute roundtrip)')
                     else:
-                        if compare(cmd, actual, new_actual, infile,
-                                   verbose=verbose):
+                        compare_with = expected
+                        i = compare_with.rfind('.')
+                        if i > -1:
+                            compare_with = compare_with[:i] + '.uxf'
+                        if compare(cmd, expected, new_actual, compare_with,
+                                   verbose=verbose, roundtrip=True):
                             ok += 1
                             with contextlib.suppress(FileNotFoundError):
                                 os.remove(new_actual)
@@ -114,14 +118,28 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
     return total, ok
 
 
-def compare(cmd, infile, actual, expected, *, verbose):
+def compare(cmd, infile, actual, expected, *, verbose,
+            roundtrip=False):
     try:
         if filecmp.cmp(actual, expected, False):
             if verbose:
                 print(f'{cmd} • {infile} → {actual} OK')
             return 1
-        else:
-            print(f'{cmd} • FAIL (compare)')
+        elif roundtrip:
+            with open(actual, 'rb') as af, open(expected, 'rb') as ef:
+                a = af.read()
+                i = a.find(b'\n')
+                if i > -1:
+                    a = a[i:]
+                b = ef.read()
+                i = b.find(b'\n')
+                if i > -1:
+                    b = b[i:]
+                if a == b:
+                    if verbose:
+                        print(f'{cmd} • {infile} → {actual} (roundtrip) OK')
+                    return 1
+        print(f'{cmd} • FAIL (compare) {actual} != {expected}')
     except FileNotFoundError:
         print(f'{cmd} • FAIL (missing {expected!r})')
     return 0

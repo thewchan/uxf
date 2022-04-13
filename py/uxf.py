@@ -1090,22 +1090,22 @@ def naturalize(s):
     if u in {'F', 'FALSE', 'N', 'NO'}:
         return False
     try:
-        if isoparse is not None and 'T' in s:
-            return isoparse(s)
-        return datetime.datetime.fromisoformat(s)
-    except ValueError:
-        try:
+        if 'T' in s:
+            if isoparse is not None:
+                return isoparse(s)
+            return datetime.datetime.fromisoformat(s)
+        else:
             if isoparse is not None:
                 return isoparse(s).date()
             return datetime.date.fromisoformat(s)
+    except ValueError:
+        try:
+            return int(s)
         except ValueError:
             try:
-                return int(s)
+                return float(s)
             except ValueError:
-                try:
-                    return float(s)
-                except ValueError:
-                    return s
+                return s
 
 
 if __name__ == '__main__':
