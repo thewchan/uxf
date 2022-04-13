@@ -4,6 +4,17 @@ Uniform eXchange Format (UXF) is a plain text human readable storage
 format that may serve as a convenient alternative to csv, ini, json, sqlite,
 toml, xml, or yaml.
 
+UXF is an open standard. The UXF software linked from this page is all free
+open source software.
+
+- [Datatypes](#datatypes)
+- [Examples](#examples)
+- [Libraries](#libraries)
+    - [Python](#python)
+- [BNF](#bnf)
+- [Vim Support](#vim-support)
+- [UXF Logo](#uxf-logo)
+
 ## Datatypes
 
 UXF supports fourteen datatypes.
@@ -232,11 +243,14 @@ the container, something like:
 
 _Implementations in additional languages are planned._
 
-|**Library**|**Language**|**Notes**|
-|-----------|------------|---------|
-|uxf        | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available. See also the [Python Notes](#python-notes) below.|
+|**Library**|**Language**|**Notes**                    |
+|-----------|------------|-----------------------------|
+|uxf        | Python 3   | See [Python](#python) below.|
 
-### Python Notes
+### Python
+
+The Python `uxf` library works out of the box with the standard library, and
+will use _dateutil_ if available.
 
 - Install: `python3 -m pip install uxf`
 - Run: `python3 -m uxf -h` _# this shows the command line help_
@@ -354,4 +368,6 @@ similar) to your `.vimrc` or `.gvimrc` file:
 
     au BufRead,BufNewFile,BufEnter *.uxf set ft=uxf|set expandtab|set tabstop=2|set softtabstop=2|set shiftwidth=2
 
-UXF logo ![uxf logo](uxf.svg)
+## UXF Logo
+
+![uxf logo](uxf.svg)
