@@ -51,7 +51,7 @@ def test_uxf(uxf, uxffiles):
 
 def test_uxfconvert(uxfconvert, uxffiles, total, ok):
     files = [(name, name.replace('.uxf', '.json')) for name in uxffiles]
-    files += [('test1.uxf', 'test1.csv'), ('test2.uxf', 'test2.csv'),
+    files += [('t1.uxf', 't1.csv'), ('t2.uxf', 't2.csv'),
               ('0.csv', '0.uxf'), ('1.csv', '1.uxf'), ('2.csv', '2.uxf')]
     # TODO add tests for ini, sqlite, and xml
     for infile, outfile in files:

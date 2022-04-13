@@ -3,7 +3,7 @@ py/uxfconvert.py # TODO (1)
 
 README.md
 
-test/regression.py # TODO
+t/regression.py # TODO
 
 misc/epd2uxf.py
 misc/md2html.sh
@@ -14,23 +14,23 @@ uxf.vim
 pypi.sh
 st.sh
 
-test/test0.uxf
-test/test1.uxf
-test/test2.uxf
-test/test3.uxf
-test/test4.uxf
-test/test5.uxf
-test/test6.uxf
-test/test7.uxf
-test/test8.uxf
-test/test9.uxf
-test/test10.uxf
-test/test11.uxf
-test/test12.uxf
-test/test13.uxf
-test/0.csv
-test/1.csv
-test/2.csv
+t/test0.uxf
+t/test1.uxf
+t/test2.uxf
+t/test3.uxf
+t/test4.uxf
+t/test5.uxf
+t/test6.uxf
+t/test7.uxf
+t/test8.uxf
+t/test9.uxf
+t/test10.uxf
+t/test11.uxf
+t/test12.uxf
+t/test13.uxf
+t/0.csv
+t/1.csv
+t/2.csv
 
 # TODO (2) UXF libraries
 # for .js use Dart or TypeScript or similar that can output JS
