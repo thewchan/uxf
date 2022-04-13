@@ -1,16 +1,16 @@
 {
   "General": {
-    "UXF:map": {
+    "UXF^map": {
       "comment": "Various configuration items",
       "map": {
         "saved": {
-          "UXF:date": "2022-03-21"
+          "UXF^date": "2022-03-21"
         },
         "autosave": true,
         "historysize": -35,
         "volume": 0.7,
         "files": {
-          "UXF:table": {
+          "UXF^table": {
             "comment": "Another little comment",
             "name": "Files",
             "fieldnames": [
@@ -37,17 +37,17 @@
     }
   },
   "Window": {
-    "UXF:map": {
+    "UXF^map": {
       "comment": "Some numbers",
       "map": {
         "pos": {
-          "UXF:ntuple": [
+          "UXF^ntuple": [
             383,
             124
           ]
         },
         "size": {
-          "UXF:ntuple": [
+          "UXF^ntuple": [
             590,
             536
           ]
@@ -59,7 +59,7 @@
   "UXF Type Tests": [
     "one",
     {
-      "UXF:ntuple": [
+      "UXF^ntuple": [
         -14.1,
         17.9,
         199.0
@@ -68,7 +68,7 @@
     "many",
     [
       {
-        "UXF:ntuple": [
+        "UXF^ntuple": [
           172,
           16,
           254,
@@ -76,7 +76,7 @@
         ]
       },
       {
-        "UXF:ntuple": [
+        "UXF^ntuple": [
           192,
           0,
           2,
@@ -84,7 +84,7 @@
         ]
       },
       {
-        "UXF:ntuple": [
+        "UXF^ntuple": [
           127,
           0,
           0,
@@ -94,7 +94,7 @@
     ],
     "red",
     {
-      "UXF:ntuple": [
+      "UXF^ntuple": [
         255,
         0,
         0
@@ -102,7 +102,7 @@
     },
     "semi-transparent blue",
     {
-      "UXF:ntuple": [
+      "UXF^ntuple": [
         0,
         0,
         255,
@@ -111,10 +111,10 @@
     }
   ],
   "Magic": {
-    "UXF:bytes": "1F8B"
+    "UXF^bytes": "1F8B"
   },
   "Nested Map": {
-    "UXF:map": {
+    "UXF^map": {
       "comment": "Another comment this time in a nested map",
       "map": {
         "Classical": [
@@ -130,7 +130,7 @@
           false
         ],
         "Nested List of Lists": {
-          "UXF:list": {
+          "UXF^list": {
             "comment": "Just a little list",
             "list": [
               [
@@ -152,7 +152,7 @@
           }
         },
         "Nested Table": {
-          "UXF:table": {
+          "UXF^table": {
             "comment": "A table with a rather long comment just to\nshow what can be done.",
             "name": "Categories",
             "fieldnames": [
@@ -200,11 +200,11 @@
           }
         },
         "Nested List of Tables": {
-          "UXF:list": {
+          "UXF^list": {
             "comment": "Yet another comment in a list",
             "list": [
               {
-                "UXF:table": {
+                "UXF^table": {
                   "comment": null,
                   "name": "Categories",
                   "fieldnames": [
@@ -252,7 +252,7 @@
                 }
               },
               {
-                "UXF:table": {
+                "UXF^table": {
                   "comment": "Comments may appear at the beginning of any list, map or table",
                   "name": "Playlists",
                   "fieldnames": [

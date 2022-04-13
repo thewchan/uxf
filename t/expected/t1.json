@@ -4,7 +4,7 @@
     "Classical",
     true,
     {
-      "UXF:date": "1999-07-21"
+      "UXF^date": "1999-07-21"
     }
   ],
   [
@@ -12,7 +12,7 @@
     "Modern Instrumental",
     false,
     {
-      "UXF:date": "1976-11-30"
+      "UXF^date": "1976-11-30"
     }
   ],
   [
@@ -20,7 +20,7 @@
     "New Acquistions",
     false,
     {
-      "UXF:date": "1947-02-28"
+      "UXF^date": "1947-02-28"
     }
   ]
 ]

@@ -1,16 +1,16 @@
 {
   "General": {
-    "UXF:map": {
+    "UXF^map": {
       "comment": "Map comment",
       "map": {
         "saved": {
-          "UXF:date": "2022-03-21"
+          "UXF^date": "2022-03-21"
         },
         "autosave": true,
         "historysize": -35,
         "volume": 0.7,
         "files": {
-          "UXF:table": {
+          "UXF^table": {
             "comment": "Table comment",
             "name": "Files",
             "fieldnames": [
@@ -44,7 +44,7 @@
     "scale": 1.1
   },
   "Magic": {
-    "UXF:bytes": "1F8B"
+    "UXF^bytes": "1F8B"
   },
   "Nested Map": {
     "Classical": [
@@ -60,7 +60,7 @@
       false
     ],
     "Nested List of Lists": {
-      "UXF:list": {
+      "UXF^list": {
         "comment": "List comment",
         "list": [
           [

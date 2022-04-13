@@ -1,16 +1,16 @@
 {
   "General": {
-    "UXF:map": {
+    "UXF^map": {
       "comment": "Map comment #1",
       "map": {
         "saved": {
-          "UXF:date": "2022-03-21"
+          "UXF^date": "2022-03-21"
         },
         "autosave": true,
         "historysize": -35,
         "volume": 0.7,
         "files": {
-          "UXF:table": {
+          "UXF^table": {
             "comment": "Table comment #2",
             "name": "Files",
             "fieldnames": [
@@ -44,14 +44,14 @@
     "scale": 1.1
   },
   "Magic": {
-    "UXF:bytes": "1F8B"
+    "UXF^bytes": "1F8B"
   },
   "Nested Map": {
-    "UXF:map": {
+    "UXF^map": {
       "comment": "Map comment #3",
       "map": {
         "Classical": {
-          "UXF:list": {
+          "UXF^list": {
             "comment": "List comment #4",
             "list": [
               5,
@@ -60,7 +60,7 @@
           }
         },
         "Modern Instrumental": {
-          "UXF:list": {
+          "UXF^list": {
             "comment": "List comment #5",
             "list": [
               4,
@@ -73,11 +73,11 @@
           false
         ],
         "Nested List of Lists": {
-          "UXF:list": {
+          "UXF^list": {
             "comment": "List comment #6",
             "list": [
               {
-                "UXF:list": {
+                "UXF^list": {
                   "comment": "List comment #7",
                   "list": [
                     5,
@@ -100,7 +100,7 @@
           }
         },
         "Nested Table": {
-          "UXF:table": {
+          "UXF^table": {
             "comment": "Table comment #8",
             "name": "Categories",
             "fieldnames": [

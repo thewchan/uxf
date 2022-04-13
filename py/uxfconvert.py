@@ -145,25 +145,25 @@ class _JsonEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
-            return {'UXF:datetime': obj.isoformat()}
+            return {'UXF^datetime': obj.isoformat()}
         if isinstance(obj, datetime.date):
-            return {'UXF:date': obj.isoformat()}
+            return {'UXF^date': obj.isoformat()}
         if isinstance(obj, (bytes, bytearray)):
-            return {'UXF:bytes': obj.hex().upper()}
+            return {'UXF^bytes': obj.hex().upper()}
         if isinstance(obj, (list, uxf.List)):
             comment = getattr(obj, 'comment', None)
             if comment is not None:
-                return {'UXF:list': dict(comment=comment, list=list(obj))}
+                return {'UXF^list': dict(comment=comment, list=list(obj))}
             return list(obj)
         if isinstance(obj, (dict, uxf.Map)):
             comment = getattr(obj, 'comment', None)
             if comment is not None:
-                return {'UXF:map': dict(comment=comment, map=dict(obj))}
+                return {'UXF^map': dict(comment=comment, map=dict(obj))}
             return dict(obj)
         if isinstance(obj, uxf.NTuple):
-            return {'UXF:ntuple': obj.astuple}
+            return {'UXF^ntuple': obj.astuple}
         if isinstance(obj, uxf.Table):
-            return {'UXF:table': dict(
+            return {'UXF^table': dict(
                 comment=obj.comment, name=obj.name,
                 fieldnames=obj.fieldnames, records=obj.records)}
         return json.JSONEncoder.default(self, obj)
