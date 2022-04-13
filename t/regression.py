@@ -42,17 +42,26 @@ def main():
 
 
 def get_config():
-    uxf = '../py/uxf.py'
-    uxfconvert = '../py/uxfconvert.py'
+    uxf_default = '../py/uxf.py'
+    uxfconvert_default = '../py/uxfconvert.py'
+    uxf = uxfconvert = None
     verbose = False
     for arg in sys.argv[1:]:
         if arg in {'-h', '--help'}:
-            raise SystemExit('usage: regression.py [path/to/uxf-exe]')
-        elif arg in {'-v', '--verbose', 'verbose'}:
+            raise SystemExit(f'''\
+usage: regression.py [-v|--verbose] [uxf-exe] [uxfconvert-exe]
+uxf-exe default is {uxf_default}
+uxfconvert-exe default is {uxfconvert_default}''')
+        elif arg in {'-v', '--verbose'}:
             verbose = True
-        else:
+        elif uxf is None:
             uxf = arg
-            uxfconvert = os.path.join(os.path.dirname(uxf, 'uxfconvert.py'))
+        elif uxfconvert is None:
+            uxfconvert = arg
+    if uxf is None:
+        uxf = uxf_default
+    if uxfconvert is None:
+        uxfconvert = uxfconvert_default
     return uxf, uxfconvert, verbose
 
 

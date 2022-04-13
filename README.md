@@ -39,6 +39,9 @@ BNF at the end).
 Where whitespace is allowed (or required) it may be spaces, tabs, or
 newlines.
 
+If you don't want to be committed to a particular UXF type, just use a `str`
+and do whatever conversion you want.
+
 ## Examples
 
 ### Minimal empty UXF
