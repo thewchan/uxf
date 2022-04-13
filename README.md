@@ -285,7 +285,7 @@ more human readable or more compact).
 
 Installed alongside `uxf.py` is `uxfconvert.py` (from `py/uxfconvert.py`)
 which might prove useful to see how to use `uxf`. And also see the
-`test/*.uxf` test files.
+`t/*.uxf` test files.
 
 If you just want to create a small standalone `.pyz`, simply copy
 `py/uxf.py` as `uxf.py` into your project folder and inlude it in your
