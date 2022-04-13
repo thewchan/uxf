@@ -12,11 +12,11 @@ import uxf
 
 
 def main():
-    config = get_config()
+    config = _get_config()
     config.convert(config)
 
 
-def get_config():
+def _get_config():
     parser = argparse.ArgumentParser(usage=USAGE)
     parser.add_argument('-i', '--indent', type=int, default=2,
                         help='default: 2, range 0-8')
@@ -28,52 +28,65 @@ def get_config():
     parser.add_argument('file', nargs='+',
                         help='infile(s) and outfile as shown above')
     config = parser.parse_args()
+    _postprocess_args(parser, config)
+    return config
+
+
+def _postprocess_args(parser, config):
     if not (0 <= config.indent <= 8):
         config.indent = 2 # sanitize rather than complain
     if len(config.file) < 2:
         parser.error('least two filenames are required')
     config.convert = None
     if len(config.file) > 2:
-        if not config.file[-1].upper().endswith('.UXF'):
-            parser.error('multiple infiles may only be converted to .uxf')
-        for name in config.file[:-1]:
-            if not name.upper().endswith('.CSV'):
-                parser.error('multiple infiles may only be .csv files')
-        config.convert = multi_csv_to_uxf
-        config.infiles = config.file[:-1]
-        config.outfile = config.file[-1]
+        _postprocess_csv_args(parser, config)
     else:
-        config.infiles = [config.file[0]]
-        config.outfile = config.file[-1]
-        infile = config.infiles[0].upper()
-        outfile = config.outfile.upper()
-        if infile.endswith('.UXF') and outfile.endswith('.UXF'):
-            parser.error('connot convert uxf to uxf, instead use: '
-                         'python3 -m uxf infile.uxf outfile.uxf')
-        if outfile.endswith('.UXF'):
-            if infile.endswith('.CSV'):
-                config.convert = csv_to_uxf
-            elif infile.endswith('.INI'):
-                config.convert = ini_to_uxf
-            elif infile.endswith(('.JSN', '.JSON')):
-                config.convert = json_to_uxf
-            elif infile.endswith('.SQLITE'):
-                config.convert = sqlite_to_uxf
-            elif infile.endswith('.XML'):
-                config.convert = xml_to_uxf
-        elif infile.endswith('.UXF'):
-            if outfile.endswith('.CSV'):
-                config.convert = uxf_to_csv
-            elif outfile.endswith(('.JSN', '.JSON')):
-                config.convert = uxf_to_json
-            elif outfile.endswith('.SQLITE'):
-                config.convert = uxf_to_sqlite
-            elif outfile.endswith('.XML'):
-                config.convert = uxf_to_xml
+        _postprocess_other_args(parser, config)
     if config.convert is None:
         parser.error('cannot perform the requested conversion')
     del config.file
     return config
+
+
+def _postprocess_csv_args(parser, config):
+    if not config.file[-1].upper().endswith(DOT_UXF):
+        parser.error('multiple infiles may only be converted to .uxf')
+    for name in config.file[:-1]:
+        if not name.upper().endswith(DOT_CSV):
+            parser.error('multiple infiles may only be .csv files')
+    config.convert = multi_csv_to_uxf
+    config.infiles = config.file[:-1]
+    config.outfile = config.file[-1]
+
+
+def _postprocess_other_args(parser, config):
+    config.infiles = [config.file[0]]
+    config.outfile = config.file[-1]
+    infile = config.infiles[0].upper()
+    outfile = config.outfile.upper()
+    if infile.endswith(DOT_UXF) and outfile.endswith(DOT_UXF):
+        parser.error('connot convert uxf to uxf, instead use: '
+                     'python3 -m uxf infile.uxf outfile.uxf')
+    if outfile.endswith(DOT_UXF):
+        if infile.endswith(DOT_CSV):
+            config.convert = csv_to_uxf
+        elif infile.endswith(DOT_INI):
+            config.convert = ini_to_uxf
+        elif infile.endswith((DOT_JSN, DOT_JSON)):
+            config.convert = json_to_uxf
+        elif infile.endswith(DOT_SQLITE):
+            config.convert = sqlite_to_uxf
+        elif infile.endswith(DOT_XML):
+            config.convert = xml_to_uxf
+    elif infile.endswith(DOT_UXF):
+        if outfile.endswith(DOT_CSV):
+            config.convert = uxf_to_csv
+        elif outfile.endswith((DOT_JSN, DOT_JSON)):
+            config.convert = uxf_to_json
+        elif outfile.endswith(DOT_SQLITE):
+            config.convert = uxf_to_sqlite
+        elif outfile.endswith(DOT_XML):
+            config.convert = uxf_to_xml
 
 
 def uxf_to_csv(config):
@@ -137,18 +150,8 @@ def multi_csv_to_uxf(config):
 
 def uxf_to_json(config):
     data, _ = uxf.read(config.infiles[0])
-    with open(config.outfile, 'wt', encoding='utf-8') as file:
+    with open(config.outfile, 'wt', encoding=UTF8) as file:
         json.dump(data, file, cls=_JsonEncoder, indent=2)
-
-
-JSON_DATETIME = 'UXF^datetime'
-JSON_DATE = 'UXF^date'
-JSON_BYTES = 'UXF^bytes'
-JSON_LIST = 'UXF^list'
-JSON_MAP = 'UXF^map'
-JSON_NTUPLE = 'UXF^ntuple'
-JSON_TABLE = 'UXF^table'
-COMMENT = 'comment'
 
 
 class _JsonEncoder(json.JSONEncoder):
@@ -181,10 +184,9 @@ class _JsonEncoder(json.JSONEncoder):
 
 def json_to_uxf(config):
     filename = config.infiles[0]
-    with open(filename, 'rt', encoding='utf-8') as file:
+    with open(filename, 'rt', encoding=UTF8) as file:
         data = json.load(file, object_hook=_json_naturalize)
-    uxf.write(config.outfile, data=data, custom=filename,
-              one_way_conversion=True)
+    uxf.write(config.outfile, data=data, custom=filename)
 
 
 def _json_naturalize(d):
@@ -212,6 +214,15 @@ def _json_naturalize(d):
     return d
 
 
+JSON_DATETIME = 'UXF^datetime'
+JSON_DATE = 'UXF^date'
+JSON_BYTES = 'UXF^bytes'
+JSON_LIST = 'UXF^list'
+JSON_MAP = 'UXF^map'
+JSON_NTUPLE = 'UXF^ntuple'
+JSON_TABLE = 'UXF^table'
+
+
 def ini_to_uxf(config):
     print('ini_to_uxf', config) # TODO
 
@@ -231,6 +242,16 @@ def uxf_to_xml(config):
 def xml_to_uxf(config):
     print('xml_to_uxf', config) # TODO
 
+
+DOT_CSV = '.CSV'
+DOT_INI = '.INI'
+DOT_JSN = '.JSN'
+DOT_JSON = '.JSON'
+DOT_SQLITE = '.SQLITE'
+DOT_UXF = '.UXF'
+DOT_XML = '.XML'
+COMMENT = 'comment'
+UTF8 = 'utf-8'
 
 USAGE = '''
 uxfconvert.py <infile.uxf> <outfile.{csv,json,sqlite,xml}>

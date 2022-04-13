@@ -60,6 +60,8 @@ def test_uxf(uxf, uxffiles, *, verbose):
             print(f'{cmd} • FAIL (execute)')
         else:
             ok += compare(cmd, name, actual, expected, verbose=verbose)
+            if not verbose and not ok % 10:
+                print('.', end='', flush=True)
     return total, ok
 
 
@@ -83,6 +85,8 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
             expected = f'expected/{outfile}'
             n = compare(cmd, infile, actual, expected, verbose=verbose)
             ok += n
+            if not verbose and not ok % 10:
+                print('.', end='', flush=True)
             if n:
                 if roundtrip in (Y, YR):
                     total += 1
@@ -102,6 +106,8 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
                         if compare(cmd, expected, new_actual, compare_with,
                                    verbose=verbose, roundtrip=True):
                             ok += 1
+                            if not verbose and not ok % 10:
+                                print('.', end='', flush=True)
                             with contextlib.suppress(FileNotFoundError):
                                 os.remove(new_actual)
     total += 1
@@ -115,6 +121,8 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
     else:
         expected = 'expected/1-2-csv.uxf'
         ok += compare(cmd, infile, actual, expected, verbose=verbose)
+        if not verbose and not ok % 10:
+            print('.', end='', flush=True)
     return total, ok
 
 
