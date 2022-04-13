@@ -9,8 +9,7 @@ open source software.
 
 - [Datatypes](#datatypes)
 - [Examples](#examples)
-- [Libraries](#libraries)
-    - [Python](#python)
+- [Libraries](#libraries): [Python](#python)
 - [BNF](#bnf)
 - [Vim Support](#vim-support)
 - [UXF Logo](#uxf-logo)
