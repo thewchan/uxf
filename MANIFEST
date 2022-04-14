@@ -1,10 +1,10 @@
 py/uxf.py
 py/uxfconvert.py
-# TODO ini_to_uxf uxf_to_sqlite sqlite_to_uxf uxf_to_xml xml_to_uxf
+# TODO uxf_to_sqlite sqlite_to_uxf uxf_to_xml xml_to_uxf
 
 README.md
 
-t/regression.py # TODO tests for ini sqlite xml
+t/regression.py # TODO tests for sqlite xml
 
 misc/epd2uxf.py
 misc/md2html.sh

@@ -124,8 +124,8 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
     files = [(name, name.replace('.uxf', '.json'), Y) for name in uxffiles]
     files += [('t1.uxf', 't1.csv', N), ('t2.uxf', 't2.csv', N),
               ('0.csv', '0.uxf', N), ('1.csv', '1.uxf', NF),
-              ('2.csv', '2.uxf', NF)]
-    # TODO add tests for ini, sqlite, and xml
+              ('2.csv', '2.uxf', NF), ('ini.ini', 'ini.uxf', N)]
+    # TODO add tests for sqlite and xml
     for infile, outfile, roundtrip in files:
         total += 1
         actual = f'actual/{outfile}'

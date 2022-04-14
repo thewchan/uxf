@@ -3,6 +3,7 @@
 # License: GPLv3
 
 import argparse
+import configparser
 import csv
 import datetime
 import json
@@ -231,8 +232,8 @@ def _json_naturalize(d):
         return ls
     if JSON_MAP in d:
         jmap = d[JSON_MAP]
-        ktype = jmap.get('ktype') # str
-        ktypes = jmap.get('ktypes') # dict
+        ktype = jmap.get('ktype') # str or None
+        ktypes = jmap.get('ktypes') # dict or None
         m = uxf.Map()
         m.comment = jmap[COMMENT]
         for key, value in jmap['map'].items():
@@ -264,7 +265,18 @@ JSON_TABLE = 'UXF^table'
 
 
 def ini_to_uxf(config):
-    print('ini_to_uxf', config) # TODO
+    ini = configparser.ConfigParser()
+    filename = config.infiles[0] 
+    ini.read(filename)
+    data = uxf.Map()
+    for section in ini:
+        d = ini[section]
+        if d:
+            m = data[section] = uxf.Map()
+            for key, value in d.items():
+                m[uxf.naturalize(key)] = uxf.naturalize(value)
+    uxf.dump(config.outfile, data=data, custom=filename,
+             one_way_conversion=True)
 
 
 def uxf_to_sqlite(config):
@@ -315,6 +327,10 @@ scalars otherwise.
 
 Converting from uxf to csv can only be done if the uxf contains a single
 table or a single list of lists of scalars.
+
+Converting from ini to uxf is purely for example purposes (and drops ini
+comments). In a real application (e.g., migrating from ini to uxf), a custom
+ini parser would be needed.
 
 Converting from uxf to json and back (i.e., using uxfconvert.py's own json
 format) should work with perfect fidelity.

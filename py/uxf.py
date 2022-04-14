@@ -1139,6 +1139,8 @@ def naturalize(s):
     if u in {'F', 'FALSE', 'N', 'NO'}:
         return False
     try:
+        if len(s) < 5:
+            raise ValueError # don't convert 4-digit numbers to s-01-01 date
         if 'T' in s:
             if isoparse is not None:
                 return isoparse(s)
