@@ -186,18 +186,15 @@ def _json_encode_map(obj):
     d = {}
     ktypes = {}
     for key, value in obj.items():
-        if isinstance(key, datetime.datetime):
+        if isinstance(key, (datetime.date, datetime.datetime)):
             skey = key.isoformat()
-            ktypes[skey] = 'datetime'
-        elif isinstance(key, datetime.date):
-            skey = key.isoformat()
-            ktypes[skey] = 'date'
+            ktypes[skey] = 'uxf'
+        elif isinstance(key, int):
+            skey = str(key)
+            ktypes[skey] = 'uxf'
         elif isinstance(key, (bytes, bytearray)):
             skey = key.hex().upper()
             ktypes[skey] = 'bytes'
-        elif isinstance(key, int):
-            skey = str(key)
-            ktypes[skey] = 'int'
         elif isinstance(key, str):
             skey = key
         else:
