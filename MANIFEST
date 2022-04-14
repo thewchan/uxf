@@ -1,6 +1,9 @@
+# TODO (1) copy t/t3.uxf to t/t15.uxf and add dates to the first table
+# and datetimes to the second table to better test uxf to sqlite
+
 py/uxf.py
 py/uxfconvert.py
-# TODO uxf_to_sqlite sqlite_to_uxf uxf_to_xml xml_to_uxf
+# TODO (2) sqlite_to_uxf (3) uxf_to_xml (4) xml_to_uxf
 
 README.md
 
@@ -34,7 +37,7 @@ t/0.csv
 t/1.csv
 t/2.csv
 
-# TODO UXF libraries
+# TODO (5) UXF libraries
 # for .js use Dart or TypeScript or similar that can output JS
 # uxf.rs uxf.cpp uxf.java uxf.rb ...
 
