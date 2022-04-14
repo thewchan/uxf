@@ -168,11 +168,10 @@ class _JsonEncoder(json.JSONEncoder):
             if comment is not None:
                 return {JSON_LIST: dict(comment=comment, list=list(obj))}
             return list(obj)
-        if isinstance(obj, (dict, uxf.Map)):
-            comment = getattr(obj, COMMENT, None)
-            if comment is not None:
-                return {JSON_MAP: dict(comment=comment, map=dict(obj))}
-            return dict(obj)
+        if isinstance(obj, uxf.Map):
+            return _json_encode_map(obj)
+        if isinstance(obj, dict):
+            return obj
         if isinstance(obj, uxf.NTuple):
             return {JSON_NTUPLE: obj.astuple}
         if isinstance(obj, uxf.Table):
@@ -180,6 +179,38 @@ class _JsonEncoder(json.JSONEncoder):
                 comment=obj.comment, name=obj.name,
                 fieldnames=obj.fieldnames, records=obj.records)}
         return json.JSONEncoder.default(self, obj)
+
+
+def _json_encode_map(obj):
+    comment = getattr(obj, COMMENT, None)
+    d = {}
+    ktypes = {}
+    for key, value in obj.items():
+        if isinstance(key, datetime.datetime):
+            skey = key.isoformat()
+            ktypes[skey] = 'datetime'
+        elif isinstance(key, datetime.date):
+            skey = key.isoformat()
+            ktypes[skey] = 'date'
+        elif isinstance(key, (bytes, bytearray)):
+            skey = key.hex().upper()
+            ktypes[skey] = 'bytes'
+        elif isinstance(key, int):
+            skey = str(key)
+            ktypes[skey] = 'int'
+        elif isinstance(key, str):
+            skey = key
+        else:
+            raise SystemExit(f'invalid map key type: {key} of {type(key)}')
+        d[skey] = value
+    if not ktypes and comment is None: # str keys, no comment → plain dict
+        return dict(obj)
+    m = dict(comment=comment, map=d)
+    if len(ktypes) == len(d) and len(set(ktypes.values())) == 1:
+        m['ktype'] = ktypes.popitem()[1] # all use same non-str key
+    elif ktypes:
+        m['ktypes'] = ktypes
+    return {JSON_MAP: m}
 
 
 def json_to_uxf(config):
@@ -197,20 +228,32 @@ def _json_naturalize(d):
     if JSON_BYTES in d:
         return bytes.fromhex(d[JSON_BYTES])
     if JSON_LIST in d:
-        x = uxf.List(d[JSON_LIST]['list'])
-        x.comment = d[JSON_LIST][COMMENT]
-        return x
+        jlist = d[JSON_LIST]
+        ls = uxf.List(jlist['list'])
+        ls.comment = jlist[COMMENT]
+        return ls
     if JSON_MAP in d:
-        x = uxf.Map(d[JSON_MAP]['map'])
-        x.comment = d[JSON_MAP][COMMENT]
-        return x
+        jmap = d[JSON_MAP]
+        ktype = jmap.get('ktype') # str
+        ktypes = jmap.get('ktypes') # dict
+        m = uxf.Map()
+        m.comment = jmap[COMMENT]
+        for key, value in jmap['map'].items():
+            if ktypes is not None:
+                ktype = ktypes.get(key)
+            if ktype == 'bytes':
+                key = bytes.fromhex(key)
+            else:
+                key = key if ktype is None else uxf.naturalize(key)
+            m[key] = value
+        return m
     elif JSON_NTUPLE in d:
         return uxf.NTuple(*d[JSON_NTUPLE])
     elif JSON_TABLE in d:
-        return uxf.Table(name=d[JSON_TABLE]['name'],
-                         fieldnames=d[JSON_TABLE]['fieldnames'],
-                         records=d[JSON_TABLE]['records'],
-                         comment=d[JSON_TABLE][COMMENT])
+        jtable = d[JSON_TABLE]
+        return uxf.Table(name=jtable['name'],
+                         fieldnames=jtable['fieldnames'],
+                         records=jtable['records'], comment=jtable[COMMENT])
     return d
 
 
