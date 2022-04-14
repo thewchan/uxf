@@ -284,27 +284,49 @@ def uxf_to_sqlite(config):
 
 
 def _uxf_to_sqlite(config, tables):
+    sqlite3.register_adapter(bool, lambda b: 'TRUE' if b else 'FALSE')
+    sqlite3.register_adapter(datetime.date, lambda d: d.isoformat())
+    sqlite3.register_adapter(datetime.datetime, lambda d: d.isoformat())
     db = None
     try:
-        db = _create_db(config.outfile)
+        db = sqlite3.connect(config.outfile)
         for table in tables:
-            _create_table(db, table)
-            _populate_table(db, table)
+            table_name = _create_table(db, table)
+            _populate_table(db, table, table_name)
     finally:
         if db is not None:
+            db.commit()
             db.close()
 
 
-def _create_db(filename):
-    print('_create_db', filename)
-
-
 def _create_table(db, table):
-    print('_create_table', db, table)
+    table_name = uxf._canonicalize(table.name, 'Table')
+    sql = ['CREATE TABLE IF NOT EXISTS ', table_name, ' (']
+    types = ['TEXT'] * len(table.fieldnames)
+    if table.records:
+        for i, value in enumerate(table.records[0]):
+            if isinstance(value, float):
+                types[i] = 'REAL'
+            elif isinstance(value, int) and not isinstance(value, bool):
+                types[i] = 'INT'
+            elif isinstance(value, (bytes, bytearray)):
+                types[i] = 'BLOB'
+    sep = ''
+    for i, name in enumerate(table.fieldnames):
+        field_name = uxf._canonicalize(name, f'Field{i + 1}')
+        sql += [sep, field_name, ' ', types[i]]
+        sep = ', '
+    sql += [');']
+    cursor = db.cursor()
+    cursor.execute(''.join(sql))
+    return table_name
 
 
-def _populate_table(db, table):
-    print('_populate_table', db, table)
+def _populate_table(db, table, table_name):
+    sql = ['INSERT INTO ', table_name, ' VALUES (',
+           ', '.join('?' * len(table.fieldnames)), ');']
+    cursor = db.cursor()
+    cursor.executemany(''.join(sql), table.records)
 
 
 def sqlite_to_uxf(config):
