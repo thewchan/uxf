@@ -51,8 +51,9 @@ that also has a .comment attribute.
     class Table
 
 Used to store UXF Tables. A Table has a list of fieldnames and a records
-list which is a lists of lists with each sublist having the same number of
-items as the number of fieldnames. It also has a .comment attribute.
+list which is a list of lists of scalars with each sublist having the same
+number of items as the number of fieldnames. It also has a .comment
+attribute.
 
     class NTuple
 
@@ -540,7 +541,7 @@ class NTuple:
         if len(self._items) == 2:
             if name == 'real':
                 return self._items[0]
-            elif name in {'imag', 'imaginary'}:
+            if name in {'imag', 'imaginary'}:
                 return self._items[1]
         raise AttributeError(f'{self.__class__.__name__!r} object has '
                              f'no attribute {name!r}')
@@ -576,9 +577,10 @@ class Map(collections.UserDict):
 class Table:
     '''Used to store a UXF table.
 
-    A Table has a list of fieldnames and a records list which is a lists of
-    lists with each sublist having the same number of items as the number of
-    fieldnames. It also has a .comment attribute.
+    A Table has a list of fieldnames and a records list which is a list of
+    lists of scalars. with each sublist having the same number of items as
+    the number of fieldnames. It also has a .comment attribute. (Note that
+    the lists in a Table are plain lists not UXF Lists.)
 
     When a Table is iterated each row is returned as a namedtuple.
     '''
@@ -587,7 +589,7 @@ class Table:
                  comment=None):
         '''
         A Table may be created empty, e.g., Table(). However, if records is
-        not None, then both name and fieldnames must be given.
+        not None, then both the name and fieldnames must be given.
 
         records can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fieldnames) long), or a list of
@@ -607,10 +609,10 @@ class Table:
             if not fieldnames:
                 raise Error(
                     'can\'t create a nonempty table without field names')
-            if isinstance(records, list):
+            if isinstance(records, (list, List)):
                 if self._Class is None:
                     self._make_class()
-                self.records = records
+                self.records = list(records)
             else:
                 for value in records:
                     self.append(value)
@@ -645,7 +647,7 @@ class Table:
             raise Error('can\'t append to an unnamed table')
         if not self.fieldnames:
             raise Error('can\'t append to a table with no field names')
-        if isinstance(value, (list, tuple)): # or: collections.abc.Sequence?
+        if isinstance(value, (list, List, tuple)):
             for v in value:
                 self.append(v)
         else:
@@ -838,11 +840,11 @@ class _Parser(_ErrorMixin):
 
     def _handle_map_value(self, token):
         if self._is_collection_start(token.kind):
-            # this adds a new list, map, or table to the stack
+            # this adds a new List, Map, or Table to the stack
             self._on_collection_start(token.kind)
-            # this adds a key-value item to the map that contains the above
-            # list, map, or table, the key being the key acquired earlier,
-            # the value being the new list, map, or table
+            # this adds a key-value item to the Map that contains the above
+            # List, Map, or Table, the key being the key acquired earlier,
+            # the value being the new List, Map, or Table
             self.stack[-2][self.keys[-1]] = self.stack[-1]
         elif self._is_collection_end(token.kind):
             self.states[-1] = _Expect.MAP_KEY
@@ -856,7 +858,7 @@ class _Parser(_ErrorMixin):
 
     def _handle_any_value(self, token):
         if self._is_collection_start(token.kind):
-            # this adds a new list, map, or table to the stack
+            # this adds a new List, Map, or Table to the stack
             self._on_collection_start(token.kind)
         elif self._is_collection_end(token.kind):
             self.states.pop()

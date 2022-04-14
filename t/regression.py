@@ -29,6 +29,7 @@ def main():
     uxffiles = sorted((name for name in os.listdir('.')
                        if os.path.isfile(name) and name.endswith('.uxf')),
                       key=by_number)
+    print('.', end='', flush=True)
     total, ok = test_uxf_files(uxf, uxffiles, verbose=verbose)
     total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose)
     total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
