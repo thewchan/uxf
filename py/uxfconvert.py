@@ -8,6 +8,7 @@ import csv
 import datetime
 import json
 import pathlib
+import sqlite3
 
 import uxf
 
@@ -189,13 +190,13 @@ def _json_encode_map(obj):
     for key, value in obj.items():
         if isinstance(key, (datetime.date, datetime.datetime)):
             skey = key.isoformat()
-            ktypes[skey] = 'uxf'
+            ktypes[skey] = UXF
         elif isinstance(key, int):
             skey = str(key)
-            ktypes[skey] = 'uxf'
+            ktypes[skey] = UXF
         elif isinstance(key, (bytes, bytearray)):
             skey = key.hex().upper()
-            ktypes[skey] = 'bytes'
+            ktypes[skey] = BYTES
         elif isinstance(key, str):
             skey = key
         else:
@@ -205,9 +206,9 @@ def _json_encode_map(obj):
         return dict(obj)
     m = dict(comment=comment, map=d)
     if len(ktypes) == len(d) and len(set(ktypes.values())) == 1:
-        m['ktype'] = ktypes.popitem()[1] # all use same non-str key
+        m[KTYPE] = ktypes.popitem()[1] # all use same non-str key
     elif ktypes:
-        m['ktypes'] = ktypes
+        m[KTYPES] = ktypes
     return {JSON_MAP: m}
 
 
@@ -227,19 +228,19 @@ def _json_naturalize(d):
         return bytes.fromhex(d[JSON_BYTES])
     if JSON_LIST in d:
         jlist = d[JSON_LIST]
-        ls = uxf.List(jlist['list'])
+        ls = uxf.List(jlist[LIST])
         ls.comment = jlist[COMMENT]
         return ls
     if JSON_MAP in d:
         jmap = d[JSON_MAP]
-        ktype = jmap.get('ktype') # str or None
-        ktypes = jmap.get('ktypes') # dict or None
+        ktype = jmap.get(KTYPE) # str or None
+        ktypes = jmap.get(KTYPES) # dict or None
         m = uxf.Map()
         m.comment = jmap[COMMENT]
-        for key, value in jmap['map'].items():
+        for key, value in jmap[MAP].items():
             if ktypes is not None:
                 ktype = ktypes.get(key)
-            if ktype == 'bytes':
+            if ktype == BYTES:
                 key = bytes.fromhex(key)
             else:
                 key = key if ktype is None else uxf.naturalize(key)
@@ -249,24 +250,15 @@ def _json_naturalize(d):
         return uxf.NTuple(*d[JSON_NTUPLE])
     elif JSON_TABLE in d:
         jtable = d[JSON_TABLE]
-        return uxf.Table(name=jtable['name'],
-                         fieldnames=jtable['fieldnames'],
-                         records=jtable['records'], comment=jtable[COMMENT])
+        return uxf.Table(name=jtable[NAME],
+                         fieldnames=jtable[FIELDNAMES],
+                         records=jtable[RECORDS], comment=jtable[COMMENT])
     return d
-
-
-JSON_DATETIME = 'UXF^datetime'
-JSON_DATE = 'UXF^date'
-JSON_BYTES = 'UXF^bytes'
-JSON_LIST = 'UXF^list'
-JSON_MAP = 'UXF^map'
-JSON_NTUPLE = 'UXF^ntuple'
-JSON_TABLE = 'UXF^table'
 
 
 def ini_to_uxf(config):
     ini = configparser.ConfigParser()
-    filename = config.infiles[0] 
+    filename = config.infiles[0]
     ini.read(filename)
     data = uxf.Map()
     for section in ini:
@@ -280,7 +272,39 @@ def ini_to_uxf(config):
 
 
 def uxf_to_sqlite(config):
-    print('uxf_to_sqlite', config) # TODO
+    data, _ = uxf.load(config.infiles[0])
+    if isinstance(data, uxf.Table):
+        _uxf_to_sqlite(config, [data])
+    elif (isinstance(data, (list, uxf.List)) and data and
+            all(isinstance(v, uxf.Table) for v in data)):
+        _uxf_to_sqlite(config, data)
+    else:
+        raise SystemExit('can only convert a UXF containing a single table '
+                         'or a single list of Tables to SQLite')
+
+
+def _uxf_to_sqlite(config, tables):
+    db = None
+    try:
+        db = _create_db(config.outfile)
+        for table in tables:
+            _create_table(db, table)
+            _populate_table(db, table)
+    finally:
+        if db is not None:
+            db.close()
+
+
+def _create_db(filename):
+    print('_create_db', filename)
+
+
+def _create_table(db, table):
+    print('_create_table', db, table)
+
+
+def _populate_table(db, table):
+    print('_populate_table', db, table)
 
 
 def sqlite_to_uxf(config):
@@ -295,6 +319,8 @@ def xml_to_uxf(config):
     print('xml_to_uxf', config) # TODO
 
 
+BYTES = 'bytes'
+COMMENT = 'comment'
 DOT_CSV = '.CSV'
 DOT_INI = '.INI'
 DOT_JSN = '.JSN'
@@ -302,8 +328,22 @@ DOT_JSON = '.JSON'
 DOT_SQLITE = '.SQLITE'
 DOT_UXF = '.UXF'
 DOT_XML = '.XML'
-COMMENT = 'comment'
+FIELDNAMES = 'fieldnames'
+JSON_BYTES = 'UXF^bytes'
+JSON_DATE = 'UXF^date'
+JSON_DATETIME = 'UXF^datetime'
+JSON_LIST = 'UXF^list'
+JSON_MAP = 'UXF^map'
+JSON_NTUPLE = 'UXF^ntuple'
+JSON_TABLE = 'UXF^table'
+KTYPE = 'ktype'
+KTYPES = 'ktypes'
+LIST = 'list'
+MAP = 'map'
+NAME = 'name'
+RECORDS = 'records'
 UTF8 = 'utf-8'
+UXF = 'uxf'
 
 USAGE = '''
 uxfconvert.py <infile.uxf> <outfile.{csv,json,sqlite,xml}>

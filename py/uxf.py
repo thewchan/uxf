@@ -10,7 +10,7 @@ The uxf module can be used as an executable. To see the command line help run:
 
     python3 -m uxf -h
 
-uxf's public API provides five free functions and five classes.
+uxf's public API provides six free functions and five classes.
 
     def load(filename_or_filelike): -> (data, custom_header)
     def loads(uxf_text): -> (data, custom_header)
@@ -33,6 +33,10 @@ This takes a str and returns a bool or datetime.datetime or datetime.date or
 int or float if any of these can be parsed, otherwise returns the original
 string s. This is provided as a helper function (e.g., it is used by
 uxfconvert.py).
+
+    def realize(n: float) -> str
+
+Returns a UXF-compatible, (i.e., naturalize-able) str representing the float n.
 
     class Error
 
@@ -1080,7 +1084,7 @@ class _Writer:
         elif isinstance(item, int):
             self.file.write(str(item))
         elif isinstance(item, float):
-            self.file.write(_realstr(item))
+            self.file.write(realize(item))
         elif isinstance(item, (datetime.date, datetime.datetime)):
             self.file.write(item.isoformat())
         elif isinstance(item, str):
@@ -1097,7 +1101,7 @@ class _Writer:
                 raise Error('can only convert complex to ntuple if '
                             'one_way_conversion is True')
             self.file.write(
-                f'(:{_realstr(item.real)} {_realstr(item.imag)}:)')
+                f'(:{realize(item.real)} {realize(item.imag)}:)')
         elif isinstance(item, NTuple):
             self.file.write(item.asuxf)
         else:
@@ -1106,8 +1110,13 @@ class _Writer:
         return False
 
 
-def _realstr(s):
-    value = str(s)
+def realize(n: float) -> str:
+    '''Returns a str representation of the given number n with the str
+    guaranteed to include a decimal point and a digit either side of the
+    point whether the representation is standard or scientific, as required
+    by the UXF BNF.
+    '''
+    value = str(n)
     if '.' not in value:
         i = value.find('e')
         if i == -1:
@@ -1128,10 +1137,10 @@ def _is_scalar(x):
 def naturalize(s):
     '''Given string s returns True if the string is 't', 'true', 'y', 'yes',
     or False if the string is 'f', 'false', 'n', 'no' (case-insensitive), or
-    a datetime.datetime if s holds a parsable ISO8601 datetime string, or a
-    datetime.date if s holds a parsable ISO8601 date string, or an int if s
-    holds a parsable int, or a float if s holds a parsable float, or failing
-    these returns the string s unchanged.
+    an int if s holds a parsable int, or a float if s holds a parsable
+    float, or a datetime.datetime if s holds a parsable ISO8601 datetime
+    string, or a datetime.date if s holds a parsable ISO8601 date string, or
+    failing these returns the string s unchanged.
     '''
     u = s.upper()
     if u in {'T', 'TRUE', 'Y', 'YES'}:
@@ -1139,22 +1148,20 @@ def naturalize(s):
     if u in {'F', 'FALSE', 'N', 'NO'}:
         return False
     try:
-        if len(s) < 5:
-            raise ValueError # don't convert 4-digit numbers to s-01-01 date
-        if 'T' in s:
-            if isoparse is not None:
-                return isoparse(s)
-            return datetime.datetime.fromisoformat(s)
-        else:
-            if isoparse is not None:
-                return isoparse(s).date()
-            return datetime.date.fromisoformat(s)
+        return int(s)
     except ValueError:
         try:
-            return int(s)
+            return float(s)
         except ValueError:
             try:
-                return float(s)
+                if 'T' in s:
+                    if isoparse is not None:
+                        return isoparse(s)
+                    return datetime.datetime.fromisoformat(s)
+                else:
+                    if isoparse is not None:
+                        return isoparse(s).date()
+                    return datetime.date.fromisoformat(s)
             except ValueError:
                 return s
 
