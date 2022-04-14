@@ -1,0 +1,57 @@
+uxf 1.0 TLM Config
+{
+    <General> {
+        <saved> 2022-03-21 <autosave> true <historysize> -35 <volume> 0.7
+        <files> [= <Files> <kind> <filename> =
+            <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
+            <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
+            <recent2> </home/mark/data/playlists-all.tlm>
+        =]
+    }
+    <Window> {<x> 383 <y> 124 <width> 590 <height> 536 <scale> 1.1}
+    <Magic> (1F 8B)
+    <Nested Dict> {
+        <Classical> [5 true]
+        <Modern Instrumental> [4 false]
+        <New Acquistions> [1 false]
+        <Nested List of Lists> [
+            [5 <Classical> true]
+            [4 <Modern Instrumental> false]
+            [1 <New Acquistions> false]
+        ]
+        <Nested Table> [= <Categories> <CID> <Title> <Selected> =
+            5 <Classical> true
+            4 <Modern Instrumental> false
+            1 <New Acquistions> false
+            2 <Pop> false
+            3 <Punk> false
+            7 <Uncategorized> false
+            6 <Unpopular Pop> false
+            =]
+        <Nested List of Tables> [
+                [= <Categories> <CID> <Title> <Selected> =
+                    5 <Classical> true
+                    4 <Modern Instrumental> false
+                    1 <New Acquistions> false
+                    2 <Pop> false
+                    3 <Punk> false
+                    7 <Uncategorized> false
+                    6 <Unpopular Pop> false
+                =]
+                [= <Playlists> <PID> <Title> <CID> <Selected> =
+                    4 <ABBA> 2 false
+                    38 <Bach> 5 false
+                    39 <Bartok> 5 false
+                    5 <Beatles> 2 false
+                    40 <Beethoven> 5 false
+                    6 <Blondie> 2 false
+                    52 <Bob Marley> 6 true
+                    7 <Bruce Springsteen> 2 false
+                    41 <Chopin> 5 true
+                    37 <Classical> 5 false
+                    8 <David Bowie> 2 false
+                    9 <Dire Straits> 2 false
+                =]
+            ]
+    }
+}

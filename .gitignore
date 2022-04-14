@@ -42,7 +42,6 @@ dub.selections.json
 .mypy_cache
 zig-cache
 *.html
-*.uxf
 build/
 dist/
 py/uxf.egg-info/
