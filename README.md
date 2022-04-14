@@ -170,7 +170,7 @@ For example, here's an alternative:
         <Files> {
           <current> <test1.uxf>
           <recent> [ #<From most to least recent>
-	  </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
+          </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
       <Window> { #<Window dimensions and scale>
@@ -300,8 +300,10 @@ doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress, or make
 more human readable or more compact).
 
 Installed alongside `uxf.py` is `uxfconvert.py` (from `py/uxfconvert.py`)
-which might prove useful to see how to use `uxf`. And also see the
-`t/*.uxf` test files.
+which might prove useful to see how to use `uxf`. For example,
+`uxfconvert.py` can convert `.csv`, `.ini`, and `.sqlite` (tables only)
+files into `.uxf`, and can losslessly convert `.uxf` to `.json` or `.xml`
+and back. And also see the `t/*` test files.
 
 If you just want to create a small standalone `.pyz`, simply copy
 `py/uxf.py` as `uxf.py` into your project folder and inlude it in your
