@@ -290,8 +290,8 @@ def _uxf_to_sqlite(config, tables):
     db = None
     try:
         db = sqlite3.connect(config.outfile)
-        for table in tables:
-            table_name = _create_table(db, table)
+        for table_index, table in enumerate(tables, 1):
+            table_name = _create_table(db, table, table_index)
             _populate_table(db, table, table_name)
     finally:
         if db is not None:
@@ -299,8 +299,8 @@ def _uxf_to_sqlite(config, tables):
             db.close()
 
 
-def _create_table(db, table):
-    table_name = uxf._canonicalize(table.name, 'Table')
+def _create_table(db, table, table_index):
+    table_name = uxf._canonicalize(table.name, f'Table{table_index}')
     sql = ['CREATE TABLE IF NOT EXISTS ', table_name, ' (']
     types = ['TEXT'] * len(table.fieldnames)
     if table.records:

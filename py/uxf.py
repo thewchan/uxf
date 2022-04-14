@@ -607,6 +607,7 @@ class Table:
         self.fieldnames = [] if fieldnames is None else fieldnames
         self.records = []
         self.comment = comment
+        self._table_index = 1
         if records:
             if not name:
                 raise Error('can\'t create an unnamed nonempty table')
@@ -641,9 +642,10 @@ class Table:
         if not self.fieldnames:
             raise Error('can\'t create a table with no field names')
         self._Class = collections.namedtuple(
-            _canonicalize(self.name, 'Table'),
+            _canonicalize(self.name, f'Table{self._table_index}'),
             [_canonicalize(name, f'Field{i}')
              for i, name in enumerate(self.fieldnames, 1)])
+        self._table_index += 1
 
 
     def __iadd__(self, value):
