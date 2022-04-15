@@ -94,7 +94,10 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxf_text = file.read()
         use_true_false = 'true' in uxf_text or 'false' in uxf_text
-        data, custom = uxf.loads(uxf_text)
+        try:
+            data, custom = uxf.loads(uxf_text)
+        except uxf.Error as err:
+            print(f'loads()/dumps() • {name} FAIL: {err}')
         new_uxf_text = uxf.dumps(data, custom, one_way_conversion=True,
                                  use_true_false=use_true_false)
         nws_uxf_text = normalize_uxf_text(uxf_text)

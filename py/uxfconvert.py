@@ -9,13 +9,17 @@ import datetime
 import json
 import pathlib
 import sqlite3
+import sys
 
 import uxf
 
 
 def main():
     config = _get_config()
-    config.convert(config)
+    try:
+        config.convert(config)
+    except (FileNotFoundError, uxf.Error) as err:
+        print(err, file=sys.stderr)
 
 
 def _get_config():
