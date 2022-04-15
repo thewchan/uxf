@@ -1330,7 +1330,8 @@ def naturalize(s):
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py [-c|--check] [-z|--compress] [-iN|--indent=N] <infile.uxf> [<outfile.uxf>]
+usage: uxf.py [-c|--check] [-z|--compress] [-iN|--indent=N] \
+<infile.uxf> [<outfile.uxf>]
    or: python3 -m uxf ...same options as above...
 
 if check is set any specified types are checked against the actual values
