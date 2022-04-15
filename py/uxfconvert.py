@@ -186,29 +186,29 @@ class _JsonEncoder(json.JSONEncoder):
 def _json_encode_map(obj):
     comment = getattr(obj, COMMENT, None)
     d = {}
-    ktypes = {}
+    itypes = {}
     for key, value in obj.items():
         if isinstance(key, (datetime.date, datetime.datetime)):
             skey = key.isoformat()
-            ktypes[skey] = UXF
+            itypes[skey] = UXF
         elif isinstance(key, int):
             skey = str(key)
-            ktypes[skey] = UXF
+            itypes[skey] = UXF
         elif isinstance(key, (bytes, bytearray)):
             skey = key.hex().upper()
-            ktypes[skey] = BYTES
+            itypes[skey] = BYTES
         elif isinstance(key, str):
             skey = key
         else:
             raise SystemExit(f'invalid map key type: {key} of {type(key)}')
         d[skey] = value
-    if not ktypes and comment is None: # str keys, no comment → plain dict
+    if not itypes and comment is None: # str keys, no comment → plain dict
         return dict(obj)
     m = dict(comment=comment, map=d)
-    if len(ktypes) == len(d) and len(set(ktypes.values())) == 1:
-        m[KTYPE] = ktypes.popitem()[1] # all use same non-str key
-    elif ktypes:
-        m[KTYPES] = ktypes
+    if len(itypes) == len(d) and len(set(itypes.values())) == 1:
+        m[ITYPE] = itypes.popitem()[1] # all use same non-str key
+    elif itypes:
+        m[ITYPES] = itypes
     return {JSON_MAP: m}
 
 
@@ -233,17 +233,17 @@ def _json_naturalize(d):
         return ls
     if JSON_MAP in d:
         jmap = d[JSON_MAP]
-        ktype = jmap.get(KTYPE) # str or None
-        ktypes = jmap.get(KTYPES) # dict or None
+        itype = jmap.get(ITYPE) # str or None
+        itypes = jmap.get(ITYPES) # dict or None
         m = uxf.Map()
         m.comment = jmap[COMMENT]
         for key, value in jmap[MAP].items():
-            if ktypes is not None:
-                ktype = ktypes.get(key)
-            if ktype == BYTES:
+            if itypes is not None:
+                itype = itypes.get(key)
+            if itype == BYTES:
                 key = bytes.fromhex(key)
             else:
-                key = key if ktype is None else uxf.naturalize(key)
+                key = key if itype is None else uxf.naturalize(key)
             m[key] = value
         return m
     elif JSON_NTUPLE in d:
@@ -358,8 +358,8 @@ JSON_LIST = 'UXF^list'
 JSON_MAP = 'UXF^map'
 JSON_NTUPLE = 'UXF^ntuple'
 JSON_TABLE = 'UXF^table'
-KTYPE = 'ktype'
-KTYPES = 'ktypes'
+ITYPE = 'itype'
+ITYPES = 'itypes'
 LIST = 'list'
 MAP = 'map'
 NAME = 'name'

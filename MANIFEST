@@ -3,7 +3,7 @@ py/uxfconvert.py
 # TODO
 # (1) test uxf to sqlite: t2.uxf t4.uxf t15.uxf
 # (2) sqlite_to_uxf
-# (3) test sqlite to uxf: t2.sqlite t4.sqlite t15.sqlite (not round trips!)
+# (3) test sqlite to uxf: t2.sqlite t4.sqlite t15.sqlite (should round trip)
 # (4) uxf_to_xml: same tests as JSON for full round trip
 # (5) xml_to_uxf: same tests as JSON for full round trip
 
