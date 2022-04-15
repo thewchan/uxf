@@ -2,7 +2,7 @@ uxf 1.0 TLM Config
 {
     <General> {
         <saved> 2022-03-21 <autosave> yes <historysize> -35 <volume> 0.7
-        <files> [= <Files> <kind> null <filename> str =
+        <files> [= <Files> <kind> uxf <filename> str =
             <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
             <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
             <recent2> </home/mark/data/playlists-all.tlm>
@@ -14,10 +14,10 @@ uxf 1.0 TLM Config
         <Classical> [5 yes]
         <Modern Instrumental> [4 no]
         <New Acquistions> [1 no]
-        <Nested List of Lists> [null
+        <Nested List of Lists> [uxf
             [5 <Classical> yes]
             [4 <Modern Instrumental> no]
-            [null 1 <New Acquistions> no]
+            [uxf 1 <New Acquistions> no]
         ]
         <Nested Table> [= <Categories> <CID> int <Title> <Selected> bool =
             5 <Classical> yes

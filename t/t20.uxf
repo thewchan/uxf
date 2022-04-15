@@ -1,6 +1,6 @@
 uxf 1.0
 { str list
-    <Classical> [null 5 yes]
+    <Classical> [uxf 5 yes]
     <Modern Instrumental> [4 no]
     <New Acquistions> [1 no]
 }

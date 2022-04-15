@@ -23,17 +23,19 @@ spec.loader.exec_module(uxf)
 
 
 def main():
-    uxf, uxfconvert, verbose = get_config()
+    uxf, uxfconvert, number, verbose = get_config()
     cleanup()
     t = time.monotonic()
     uxffiles = sorted((name for name in os.listdir('.')
                        if os.path.isfile(name) and name.endswith('.uxf')),
                       key=by_number)
     print('.', end='', flush=True)
-    total, ok = test_uxf_files(uxf, uxffiles, verbose=verbose)
-    total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose)
+    total, ok = test_uxf_files(uxf, uxffiles, verbose=verbose,
+                               number=number)
+    total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose,
+                                     number=number)
     total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
-                                verbose=verbose)
+                                verbose=verbose, number=number)
     if total == ok:
         t = time.monotonic() - t
         print(f'{ok}/{total} All OK ({t:.3f} sec)')
@@ -47,6 +49,7 @@ def get_config():
     uxfconvert_default = '../py/uxfconvert.py'
     uxf = uxfconvert = None
     verbose = False
+    number = 999999
     for arg in sys.argv[1:]:
         if arg in {'-h', '--help'}:
             raise SystemExit(f'''\
@@ -55,6 +58,8 @@ uxf-exe default is {uxf_default}
 uxfconvert-exe default is {uxfconvert_default}''')
         elif arg in {'-v', '--verbose'}:
             verbose = True
+        elif arg.isdecimal():
+            number = int(arg)
         elif uxf is None:
             uxf = arg
         elif uxfconvert is None:
@@ -63,13 +68,15 @@ uxfconvert-exe default is {uxfconvert_default}''')
         uxf = uxf_default
     if uxfconvert is None:
         uxfconvert = uxfconvert_default
-    return uxf, uxfconvert, verbose
+    return uxf, uxfconvert, number, verbose
 
 
-def test_uxf_files(uxf, uxffiles, *, verbose):
+def test_uxf_files(uxf, uxffiles, *, verbose, number):
     total = ok = 0
     for name in uxffiles:
         total += 1
+        if total > number:
+            return total - 1, ok
         actual = f'actual/{name}'
         expected = f'expected/{name}'
         cmd = [uxf, name, actual]
@@ -84,9 +91,11 @@ def test_uxf_files(uxf, uxffiles, *, verbose):
     return total, ok
 
 
-def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose):
+def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
     for name in uxffiles:
         total += 1
+        if total > number:
+            return total - 1, ok
         try:
             with open(name, 'rt', encoding='utf-8') as file:
                 uxf_text = file.read()
@@ -122,7 +131,7 @@ def normalize_uxf_text(text):
     return header + '\n'.join(textwrap.wrap(body, 40)) # easier to compare
 
 
-def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
+def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose, number):
     N, Y, NF, YR = (0, 1, 2, 3) # No, Yes, No with -f, Yes with -f
     files = [(name, name.replace('.uxf', '.json'), Y) for name in uxffiles]
     files += [('t1.uxf', 't1.csv', N), ('t2.uxf', 't2.csv', N),
@@ -131,6 +140,8 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose):
     # TODO add tests for sqlite and xml
     for infile, outfile, roundtrip in files:
         total += 1
+        if total > number:
+            return total - 1, ok
         actual = f'actual/{outfile}'
         cmd = ([uxfconvert, '-f', infile, actual] if roundtrip == NF else
                [uxfconvert, infile, actual])

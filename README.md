@@ -20,18 +20,19 @@ UXF supports fourteen datatypes.
 
 |**Type**   |**Example(s) # notes**|
 |-----------|----------------------|
-|`null`      |`null`|
-|`bool`      |`no` `false` `yes` `true`|
-|`int`       |`-192` `+234` `7891409`|
-|`real`      |`0.15` `0.7e-9` `2245.389` # standard and scientific with at least one digit before and after the point|
-|`date`      |`2022-04-01`  # basic ISO8601 YYYY-MM-DD format|
-|`datetime`  |`2022-04-01T16:11:51` # ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent)|
-|`str`       |`<Some text which may include newlines>` # for &, <, >, use \&amp;, \&lt;, \&gt; respectively|
-|`bytes`     |`(20AC 65 66 48)` # must have an even number of case-insensitive hex digits; whitespace optional|
-|`ntuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
-|`list`      |`[value1 value2 ... valueN]` # the first value may be preceded by a type, e.g., `int`
-|`map`       |`{key1 value1 key2 value2 ... keyN valueN}`| # # the first value may be preceded by a key type, e.g., `int`, or by key and value types, e.g., `int str`
-|`table`     |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # fieldnames may optionally be followed by a type|
+|`null`     |`null`|
+|`bool`     |`no` `false` `yes` `true`|
+|`int`      |`-192` `+234` `7891409`|
+|`real`     |`0.15` `0.7e-9` `2245.389` # standard and scientific with at least one digit before and after the point|
+|`date`     |`2022-04-01`  # basic ISO8601 YYYY-MM-DD format|
+|`datetime` |`2022-04-01T16:11:51` # ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent)|
+|`str`      |`<Some text which may include newlines>` # for &, <, >, use \&amp;, \&lt;, \&gt; respectively|
+|`bytes`    |`(20AC 65 66 48)` # must have an even number of case-insensitive hex digits; whitespace optional|
+|`ntuple`   | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
+|`list`     |`[value1 value2 ... valueN]` # the first value may be preceded by a type, e.g., `int`
+|`map`      |`{key1 value1 key2 value2 ... keyN valueN}`| # # the first value may be preceded by a key type, e.g., `int`, or by key and value types, e.g., `int str`
+|`table`    |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # fieldnames may optionally be followed by a type|
+|`uxf`      | # This may be used as a type name meaning any valid type
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
@@ -112,8 +113,8 @@ into each row based on the number of field names.
     =]
 
 Here we've added field (column) types: if specified the UXF processor is
-expected to verify that each value is of the correct type. Either use `null`
-or omit the type to indicate _any_ valid type.
+expected to verify that each value is of the correct type. Either use type
+`uxf` or omit the type to indicate _any_ valid type.
 
 Note that if you need to include `&`, `<` or `>` inside a `str`, you
 must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
@@ -243,7 +244,7 @@ a `list` of ``table``s is easily made.
     [ #<There is a 1:M relationship between the Invoices and Items tables>
       [= <Customers> <CID> <Company> <Address> <Contact> <Email> =
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
-        19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
+        19 <Supersuppliers> uxf <Jane Doe> <jane@super.com> 
       =]
       [= <Invoices> <INUM> <CID> <Raised Date> <Due Date> <Paid> <Description> =
         152 50 2022-01-17 2022-02-17 no <COD> 
@@ -259,14 +260,14 @@ a `list` of ``table``s is easily made.
 Here we have a `list` of ``table``s representing three database tables.
 The `list` begins with a comment.
 
-Notice that the second customer has a `null` address and the second
-invoice has an empty description.
+Notice that the second customer has a `uxf` address (i.e., address may be of
+any valid type) and the second invoice has an empty description.
 
     uxf 1.0 MyApp Data
     [ #<There is a 1:M relationship between the Invoices and Items tables>
       [= <Customers> <CID> int <Company> str <Address> str <Contact> str <Email> str =
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
-        19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
+        19 <Supersuppliers> uxf <Jane Doe> <jane@super.com> 
       =]
       [= <Invoices> <INUM> int <CID> int <Raised Date> date <Due Date> date <Paid> bool <Description> str =
         152 50 2022-01-17 2022-02-17 no <COD> 
@@ -398,6 +399,9 @@ optional `map`, `list`, or `table`.
     BYTES        ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
+
+To indicate any valid type, omit the type name, or use the pseudo-type
+`uxf`.
 
 For a `table` the first `str` is the table's name and the second and
 subsequent strings are field names. After the bare `=` come the table's

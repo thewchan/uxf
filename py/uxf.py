@@ -63,8 +63,8 @@ a .comment attribute.
     class Field
 
 Used to store a Table's fields. The .vtype must be one of these strs:
-'null', 'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'. A vtype
-of 'null' means accept any valid type.
+'uxf', 'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'. A vtype
+of 'uxf' means accept any valid type.
 
     class NTuple
 
@@ -99,9 +99,13 @@ __version__ = '0.10.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
-_KEYTYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
-_VALUETYPES = _KEYTYPES | {'null', 'bool', 'real'}
-_ANYVALUETYPES = _VALUETYPES | {'list', 'map', 'table', 'ntuple'}
+_KEY_TYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
+_VALUE_TYPES = _KEY_TYPES | {'bool', 'real', 'uxf'}
+_ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table', 'ntuple'}
+_BOOL_FALSE = {'no', 'false'}
+_BOOL_TRUE = {'yes', 'true'}
+_CONSTANTS = {'null'} | _BOOL_FALSE | _BOOL_TRUE
+_BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
 
 
 def load(filename_or_filelike, *, warn_is_error=False):
@@ -368,13 +372,19 @@ class _Lexer(_ErrorMixin):
 
 
     def read_const(self):
-        match = self.match_any_of('no', 'yes', 'null', 'true', 'false')
+        match = self.match_any_of(_BAREWORDS)
         if match == 'null':
             self.add_token(_Kind.NULL)
-        elif match in {'no', 'false'}:
+        elif match in _BOOL_FALSE:
             self.add_token(_Kind.BOOL, False)
-        elif match in {'yes', 'true'}:
+        elif match in _BOOL_TRUE:
             self.add_token(_Kind.BOOL, True)
+        elif match in _ANY_VALUE_TYPES:
+            self.add_token(_Kind.TYPE, match)
+        elif match in _VALUE_TYPES:
+            self.add_token(_Kind.VALUE_TYPE, match)
+        elif match in _ANY_VALUE_TYPES:
+            self.add_token(_Kind.ANY_VALUE_TYPE, match)
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
@@ -401,11 +411,12 @@ class _Lexer(_ErrorMixin):
         self.error(error_text)
 
 
-    def match_any_of(self, *targets):
+    def match_any_of(self, targets):
         if self.at_end():
             return None
         start = self.pos - 1
-        for target in targets:
+        for target in sorted(targets, key=lambda t: (len(t), t),
+                             reverse=True):
             if self.text.startswith(target, start):
                 self.pos += len(target) - 1 # skip past target
                 return target
@@ -463,6 +474,7 @@ class _Kind(enum.Enum):
     DATE_TIME = enum.auto()
     STR = enum.auto()
     BYTES = enum.auto()
+    TYPE = enum.auto()
     EOF = enum.auto()
 
 
@@ -610,11 +622,14 @@ class Field:
 
     @vtype.setter
     def vtype(self, vtype):
-        if vtype in _VALUETYPES:
+        if vtype == 'uxf': # uxf and None both mean any valid type
+            vtype = None
+        elif vtype in _VALUE_TYPES:
             self._vtype = vtype
         else:
-            raise Error(f'expected field type to be one of: '
-                        f'{" ".join(sorted(_VALUETYPES))}, got {vtype}')
+            types = " ".join(sorted(_VALUE_TYPES)) + ' uxf'
+            raise Error(
+                f'expected field type to be one of: {types}, got {vtype}')
 
 
 class Table:
@@ -677,7 +692,7 @@ class Table:
                 len(self.records[-1]) >= len(self.fields)):
             self.records.append([])
         index = len(self.records[-1])
-        vtype = self.fields[index].vtype
+        vtype = _table_type_for_name(self.fields[index].vtype)
         if vtype is None or isinstance(value, vtype):
             self.records[-1].append(value)
         else:
@@ -766,6 +781,7 @@ class _Parser(_ErrorMixin):
         self.text = text
         data = None
         for token in tokens:
+            # print(token, self.stack, self.states) TODO DELETE
             if token.kind is _Kind.EOF:
                 break
             self.pos = token.pos
@@ -861,10 +877,17 @@ class _Parser(_ErrorMixin):
     def _handle_field_name(self, token):
         if token.kind is _Kind.TABLE_ROWS:
             self.states[-1] = _Expect.TABLE_VALUE
-        else:
-            if token.kind is not _Kind.TABLE_FIELD_NAME:
-                self.error(f'expected table field name, got {token}')
+        elif token.kind is _Kind.TYPE:
+            field = self.stack[-1].fields[-1]
+            if field.vtype is None:
+                field.vtype = token.value
+            else:
+                self.error('can only provide one type for each table '
+                           f' field, got a second type {token}')
+        elif token.kind is _Kind.TABLE_FIELD_NAME:
             self.stack[-1].append_field(token.value)
+        else:
+            self.error(f'expected table field, got {token}')
 
 
     def _handle_table_value(self, token):
@@ -883,6 +906,15 @@ class _Parser(_ErrorMixin):
     def _handle_map_key(self, token):
         if token.kind is _Kind.MAP_END:
             self._on_collection_end(token)
+        elif token.kind is _Kind.TYPE:
+            m = self.stack[-1]
+            if m.ktype is None:
+                m.ktype = token.value
+            elif m.vtype is None:
+                m.vtype = token.value
+            else:
+                self.error('can only provide key and value types for '
+                           f'maps, got a third type {token}')
         elif token.kind in {
                 _Kind.INT, _Kind.DATE, _Kind.DATE_TIME,
                 _Kind.STR, _Kind.BYTES}:
@@ -912,6 +944,18 @@ class _Parser(_ErrorMixin):
 
 
     def _handle_any_value(self, token):
+        if token.kind is _Kind.TYPE:
+            parent = self.stack[-1]
+            if not isinstance(parent, List):
+                self.error(f'unexpected type, {token}')
+            if len(parent) > 0:
+                self.error('can only provide one type for '
+                           f'lists, before the first value, got {token}')
+            if parent.vtype is None:
+                parent.vtype = token.value
+            else:
+                self.error('can only provide one type for '
+                           f'lists, got a second type {token}')
         if self._is_collection_start(token.kind):
             # this adds a new List, Map, or Table to the stack
             self._on_collection_start(token.kind)
@@ -932,6 +976,7 @@ class _Expect(enum.Enum):
     ANY_VALUE = enum.auto()
     TABLE_NAME = enum.auto()
     TABLE_FIELD_NAME = enum.auto()
+    TABLE_VALUE_TYPE = enum.auto()
     TABLE_VALUE = enum.auto()
     COMMENT = enum.auto()
     EOF = enum.auto()
@@ -1185,6 +1230,12 @@ def _is_scalar(x):
     return x is None or isinstance(
         x, (bool, int, float, datetime.date, datetime.datetime, str, bytes,
             bytearray))
+
+
+def _table_type_for_name(name):
+    return dict(int=int, date=datetime.date, datetime=datetime.datetime,
+                str=str, bytes=(bytes, bytearray), bool=bool,
+                real=float, uxf=None).get(name)
 
 
 def naturalize(s):
