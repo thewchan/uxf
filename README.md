@@ -29,9 +29,9 @@ UXF supports fourteen datatypes.
 |`str`       |`<Some text which may include newlines>` # for &, <, >, use \&amp;, \&lt;, \&gt; respectively|
 |`bytes`     |`(20AC 65 66 48)` # must have an even number of case-insensitive hex digits; whitespace optional|
 |`ntuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
-|`list`      |`[value1 value2 ... valueN]`|
-|`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
-|`table`     |`[= <str0> <str1> ... <strN+1> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
+|`list`      |`[value1 value2 ... valueN]` # the first value may be preceded by a type, e.g., `int`
+|`map`       |`{key1 value1 key2 value2 ... keyN valueN}`| # # the first value may be preceded by a key type, e.g., `int`, or by key and value types, e.g., `int str`
+|`table`     |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # fieldnames may optionally be followed by a type|
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
@@ -231,7 +231,8 @@ at the beginning of the file.
 Here we've added some types. The outermost map must have `str` keys and
 `map` values, and the _General_, _Files_, and _Window_ maps must all have
 `str` keys and _any_ values. For ``map``s we may specify the key and
-value types, or just the key type, or neither.
+value types, or just the key type, or neither. We've also specified that the
+_recent_ files ``list``'s values must be ``str``s.
 
 ### Database to UXF
 
