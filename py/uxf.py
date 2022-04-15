@@ -781,7 +781,7 @@ class _Parser(_ErrorMixin):
         self.text = text
         data = None
         for token in tokens:
-            # print(token, self.stack, self.states) TODO DELETE
+            #print(token) #TODO DELETE
             if token.kind is _Kind.EOF:
                 break
             self.pos = token.pos
@@ -956,7 +956,7 @@ class _Parser(_ErrorMixin):
             else:
                 self.error('can only provide one type for '
                            f'lists, got a second type {token}')
-        if self._is_collection_start(token.kind):
+        elif self._is_collection_start(token.kind):
             # this adds a new List, Map, or Table to the stack
             self._on_collection_start(token.kind)
         elif self._is_collection_end(token.kind):
@@ -976,7 +976,6 @@ class _Expect(enum.Enum):
     ANY_VALUE = enum.auto()
     TABLE_NAME = enum.auto()
     TABLE_FIELD_NAME = enum.auto()
-    TABLE_VALUE_TYPE = enum.auto()
     TABLE_VALUE = enum.auto()
     COMMENT = enum.auto()
     EOF = enum.auto()
@@ -1088,18 +1087,27 @@ class _Writer:
     def write_list(self, item, indent=0, *, pad, map_value=False):
         tab = '' if map_value else pad * indent
         comment = getattr(item, 'comment', None)
+        vtype = getattr(item, 'vtype', None)
         if len(item) == 0:
-            self.file.write(f'{tab}[]\n' if comment is None else
-                            f'{tab}[ #<{escape(comment)}>]\n')
+            self.file.write(f'{tab}[')
+            if comment is not None:
+                self.file.write(f' #<{escape(comment)}>')
+            if vtype is not None:
+                self.file.write(f' {vtype}')
+            if comment is not None or vtype is not None:
+                self.file.write(' ')
+            self.file.write(']\n')
         else:
             self.file.write(f'{tab}[')
             if comment is not None:
                 self.file.write(f' #<{escape(comment)}>')
+            if vtype is not None:
+                self.file.write(f' {vtype}')
             indent += 1
             is_scalar = _is_scalar(item[0])
             if is_scalar:
                 kwargs = dict(indent=0, pad=' ', map_value=False)
-                if comment is not None:
+                if comment is not None or vtype is not None:
                     self.file.write(' ')
             else:
                 self.file.write('\n')
@@ -1116,21 +1124,43 @@ class _Writer:
     def write_map(self, item, indent=0, *, pad, map_value=False):
         tab = '' if map_value else pad * indent
         comment = getattr(item, 'comment', None)
+        ktype = getattr(item, 'ktype', None)
+        vtype = getattr(item, 'vtype', None)
+        #print(comment, ktype, vtype, item)
         if len(item) == 0:
-            self.file.write(f'{tab}{{}}\n' if comment is None else
-                            f'{tab}{{ #<{escape(comment)}> }}\n')
+            self.file.write(f'{tab}{{')
+            if comment is not None:
+                self.file.write(f' #<{escape(comment)}>')
+            if ktype is not None:
+                self.file.write(f' {ktype}')
+            if vtype is not None:
+                self.file.write(f' {vtype}')
+            if (comment is not None or ktype is not None or
+                    vtype is not None):
+                self.file.write(' ')
+            self.file.write('}\n')
         elif len(item) == 1:
             self.file.write(f'{tab}{{')
             if comment is not None:
                 self.file.write(f' #<{escape(comment)}>')
+            if ktype is not None:
+                self.file.write(f' {ktype}')
+            if vtype is not None:
+                self.file.write(f' {vtype}')
             key, value = list(item.items())[0]
             self.write_scalar(key, 1, pad=' ')
             self.file.write(' ')
             self.write_value(value, 1, pad=' ', map_value=True)
             self.file.write('}\n')
         else:
-            self.file.write(f'{tab}{{\n' if comment is None else
-                            f'{tab}{{ #<{escape(comment)}>\n')
+            self.file.write(f'{tab}{{')
+            if comment is not None:
+                self.file.write(f' #<{escape(comment)}>')
+            if ktype is not None:
+                self.file.write(f' {ktype}')
+            if vtype is not None:
+                self.file.write(f' {vtype}')
+            self.file.write('\n')
             indent += 1
             for key, value in item.items():
                 self.write_scalar(key, indent, pad=pad)
