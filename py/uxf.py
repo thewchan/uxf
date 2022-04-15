@@ -63,8 +63,8 @@ a .comment attribute.
     class Field
 
 Used to store a Table's fields. The .vtype must be one of these strs:
-'uxf', 'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'. A vtype
-of 'uxf' means accept any valid type.
+'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes', or None (which
+means accept any valid type).
 
     class NTuple
 
@@ -100,7 +100,7 @@ VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
 _KEY_TYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
-_VALUE_TYPES = _KEY_TYPES | {'bool', 'real', 'uxf'}
+_VALUE_TYPES = _KEY_TYPES | {'bool', 'real'}
 _ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table', 'ntuple'}
 _BOOL_FALSE = {'no', 'false'}
 _BOOL_TRUE = {'yes', 'true'}
@@ -622,8 +622,8 @@ class Field:
 
     @vtype.setter
     def vtype(self, vtype):
-        if vtype == 'uxf': # uxf and None both mean any valid type
-            vtype = None
+        if vtype is None:
+            vtype = None # This means accept any valid type
         elif vtype in _VALUE_TYPES:
             self._vtype = vtype
         else:
@@ -781,7 +781,6 @@ class _Parser(_ErrorMixin):
         self.text = text
         data = None
         for token in tokens:
-            #print(token) #TODO DELETE
             if token.kind is _Kind.EOF:
                 break
             self.pos = token.pos
@@ -907,11 +906,14 @@ class _Parser(_ErrorMixin):
         if token.kind is _Kind.MAP_END:
             self._on_collection_end(token)
         elif token.kind is _Kind.TYPE:
-            m = self.stack[-1]
-            if m.ktype is None:
-                m.ktype = token.value
-            elif m.vtype is None:
-                m.vtype = token.value
+            parent = self.stack[-1]
+            if len(parent) > 0:
+                self.error('can only provide one or two types for '
+                           f'maps, before the first value, got {token}')
+            if parent.ktype is None:
+                parent.ktype = token.value
+            elif parent.vtype is None:
+                parent.vtype = token.value
             else:
                 self.error('can only provide key and value types for '
                            f'maps, got a third type {token}')
@@ -1126,7 +1128,6 @@ class _Writer:
         comment = getattr(item, 'comment', None)
         ktype = getattr(item, 'ktype', None)
         vtype = getattr(item, 'vtype', None)
-        #print(comment, ktype, vtype, item)
         if len(item) == 0:
             self.file.write(f'{tab}{{')
             if comment is not None:

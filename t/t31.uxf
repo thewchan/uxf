@@ -25,7 +25,7 @@ uxf 1.0
             [4 <Modern Instrumental> no]
             [1 <New Acquistions> no]
         ]
-        <Nested Table> [= <Categories> <CID> uxf <Title> str <Selected> =
+        <Nested Table> [= <Categories> <CID> <Title> str <Selected> =
             5 <Classical> yes
             4 <Modern Instrumental> no
             1 <New Acquistions> no

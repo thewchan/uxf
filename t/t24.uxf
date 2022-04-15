@@ -1,4 +1,4 @@
-uxf 1.0 EPD (list of tables)
+uxf 1.0
 [ list
   [= <Categories> <CID> int <Title> <Selected> bool =
     5 <Classical> yes
@@ -9,7 +9,7 @@ uxf 1.0 EPD (list of tables)
     7 <Uncategorized> no
     6 <Unpopular Pop> no
   =]
-  [= <Playlists> <PID> int <Title> uxf <CID> int <Selected> =
+  [= <Playlists> <PID> int <Title> str <CID> int <Selected> =
     4 <ABBA> 2 no
     38 <Bach> 5 no
     39 <Bartok> 5 no
