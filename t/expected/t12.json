@@ -2,6 +2,8 @@
   "General": {
     "UXF^map": {
       "comment": "Various configuration items",
+      "ktype": null,
+      "vtype": null,
       "map": {
         "saved": {
           "UXF^date": "2022-03-21"
@@ -11,8 +13,8 @@
         "volume": 0.7,
         "files": {
           "UXF^table": {
-            "comment": "Another little comment",
             "name": "Files",
+            "comment": "Another little comment",
             "fields": {
               "kind": null,
               "filename": null
@@ -39,6 +41,8 @@
   "Window": {
     "UXF^map": {
       "comment": "Some numbers",
+      "ktype": null,
+      "vtype": null,
       "map": {
         "pos": {
           "UXF^ntuple": [
@@ -116,6 +120,8 @@
   "Nested Map": {
     "UXF^map": {
       "comment": "Another comment this time in a nested map",
+      "ktype": null,
+      "vtype": null,
       "map": {
         "Classical": [
           5,
@@ -132,6 +138,7 @@
         "Nested List of Lists": {
           "UXF^list": {
             "comment": "Just a little list",
+            "vtype": null,
             "list": [
               [
                 5,
@@ -153,8 +160,8 @@
         },
         "Nested Table": {
           "UXF^table": {
-            "comment": "A table with a rather long comment just to\nshow what can be done.",
             "name": "Categories",
+            "comment": "A table with a rather long comment just to\nshow what can be done.",
             "fields": {
               "CID": null,
               "Title": null,
@@ -202,11 +209,12 @@
         "Nested List of Tables": {
           "UXF^list": {
             "comment": "Yet another comment in a list",
+            "vtype": null,
             "list": [
               {
                 "UXF^table": {
-                  "comment": null,
                   "name": "Categories",
+                  "comment": null,
                   "fields": {
                     "CID": null,
                     "Title": null,
@@ -253,8 +261,8 @@
               },
               {
                 "UXF^table": {
-                  "comment": "Comments may appear at the beginning of any list, map or table",
                   "name": "Playlists",
+                  "comment": "Comments may appear at the beginning of any list, map or table",
                   "fields": {
                     "PID": null,
                     "Title": null,

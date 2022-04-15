@@ -12,7 +12,7 @@
         "comment": null,
         "fields": {
           "kind": null,
-          "filename": null
+          "filename": "str"
         },
         "records": [
           [
@@ -41,7 +41,7 @@
   "Magic": {
     "UXF^bytes": "1F8B"
   },
-  "Nested Dict": {
+  "Nested Map": {
     "Classical": [
       5,
       true
@@ -54,31 +54,37 @@
       1,
       false
     ],
-    "Nested List of Lists": [
-      [
-        5,
-        "Classical",
-        true
-      ],
-      [
-        4,
-        "Modern Instrumental",
-        false
-      ],
-      [
-        1,
-        "New Acquistions",
-        false
-      ]
-    ],
+    "Nested List of Lists": {
+      "UXF^list": {
+        "comment": null,
+        "vtype": "list",
+        "list": [
+          [
+            5,
+            "Classical",
+            true
+          ],
+          [
+            4,
+            "Modern Instrumental",
+            false
+          ],
+          [
+            1,
+            "New Acquistions",
+            false
+          ]
+        ]
+      }
+    },
     "Nested Table": {
       "UXF^table": {
         "name": "Categories",
         "comment": null,
         "fields": {
-          "CID": null,
+          "CID": "int",
           "Title": null,
-          "Selected": null
+          "Selected": "bool"
         },
         "records": [
           [

@@ -46,7 +46,7 @@
     },
     "scale": 1.1
   },
-  "Pxd Type Tests": [
+  "UXF Type Tests": [
     "one",
     {
       "UXF^ntuple": [
@@ -103,7 +103,7 @@
   "Magic": {
     "UXF^bytes": "1F8B"
   },
-  "Nested Dict": {
+  "Nested Map": {
     "Classical": [
       5,
       true
@@ -139,7 +139,7 @@
         "comment": null,
         "fields": {
           "CID": null,
-          "Title": null,
+          "Title": "str",
           "Selected": null
         },
         "records": [
@@ -187,9 +187,9 @@
           "name": "Categories",
           "comment": null,
           "fields": {
-            "CID": null,
-            "Title": null,
-            "Selected": null
+            "CID": "int",
+            "Title": "str",
+            "Selected": "bool"
           },
           "records": [
             [
@@ -235,10 +235,10 @@
           "name": "Playlists",
           "comment": null,
           "fields": {
-            "PID": null,
-            "Title": null,
-            "CID": null,
-            "Selected": null
+            "PID": "int",
+            "Title": "str",
+            "CID": "int",
+            "Selected": "bool"
           },
           "records": [
             [

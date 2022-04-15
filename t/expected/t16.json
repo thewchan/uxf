@@ -1,7 +1,7 @@
 {
   "UXF^table": {
-    "comment": null,
     "name": "Countries",
+    "comment": null,
     "fields": {
       "Name": null
     },

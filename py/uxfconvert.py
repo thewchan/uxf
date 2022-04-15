@@ -172,9 +172,11 @@ class _JsonEncoder(json.JSONEncoder):
             return {JSON_BYTES: obj.hex().upper()}
         if isinstance(obj, (list, uxf.List)):
             comment = getattr(obj, COMMENT, None)
-            if comment is not None:
-                return {JSON_LIST: dict(comment=comment, list=list(obj))}
-            return list(obj)
+            vtype = getattr(obj, VTYPE, None)
+            if comment is None and vtype is None:
+                return list(obj)
+            return {JSON_LIST: dict(comment=comment, vtype=vtype,
+                                    list=list(obj))}
         if isinstance(obj, uxf.Map):
             return _json_encode_map(obj)
         if isinstance(obj, dict):
@@ -183,7 +185,7 @@ class _JsonEncoder(json.JSONEncoder):
             return {JSON_NTUPLE: obj.astuple}
         if isinstance(obj, uxf.Table):
             return {JSON_TABLE: dict(
-                comment=obj.comment, name=obj.name,
+                name=obj.name, comment=obj.comment,
                 fields={field.name: field.vtype for field in obj.fields},
                 records=obj.records)}
         return json.JSONEncoder.default(self, obj)
@@ -191,6 +193,8 @@ class _JsonEncoder(json.JSONEncoder):
 
 def _json_encode_map(obj):
     comment = getattr(obj, COMMENT, None)
+    ktype = getattr(obj, KTYPE, None)
+    vtype = getattr(obj, VTYPE, None)
     d = {}
     itypes = {}
     for key, value in obj.items():
@@ -208,9 +212,9 @@ def _json_encode_map(obj):
         else:
             raise SystemExit(f'invalid map key type: {key} of {type(key)}')
         d[skey] = value
-    if not itypes and comment is None: # str keys, no comment → plain dict
+    if not itypes and comment is None and ktype is None:
         return dict(obj)
-    m = dict(comment=comment, map=d)
+    m = dict(comment=comment, ktype=ktype, vtype=vtype, map=d)
     if len(itypes) == len(d) and len(set(itypes.values())) == 1:
         m[ITYPE] = itypes.popitem()[1] # all use same non-str key
     elif itypes:
@@ -236,6 +240,7 @@ def _json_naturalize(d):
         jlist = d[JSON_LIST]
         ls = uxf.List(jlist[LIST])
         ls.comment = jlist[COMMENT]
+        ls.vtype = jlist[VTYPE]
         return ls
     if JSON_MAP in d:
         jmap = d[JSON_MAP]
@@ -243,6 +248,8 @@ def _json_naturalize(d):
         itypes = jmap.get(ITYPES) # dict or None
         m = uxf.Map()
         m.comment = jmap[COMMENT]
+        m.ktype = jmap[KTYPE] # str or None
+        m.vtype = jmap[VTYPE] # str or None
         for key, value in jmap[MAP].items():
             if itypes is not None:
                 itype = itypes.get(key)
@@ -256,10 +263,10 @@ def _json_naturalize(d):
         return uxf.NTuple(*d[JSON_NTUPLE])
     elif JSON_TABLE in d:
         jtable = d[JSON_TABLE]
-        fields = [uxf.Field(name, value) for name, value in
+        fields = [uxf.Field(name, vtype) for name, vtype in
                   jtable[FIELDS].items()]
-        return uxf.Table(name=jtable[NAME], fields=fields,
-                         records=jtable[RECORDS], comment=jtable[COMMENT])
+        return uxf.Table(name=jtable[NAME], comment=jtable[COMMENT],
+                         fields=fields, records=jtable[RECORDS])
     return d
 
 
@@ -358,6 +365,8 @@ DOT_SQLITE = '.SQLITE'
 DOT_UXF = '.UXF'
 DOT_XML = '.XML'
 FIELDS = 'fields'
+ITYPE = 'itype'
+ITYPES = 'itypes'
 JSON_BYTES = 'UXF^bytes'
 JSON_DATE = 'UXF^date'
 JSON_DATETIME = 'UXF^datetime'
@@ -365,14 +374,14 @@ JSON_LIST = 'UXF^list'
 JSON_MAP = 'UXF^map'
 JSON_NTUPLE = 'UXF^ntuple'
 JSON_TABLE = 'UXF^table'
-ITYPE = 'itype'
-ITYPES = 'itypes'
+KTYPE = 'ktype'
 LIST = 'list'
 MAP = 'map'
 NAME = 'name'
 RECORDS = 'records'
 UTF8 = 'utf-8'
 UXF = 'uxf'
+VTYPE = 'vtype'
 
 USAGE = '''
 uxfconvert.py <infile.uxf> <outfile.{csv,json,sqlite,xml}>

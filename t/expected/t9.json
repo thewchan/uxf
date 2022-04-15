@@ -2,8 +2,8 @@
   "Nested List of Tables": [
     {
       "UXF^table": {
-        "comment": null,
         "name": "Categories",
+        "comment": null,
         "fields": {
           "CID": null,
           "Title": null,
@@ -50,8 +50,8 @@
     },
     {
       "UXF^table": {
-        "comment": null,
         "name": "Playlists",
+        "comment": null,
         "fields": {
           "PID": null,
           "Title": null,

@@ -8,8 +8,8 @@
     "volume": 0.7,
     "files": {
       "UXF^table": {
-        "comment": null,
         "name": "Files",
+        "comment": null,
         "fields": {
           "kind": null,
           "filename": null

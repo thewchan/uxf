@@ -3,10 +3,10 @@
     "name": "Categories",
     "comment": null,
     "fields": {
-      "CID": null,
-      "Title": null,
-      "Selected": null,
-      "Date": null
+      "CID": "int",
+      "Title": "str",
+      "Selected": "bool",
+      "Date": "date"
     },
     "records": [
       [

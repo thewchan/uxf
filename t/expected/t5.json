@@ -1,8 +1,8 @@
 [
   {
     "UXF^table": {
-      "comment": null,
       "name": "Categories",
+      "comment": null,
       "fields": {
         "CID": null,
         "Title": null,
@@ -49,8 +49,8 @@
   },
   {
     "UXF^table": {
-      "comment": null,
       "name": "Playlists",
+      "comment": null,
       "fields": {
         "PID": null,
         "Title": null,
@@ -393,8 +393,8 @@
   },
   {
     "UXF^table": {
-      "comment": null,
       "name": "Tracks",
+      "comment": null,
       "fields": {
         "TID": null,
         "Title": null,

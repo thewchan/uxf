@@ -2,6 +2,8 @@
   "General": {
     "UXF^map": {
       "comment": "Map comment",
+      "ktype": null,
+      "vtype": null,
       "map": {
         "saved": {
           "UXF^date": "2022-03-21"
@@ -11,8 +13,8 @@
         "volume": 0.7,
         "files": {
           "UXF^table": {
-            "comment": "Table comment",
             "name": "Files",
+            "comment": "Table comment",
             "fields": {
               "kind": null,
               "filename": null
@@ -62,6 +64,7 @@
     "Nested List of Lists": {
       "UXF^list": {
         "comment": "List comment",
+        "vtype": null,
         "list": [
           [
             5,

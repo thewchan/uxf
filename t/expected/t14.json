@@ -2,6 +2,8 @@
   "General": {
     "UXF^map": {
       "comment": "Map comment",
+      "ktype": null,
+      "vtype": null,
       "map": {
         "saved": {
           "UXF^date": "2022-03-21"
@@ -11,8 +13,8 @@
         "volume": 0.7,
         "files": {
           "UXF^table": {
-            "comment": "Table comment",
             "name": "Files",
+            "comment": "Table comment",
             "fields": {
               "kind": null,
               "filename": null
@@ -62,6 +64,7 @@
     "Nested List of Lists": {
       "UXF^list": {
         "comment": "List comment",
+        "vtype": null,
         "list": [
           [
             5,
@@ -84,6 +87,8 @@
     "Map Test #1": {
       "UXF^map": {
         "comment": "Map with different types of key",
+        "ktype": null,
+        "vtype": null,
         "map": {
           "5": 6,
           "hello": {
@@ -106,6 +111,8 @@
     "Map Test #2": {
       "UXF^map": {
         "comment": "Map same type of non-str keys",
+        "ktype": null,
+        "vtype": null,
         "map": {
           "1": "one",
           "2": 2,
