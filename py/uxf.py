@@ -3,14 +3,15 @@
 # License: GPLv3
 
 '''
-UXF is a plain text human readable storage format that may serve as a
-convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
+UXF is a plain text human readable optionally typed storage format. UXF may
+serve as a convenient alternative to csv, ini, json, sqlite, toml, xml, or
+yaml.
 
 The uxf module can be used as an executable. To see the command line help run:
 
     python3 -m uxf -h
 
-uxf's public API provides six free functions and five classes.
+uxf's public API provides six free functions and six classes.
 
     def load(filename_or_filelike): -> (data, custom_header)
     def loads(uxf_text): -> (data, custom_header)
@@ -54,10 +55,15 @@ that also has a .comment attribute.
 
     class Table
 
-Used to store UXF Tables. A Table has a list of fieldnames and a records
-list which is a list of lists of scalars with each sublist having the same
-number of items as the number of fieldnames. It also has a .comment
-attribute.
+Used to store UXF Tables. A Table has a list of fields (name, optional type;
+see below) and a records list which is a list of lists of scalars with each
+sublist having the same number of items as the number of fields. It also has
+a .comment attribute.
+
+    class Field
+
+Used to store a Table's fields. The .ftype must be one of these strs:
+'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'.
 
     class NTuple
 
@@ -569,6 +575,7 @@ class List(collections.UserList):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.comment = None
+        self.vtype = None
 
 
 class Map(collections.UserDict):
@@ -576,83 +583,122 @@ class Map(collections.UserDict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.comment = None
+        self.ktype = None
+        self.vtype = None
+
+
+class Field:
+
+    def __init__(self, name, ftype=None):
+        self._name = name
+        self._ftype = ftype
+
+
+    @property
+    def name(self):
+        return self._name
+
+
+    @property
+    def ftype(self):
+        return self._ftype
+
+
+    @ftype.setter
+    def ftype(self, ftype):
+        ftypes = {'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'}
+        if ftype in ftypes:
+            self._ftype = ftype
+        else:
+            raise Error(f'expected field type of {sorted(ftypes)}, '
+                        f'got {ftype}')
 
 
 class Table:
     '''Used to store a UXF table.
 
-    A Table has a list of fieldnames and a records list which is a list of
-    lists of scalars. with each sublist having the same number of items as
-    the number of fieldnames. It also has a .comment attribute. (Note that
-    the lists in a Table are plain lists not UXF Lists.)
+    A Table has a list of fields (name, optional type) and a records list
+    which is a list of lists of scalars. with each sublist having the same
+    number of items as the number of fields. It also has a .comment
+    attribute. (Note that the lists in a Table are plain lists not UXF
+    Lists.)
+
+    The only type-safe way to add values to a table is via .append() for
+    single values or += for single values or a sequence of values.
 
     When a Table is iterated each row is returned as a namedtuple.
     '''
 
-    def __init__(self, *, name=None, fieldnames=None, records=None,
+    def __init__(self, *, name=None, fields=None, records=None,
                  comment=None):
         '''
         A Table may be created empty, e.g., Table(). However, if records is
-        not None, then both the name and fieldnames must be given.
+        not None, then both the name and fields must be given.
 
         records can be a flat list of values (which will be put into a list
-        of lists with each sublist being len(fieldnames) long), or a list of
-        lists in which case each list is _assumed_ to be len(fieldnames)
+        of lists with each sublist being len(fields) long), or a list of
+        lists in which case each list is _assumed_ to be len(fields)
         long.
 
         comment is an optional str.
         '''
         self.name = name
         self._Class = None
-        self.fieldnames = [] if fieldnames is None else fieldnames
+        self.fields = [] if fields is None else fields
         self.records = []
         self.comment = comment
         self._table_index = 1
         if records:
             if not name:
                 raise Error('can\'t create an unnamed nonempty table')
-            if not fieldnames:
+            if not fields:
                 raise Error(
-                    'can\'t create a nonempty table without field names')
+                    'can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
                 if self._Class is None:
-                    self._make_class()
+                    self._make_row_class()
                 self.records = list(records)
             else:
                 for value in records:
                     self.append(value)
 
 
-    def append_fieldname(self, name):
-        self.fieldnames.append(name)
+    def append_field(self, name, ftype=None):
+        self.fields.append(Field(name, ftype))
 
 
     def append(self, value):
         if self._Class is None:
-            self._make_class()
+            self._make_row_class()
         if (not self.records or
-                len(self.records[-1]) >= len(self.fieldnames)):
+                len(self.records[-1]) >= len(self.fields)):
             self.records.append([])
-        self.records[-1].append(value)
+        index = len(self.records[-1])
+        ftype = self.fields[index].ftype
+        if ftype is None or isinstance(value, ftype):
+            self.records[-1].append(value)
+        else:
+            raise Error('excpected value of type {ftype}, got value '
+                        '{value!r} of type {type(value)}')
 
 
-    def _make_class(self):
+    def _make_row_class(self):
         if not self.name:
             raise Error('can\'t use an unnamed table')
-        if not self.fieldnames:
-            raise Error('can\'t create a table with no field names')
+        if not self.fields:
+            raise Error('can\'t create a table with no fields')
         self._Class = collections.namedtuple(
             _canonicalize(self.name, f'Table{self._table_index}'),
-            [_canonicalize(name, f'Field{i}')
-             for i, name in enumerate(self.fieldnames, 1)])
+            [_canonicalize(field.name, f'Field{i}')
+             for i, field in enumerate(self.fields, 1)])
         self._table_index += 1
 
 
     def __iadd__(self, value):
         if not self.name:
             raise Error('can\'t append to an unnamed table')
-        if not self.fieldnames:
-            raise Error('can\'t append to a table with no field names')
+        if not self.fields:
+            raise Error('can\'t append to a table with no fields')
         if isinstance(value, (list, List, tuple)):
             for v in value:
                 self.append(v)
@@ -663,7 +709,7 @@ class Table:
 
     def __iter__(self):
         if self._Class is None:
-            self._make_class()
+            self._make_row_class()
         for record in self.records:
             yield self._Class(*record)
 
@@ -673,13 +719,13 @@ class Table:
 
 
     def __str__(self):
-        return (f'Table {self.name!r} {self.fieldnames!r} with '
+        return (f'Table {self.name!r} {self.fields!r} with '
                 f'{len(self.records)} records #{self.comment!r}')
 
 
     def __repr__(self):
         return (f'{self.__class__.__name__}(name={self.name!r}, '
-                f'fieldnames={self.fieldnames!r}, '
+                f'fields={self.fields!r}, '
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
@@ -815,7 +861,7 @@ class _Parser(_ErrorMixin):
         else:
             if token.kind is not _Kind.TABLE_FIELD_NAME:
                 self.error(f'expected table field name, got {token}')
-            self.stack[-1].append_fieldname(token.value)
+            self.stack[-1].append_field(token.value)
 
 
     def _handle_table_value(self, token):
@@ -1056,8 +1102,10 @@ class _Writer:
         if comment is not None:
             self.file.write(f'#<{escape(comment)}> ')
         self.file.write(f'<{escape(item.name)}>')
-        for name in item.fieldnames:
-            self.file.write(f' <{escape(name)}>')
+        for field in item.fields:
+            self.file.write(f' <{escape(field.name)}>')
+            if field.ftype is not None:
+                self.file.write(f' {field.ftype}')
         if len(item) == 0:
             self.file.write(' = =]\n')
         else:

@@ -13,10 +13,10 @@
           "UXF^table": {
             "comment": "Table comment #2",
             "name": "Files",
-            "fieldnames": [
-              "kind",
-              "filename"
-            ],
+            "fields": {
+              "kind": null,
+              "filename": null
+            },
             "records": [
               [
                 "current",
@@ -103,11 +103,11 @@
           "UXF^table": {
             "comment": "Table comment #8",
             "name": "Categories",
-            "fieldnames": [
-              "CID",
-              "Title",
-              "Selected"
-            ],
+            "fields": {
+              "CID": null,
+              "Title": null,
+              "Selected": null
+            },
             "records": [
               [
                 5,

@@ -96,7 +96,7 @@ def uxf_to_csv(config):
     if isinstance(data, uxf.Table):
         with open(config.outfile, 'w') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
-            writer.writerow(data.fieldnames)
+            writer.writerow((field.name for field in data.fields))
             for row in data:
                 writer.writerow(row)
     elif (isinstance(data, (list, uxf.List)) and data and
@@ -127,7 +127,8 @@ def _read_csv_to_data(config):
             if data is None:
                 if config.fieldnames:
                     data = uxf.Table(name=pathlib.Path(filename).stem,
-                                     fieldnames=list(row))
+                                     fields=[uxf.Field(name)
+                                             for name in row])
                     continue
                 else:
                     data = []
@@ -179,7 +180,8 @@ class _JsonEncoder(json.JSONEncoder):
         if isinstance(obj, uxf.Table):
             return {JSON_TABLE: dict(
                 comment=obj.comment, name=obj.name,
-                fieldnames=obj.fieldnames, records=obj.records)}
+                fields={field.name: field.ftype for field in obj.fields},
+                records=obj.records)}
         return json.JSONEncoder.default(self, obj)
 
 
@@ -250,8 +252,9 @@ def _json_naturalize(d):
         return uxf.NTuple(*d[JSON_NTUPLE])
     elif JSON_TABLE in d:
         jtable = d[JSON_TABLE]
-        return uxf.Table(name=jtable[NAME],
-                         fieldnames=jtable[FIELDNAMES],
+        fields = [uxf.Field(name, value) for name, value in
+                  jtable[FIELDS].items()]
+        return uxf.Table(name=jtable[NAME], fields=fields,
                          records=jtable[RECORDS], comment=jtable[COMMENT])
     return d
 
@@ -350,7 +353,7 @@ DOT_JSON = '.JSON'
 DOT_SQLITE = '.SQLITE'
 DOT_UXF = '.UXF'
 DOT_XML = '.XML'
-FIELDNAMES = 'fieldnames'
+FIELDS = 'fields'
 JSON_BYTES = 'UXF^bytes'
 JSON_DATE = 'UXF^date'
 JSON_DATETIME = 'UXF^datetime'

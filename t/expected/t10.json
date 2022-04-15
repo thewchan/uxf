@@ -10,10 +10,10 @@
       "UXF^table": {
         "comment": null,
         "name": "Files",
-        "fieldnames": [
-          "kind",
-          "filename"
-        ],
+        "fields": {
+          "kind": null,
+          "filename": null
+        },
         "records": [
           [
             "current",
@@ -75,11 +75,11 @@
       "UXF^table": {
         "comment": null,
         "name": "Categories",
-        "fieldnames": [
-          "CID",
-          "Title",
-          "Selected"
-        ],
+        "fields": {
+          "CID": null,
+          "Title": null,
+          "Selected": null
+        },
         "records": [
           [
             5,
@@ -124,11 +124,11 @@
         "UXF^table": {
           "comment": null,
           "name": "Categories",
-          "fieldnames": [
-            "CID",
-            "Title",
-            "Selected"
-          ],
+          "fields": {
+            "CID": null,
+            "Title": null,
+            "Selected": null
+          },
           "records": [
             [
               5,
@@ -172,12 +172,12 @@
         "UXF^table": {
           "comment": null,
           "name": "Playlists",
-          "fieldnames": [
-            "PID",
-            "Title",
-            "CID",
-            "Selected"
-          ],
+          "fields": {
+            "PID": null,
+            "Title": null,
+            "CID": null,
+            "Selected": null
+          },
           "records": [
             [
               4,

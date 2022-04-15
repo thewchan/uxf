@@ -3,11 +3,11 @@
     "UXF^table": {
       "comment": null,
       "name": "Categories",
-      "fieldnames": [
-        "CID",
-        "Title",
-        "Selected"
-      ],
+      "fields": {
+        "CID": null,
+        "Title": null,
+        "Selected": null
+      },
       "records": [
         [
           5,
@@ -51,12 +51,12 @@
     "UXF^table": {
       "comment": null,
       "name": "Playlists",
-      "fieldnames": [
-        "PID",
-        "Title",
-        "CID",
-        "Selected"
-      ],
+      "fields": {
+        "PID": null,
+        "Title": null,
+        "CID": null,
+        "Selected": null
+      },
       "records": [
         [
           4,
@@ -395,14 +395,14 @@
     "UXF^table": {
       "comment": null,
       "name": "Tracks",
-      "fieldnames": [
-        "TID",
-        "Title",
-        "Seconds",
-        "Filename",
-        "Selected",
-        "PID"
-      ],
+      "fields": {
+        "TID": null,
+        "Title": null,
+        "Seconds": null,
+        "Filename": null,
+        "Selected": null,
+        "PID": null
+      },
       "records": [
         [
           48,

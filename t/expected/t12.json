@@ -13,10 +13,10 @@
           "UXF^table": {
             "comment": "Another little comment",
             "name": "Files",
-            "fieldnames": [
-              "kind",
-              "filename"
-            ],
+            "fields": {
+              "kind": null,
+              "filename": null
+            },
             "records": [
               [
                 "current",
@@ -155,11 +155,11 @@
           "UXF^table": {
             "comment": "A table with a rather long comment just to\nshow what can be done.",
             "name": "Categories",
-            "fieldnames": [
-              "CID",
-              "Title",
-              "Selected"
-            ],
+            "fields": {
+              "CID": null,
+              "Title": null,
+              "Selected": null
+            },
             "records": [
               [
                 5,
@@ -207,11 +207,11 @@
                 "UXF^table": {
                   "comment": null,
                   "name": "Categories",
-                  "fieldnames": [
-                    "CID",
-                    "Title",
-                    "Selected"
-                  ],
+                  "fields": {
+                    "CID": null,
+                    "Title": null,
+                    "Selected": null
+                  },
                   "records": [
                     [
                       5,
@@ -255,12 +255,12 @@
                 "UXF^table": {
                   "comment": "Comments may appear at the beginning of any list, map or table",
                   "name": "Playlists",
-                  "fieldnames": [
-                    "PID",
-                    "Title",
-                    "CID",
-                    "Selected"
-                  ],
+                  "fields": {
+                    "PID": null,
+                    "Title": null,
+                    "CID": null,
+                    "Selected": null
+                  },
                   "records": [
                     [
                       4,

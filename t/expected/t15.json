@@ -3,12 +3,12 @@
     "UXF^table": {
       "comment": null,
       "name": "Categories",
-      "fieldnames": [
-        "CID",
-        "Title",
-        "Selected",
-        "Date"
-      ],
+      "fields": {
+        "CID": null,
+        "Title": null,
+        "Selected": null,
+        "Date": null
+      },
       "records": [
         [
           5,
@@ -73,13 +73,13 @@
     "UXF^table": {
       "comment": null,
       "name": "Playlists",
-      "fieldnames": [
-        "PID",
-        "Title",
-        "CID",
-        "Selected",
-        "Timestamp"
-      ],
+      "fields": {
+        "PID": null,
+        "Title": null,
+        "CID": null,
+        "Selected": null,
+        "Timestamp": null
+      },
       "records": [
         [
           4,

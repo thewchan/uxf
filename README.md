@@ -1,8 +1,8 @@
 # UXF
 
-Uniform eXchange Format (UXF) is a plain text human readable storage
-format that may serve as a convenient alternative to csv, ini, json, sqlite,
-toml, xml, or yaml.
+Uniform eXchange Format (UXF) is a plain text human readable optionally
+typed storage format. UXF may serve as a convenient alternative to csv, ini,
+json, sqlite, toml, xml, or yaml.
 
 UXF is an open standard. The UXF software linked from this page is all free
 open source software.
@@ -41,7 +41,8 @@ Map and list values may be of _any_ type (including nested ``map``s and
 
 A `table` starts with a table name, then field names, then values. The
 number of values in any given row is equal to the number of field names.
-(See the examples below).
+Values may only be of types `bool`, `int`, `real`, `date`, `datetime`,
+`str`, or `bytes`. (See the examples below).
 
 Maps, lists, and tables may begin with a comment (see examples below and the
 BNF at the end).

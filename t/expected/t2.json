@@ -2,12 +2,12 @@
   "UXF^table": {
     "comment": null,
     "name": "Categories",
-    "fieldnames": [
-      "CID",
-      "Title",
-      "Selected",
-      "Date"
-    ],
+    "fields": {
+      "CID": null,
+      "Title": null,
+      "Selected": null,
+      "Date": null
+    },
     "records": [
       [
         5,
