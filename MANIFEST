@@ -1,11 +1,14 @@
 py/uxf.py
 py/uxfconvert.py
 # TODO
-# (1) test uxf to sqlite: t2.uxf t4.uxf t15.uxf
-# (2) sqlite_to_uxf
-# (3) test sqlite to uxf: t2.sqlite t4.sqlite t15.sqlite (should round trip)
-# (4) uxf_to_xml: same tests as JSON for full round trip
-# (5) xml_to_uxf: same tests as JSON for full round trip
+# (1) implment support for typed lists, maps, and tables in the lexer and
+#     parser
+# (2) create typed t/*.uxf files & add tests for them incl. round trips
+# (3) test uxf to sqlite: t2.uxf t4.uxf t15.uxf
+# (4) sqlite_to_uxf
+# (5) test sqlite to uxf: t2.sqlite t4.sqlite t15.sqlite (should round trip)
+# (6) uxf_to_xml: same tests as JSON for full round trip
+# (7) xml_to_uxf: same tests as JSON for full round trip
 
 README.md
 

@@ -63,7 +63,8 @@ a .comment attribute.
     class Field
 
 Used to store a Table's fields. The .vtype must be one of these strs:
-'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'.
+'null', 'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'. A vtype
+of 'null' means accept any valid type.
 
     class NTuple
 
@@ -94,7 +95,7 @@ except ImportError:
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
            'naturalize', 'List', 'Map', 'Table', 'NTuple')
-__version__ = '0.9.9' # uxf module version
+__version__ = '0.10.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
@@ -606,7 +607,8 @@ class Field:
 
     @vtype.setter
     def vtype(self, vtype):
-        vtypes = {'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'}
+        vtypes = {'null', 'bool', 'int', 'real', 'date', 'datetime', 'str',
+                  'bytes'}
         if vtype in vtypes:
             self._vtype = vtype
         else:

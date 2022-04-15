@@ -1,0 +1,29 @@
+{
+  "UXF^table": {
+    "comment": null,
+    "name": "Countries",
+    "fields": {
+      "Name": null
+    },
+    "records": [
+      [
+        "Netherlands"
+      ],
+      [
+        "Wales"
+      ],
+      [
+        "Belgium"
+      ],
+      [
+        "Australia"
+      ],
+      [
+        "Japan"
+      ],
+      [
+        "Ukraine"
+      ]
+    ]
+  }
+}

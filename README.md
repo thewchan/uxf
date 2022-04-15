@@ -44,8 +44,8 @@ number of values in any given row is equal to the number of field names.
 Values may only be of types `bool`, `int`, `real`, `date`, `datetime`,
 `str`, or `bytes`. (See the examples below).
 
-Maps, lists, and tables may begin with a comment (see examples below and the
-BNF at the end).
+Maps, lists, and tables may begin with a comment, and may optionally by
+typed (see examples below and the BNF at the end).
 
 Where whitespace is allowed (or required) it may be spaces, tabs, or
 newlines.
@@ -103,6 +103,17 @@ separates the names from the values, are the values themselves. There's no
 need to group rows into lines (although doing so is common and easier for
 human readability), since the UXF processor will know how many values go
 into each row based on the number of field names.
+
+    uxf 1.0 Price List
+    [= <Price List> <Date> date <Price> real <Quantity> int <ID> str <Description> str =
+      2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
+      2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
+      2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
+    =]
+
+Here we've added field (column) types: if specified the UXF processor is
+expected to verify that each value is of the correct type. Either use `null`
+or omit the type to indicate _any_ valid type.
 
 Note that if you need to include `&`, `<` or `>` inside a `str`, you
 must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
@@ -198,6 +209,30 @@ Since every `.uxf` file holds _one_ overarching `list`, `map`, or `table`
 containing all the other data, this makes it easy to add an overall comment
 at the beginning of the file.
 
+    uxf 1.0 MyApp 1.2.0 Config
+    { str map
+      <General> { #<Miscellaneous settings> str
+        <shapename> <Hexagon>
+        <zoom> 150
+        <showtoolbar> no
+        <Files> { str
+          <current> <test1.uxf>
+          <recent> [ #<From most to least recent> str
+          </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
+        }
+      }
+      <Window> { #<Window dimensions and scale> str
+        <pos> (:615 252:)
+        <size> (:592 636:)
+        <scale> 1.1
+      }
+    }
+
+Here we've added some types. The outermost map must have `str` keys and
+`map` values, and the _General_, _Files_, and _Window_ maps must all have
+`str` keys and _any_ values. For ``map``s we may specify the key and
+value types, or just the key type, or neither.
+
 ### Database to UXF
 
 A database normally consists of one or more tables. A UXF equivalent using
@@ -225,6 +260,25 @@ The `list` begins with a comment.
 
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
+
+    uxf 1.0 MyApp Data
+    [ #<There is a 1:M relationship between the Invoices and Items tables>
+      [= <Customers> <CID> int <Company> str <Address> str <Contact> str <Email> str =
+        50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
+        19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
+      =]
+      [= <Invoices> <INUM> int <CID> int <Raised Date> date <Due Date> date <Paid> bool <Description> str =
+        152 50 2022-01-17 2022-02-17 no <COD> 
+        153 19 2022-01-19 2022-02-19 yes <> 
+      =]
+      [= <Items> <IID> int <INUM> int <Delivery Date> date <Unit Price> real <Quantity> int <Description> str =
+        1839 152 2022-01-16 29.99 2 <Bales of hay> 
+        1840 152 2022-01-16 5.98 3 <Straps> 
+        1620 153 2022-01-19 11.5 1 <Washers (1-in)> 
+      =]
+    ]
+
+Here, we've added types to each of the tables.
 
 What if we wanted to add some extra configuration data to the database? One
 solution would be to make the first item in the `list` a `map`, with the
@@ -315,28 +369,34 @@ If you just want to create a small standalone `.pyz`, simply copy
 A `.uxf` file consists of a mandatory header followed by a single
 optional `map`, `list`, or `table`.
 
-    UXF      ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
-    CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA     ::= (MAP | LIST | TABLE)
-    MAP      ::= '{' COMMENT? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
-    LIST     ::= '[' COMMENT? OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
-    TABLE    ::= '[=' COMMENT? (OWS STR){2,} '=' (RWS VALUE)* '=]'
-    NTUPLE   ::= '(:' (OWS INT) (RWS INT){1,11} OWS ':)'   # 2-12 ints or
-              |  '(:' (OWS REAL) (RWS REAL){1,11} OWS ':)' # 2-12 floats
-    COMMENT  ::= OWS '#' STR
-    KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
-    ANYVALUE ::= (VALUE | LIST | MAP | TABLE | NTUPLE)
-    VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES)
-    NULL     ::= 'null'
-    BOOL     ::= 'no' | 'false' | 'yes' | 'true'
-    INT      ::= /[-+]?\d+/
-    REAL     ::= # standard or scientific (but must contain decimal point)
-    DATE     ::= /\d\d\d\d-\d\d-\d\d/ # basic ISO8601 YYYY-MM-DD format
-    DATETIME ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
-    STR      ::= /[<][^<>]*[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
-    BYTES    ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
-    OWS      ::= /[\s\n]*/
-    RWS      ::= /[\s\n]+/ # in some cases RWS is actually optional
+    UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
+    CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
+    DATA         ::= MAP | LIST | TABLE
+    MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
+    MAPTYPES     ::= OWS KEYTYPE (RWS ANYVALUETYPE)?
+    KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
+    VALUETYPE    ::= KEYTYPE | 'null' | 'bool' | 'real' 
+    ANYVALUETYPE ::= VALUETYPE | 'list' | 'map' | 'table' | 'ntuple'
+    LIST         ::= '[' COMMENT? LISTTYPE? OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
+    LISTTYPE     ::= OWS ANYVALUETYPE
+    TABLE        ::= '[=' COMMENT? OWS FIELD (RWS FIELD)* '=' (RWS VALUE)* '=]'
+    FIELD        ::= STR (RwS VALUETYPE)?
+    NTUPLE       ::= '(:' (OWS INT) (RWS INT){1,11} OWS ':)'   # 2-12 ints or
+                  |  '(:' (OWS REAL) (RWS REAL){1,11} OWS ':)' # 2-12 floats
+    COMMENT      ::= OWS '#' STR
+    KEY          ::= INT | DATE | DATETIME | STR | BYTES
+    VALUE        ::= KEY | NULL | BOOL | REAL
+    ANYVALUE     ::= VALUE | LIST | MAP | TABLE | NTUPLE
+    NULL         ::= 'null'
+    BOOL         ::= 'no' | 'false' | 'yes' | 'true'
+    INT          ::= /[-+]?\d+/
+    REAL         ::= # standard or scientific (but must contain decimal point)
+    DATE         ::= /\d\d\d\d-\d\d-\d\d/ # basic ISO8601 YYYY-MM-DD format
+    DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
+    STR          ::= /[<][^<>]*[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
+    BYTES        ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
+    OWS          ::= /[\s\n]*/
+    RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 
 For a `table` the first `str` is the table's name and the second and
 subsequent strings are field names. After the bare `=` come the table's
