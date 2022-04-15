@@ -108,7 +108,7 @@ _CONSTANTS = {'null'} | _BOOL_FALSE | _BOOL_TRUE
 _BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
 
 
-def load(filename_or_filelike, *, warn_is_error=False):
+def load(filename_or_filelike, *, check=False, warn_is_error=False):
     '''
     Returns a 2-tuple, the first item of which is a Map, List, or Table
     containing all the UXF data read. The second item is the custom string
@@ -119,11 +119,11 @@ def load(filename_or_filelike, *, warn_is_error=False):
 
     If warn_is_error is True warnings raise Error exceptions.
     '''
-    return loads(_read_text(filename_or_filelike),
+    return loads(_read_text(filename_or_filelike), check=check,
                  warn_is_error=warn_is_error)
 
 
-def loads(uxf_text, *, warn_is_error=False):
+def loads(uxf_text, *, check=False, warn_is_error=False):
     '''
     Returns a 2-tuple, the first item of which is a Map, List, or Table
     containing all the UXF data read. The second item is the custom string
@@ -135,7 +135,8 @@ def loads(uxf_text, *, warn_is_error=False):
     '''
     data = None
     tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error)
-    data = _parse(tokens, text=uxf_text, warn_is_error=warn_is_error)
+    data = _parse(tokens, text=uxf_text, check=check,
+                  warn_is_error=warn_is_error)
     return data, custom
 
 
@@ -253,8 +254,8 @@ class _Lexer(_ErrorMixin):
                                f'introducer, got {c!r}')
                 self.read_comment()
             else:
-                self.error('comments may only occur at the start of maps, '
-                           'lists, and tables')
+                self.error('comments may only occur at the start of Maps, '
+                           'Lists, and Tables')
         elif c == '<':
             self.read_string_or_name()
         elif c == '(':
@@ -388,7 +389,7 @@ class _Lexer(_ErrorMixin):
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
-            self.error(f'expected const got: {text!r}')
+            self.error(f'expected const, got {text!r}')
 
 
     def peek(self):
@@ -632,6 +633,10 @@ class Field:
                 f'expected field type to be one of: {types}, got {vtype}')
 
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.name!r}, {self.vtype!r})'
+
+
 class Table:
     '''Used to store a UXF table.
 
@@ -756,14 +761,15 @@ def _canonicalize(s, prefix):
     return s
 
 
-def _parse(tokens, *, text, warn_is_error=False):
-    parser = _Parser()
+def _parse(tokens, *, text, check=False, warn_is_error=False):
+    parser = _Parser(check=check, warn_is_error=warn_is_error)
     return parser.parse(tokens, text)
 
 
 class _Parser(_ErrorMixin):
 
-    def __init__(self, *, warn_is_error=False):
+    def __init__(self, *, check=False, warn_is_error=False):
+        self.check = check
         self.warn_is_error = warn_is_error
         self._what = 'parser'
 
@@ -839,7 +845,7 @@ class _Parser(_ErrorMixin):
             self.states += [_Expect.TABLE_NAME, _Expect.COMMENT]
             self._on_collection_start_helper(Table)
         else:
-            self.error('expected to create Map, List, or Table, not {kind}')
+            self.error('expected to create Map, List, or Table, got {kind}')
 
 
     def _on_collection_start_helper(self, Class):
@@ -851,14 +857,17 @@ class _Parser(_ErrorMixin):
 
 
     def _on_collection_end(self, token):
+        if self.stack and self.check:
+            self._check(self.stack[-1])
         self.states.pop()
         self.stack.pop()
         if self.stack:
-            if isinstance(self.stack[-1], (list, List)):
+            parent = self.stack[-1]
+            if isinstance(parent, (list, List)):
                 self.states.append(_Expect.ANY_VALUE)
-            elif isinstance(self.stack[-1], (dict, Map)):
+            elif isinstance(parent, (dict, Map)):
                 self.states.append(_Expect.MAP_KEY)
-            elif isinstance(self.stack[-1], Table):
+            elif isinstance(parent, Table):
                 self.states.append(_Expect.TABLE_VALUE)
             else:
                 self.error(f'unexpected token, {token}')
@@ -866,9 +875,22 @@ class _Parser(_ErrorMixin):
             self.states.append(_Expect.EOF)
 
 
+    def _check(self, item):
+        if isinstance(item, List) and item.vtype is not None:
+            print('check List', item.vtype) # TODO
+        elif isinstance(item, Map) and (
+                item.vtype is not None or
+                item.ktype is not None):
+            print('check Map', item.ktype, item.vtype) # TODO
+        elif isinstance(item, Table) and (
+                any(field.vtype is not None for field in
+                    item.fields)):
+            print('check Table', item.fields) # TODO
+
+
     def _handle_table_name(self, token):
         if token.kind is not _Kind.TABLE_NAME:
-            self.error(f'expected table name, got {token}')
+            self.error(f'expected Table name, got {token}')
         self.stack[-1].name = token.value
         self.states[-1] = _Expect.TABLE_FIELD_NAME
 
@@ -881,12 +903,12 @@ class _Parser(_ErrorMixin):
             if field.vtype is None:
                 field.vtype = token.value
             else:
-                self.error('can only provide one type for each table '
+                self.error('can only provide one type for each Table '
                            f' field, got a second type {token}')
         elif token.kind is _Kind.TABLE_FIELD_NAME:
             self.stack[-1].append_field(token.value)
         else:
-            self.error(f'expected table field, got {token}')
+            self.error(f'expected Table field, got {token}')
 
 
     def _handle_table_value(self, token):
@@ -898,7 +920,7 @@ class _Parser(_ErrorMixin):
                 _Kind.STR, _Kind.BYTES}:
             self.stack[-1] += token.value
         else:
-            self.error('table values may only be null, bool, int, real, '
+            self.error('Table values may only be null, bool, int, real, '
                        f'date, datetime, str, or bytes, got {token}')
 
 
@@ -908,15 +930,15 @@ class _Parser(_ErrorMixin):
         elif token.kind is _Kind.TYPE:
             parent = self.stack[-1]
             if len(parent) > 0:
-                self.error('can only provide one or two types for '
-                           f'maps, before the first value, got {token}')
+                self.error('can provide at most two types for Maps, both '
+                           f'before the first value, got {token}')
             if parent.ktype is None:
                 parent.ktype = token.value
             elif parent.vtype is None:
                 parent.vtype = token.value
             else:
                 self.error('can only provide key and value types for '
-                           f'maps, got a third type {token}')
+                           f'Maps, got a third type {token}')
         elif token.kind in {
                 _Kind.INT, _Kind.DATE, _Kind.DATE_TIME,
                 _Kind.STR, _Kind.BYTES}:
@@ -952,16 +974,20 @@ class _Parser(_ErrorMixin):
                 self.error(f'unexpected type, {token}')
             if len(parent) > 0:
                 self.error('can only provide one type for '
-                           f'lists, before the first value, got {token}')
+                           f'Lists, before the first value, got {token}')
             if parent.vtype is None:
                 parent.vtype = token.value
             else:
                 self.error('can only provide one type for '
-                           f'lists, got a second type {token}')
+                           f'Lists, got a second type {token}')
         elif self._is_collection_start(token.kind):
             # this adds a new List, Map, or Table to the stack
             self._on_collection_start(token.kind)
         elif self._is_collection_end(token.kind):
+            if self.check and self.stack:
+                parent = self.stack[-1]
+                if isinstance(parent, (Map, List, Table)):
+                    self._check(parent)
             self.states.pop()
             if self.states and self.states[-1] is _Expect.MAP_VALUE:
                 self.states[-1] = _Expect.MAP_KEY
@@ -1304,9 +1330,10 @@ def naturalize(s):
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py [-z|--compress] [-iN|--indent=N] <infile.uxf> [<outfile.uxf>]
+usage: uxf.py [-c|--check] [-z|--compress] [-iN|--indent=N] <infile.uxf> [<outfile.uxf>]
    or: python3 -m uxf ...same options as above...
 
+if check is set any specified types are checked against the actual values
 gzip compression is ignored if no outfile (i.e., for stdout).
 indent defaults to 2 (range 0-8) e.g., -i0 or --indent=0 (with no space)
 
@@ -1314,12 +1341,15 @@ To uncompress a .uxf file run: uxf.py infile.uxf outfile.uxf
 
 To compress and minimize a .uxf file run: uxf.py -i0 -z infile.uxf outfile.uxf
 ''')
+    check = False
     compress = False
     indent = 2
     args = sys.argv[1:]
     infile = outfile = None
     for arg in args:
-        if arg in {'-z', '--compress'}:
+        if arg in {'-c', '--check'}:
+            check = True
+        elif arg in {'-z', '--compress'}:
             compress = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
@@ -1333,9 +1363,9 @@ To compress and minimize a .uxf file run: uxf.py -i0 -z infile.uxf outfile.uxf
         else:
             outfile = arg
     try:
-        data, custom = load(infile)
+        data, custom = load(infile, check=check)
         outfile = sys.stdout if outfile is None else outfile
         dump(outfile, data=data, custom=custom, compress=compress,
              indent=indent)
-    except Error as err:
+    except (FileNotFoundError, Error) as err:
         print(f'Error:{err}')
