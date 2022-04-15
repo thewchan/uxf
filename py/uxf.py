@@ -99,6 +99,9 @@ __version__ = '0.10.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
+_KEYTYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
+_VALUETYPES = _KEYTYPES | {'null', 'bool', 'real'}
+_ANYVALUETYPES = _VALUETYPES | {'list', 'map', 'table', 'ntuple'}
 
 
 def load(filename_or_filelike, *, warn_is_error=False):
@@ -607,13 +610,11 @@ class Field:
 
     @vtype.setter
     def vtype(self, vtype):
-        vtypes = {'null', 'bool', 'int', 'real', 'date', 'datetime', 'str',
-                  'bytes'}
-        if vtype in vtypes:
+        if vtype in _VALUETYPES:
             self._vtype = vtype
         else:
-            raise Error(f'expected field type of {sorted(vtypes)}, '
-                        f'got {vtype}')
+            raise Error(f'expected field type to be one of: '
+                        f'{" ".join(sorted(_VALUETYPES))}, got {vtype}')
 
 
 class Table:
