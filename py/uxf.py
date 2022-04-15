@@ -62,7 +62,7 @@ a .comment attribute.
 
     class Field
 
-Used to store a Table's fields. The .ftype must be one of these strs:
+Used to store a Table's fields. The .vtype must be one of these strs:
 'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'.
 
     class NTuple
@@ -589,9 +589,9 @@ class Map(collections.UserDict):
 
 class Field:
 
-    def __init__(self, name, ftype=None):
+    def __init__(self, name, vtype=None):
         self._name = name
-        self._ftype = ftype
+        self._vtype = vtype
 
 
     @property
@@ -600,18 +600,18 @@ class Field:
 
 
     @property
-    def ftype(self):
-        return self._ftype
+    def vtype(self):
+        return self._vtype
 
 
-    @ftype.setter
-    def ftype(self, ftype):
-        ftypes = {'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'}
-        if ftype in ftypes:
-            self._ftype = ftype
+    @vtype.setter
+    def vtype(self, vtype):
+        vtypes = {'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes'}
+        if vtype in vtypes:
+            self._vtype = vtype
         else:
-            raise Error(f'expected field type of {sorted(ftypes)}, '
-                        f'got {ftype}')
+            raise Error(f'expected field type of {sorted(vtypes)}, '
+                        f'got {vtype}')
 
 
 class Table:
@@ -663,8 +663,8 @@ class Table:
                     self.append(value)
 
 
-    def append_field(self, name, ftype=None):
-        self.fields.append(Field(name, ftype))
+    def append_field(self, name, vtype=None):
+        self.fields.append(Field(name, vtype))
 
 
     def append(self, value):
@@ -674,11 +674,11 @@ class Table:
                 len(self.records[-1]) >= len(self.fields)):
             self.records.append([])
         index = len(self.records[-1])
-        ftype = self.fields[index].ftype
-        if ftype is None or isinstance(value, ftype):
+        vtype = self.fields[index].vtype
+        if vtype is None or isinstance(value, vtype):
             self.records[-1].append(value)
         else:
-            raise Error('excpected value of type {ftype}, got value '
+            raise Error('excpected value of type {vtype}, got value '
                         '{value!r} of type {type(value)}')
 
 
@@ -1104,8 +1104,8 @@ class _Writer:
         self.file.write(f'<{escape(item.name)}>')
         for field in item.fields:
             self.file.write(f' <{escape(field.name)}>')
-            if field.ftype is not None:
-                self.file.write(f' {field.ftype}')
+            if field.vtype is not None:
+                self.file.write(f' {field.vtype}')
         if len(item) == 0:
             self.file.write(' = =]\n')
         else:

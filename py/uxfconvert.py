@@ -180,7 +180,7 @@ class _JsonEncoder(json.JSONEncoder):
         if isinstance(obj, uxf.Table):
             return {JSON_TABLE: dict(
                 comment=obj.comment, name=obj.name,
-                fields={field.name: field.ftype for field in obj.fields},
+                fields={field.name: field.vtype for field in obj.fields},
                 records=obj.records)}
         return json.JSONEncoder.default(self, obj)
 
