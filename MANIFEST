@@ -1,6 +1,22 @@
 py/uxf.py
 py/uxfconvert.py
 # TODO
+# - CLI: uxf.py
+#
+#   --fix-types
+#   
+#   If set the UXF processor will silently coerce any scalar value that
+#   isn't of the given type to the given type (or warn if it can't).
+#   Conversion will only be attempted if the value's type and the given
+#   type match one of these: any scalar -> str; str -> bool; str -> real;
+#   str-> int; str -> datetime; str -> date; int -> real; real -> int.
+# 
+#   Add test t40.uxf that exercises all these conversions in each of a
+#   list, map, and table.
+# 
+#   --strip-comments
+# 
+#   Offer this?
 #
 # - make sure all test files have some nulls (for every typed value),
 #   esp. t4, t24, t34
