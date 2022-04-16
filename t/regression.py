@@ -36,6 +36,8 @@ def main():
                                      number=number)
     total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
                                 verbose=verbose, number=number)
+    if total < 128:
+        print('\b' * total, end='', flush=True)
     if total == ok:
         t = time.monotonic() - t
         print(f'{ok}/{total} All OK ({t:.3f} sec)')

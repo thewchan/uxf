@@ -8,8 +8,10 @@ import csv
 import datetime
 import json
 import pathlib
+import shutil
 import sqlite3
 import sys
+import textwrap
 
 import uxf
 
@@ -23,19 +25,29 @@ def main():
 
 
 def _get_config():
-    parser = argparse.ArgumentParser(usage=USAGE)
+    parser = argparse.ArgumentParser(usage=PREFIX + _get_usage())
     parser.add_argument('-i', '--indent', type=int, default=2,
                         help='default: 2, range 0-8')
     parser.add_argument('-z', '--compress', help='default: don\'t compress')
     parser.add_argument(
         '-f', '--fieldnames', action='store_true',
-        help='if present first row is assumed to be field names; default: '
-        'first row is values not fieldnames (only applies to csv infiles)')
+        help='if set the first row of csv file(s) is read as field names; '
+        'default: all rows are values')
     parser.add_argument('file', nargs='+',
                         help='infile(s) and outfile as shown above')
     config = parser.parse_args()
     _postprocess_args(parser, config)
     return config
+
+
+def _get_usage():
+    try:
+        term_width = shutil.get_terminal_size()[0]
+    except AttributeError:
+        term_width = 80
+    return '\n\n'.join('\n'.join(textwrap.wrap(para.strip(), term_width))
+                       for para in USAGE.strip().split('\n\n')
+                       if para.strip())
 
 
 def _postprocess_args(parser, config):
@@ -383,45 +395,54 @@ UTF8 = 'utf-8'
 UXF = 'uxf'
 VTYPE = 'vtype'
 
-USAGE = '''
+PREFIX = '''
 uxfconvert.py <infile.uxf> <outfile.{csv,json,sqlite,xml}>
-uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames]
-    <infile.{csv,ini,json,sqlite,xml}> <outfile.uxf>
-uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames]
-    <infile1.csv> [infile2.csv ... infileM.csv] <outfile.uxf>
+uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames] \
+<infile.{csv,ini,json,sqlite,xml}> <outfile.uxf>
+uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames] \
+<infile1.csv> [infile2.csv ... infileM.csv] <outfile.uxf>
 
-Converts to/from uxf format.
+'''
 
-Not all conversions are possible; not all conversions are lossless: see below.
+USAGE = '''Converts to and from uxf format.
 
-The primary purpose of this program is to provide a code example
-illustrating how to work with the uxf.py module and UXF data.
+If compress is set and the output is uxf, the uxf will be gzip compressed.
+
+Indent defaults to 2 (uxf's default); but can be set to any value 0-8.
+
+If fieldnames is set and the infile(s) is(are) csv the first row of each
+infile will be read as field (column) names; otherwise all rows will be
+assumed to contain values.
 
 To produce compact uxf output use options: -z -i0.
 
-If multiple csv files are given as infiles, the outfile will either be a
+Converting from multiple csv files to uxf, the outfile will either be a
 list of tables (if the fieldnames option is given), or a list of lists of
-scalars otherwise.
+scalars otherwise. Converting from one csv file will produce a uxf with a
+table (if fieldnames is set) or a list of lists of scalars. Converting from
+uxf to csv can only be done if the uxf contains a single table or a single
+list of lists of scalars.
 
-Converting from uxf to csv can only be done if the uxf contains a single
-table or a single list of lists of scalars.
+Converting from ini to uxf is purely for example purposes (e.g., ini
+comments are dropped). In a real application (e.g., migrating from ini to
+uxf), a custom ini parser would be needed. Converting uxf to ini is not
+supported.
 
-Converting from ini to uxf is purely for example purposes (and drops ini
-comments). In a real application (e.g., migrating from ini to uxf), a custom
-ini parser would be needed.
+Converting sqlite to uxf only converts the sql tables and so won't
+roundtrip. Converting uxf to sqlite is only supported if the uxf file is a
+single table or a list of tables.
 
 Converting from uxf to json and back (i.e., using uxfconvert.py's own json
-format) should work with perfect fidelity.
-
-Converting sqlite to uxf only converts the sql tables and is unlikely to
-roundtrip.
+format) roundtrips with perfect fidelity.
 
 Converting from uxf to xml and back (i.e., using uxfconvert.py's own xml
-format) should work with perfect fidelity.
+format) roundtrips with perfect fidelity.
 
-Support for uxf to uxf conversions is provided by the uxf.py module, e.g.,
-  python3 -m uxf infile.uxf outfile.uxf
-with the same indent and compress options.'''
+Support for uxf to uxf conversions is provided by the uxf.py module itself,
+which can be run directly or via python, e.g., `uxf.py infile.uxf
+outfile.uxf` or `python3 -m uxf infile.uxf outfile.uxf` with the same indent
+and compress options as here, plus additional options (use uxf.py's -h or
+--help for details).'''
 
 
 if __name__ == '__main__':

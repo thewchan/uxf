@@ -1021,8 +1021,8 @@ def dump(filename_or_filelike, data, custom='', *, compress=False,
     custom is an optional short user string (with no newlines), e.g., a file
     type description.
 
-    If compress is True and the filename_or_filelike is a file (not stdout)
-    then gzip compression is used.
+    If compress is True and the filename_or_filelike is a filename (i.e.,
+    not stdout) then gzip compression is used.
 
     Set indent to 0 (and use_true_false to True) to minimize the file size.
 
@@ -1330,19 +1330,28 @@ def naturalize(s):
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py [-c|--check] [-z|--compress] [-iN|--indent=N] \
+usage: uxf.py \
+[-c|--check] [-w|--warn-is-error] [-z|--compress] [-iN|--indent=N] \
 <infile.uxf> [<outfile.uxf>]
    or: python3 -m uxf ...same options as above...
 
-if check is set any specified types are checked against the actual values
-gzip compression is ignored if no outfile (i.e., for stdout).
-indent defaults to 2 (range 0-8) e.g., -i0 or --indent=0 (with no space)
+If check is set any given types are checked against the actual \
+values and warnings given if appropriate.
+If warn-is-error is set warnings are treated as errors \
+(i.e., the program will terminate with the first error or warning message).
+If compress is set and the outfile is uxf, the outfile will be \
+compressed. (If there's no outfile, i.e., for stdout, \
+this option is ignored.)
+Indent defaults to 2 and accepts a range of 0-8. \
+The default is silently used if an out of range value is given.
 
-To uncompress a .uxf file run: uxf.py infile.uxf outfile.uxf
+To get an uncompressed .uxf file run: `uxf.py infile.uxf outfile.uxf`
 
-To compress and minimize a .uxf file run: uxf.py -i0 -z infile.uxf outfile.uxf
+To produce a compressed and compact .uxf file run: \
+`uxf.py -i0 -z infile.uxf outfile.uxf`
 ''')
     check = False
+    warn_is_error = False
     compress = False
     indent = 2
     args = sys.argv[1:]
@@ -1350,6 +1359,8 @@ To compress and minimize a .uxf file run: uxf.py -i0 -z infile.uxf outfile.uxf
     for arg in args:
         if arg in {'-c', '--check'}:
             check = True
+        elif arg in {'-w', '--warn-is-error'}:
+            warn_is_error = True
         elif arg in {'-z', '--compress'}:
             compress = True
         elif arg.startswith(('-i', '--indent=')):
@@ -1364,7 +1375,8 @@ To compress and minimize a .uxf file run: uxf.py -i0 -z infile.uxf outfile.uxf
         else:
             outfile = arg
     try:
-        data, custom = load(infile, check=check)
+        data, custom = load(infile, check=check,
+                            warn_is_error=warn_is_error)
         outfile = sys.stdout if outfile is None else outfile
         dump(outfile, data=data, custom=custom, compress=compress,
              indent=indent)
