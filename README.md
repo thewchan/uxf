@@ -18,24 +18,24 @@ open source software.
 
 UXF supports fourteen datatypes.
 
-|**Type**   |**Example(s) # notes**|
-|-----------|----------------------|
-|`null`     |`null`|
-|`bool`     |`no` `false` `yes` `true`|
-|`int`      |`-192` `+234` `7891409`|
-|`real`     |`0.15` `0.7e-9` `2245.389` # standard and scientific with at least one digit before and after the point|
-|`date`     |`2022-04-01`  # basic ISO8601 YYYY-MM-DD format|
-|`datetime` |`2022-04-01T16:11:51` # ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent)|
-|`str`      |`<Some text which may include newlines>` # for &, <, >, use \&amp;, \&lt;, \&gt; respectively|
-|`bytes`    |`(20AC 65 66 48)` # must have an even number of case-insensitive hex digits; whitespace optional|
-|`ntuple`   | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
-|`list`     |`[value1 value2 ... valueN]` # a list of values of any type
-|`list`     |`[type value1 value2 ... valueN]` # a list of values of type _type_
-|`map`      |`{key1 value1 key2 value2 ... keyN valueN}` # a map with keys of any valid key type and values of any type|
-|`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}` # a map with keys of type _ktype_ and values of any type|
-|`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}` # a map with keys of type _ktype_ and values of type _vtype_|
-|`table`    |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # values may be of any table value type
-|`table`    |`[= <name> <fieldname0> vtype0 ... <fieldnameN> vtypeN = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # _fieldname0_ values must be of type _vtype0_, and so on; if a type is omitted then that field's values may be of any table value type
+|**Type**   |**Example(s)**|**Notes**|
+|-----------|----------------------|--|
+|`null`     |`null`||
+|`bool`     |`no` `false` `yes` `true`||
+|`int`      |`-192` `+234` `7891409`||
+|`real`     |`0.15` `0.7e-9` `2245.389`|standard and scientific with at least one digit before and after the point|
+|`date`     |`2022-04-01`| basic ISO8601 YYYY-MM-DD format|
+|`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent)|
+|`str`      |`<Some text which may include newlines>`|for &, <, >, use \&amp;, \&lt;, \&gt; respectively|
+|`bytes`    |`(20AC 65 66 48)`|must have an even number of case-insensitive hex digits; whitespace optional|
+|`ntuple`   | `(:15 14 0 -75:)`|2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
+|`list`     |`[value1 value2 ... valueN]`|a list of values of any type
+|`list`     |`[type value1 value2 ... valueN]`|a list of values of type _type_
+|`map`      |`{key1 value1 key2 value2 ... keyN valueN}`|a map with keys of any valid key type and values of any type|
+|`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of any type|
+|`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of type _vtype_|
+|`table`    |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values may be of any table value type
+|`table`    |`[= <name> <fieldname0> vtype0 ... <fieldnameN> vtypeN = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|_fieldname0_ values must be of type _vtype0_, and so on; if a type is omitted then that field's values may be of any table value type
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
