@@ -690,7 +690,7 @@ class Table:
         self.fields.append(Field(name, vtype))
 
 
-    def append(self, value):
+    def append(self, value, *, check=False):
         if self._Class is None:
             self._make_row_class()
         if (not self.records or
@@ -699,7 +699,7 @@ class Table:
         index = len(self.records[-1])
         vtype = _table_type_for_name(self.fields[index].vtype)
         self.records[-1].append(value) # Add even if wrong type
-        if (vtype is not None and value is not None and not
+        if (check and vtype is not None and value is not None and not
                 isinstance(value, vtype)):
             expected = _name_for_type(vtype)
             actual = _name_for_type(type(value))
@@ -720,6 +720,7 @@ class Table:
 
 
     def __iadd__(self, value):
+        '''internally calls append() but doesn't check'''
         if not self.name:
             raise Error('can\'t append to an unnamed table')
         if not self.fields:
@@ -921,7 +922,7 @@ class _Parser(_ErrorMixin):
                 _Kind.REAL, _Kind.DATE, _Kind.DATE_TIME,
                 _Kind.STR, _Kind.BYTES}:
             try:
-                self.stack[-1] += token.value
+                self.stack[-1].append(token.value, check=self.check)
             except Error as err:
                 self.warn(str(err))
         else:
