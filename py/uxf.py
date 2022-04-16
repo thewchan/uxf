@@ -163,7 +163,7 @@ class _ErrorMixin:
         if self.warn_is_error:
             self.error(message)
         lino = self.text.count('\n', 0, self.pos) + 1
-        print(f'warning:{self._what}:{lino}: {message}')
+        print(f'Warning:{self._what}:{lino}: {message}')
 
 
     def error(self, message):
@@ -698,9 +698,9 @@ class Table:
             self.records.append([])
         index = len(self.records[-1])
         vtype = _table_type_for_name(self.fields[index].vtype)
-        if vtype is None or value is None or isinstance(value, vtype):
-            self.records[-1].append(value)
-        else:
+        self.records[-1].append(value) # Add even if wrong type
+        if (vtype is not None and value is not None and not
+                isinstance(value, vtype)):
             expected = _name_for_type(vtype)
             actual = _name_for_type(type(value))
             raise Error(f'expected value of type {expected}, got value '
@@ -920,7 +920,10 @@ class _Parser(_ErrorMixin):
                 _Kind.NULL, _Kind.BOOL, _Kind.INT,
                 _Kind.REAL, _Kind.DATE, _Kind.DATE_TIME,
                 _Kind.STR, _Kind.BYTES}:
-            self.stack[-1] += token.value
+            try:
+                self.stack[-1] += token.value
+            except Error as err:
+                self.warn(str(err))
         else:
             self.error('Table values may only be null, bool, int, real, '
                        f'date, datetime, str, or bytes, got {token}')
