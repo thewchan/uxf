@@ -1,13 +1,23 @@
 py/uxf.py
 py/uxfconvert.py
 # TODO
+#
 # - make sure all test files have some nulls (for every typed value),
 #   esp. t4, t24, t34
+#
+# - create tests t50.uxf ... one for every error or warning that uxf.py
+#   can produce to ensure they all work & are understandable.
+#
 # - implement uxf.py _check()
+#
 # - test uxf to sqlite: t2.uxf t4.uxf t15.uxf t22.uxf t24.uxf t35.uxf
+#
 # - sqlite_to_uxf
+#
 # - test sqlite to uxf: t2.sqlite t4.sqlite t15.sqlite (should round trip)
+#
 # - uxf_to_xml: same tests as JSON for full round trip
+#
 # - xml_to_uxf: same tests as JSON for full round trip
 
 README.md
