@@ -33,8 +33,8 @@ uxf 1.0 TLM Config
       4 <Modern Instrumental> no
       1 <New Acquistions> no
       2 <Pop> no
-      3 <Punk> no
-      7 <Uncategorized> no
+      3 <Punk> null
+      null null no
       6 <Unpopular Pop> no
     =]
   }

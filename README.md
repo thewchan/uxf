@@ -29,9 +29,13 @@ UXF supports fourteen datatypes.
 |`str`      |`<Some text which may include newlines>` # for &, <, >, use \&amp;, \&lt;, \&gt; respectively|
 |`bytes`    |`(20AC 65 66 48)` # must have an even number of case-insensitive hex digits; whitespace optional|
 |`ntuple`   | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc.
-|`list`     |`[value1 value2 ... valueN]` # the first value may be preceded by a type, e.g., `int`
-|`map`      |`{key1 value1 key2 value2 ... keyN valueN}`| # # the first value may be preceded by a key type, e.g., `int`, or by key and value types, e.g., `int str`
-|`table`    |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # fieldnames may optionally be followed by a type|
+|`list`     |`[value1 value2 ... valueN]` # a list of values of any type
+|`list`     |`[type value1 value2 ... valueN]` # a list of values of type _type_
+|`map`      |`{key1 value1 key2 value2 ... keyN valueN}` # a map with keys of any valid key type and values of any type|
+|`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}` # a map with keys of type _ktype_ and values of any type|
+|`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}` # a map with keys of type _ktype_ and values of type _vtype_|
+|`table`    |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # values may be of any table value type
+|`table`    |`[= <name> <fieldname0> vtype0 ... <fieldnameN> vtypeN = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` # _fieldname0_ values must be of type _vtype0_, and so on; if a type is omitted then that field's values may be of any table value type
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
@@ -42,10 +46,10 @@ Map and list values may be of _any_ type (including nested ``map``s and
 A `table` starts with a table name, then field names, then values. The
 number of values in any given row is equal to the number of field names.
 Values may only be of types `bool`, `int`, `real`, `date`, `datetime`,
-`str`, or `bytes`. (See the examples below).
+`str`, `bytes`, or the value `null`. (See the examples below).
 
 Maps, lists, and tables may begin with a comment, and may optionally by
-typed (see examples below and the BNF at the end).
+typed as indicated above. (See also the examples below and the BNF at the end).
 
 Where whitespace is allowed (or required) it may be spaces, tabs, or
 newlines.

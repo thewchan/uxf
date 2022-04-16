@@ -104,11 +104,11 @@
           [
             3,
             "Punk",
-            false
+            null
           ],
           [
-            7,
-            "Uncategorized",
+            null,
+            null,
             false
           ],
           [

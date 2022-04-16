@@ -115,11 +115,11 @@
           [
             7,
             "Uncategorized",
-            false
+            null
           ],
           [
-            6,
-            "Unpopular Pop",
+            null,
+            null,
             false
           ]
         ]

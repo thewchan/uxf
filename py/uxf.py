@@ -698,11 +698,13 @@ class Table:
             self.records.append([])
         index = len(self.records[-1])
         vtype = _table_type_for_name(self.fields[index].vtype)
-        if vtype is None or isinstance(value, vtype):
+        if vtype is None or value is None or isinstance(value, vtype):
             self.records[-1].append(value)
         else:
-            raise Error('excpected value of type {vtype}, got value '
-                        '{value!r} of type {type(value)}')
+            expected = _name_for_type(vtype)
+            actual = _name_for_type(type(value))
+            raise Error(f'expected value of type {expected}, got value '
+                        f'{value!r} of type {actual}')
 
 
     def _make_row_class(self):
@@ -1293,6 +1295,13 @@ def _table_type_for_name(name):
     return dict(int=int, date=datetime.date, datetime=datetime.datetime,
                 str=str, bytes=(bytes, bytearray), bool=bool,
                 real=float, uxf=None).get(name)
+
+
+def _name_for_type(t):
+    return {int: 'int', datetime.date: 'date',
+            datetime.datetime: 'datetime', bytes: 'bytes',
+            bytearray: 'bytes', str: 'str', bool: 'bool',
+            float: 'real', type(None): 'null'}.get(t)
 
 
 def naturalize(s):
