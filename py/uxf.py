@@ -1428,11 +1428,11 @@ usage: uxf.py \
 If check is set any given types are checked against the actual \
 values and warnings given if appropriate.
 If fixtypes is set mistyped values are correctly typed where possible \
-(e.g., int → float, str → date, etc.). If fixtypes is set then check is \
+(e.g., int ↔ float, str → date, etc.). If fixtypes is set then check is \
 automatically set too.
 If warn-is-error is set warnings are treated as errors \
 (i.e., the program will terminate with the first error or warning message).
-If compress is set and the outfile is uxf, the outfile will be \
+If compress is set and the outfile is uxf, the outfile will be gzip \
 compressed. (If there's no outfile, i.e., for stdout, \
 this option is ignored.)
 Indent defaults to 2 and accepts a range of 0-8. \
