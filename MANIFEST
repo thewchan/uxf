@@ -1,30 +1,24 @@
 py/uxf.py
 py/uxfconvert.py
 # TODO
-# - CLI: uxf.py
-#
-#   --fix-types
-#   
-#   If set the UXF processor will silently coerce any scalar value that
-#   isn't of the given type to the given type (or warn if it can't).
-#   Conversion will only be attempted if the value's type and the given
-#   type match one of these: any scalar -> str; str -> bool; str -> real;
-#   str-> int; str -> datetime; str -> date; int -> real; real -> int.
-# 
-#   Add test t40.uxf that exercises all these conversions in each of a
-#   list, map, and table.
-# 
-#   --strip-comments
-# 
-#   Offer this?
-#
 # - make sure all test files have some nulls (for every typed value),
 #   esp. t4, t24, t34
 #
+# - test --check and --fix-types:
+#   . Add test t40.uxf that exercises all fixtypes in each of a
+#     list, map, and table
+#     (i.e., any→str, int↔float, str→bool|int|float|date|datetime)
+#   . Add test t41.uxf ... one for every fixtype that cannot work
+#   . Do 3 lots of tests: for t40.uxf ...:
+#	* no check, no fixtypes
+#	* check, no fixtypes
+#	* check, fixtypes
+# 
+#   --strip-comments
+#   Offer this?
+#
 # - create tests t50.uxf ... one for every error or warning that uxf.py
 #   can produce to ensure they all work & are understandable.
-#
-# - implement uxf.py _check()
 #
 # - test uxf to sqlite: t2.uxf t4.uxf t15.uxf t22.uxf t24.uxf t35.uxf
 #

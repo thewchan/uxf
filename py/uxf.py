@@ -108,7 +108,8 @@ _CONSTANTS = {'null'} | _BOOL_FALSE | _BOOL_TRUE
 _BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
 
 
-def load(filename_or_filelike, *, check=False, warn_is_error=False):
+def load(filename_or_filelike, *, check=False, fixtypes=False,
+         warn_is_error=False):
     '''
     Returns a 2-tuple, the first item of which is a Map, List, or Table
     containing all the UXF data read. The second item is the custom string
@@ -120,10 +121,10 @@ def load(filename_or_filelike, *, check=False, warn_is_error=False):
     If warn_is_error is True warnings raise Error exceptions.
     '''
     return loads(_read_text(filename_or_filelike), check=check,
-                 warn_is_error=warn_is_error)
+                 fixtypes=fixtypes, warn_is_error=warn_is_error)
 
 
-def loads(uxf_text, *, check=False, warn_is_error=False):
+def loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False):
     '''
     Returns a 2-tuple, the first item of which is a Map, List, or Table
     containing all the UXF data read. The second item is the custom string
@@ -135,7 +136,7 @@ def loads(uxf_text, *, check=False, warn_is_error=False):
     '''
     data = None
     tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error)
-    data = _parse(tokens, text=uxf_text, check=check,
+    data = _parse(tokens, text=uxf_text, check=check, fixtypes=fixtypes,
                   warn_is_error=warn_is_error)
     return data, custom
 
@@ -690,21 +691,13 @@ class Table:
         self.fields.append(Field(name, vtype))
 
 
-    def append(self, value, *, check=False):
+    def append(self, value, *, check=False, fixtypes=False):
         if self._Class is None:
             self._make_row_class()
         if (not self.records or
                 len(self.records[-1]) >= len(self.fields)):
             self.records.append([])
-        index = len(self.records[-1])
-        vtype = _table_type_for_name(self.fields[index].vtype)
-        self.records[-1].append(value) # Add even if wrong type
-        if (check and vtype is not None and value is not None and not
-                isinstance(value, vtype)):
-            expected = _name_for_type(vtype)
-            actual = _name_for_type(type(value))
-            raise Error(f'expected value of type {expected}, got value '
-                        f'{value!r} of type {actual}')
+        self.records[-1].append(value)
 
 
     def _make_row_class(self):
@@ -764,15 +757,18 @@ def _canonicalize(s, prefix):
     return s
 
 
-def _parse(tokens, *, text, check=False, warn_is_error=False):
-    parser = _Parser(check=check, warn_is_error=warn_is_error)
+def _parse(tokens, *, text, check=False, fixtypes=False,
+           warn_is_error=False):
+    parser = _Parser(check=check, fixtypes=fixtypes,
+                     warn_is_error=warn_is_error)
     return parser.parse(tokens, text)
 
 
 class _Parser(_ErrorMixin):
 
-    def __init__(self, *, check=False, warn_is_error=False):
+    def __init__(self, *, check=False, fixtypes=False, warn_is_error=False):
         self.check = check
+        self.fixtypes = fixtypes
         self.warn_is_error = warn_is_error
         self._what = 'parser'
 
@@ -880,15 +876,62 @@ class _Parser(_ErrorMixin):
 
     def _check(self, item):
         if isinstance(item, List) and item.vtype is not None:
-            print('check List', item.vtype) # TODO
+            self._check_list(item)
         elif isinstance(item, Map) and (
                 item.vtype is not None or
                 item.ktype is not None):
-            print('check Map', item.ktype, item.vtype) # TODO
+            self._check_map(item)
         elif isinstance(item, Table) and (
-                any(field.vtype is not None for field in
-                    item.fields)):
-            print('check Table', item.fields) # TODO
+                any(field.vtype is not None for field in item.fields)):
+            self._check_table(item)
+
+
+    def _check_list(self, lst):
+        vtype = _type_for_name(lst.vtype)
+        for i in len(lst):
+            value, fixed, err = _maybe_fixtype(
+                lst[i], vtype, check=self.check, fixtypes=self.fixtypes)
+            if fixed:
+                lst[i] = value
+            if err is not None:
+                self.warn(str(err))
+
+
+    def _check_map(self, m):
+        ktype = _type_for_name(m.ktype)
+        vtype = _type_for_name(m.vtype)
+        d = {}
+        for key, value in m.items():
+            key, _, err = _maybe_fixtype(
+                key, ktype, check=self.check, fixtypes=self.fixtypes)
+            if err is not None:
+                self.warn(str(err))
+            value, _, err = _maybe_fixtype(
+                value, vtype, check=self.check, fixtypes=self.fixtypes)
+            if err is not None:
+                self.warn(str(err))
+            if self.fixtypes:
+                d[key] = value
+        if self.fixtypes:
+            m.data = d
+
+
+    def _check_table(self, table):
+        columns = len(table.fields)
+        vtypes = [_type_for_name(table.fields[column].vtype)
+                  for column in range(columns)]
+        for row in range(len(table.records)):
+            if len(row) != columns:
+                self.warn(f'expected row of {columns} columns, got '
+                          f'{len(row)} columns')
+            for column in range(len(row)):
+                value, fixed, err = _maybe_fixtype(
+                    table[row][column], vtypes[column], check=self.check,
+                    fixtypes=self.fixtypes)
+                if fixed:
+                    table[row][column] = value
+                if err is not None:
+                    self.warn(str(err))
 
 
     def _handle_table_name(self, token):
@@ -1295,17 +1338,49 @@ def _is_scalar(x):
             bytearray))
 
 
-def _table_type_for_name(name):
-    return dict(int=int, date=datetime.date, datetime=datetime.datetime,
-                str=str, bytes=(bytes, bytearray), bool=bool,
-                real=float, uxf=None).get(name)
+def _type_for_name(typename):
+    return dict(bool=bool, bytes=(bytes, bytearray), date=datetime.date,
+                datetime=datetime.datetime, int=int, list=List, map=Map,
+                real=float, str=str, table=Table, uxf=None).get(typename)
 
 
-def _name_for_type(t):
-    return {int: 'int', datetime.date: 'date',
-            datetime.datetime: 'datetime', bytes: 'bytes',
-            bytearray: 'bytes', str: 'str', bool: 'bool',
-            float: 'real', type(None): 'null'}.get(t)
+def _name_for_type(vtype):
+    return {bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
+            datetime.date: 'date', datetime.datetime: 'datetime',
+            float: 'real', int: 'int', List: 'list', Map: 'map',
+            str: 'str', Table: 'table', type(None): 'null'}.get(vtype)
+
+
+def _maybe_fixtype(value, vtype, *, check=False, fixtypes=False):
+    '''Returns value (possibly fixed), fixed (bool), err (None or Error)'''
+    if (vtype is None or value is None or check is False or
+            isinstance(value, vtype)):
+        return value, False, None
+    if fixtypes:
+        new_value, fixed = _try_fixtype(value, vtype)
+        if fixed:
+            return new_value, True, None
+    if check:
+        expected = _name_for_type(vtype)
+        actual = _name_for_type(type(value))
+        err = Error(f'expected value of type {expected}, got value '
+                    f'{value!r} of type {actual}')
+        return value, False, err
+
+
+def _try_fixtype(value, outtype):
+    if isinstance(outtype, str):
+        return str(value), True
+    vtype = type(value)
+    if isinstance(vtype, str) and isinstance(outtype, (
+            bool, int, float, datetime.date, datetime.datetime)):
+        new_value = naturalize(value)
+        return new_value, isinstance(new_value, outtype)
+    if isinstance(vtype, int) and isinstance(outtype, float):
+        return float(value), True
+    if isinstance(vtype, float) and isinstance(outtype, int):
+        return int(value), True
+    return value, False
 
 
 def naturalize(s):
@@ -1341,15 +1416,20 @@ def naturalize(s):
 
 
 if __name__ == '__main__':
+    import os
+
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
 usage: uxf.py \
-[-c|--check] [-w|--warn-is-error] [-z|--compress] [-iN|--indent=N] \
-<infile.uxf> [<outfile.uxf>]
+[-c|--check] [-f|--fix-types] [-w|--warn-is-error] [-z|--compress] \
+[-iN|--indent=N] <infile.uxf> [<outfile.uxf>]
    or: python3 -m uxf ...same options as above...
 
 If check is set any given types are checked against the actual \
 values and warnings given if appropriate.
+If fixtypes is set mistyped values are correctly typed where possible (e.g.,
+int → float, str → date, etc.). If fixtypes is set then check is
+automatically set too.
 If warn-is-error is set warnings are treated as errors \
 (i.e., the program will terminate with the first error or warning message).
 If compress is set and the outfile is uxf, the outfile will be \
@@ -1364,6 +1444,7 @@ To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 -z infile.uxf outfile.uxf`
 ''')
     check = False
+    fixtypes = False
     warn_is_error = False
     compress = False
     indent = 2
@@ -1371,6 +1452,9 @@ To produce a compressed and compact .uxf file run: \
     infile = outfile = None
     for arg in args:
         if arg in {'-c', '--check'}:
+            check = True
+        elif arg in {'-f', '--fix-types'}:
+            fixtypes = True
             check = True
         elif arg in {'-w', '--warn-is-error'}:
             warn_is_error = True
@@ -1388,7 +1472,10 @@ To produce a compressed and compact .uxf file run: \
         else:
             outfile = arg
     try:
-        data, custom = load(infile, check=check,
+        if (outfile is not None and os.path.abspath(infile) ==
+                os.path.abspath(outfile)):
+            raise Error('won\'t overwrite {outfile}')
+        data, custom = load(infile, check=check, fixtypes=fixtypes,
                             warn_is_error=warn_is_error)
         outfile = sys.stdout if outfile is None else outfile
         dump(outfile, data=data, custom=custom, compress=compress,
