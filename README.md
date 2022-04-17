@@ -34,7 +34,7 @@ UXF supports fourteen datatypes.
 |`map`      |`{key1 value1 key2 value2 ... keyN valueN}`|a map with keys of any valid key type and values of any type|
 |`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of any type|
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of type _vtype_|
-|`table`    |`[= <name> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values may be of any table value type
+|`table`    |`[= <tablename> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values may be of any table value type
 |`table`    |`[= <name> <fieldname0> vtype0 ... <fieldnameN> vtypeN = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|_fieldname0_ values must be of type _vtype0_, and so on; if a type is omitted then that field's values may be of any table value type
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
@@ -84,7 +84,7 @@ The most obvious translation would be to a `list` of ``list``s:
       [2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
 
-This is perfectly valid. However, it has the same problem of `.csv` files:
+This is perfectly valid. However, it has the same problem as `.csv` files:
 is the first row data values or column titles? (For software this isn't
 always obvious, for example, if all the values are strings.) Not to mention
 the fact that we have to use a nested `list` of ``list``s.
