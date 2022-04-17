@@ -1427,8 +1427,8 @@ usage: uxf.py \
 
 If check is set any given types are checked against the actual \
 values and warnings given if appropriate.
-If fixtypes is set mistyped values are correctly typed where possible (e.g.,
-int → float, str → date, etc.). If fixtypes is set then check is
+If fixtypes is set mistyped values are correctly typed where possible \
+(e.g., int → float, str → date, etc.). If fixtypes is set then check is \
 automatically set too.
 If warn-is-error is set warnings are treated as errors \
 (i.e., the program will terminate with the first error or warning message).
