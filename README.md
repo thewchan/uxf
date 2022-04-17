@@ -116,8 +116,8 @@ into each row based on the number of field names.
     =]
 
 Here we've added field (column) types: if specified the UXF processor is
-expected to verify that each value is of the correct type. Omit the type
-altogether to indicate _any_ valid type.
+expected to be able to check that each value is of the correct type. Omit
+the type altogether to indicate _any_ valid type.
 
 Note that if you need to include `&`, `<` or `>` inside a `str`, you
 must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
@@ -180,10 +180,7 @@ For example, here's an alternative:
     uxf 1.0 MyApp 1.2.0 Config
     {
       <General> { #<Miscellaneous settings>
-        <shapename> <Hexagon>
-        <zoom> 150
-        <showtoolbar> no
-        <Files> {
+        <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> {
           <current> <test1.uxf>
           <recent> [ #<From most to least recent>
           </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
@@ -196,8 +193,9 @@ For example, here's an alternative:
       }
     }
 
-Here, we've moved the _Files_ into _General_ and changed the _Files_ from a
-`table` to a two-item `map` with the second item's value being a `list` of
+Here, we've laid out the _General_ and _Window_ maps more compactly. We've
+also moved the _Files_ into _General_ and changed the _Files_ from a `table`
+to a two-item `map` with the second item's value being a `list` of
 filenames. We've also changed the _x_, _y_ coordinates and the _width_ and
 _height_ into items with `pos` and `size` keys and `ntuple` values. Of
 course we could have used a single item with an `ntuple` value, e.g.,
@@ -214,12 +212,9 @@ containing all the other data, this makes it easy to add an overall comment
 at the beginning of the file.
 
     uxf 1.0 MyApp 1.2.0 Config
-    { str map
+    { #<Notes on this configuration file format> str map
       <General> { #<Miscellaneous settings> str
-        <shapename> <Hexagon>
-        <zoom> 150
-        <showtoolbar> no
-        <Files> { str
+        <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
           <current> <test1.uxf>
           <recent> [ #<From most to least recent> str
           </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
@@ -332,9 +327,13 @@ Most Python types convert losslessly to and from UXF types. In particular:
 |`uxf.Map`           | `map`      |
 |`uxf.Table`         | `table    `|
 
-A `uxf.List` is a Python `list` subclass with a `.comment` attribute.
-Similarly a `uxf.Map` is a Python `dict` subclass with a `.comment`
-attribute. And the `uxf.Table` class also has a `.comment` attribute.
+A `uxf.List` is a Python `collections.UserList` subclass with `.data` (the
+list)`, .comment` and `.vtype` attributes. Similarly a `uxf.Map` is a Python
+`collections.UserDict` subclass with `.data` (the dict), `.comment`,
+`.ktype`, and `.vtype` attributes. The `uxf.Table` class has `.records`,
+`.comment`, and `.fields` attributes; with `.fields` holding a list of
+`uxf.Field` values (which each has a field name and type). In all cases a
+type of `None` signifies that any type valid for the context may be used.
 
 If `one_way_conversion` is `False` then any other Python type passed in
 the data passed to `write()` will produce an error.
@@ -403,19 +402,24 @@ optional `map`, `list`, or `table`.
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 
-To indicate any valid type, simply omit the type name.
-
-For a `table` the first `str` is the table's name and the second and
-subsequent strings are field names. After the bare `=` come the table's
-values. There's no need to distinguish between one row and the next
-(although it is common to start new rows on new lines) since the number
-of fields indicate how many values each row has.
+To indicate any type valid for the context, simply omit the type name.
 
 As the BNF shows, `map` and `list` values may be of _any_ type.
 
-However, `table` values may only be scalars (i.e., of type `null`, `bool`,
-`int`, `real`, `date`, `datetime`, `str`, or `bytes`), not ``map``s,
-``list``s, ``ntuple``s or ``table``s.
+For a `table`, after the optional comment, the first `str` is the table's
+name and the second and subsequent strings are field names (each of which
+may be followed by a type name). After the bare `=` come the table's values.
+There's no need to distinguish between one row and the next (although it is
+common to start new rows on new lines) since the number of fields indicate
+how many values each row has.
+
+Notice that `table` values may only be scalars (i.e., the literal `null`, or
+of type `bool`, `int`, `real`, `date`, `datetime`, `str`, or `bytes`), not
+``map``s, ``list``s, ``ntuple``s or ``table``s.
+
+If a map key, list value, or table value's type is specified, then the UXF
+processor is expected to be able to check for (and if requested and
+possible, correct) any mistyped values.
 
 For ``datetime``s, support may vary across different UXF libraries and
 might _not_ include timezone support. For example, the Python library
