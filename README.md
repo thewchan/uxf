@@ -34,9 +34,7 @@ UXF supports fourteen datatypes.
 |`map`      |`{key1 value1 key2 value2 ... keyN valueN}`|a map with keys of any valid key type and values of any type|
 |`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of any type|
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of type _vtype_|
-|`table`    |`[= <tablename> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values may be of any table value type
-|`table`    |`[= <name> <fieldname0> vtype0 ... <fieldnameN> vtypeN = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|_fieldname0_ values must be of type _vtype0_, and so on; if a type is omitted then that field's values may be of any table value type
-|`table`    |`[= Rectype = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values may be of any table value type
+|`table`    |`[= TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values must by of the corresponding type specified in the _TType_, or any table value type where no type is specified
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
@@ -44,11 +42,12 @@ Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 Map and list values may be of _any_ type (including nested ``map``s and
 ``list``s).
 
-A `table` starts with either a table name and then field names (each with an
-optional type), or a [_Rectype_](#rectype). Next comes the table's values.
-The number of values in any given row is equal to the number of field names.
-Values may only be of types `bool`, `int`, `real`, `date`, `datetime`,
-`str`, `bytes`, or the value `null`. (See the examples below).
+A `table` starts with a [_TType_](#ttype). Next comes the table's values.
+The number of values in any given row is equal to the number of field names
+in the _TType_. Values must be of the type specified in the _TType_, or
+where not specified, may be of types `bool`, `int`, `real`, `date`,
+`datetime`, `str`, `bytes`. Or the value can be `null`. (See the examples
+below).
 
 Maps, lists, and tables may begin with a comment, and may optionally by
 typed as indicated above. (See also the examples below and the BNF at the end).
@@ -94,11 +93,14 @@ the fact that we have to use a nested `list` of ``list``s.
 The most _appropriate_ UXF equivalent is to use a UXF `table`:
 
     uxf 1.0 Price List
-    [= <Price List> <Date> <Price> <Quantity> <ID> <Description> =
+    PriceList <Date> <Price> <Quantity> <ID> <Description>
+    [= PriceList
       2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
       2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
       2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
     =]
+
+######################### TODO UPDATE THE TEXT FOR TTYPES #############################
 
 Here we begin by identifying the custom data our `.uxf` file contains by
 providing some descriptive text after the UXF introduction (`uxf 1.0`).
@@ -111,7 +113,8 @@ human readability), since the UXF processor will know how many values go
 into each row based on the number of field names.
 
     uxf 1.0 Price List
-    [= <Price List> <Date> date <Price> real <Quantity> int <ID> str <Description> str =
+    PriceList <Date> date <Price> real <Quantity> int <ID> str <Description> str
+    [= PriceList
       2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
       2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
       2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
@@ -145,6 +148,7 @@ must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
 #### UXF equivalents
 
     uxf 1.0 MyApp 1.2.0 Config
+    Files <kind> <filename>
     {
       <General> {
         <shapename> <Hexagon>
@@ -158,7 +162,7 @@ must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
         <height> 636
         <scale> 1.1
       }
-      <Files> [= <Files> <kind> <filename> =
+      <Files> [= Files
         <current> <test1.uxf> 
         <recent1> </tmp/test2.uxf> 
         <recent2> <C:\Users\mark\test3.uxf> 
@@ -241,16 +245,19 @@ A database normally consists of one or more tables. A UXF equivalent using
 a `list` of ``table``s is easily made.
 
     uxf 1.0 MyApp Data
+    Customers <CID> <Company> <Address> <Contact> <Email>
+    Invoices <INUM> <CID> <Raised Date> <Due Date> <Paid> <Description>
+    Items <IID> <INUM> <Delivery Date> <Unit Price> <Quantity> <Description>
     [ #<There is a 1:M relationship between the Invoices and Items tables>
-      [= <Customers> <CID> <Company> <Address> <Contact> <Email> =
+      [= Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
       =]
-      [= <Invoices> <INUM> <CID> <Raised Date> <Due Date> <Paid> <Description> =
+      [= Invoices
         152 50 2022-01-17 2022-02-17 no <COD> 
         153 19 2022-01-19 2022-02-19 yes <> 
       =]
-      [= <Items> <IID> <INUM> <Delivery Date> <Unit Price> <Quantity> <Description> =
+      [= Items
         1839 152 2022-01-16 29.99 2 <Bales of hay> 
         1840 152 2022-01-16 5.98 3 <Straps> 
         1620 153 2022-01-19 11.5 1 <Washers (1-in)> 
@@ -264,16 +271,19 @@ Notice that the second customer has a `null` address and the second invoice
 has an empty description.
 
     uxf 1.0 MyApp Data
+    Customers <CID> int <Company> str <Address> str <Contact> str <Email> str
+    Invoices <INUM> int <CID> int <Raised Date> date <Due Date> date <Paid> bool <Description> str
+    Items <IID> int <INUM> int <Delivery Date> date <Unit Price> real <Quantity> int <Description> str
     [ #<There is a 1:M relationship between the Invoices and Items tables>
-      [= <Customers> <CID> int <Company> str <Address> str <Contact> str <Email> str =
+      [= Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
       =]
-      [= <Invoices> <INUM> int <CID> int <Raised Date> date <Due Date> date <Paid> bool <Description> str =
+      [= Invoices
         152 50 2022-01-17 2022-02-17 no <COD> 
         153 19 2022-01-19 2022-02-19 yes <> 
       =]
-      [= <Items> <IID> int <INUM> int <Delivery Date> date <Unit Price> real <Quantity> int <Description> str =
+      [= Items
         1839 152 2022-01-16 29.99 2 <Bales of hay> 
         1840 152 2022-01-16 5.98 3 <Straps> 
         1620 153 2022-01-19 11.5 1 <Washers (1-in)> 
@@ -295,42 +305,20 @@ the container, something like:
         ]
     }
 
-### Rectype
+### TType
 
 Sometimes it is convenient to reuse the same table name and field names (and
 their optional types) multiple times in the same UXF file.
 
     uxf 1.0
-    {
-        <para> {
-            <style> [= <Style> <foreground> str <background> str
-                     <fontname> str <fontsize> real =
-                    <black> <white> <Helvetica> 10.5
-                     =]
-            <content> ...
-        }
-        <para> {
-            <style> [= <Style> <foreground> str <background> str
-                     <fontname> str <fontsize> real =
-                    <navy> <lightyellow> <Helvetica> 10.5
-                     =]
-            <content> ...
-        }
-        ...
-    }
-
-Clearly, there's a lot of redundancy in this UXF file. This can be avoided
-by defining a _Rectype_.
-
-    uxf 1.0
     Style <foreground> str <background> str <fontname> str <fontsize> real
     {
         <para> {
-            <style> [= Style = <black> <white> <Helvetica> 10.5 =]
+            <style> [= Style <black> <white> <Helvetica> 10.5 =]
             <content> ...
         }
         <para> {
-            <style> [= Style = <navy> <lightyellow> <Helvetica> 10.5 =]
+            <style> [= Style <navy> <lightyellow> <Helvetica> 10.5 =]
             <content> ...
         }
         ...
@@ -338,31 +326,31 @@ by defining a _Rectype_.
 
 As can be seen above, it is possible to predefine a table name and its field
 names (and optional types). This is done by preceding the UXF map, list, or
-table with one or more Rectype definitions. Each definition begins with a
+table with one or more _TType_ definitions. Each definition begins with a
 name (which must begin with an uppercase letter and may not contain any
 whitespace), followed by field names (with optional types). Note that the
-Rectype name is used as the table name.
+_TType_ name is used as the table name.
 
-To _use_ a predefined Rectype, simply use the Rectype's name in place of any
+To _use_ a predefined _TType_, simply use the _TType_'s name in place of any
 table's table name and field names as shown above.
 
     uxf 1.0
     Place <name> str <x> int <y> int
     {
-        <Top> [= Place =
+        <Top> [= Place
                 <Red land> 14 49
                 <Green wash> -17 183
                 <Blue wave> 98 888
               =]
-        <Left> [= Place =
+        <Left> [= Place
                  <Long lane> 18 -233
                  <Short wave> -134 294
                =]
         ...
     }
 
-Here, we use a Rectype for multiple tables with multiple rows. And, of
-course, we can define and use as many Rectypes as we want.
+Here, we use a _TType_ for multiple tables with multiple rows. And, of
+course, we can define and use as many _TType_s as we want.
 
 ## Libraries
 
@@ -446,8 +434,8 @@ optional `map`, `list`, or `table`.
 
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA         ::= RECTYPE* (MAP | LIST | TABLE)
-    RECTYPE      ::= RECTYPE_NAME (RWS FIELD)+
+    DATA         ::= TTYPE* (MAP | LIST | TABLE)
+    TTYPE        ::= TTYPE_NAME (RWS FIELD)+
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS ANYVALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
@@ -455,9 +443,8 @@ optional `map`, `list`, or `table`.
     ANYVALUETYPE ::= VALUETYPE | 'list' | 'map' | 'table' | 'ntuple'
     LIST         ::= '[' COMMENT? LISTTYPE? OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
     LISTTYPE     ::= OWS ANYVALUETYPE
-    TABLE        ::= '[=' COMMENT? OWS (RECTYPE_NAME | TABLE_NAME OWS FIELD (RWS FIELD)*)
-                     '=' (RWS VALUE)* '=]'
-    RECTYPE_NAME ::= /\p{Lu}\w*/ # Must start with an uppercase letter
+    TABLE        ::= '[=' COMMENT? OWS TTYPE_NAME (RWS VALUE)* '=]'
+    TTYPE_NAME   ::= /\p{Lu}\w*/ # Must start with an uppercase letter
     TABLE_NAME   ::= STR
     FIELD        ::= STR (RwS VALUETYPE)?
     NTUPLE       ::= '(:' (OWS INT) (RWS INT){1,11} OWS ':)'   # 2-12 ints or

@@ -56,11 +56,11 @@ that also has a .comment attribute.
 
     class Table
 
-Used to store UXF Tables. A Table has a Rectype (see below) and a records
+Used to store UXF Tables. A Table has a TType (see below) and a records
 list which is a list of lists of scalars with each sublist having the same
 number of items as the number of fields. It also has a .comment attribute.
 
-    class Rectype
+    class TType
 
 Used to store a Table's name and fields (see below).
 
@@ -628,7 +628,7 @@ class Map(collections.UserDict):
         self.vtype = None
 
 
-class Rectype:
+class TType:
 
     def __init__(self, name, fields=None):
         self.name = name
@@ -718,14 +718,14 @@ class Table:
         comment is an optional str.
         '''
         self._Class = None
-        self.rectype = Rectype(name, fields)
+        self.ttype = TType(name, fields)
         self.records = []
         self.comment = comment
         self._table_index = 1
         if records:
             if not name:
                 raise Error('can\'t create an unnamed nonempty table')
-            if not self.rectype:
+            if not self.ttype:
                 raise Error('can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
                 if self._Class is None:
@@ -738,27 +738,27 @@ class Table:
 
     @property
     def name(self):
-        return self.rectype.name
+        return self.ttype.name
 
 
     @name.setter
     def name(self, name):
-        self.rectype.name = name
+        self.ttype.name = name
 
 
     @property
     def fields(self):
-        return self.rectype.fields
+        return self.ttype.fields
 
 
     def field(self, column):
-        return self.rectype.fields[column]
+        return self.ttype.fields[column]
 
 
     def append_field(self, name_or_field, vtype=None):
         '''Use to append a Field by name and optional vtype or directly as a
         Field'''
-        self.rectype.append(name_or_field, vtype)
+        self.ttype.append(name_or_field, vtype)
 
 
     def append(self, value):
@@ -767,7 +767,7 @@ class Table:
         row'''
         if self._Class is None:
             self._make_row_class()
-        if not self.records or len(self.records[-1]) >= len(self.rectype):
+        if not self.records or len(self.records[-1]) >= len(self.ttype):
             self.records.append([])
         self.records[-1].append(value)
 
@@ -852,7 +852,7 @@ class _Parser(_ErrorMixin):
     def clear(self):
         self.keys = []
         self.stack = []
-        self.rectypes = {}
+        self.ttypes = {}
         self.pos = -1
         self.states = [_Expect.COLLECTION]
 
@@ -862,9 +862,9 @@ class _Parser(_ErrorMixin):
         self.tokens = tokens
         self.text = text
         data = None
-        # TODO handle optional Rectypes before the overall collection
+        # TODO handle optional TTypes before the overall collection
         if tokens[0].kind is _Kind.IDENTIFIER:
-            pass # TODO read one or more Rectypes & populate self.rectypes & then slice tokens
+            pass # TODO read one or more TTypes & populate self.ttypes & then slice tokens
         for token in tokens:
             if token.kind is _Kind.EOF:
                 break
@@ -890,7 +890,7 @@ class _Parser(_ErrorMixin):
             elif state is _Expect.TABLE_ROWS:
                 if token.kind is not _Kind.TABLE_ROWS:
                     self.error('expected Table \'=\' rows separator after '
-                               'table Rectype')
+                               'table TType')
                 self.states[-1] = _Expect.TABLE_VALUE
             elif state is _Expect.TABLE_VALUE:
                 self._handle_table_value(token)
@@ -1021,10 +1021,10 @@ class _Parser(_ErrorMixin):
 
     def _handle_table_name(self, token):
         if token.kind is _Kind.IDENTIFIER:
-            rectype = self.rectypes.get(token.value)
-            if rectype is None:
-                self.error(f'undefined Table Rectype name, {token.value!r}')
-            self.stack[-1].rectype = rectype
+            ttype = self.ttypes.get(token.value)
+            if ttype is None:
+                self.error(f'undefined Table TType name, {token.value!r}')
+            self.stack[-1].ttype = ttype
             self.states[-1] = _Expect.TABLE_ROWS
         elif token.kind is not _Kind.TABLE_NAME:
             self.error(f'expected Table name, got {token}')
