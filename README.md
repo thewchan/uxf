@@ -16,7 +16,7 @@ open source software.
 
 ## Datatypes
 
-UXF supports fourteen datatypes.
+UXF supports eleven datatypes.
 
 |**Type**   |**Example(s)**|**Notes**|
 |-----------|----------------------|--|
@@ -33,7 +33,7 @@ UXF supports fourteen datatypes.
 |`map`      |`{key1 value1 key2 value2 ... keyN valueN}`|a map with keys of any valid key type and values of any type|
 |`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of any type|
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of type _vtype_|
-|`table`    |`( TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> )`|values must by of the corresponding type specified in the _TType_, or any table value type where no type is specified
+|`table`    |`( TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> )`|values must be of the corresponding type specified in the _TType_, or any table value type where no type is specified
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
@@ -403,6 +403,9 @@ For complex numbers you could create a _TType_ such as:
 
     = Complex Real real Imag real
 
+Then you could include single complex values like `(Complex 1.5 7.2)`, or
+many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
+
 Using `uxf` as an executable (with `python3 -m uxf ...`) provides a means of
 doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress, or make
 more human readable or more compact).
@@ -425,6 +428,8 @@ optional `map`, `list`, or `table`.
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DATA         ::= TTYPE* (MAP | LIST | TABLE)
+    TTYPE        ::= '=' OWS IDENTIFIER (RWS FIELD)+ # IDENTIFIER is table name
+    FIELD        ::= IDENTIFIER (RWS VALUETYPE)? # IDENTIFIER is field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS ANYVALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
@@ -432,8 +437,6 @@ optional `map`, `list`, or `table`.
     ANYVALUETYPE ::= VALUETYPE | 'list' | 'map' | 'table'
     LIST         ::= '[' COMMENT? LISTTYPE? OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
     LISTTYPE     ::= OWS ANYVALUETYPE
-    TTYPE        ::= '=' OWS IDENTIFIER (RWS FIELD)+ # IDENTIFIER is table name
-    FIELD        ::= IDENTIFIER (RWS VALUETYPE)? # IDENTIFIER is field name
     TABLE        ::= '(' COMMENT? OWS IDENTIFIER (RWS VALUE)* ')' # IDENTIFIER is TTYPE name
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
