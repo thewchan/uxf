@@ -11,7 +11,8 @@ The uxf module can be used as an executable. To see the command line help run:
 
     python3 -m uxf -h
 
-uxf's public API provides six free functions and six classes.
+The uxf module's public API provides the following free functions and
+classes.
 
     def load(filename_or_filelike): -> (data, custom_header)
     def loads(uxf_text): -> (data, custom_header)
@@ -55,10 +56,13 @@ that also has a .comment attribute.
 
     class Table
 
-Used to store UXF Tables. A Table has a list of fields (name, optional type;
-see below) and a records list which is a list of lists of scalars with each
-sublist having the same number of items as the number of fields. It also has
-a .comment attribute.
+Used to store UXF Tables. A Table has a Rectype (see below) and a records
+list which is a list of lists of scalars with each sublist having the same
+number of items as the number of fields. It also has a .comment attribute.
+
+    class Rectype
+
+Used to store a Table's name and fields (see below).
 
     class Field
 
@@ -236,7 +240,8 @@ class _Lexer(_ErrorMixin):
                 self.pos += 1
                 self.add_token(_Kind.TABLE_END)
                 self.text_kind = _Kind.STR
-            elif self.text_kind is _Kind.TABLE_FIELD_NAME:
+            elif (self.text_kind is _Kind.TABLE_FIELD_NAME or
+                    self.tokens[-1].kind is _Kind.IDENTIFIER):
                 self.add_token(_Kind.TABLE_ROWS)
                 self.text_kind = _Kind.STR
             else:
@@ -270,7 +275,7 @@ class _Lexer(_ErrorMixin):
         elif c.isdecimal():
             self.read_positive_number_or_date(c)
         elif c.isalpha():
-            self.read_const()
+            self.read_name()
         else:
             self.error(f'invalid character encountered: {c!r}')
 
@@ -373,20 +378,34 @@ class _Lexer(_ErrorMixin):
             self.error(f'invalid number or date/time: {text}: {err}')
 
 
-    def read_const(self):
+    def read_name(self):
         match = self.match_any_of(_BAREWORDS)
         if match == 'null':
             self.add_token(_Kind.NULL)
+            return
         elif match in _BOOL_FALSE:
             self.add_token(_Kind.BOOL, False)
+            return
         elif match in _BOOL_TRUE:
             self.add_token(_Kind.BOOL, True)
+            return
         elif match in _ANY_VALUE_TYPES:
             self.add_token(_Kind.TYPE, match)
+            return
         elif match in _VALUE_TYPES:
             self.add_token(_Kind.VALUE_TYPE, match)
+            return
         elif match in _ANY_VALUE_TYPES:
             self.add_token(_Kind.ANY_VALUE_TYPE, match)
+            return
+        start = self.pos - 1
+        if self.text[start].isupper():
+            while self.pos < len(self.text):
+                if (not self.text[self.pos].isalnum() and
+                        self.text[self.pos] != '_'):
+                    break
+                self.pos += 1
+            self.add_token(_Kind.IDENTIFIER, self.text[start:self.pos])
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
@@ -477,6 +496,7 @@ class _Kind(enum.Enum):
     STR = enum.auto()
     BYTES = enum.auto()
     TYPE = enum.auto()
+    IDENTIFIER = enum.auto()
     EOF = enum.auto()
 
 
@@ -608,6 +628,34 @@ class Map(collections.UserDict):
         self.vtype = None
 
 
+class Rectype:
+
+    def __init__(self, name, fields=None):
+        self.name = name
+        self.fields = []
+        if fields is not None:
+            for field in fields:
+                if isinstance(field, str):
+                    self.fields.append(Field(field))
+                else:
+                    self.fields.append(field)
+
+
+    def append(self, name_or_field, vtype=None):
+        if isinstance(name_or_field, Field):
+            self.fields.append(name_or_field)
+        else:
+            self.fields.append(Field(name_or_field, vtype))
+
+
+    def __bool__(self):
+        return bool(self.name) and bool(self.fields)
+
+
+    def __len__(self):
+        return len(self.fields)
+
+
 class Field:
 
     def __init__(self, name, vtype=None):
@@ -669,18 +717,16 @@ class Table:
 
         comment is an optional str.
         '''
-        self.name = name
         self._Class = None
-        self.fields = [] if fields is None else fields
+        self.rectype = Rectype(name, fields)
         self.records = []
         self.comment = comment
         self._table_index = 1
         if records:
             if not name:
                 raise Error('can\'t create an unnamed nonempty table')
-            if not fields:
-                raise Error(
-                    'can\'t create a nonempty table without fields')
+            if not self.rectype:
+                raise Error('can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
                 if self._Class is None:
                     self._make_row_class()
@@ -690,13 +736,29 @@ class Table:
                     self.append(value)
 
 
+    @property
+    def name(self):
+        return self.rectype.name
+
+
+    @name.setter
+    def name(self, name):
+        self.rectype.name = name
+
+
+    @property
+    def fields(self):
+        return self.rectype.fields
+
+
+    def field(self, column):
+        return self.rectype.fields[column]
+
+
     def append_field(self, name_or_field, vtype=None):
         '''Use to append a Field by name and optional vtype or directly as a
         Field'''
-        if isinstance(name_or_field, Field):
-            self.fields.append(name_or_field)
-        else:
-            self.fields.append(Field(name_or_field, vtype))
+        self.rectype.append(name_or_field, vtype)
 
 
     def append(self, value):
@@ -705,8 +767,7 @@ class Table:
         row'''
         if self._Class is None:
             self._make_row_class()
-        if (not self.records or
-                len(self.records[-1]) >= len(self.fields)):
+        if not self.records or len(self.records[-1]) >= len(self.rectype):
             self.records.append([])
         self.records[-1].append(value)
 
@@ -736,9 +797,9 @@ class Table:
         return self
 
 
-    def record(self, index):
-        '''Return the index-th record as a namedtype'''
-        return self._Class(*self.records[index])
+    def __getitem__(self, row):
+        '''Return the row-th record as a namedtype'''
+        return self._Class(*self.records[row])
 
 
     def __iter__(self):
@@ -791,6 +852,7 @@ class _Parser(_ErrorMixin):
     def clear(self):
         self.keys = []
         self.stack = []
+        self.rectypes = {}
         self.pos = -1
         self.states = [_Expect.COLLECTION]
 
@@ -800,6 +862,9 @@ class _Parser(_ErrorMixin):
         self.tokens = tokens
         self.text = text
         data = None
+        # TODO handle optional Rectypes before the overall collection
+        if tokens[0].kind is _Kind.IDENTIFIER:
+            pass # TODO read one or more Rectypes & populate self.rectypes & then slice tokens
         for token in tokens:
             if token.kind is _Kind.EOF:
                 break
@@ -822,6 +887,11 @@ class _Parser(_ErrorMixin):
                 self._handle_table_name(token)
             elif state is _Expect.TABLE_FIELD_NAME:
                 self._handle_field_name(token)
+            elif state is _Expect.TABLE_ROWS:
+                if token.kind is not _Kind.TABLE_ROWS:
+                    self.error('expected Table \'=\' rows separator after '
+                               'table Rectype')
+                self.states[-1] = _Expect.TABLE_VALUE
             elif state is _Expect.TABLE_VALUE:
                 self._handle_table_value(token)
             elif state is _Expect.MAP_KEY:
@@ -950,7 +1020,13 @@ class _Parser(_ErrorMixin):
 
 
     def _handle_table_name(self, token):
-        if token.kind is not _Kind.TABLE_NAME:
+        if token.kind is _Kind.IDENTIFIER:
+            rectype = self.rectypes.get(token.value)
+            if rectype is None:
+                self.error(f'undefined Table Rectype name, {token.value!r}')
+            self.stack[-1].rectype = rectype
+            self.states[-1] = _Expect.TABLE_ROWS
+        elif token.kind is not _Kind.TABLE_NAME:
             self.error(f'expected Table name, got {token}')
         self.stack[-1].name = token.value
         self.states[-1] = _Expect.TABLE_FIELD_NAME
@@ -1066,6 +1142,7 @@ class _Expect(enum.Enum):
     TABLE_NAME = enum.auto()
     TABLE_FIELD_NAME = enum.auto()
     TABLE_VALUE = enum.auto()
+    TABLE_ROWS = enum.auto()
     COMMENT = enum.auto()
     EOF = enum.auto()
 
