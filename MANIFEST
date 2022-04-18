@@ -79,4 +79,8 @@ t/2.csv
 # for .js use Dart or TypeScript or similar that can output JS
 # uxf.rs uxf.cpp uxf.java uxf.rb ...
 
+# IDEAS
+# - experiment with using uxf format to store various kinds of data,
+#   e.g., styled text, spreadsheet, graphics, etc.
+
 # vim: syn=yaml
