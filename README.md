@@ -323,7 +323,7 @@ Clearly, there's a lot of redundancy in this UXF file. This can be avoided
 by defining a _Rectype_.
 
     uxf 1.0
-    Style <Style> <foreground> str <background> str <fontname> str <fontsize> real
+    Style <foreground> str <background> str <fontname> str <fontsize> real
     {
         <para> {
             <style> [= Style = <black> <white> <Helvetica> 10.5 =]
@@ -340,11 +340,29 @@ As can be seen above, it is possible to predefine a table name and its field
 names (and optional types). This is done by preceding the UXF map, list, or
 table with one or more Rectype definitions. Each definition begins with a
 name (which must begin with an uppercase letter and may not contain any
-whitespace), followed by a table name and field names (with optional
-types).
+whitespace), followed by field names (with optional types). Note that the
+Rectype name is used as the table name.
 
 To _use_ a predefined Rectype, simply use the Rectype's name in place of any
 table's table name and field names as shown above.
+
+    uxf 1.0
+    Place <name> str <x> int <y> int
+    {
+        <Top> [= Place =
+                <Red land> 14 49
+                <Green wash> -17 183
+                <Blue wave> 98 888
+              =]
+        <Left> [= Place =
+                 <Long lane> 18 -233
+                 <Short wave> -134 294
+               =]
+        ...
+    }
+
+Here, we use a Rectype for multiple tables with multiple rows. And, of
+course, we can define and use as many Rectypes as we want.
 
 ## Libraries
 
@@ -428,9 +446,8 @@ optional `map`, `list`, or `table`.
 
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA         ::= RECTYPES? (MAP | LIST | TABLE)
-    RECTYPES	 ::= RECTYPE+
-    RECTYPE	 ::= 
+    DATA         ::= RECTYPE* (MAP | LIST | TABLE)
+    RECTYPE      ::= RECTYPE_NAME (RWS FIELD)+
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS ANYVALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'

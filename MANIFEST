@@ -1,6 +1,10 @@
 py/uxf.py
 py/uxfconvert.py
 # TODO
+# - implement Rectype
+#
+# - add some tests for Rectypes, e.g., t64, t84, t94 (based on t4, t24, t34)
+#
 # - make sure all test files have some nulls (for every typed value),
 #   esp. t4, t24, t34
 #
