@@ -36,6 +36,7 @@ UXF supports fourteen datatypes.
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|a map with keys of type _ktype_ and values of type _vtype_|
 |`table`    |`[= <tablename> <fieldname0> ... <fieldnameN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values may be of any table value type
 |`table`    |`[= <name> <fieldname0> vtype0 ... <fieldnameN> vtypeN = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|_fieldname0_ values must be of type _vtype0_, and so on; if a type is omitted then that field's values may be of any table value type
+|`table`    |`[= Rectype = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]`|values may be of any table value type
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 (The name we use for a `map` _key-value_ pair is _item_.)
@@ -43,8 +44,9 @@ Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 Map and list values may be of _any_ type (including nested ``map``s and
 ``list``s).
 
-A `table` starts with a table name, then field names, then values. The
-number of values in any given row is equal to the number of field names.
+A `table` starts with either a table name and then field names (each with an
+optional type), or a [_Rectype_](#rectype). Next comes the table's values.
+The number of values in any given row is equal to the number of field names.
 Values may only be of types `bool`, `int`, `real`, `date`, `datetime`,
 `str`, `bytes`, or the value `null`. (See the examples below).
 
@@ -293,6 +295,57 @@ the container, something like:
         ]
     }
 
+### Rectype
+
+Sometimes it is convenient to reuse the same table name and field names (and
+their optional types) multiple times in the same UXF file.
+
+    uxf 1.0
+    {
+        <para> {
+            <style> [= <Style> <foreground> str <background> str
+                     <fontname> str <fontsize> real =
+                    <black> <white> <Helvetica> 10.5
+                     =]
+            <content> ...
+        }
+        <para> {
+            <style> [= <Style> <foreground> str <background> str
+                     <fontname> str <fontsize> real =
+                    <navy> <lightyellow> <Helvetica> 10.5
+                     =]
+            <content> ...
+        }
+        ...
+    }
+
+Clearly, there's a lot of redundancy in this UXF file. This can be avoided
+by defining a _Rectype_.
+
+    uxf 1.0
+    Style <Style> <foreground> str <background> str <fontname> str <fontsize> real
+    {
+        <para> {
+            <style> [= Style = <black> <white> <Helvetica> 10.5 =]
+            <content> ...
+        }
+        <para> {
+            <style> [= Style = <navy> <lightyellow> <Helvetica> 10.5 =]
+            <content> ...
+        }
+        ...
+    }
+
+As can be seen above, it is possible to predefine a table name and its field
+names (and optional types). This is done by preceding the UXF map, list, or
+table with one or more Rectype definitions. Each definition begins with a
+name (which must begin with an uppercase letter and may not contain any
+whitespace), followed by a table name and field names (with optional
+types).
+
+To _use_ a predefined Rectype, simply use the Rectype's name in place of any
+table's table name and field names as shown above.
+
 ## Libraries
 
 _Implementations in additional languages are planned._
@@ -375,7 +428,9 @@ optional `map`, `list`, or `table`.
 
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA         ::= MAP | LIST | TABLE
+    DATA         ::= RECTYPES? (MAP | LIST | TABLE)
+    RECTYPES	 ::= RECTYPE+
+    RECTYPE	 ::= 
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS ANYVALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
@@ -383,7 +438,10 @@ optional `map`, `list`, or `table`.
     ANYVALUETYPE ::= VALUETYPE | 'list' | 'map' | 'table' | 'ntuple'
     LIST         ::= '[' COMMENT? LISTTYPE? OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
     LISTTYPE     ::= OWS ANYVALUETYPE
-    TABLE        ::= '[=' COMMENT? OWS FIELD (RWS FIELD)* '=' (RWS VALUE)* '=]'
+    TABLE        ::= '[=' COMMENT? OWS (RECTYPE_NAME | TABLE_NAME OWS FIELD (RWS FIELD)*)
+                     '=' (RWS VALUE)* '=]'
+    RECTYPE_NAME ::= /\p{Lu}\w*/ # Must start with an uppercase letter
+    TABLE_NAME   ::= STR
     FIELD        ::= STR (RwS VALUETYPE)?
     NTUPLE       ::= '(:' (OWS INT) (RWS INT){1,11} OWS ':)'   # 2-12 ints or
                   |  '(:' (OWS REAL) (RWS REAL){1,11} OWS ':)' # 2-12 floats

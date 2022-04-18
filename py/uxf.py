@@ -531,17 +531,19 @@ class NTuple:
 
 
     @property
-    def asuxf(self):
+    def _asuxf(self):
         items = ' '.join([str(n) for n in self._items])
         return f'(:{items}:)'
 
 
     @property
     def astuple(self):
+        '''Returns the NTuple as a plain Python tuple'''
         return tuple(self._items)
 
 
     def __getattr__(self, name):
+        '''Returns the NTuple's value that corresponds to the given name'''
         if name in {'a', 'x', 'first'}:
             return self._items[0]
         if name in {'b', 'y', 'second'}:
@@ -576,6 +578,7 @@ class NTuple:
 
 
     def __getitem__(self, index):
+        '''Returns the NTuple's value that corresponds to the given index'''
         return self._items[index]
 
 
@@ -687,11 +690,19 @@ class Table:
                     self.append(value)
 
 
-    def append_field(self, name, vtype=None):
-        self.fields.append(Field(name, vtype))
+    def append_field(self, name_or_field, vtype=None):
+        '''Use to append a Field by name and optional vtype or directly as a
+        Field'''
+        if isinstance(name_or_field, Field):
+            self.fields.append(name_or_field)
+        else:
+            self.fields.append(Field(name_or_field, vtype))
 
 
     def append(self, value):
+        '''Use to append a value to the table. The value will be added to
+        the last row if that isn't full, or as the first value in a new
+        row'''
         if self._Class is None:
             self._make_row_class()
         if (not self.records or
@@ -723,6 +734,11 @@ class Table:
         else:
             self.append(value)
         return self
+
+
+    def record(self, index):
+        '''Return the index-th record as a namedtype'''
+        return self._Class(*self.records[index])
 
 
     def __iter__(self):
@@ -1303,7 +1319,7 @@ class _Writer:
             self.file.write(
                 f'(:{realize(item.real)} {realize(item.imag)}:)')
         elif isinstance(item, NTuple):
-            self.file.write(item.asuxf)
+            self.file.write(item._asuxf)
         else:
             print(f'error: ignoring unexpected item of type {type(item)}: '
                   f'{item!r}', file=sys.stderr)
