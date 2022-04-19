@@ -8,7 +8,7 @@ uxf 1.0 TLM Config
       (75 78 66) 1985-05-22T04:31:00
       }
     <Map Test #2> { #<Map same type of non-str keys> int
-    1 <one> 2 2 3 3.0 4 (:2 2:)}
+    1 <one> 2 2 3 3.0 4 (:02 20:)}
     <Map Test #3> { #<Map same type of non-str keys and values> int date
       5 2001-12-27
       4 1973-10-18

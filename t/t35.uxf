@@ -1,6 +1,8 @@
 uxf 1.0
+= Categories CID int Title str Selected bool Date date
+= Playlists PID int Title CID int Selected bool Timestamp datetime
 [
-  [= <Categories> <CID> int <Title> str <Selected> bool <Date> date =
+  (Categories
   5 <Classical> yes 2001-12-27
   4 <Modern Instrumental> no 1973-10-18
   1 <New Acquistions> no 2019-02-10
@@ -8,9 +10,8 @@ uxf 1.0
   3 <Punk> no 1999-06-09
   7 <Uncategorized> no 1992-02-24
   6 <Unpopular Pop> no 2004-04-11
-  =]
-  [= <Playlists> <PID> int <Title> <CID> int <Selected> bool <Timestamp>
-     datetime =
+  )
+  (Playlists
   4 <ABBA> 2 no 1998-09-19T23:57:59
   38 <Bach> 5 no 1982-07-12T23:57:12
   39 <Bartok> 5 no 1983-04-13T23:46:31
@@ -22,5 +23,5 @@ uxf 1.0
   41 <Chopin> 5 yes 1973-11-23T23:53:54
   37 <Classical> 5 no 1992-11-18T23:57:27
   8 <David Bowie> 2 no 2008-09-01T23:59:46
-  =]
+  )
 ]

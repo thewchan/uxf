@@ -1,7 +1,9 @@
 uxf 1.0 TLM Config
+= Categories CID Title Selected
+= Playlists PID Title CID Selected
 {
     <Nested List of Tables> [
-            [= <Categories> <CID> <Title> <Selected> =
+            (Categories
                 5 <Classical> yes
                 4 <Modern Instrumental> no
                 1 <New Acquistions> no
@@ -9,8 +11,8 @@ uxf 1.0 TLM Config
                 3 <Punk> no
                 7 <Uncategorized> no
                 6 <Unpopular Pop> no
-            =]
-            [= <Playlists> <PID> <Title> <CID> <Selected> =
+            )
+            (Playlists
                 4 <ABBA> 2 no
                 38 <Bach> 5 no
                 39 <Bartok> 5 no
@@ -23,6 +25,6 @@ uxf 1.0 TLM Config
                 37 <Classical> 5 no
                 8 <David Bowie> 2 no
                 9 <Dire Straits> 2 no
-            =]
+            )
         ]
 }

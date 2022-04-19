@@ -1,21 +1,8 @@
 uxf 1.0
+= Playlists PID int Title str CID int Selected bool
+= Categories CID int Title str Selected bool
+= Categories CID Title str Selected
 {
-    <General> {
-        <saved> 2022-03-21 <autosave> yes <historysize> -35 <volume> 0.7
-        <files> [= <Files> <kind> <filename> =
-            <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
-            <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
-            <recent2> </home/mark/data/playlists-all.tlm>
-        =]
-    }
-    <Window> {<pos> (:383 124:) <size> (:590 536:) <scale> 1.1}
-    <UXF Type Tests> [
-        <one> (:-14.1 17.9 199.0:)
-        <many> [(:172 16 254 1:) (:192 0 2 235:) (:127 0 0 1:)]
-        <red> (:255 0 0:)
-        <semi-transparent blue> (:0 0 255 80:)
-    ]
-    <Magic> (1F 8B)
     <Nested Map> {
         <Classical> [5 yes]
         <Modern Instrumental> [4 no]
@@ -25,7 +12,7 @@ uxf 1.0
             [4 <Modern Instrumental> no]
             [1 <New Acquistions> no]
         ]
-        <Nested Table> [= <Categories> <CID> <Title> str <Selected> =
+        <Nested Table> (Categories
             5 <Classical> yes
             4 <Modern Instrumental> no
             1 <New Acquistions> no
@@ -33,9 +20,9 @@ uxf 1.0
             3 <Punk> no
             7 <Uncategorized> no
             6 <Unpopular Pop> no
-            =]
+            )
         <Nested List of Tables> [
-                [= <Categories> <CID> int <Title> str <Selected> bool =
+                (Categories
                     5 <Classical> yes
                     4 <Modern Instrumental> no
                     1 <New Acquistions> no
@@ -43,8 +30,8 @@ uxf 1.0
                     3 <Punk> no
                     7 <Uncategorized> no
                     6 <Unpopular Pop> no
-                =]
-                [= <Playlists> <PID> int <Title> str <CID> int <Selected> bool =
+                )
+                (Playlists
                     4 <ABBA> 2 no
                     38 <Bach> 5 no
                     39 <Bartok> 5 no
@@ -57,7 +44,7 @@ uxf 1.0
                     37 <Classical> 5 no
                     8 <David Bowie> 2 no
                     9 <Dire Straits> 2 no
-                =]
+                )
             ]
     }
 }
