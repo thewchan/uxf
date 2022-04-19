@@ -70,13 +70,6 @@ Used to store a Table's fields. The .vtype must be one of these strs:
 'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes', or None (which
 means accept any valid type).
 
-    class NTuple
-
-Use to store 2-12 ints or 2-12 floats. If one_way_conversion is True then
-complex numbers are converted to two-item uxf.NTuples. NTuples are ideal for
-storing complex numbers, points (2D or 3D), IP addresses, and RGB and RGBA
-values.
-
 Note that the __version__ is the module version (i.e., the versio of this
 implementation), while the VERSION is the maximum UXF version that this
 module can read (and the UXF version that it writes).
@@ -87,7 +80,6 @@ import datetime
 import enum
 import gzip
 import io
-import re
 import sys
 from xml.sax.saxutils import escape, unescape
 
@@ -98,14 +90,14 @@ except ImportError:
 
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
-           'naturalize', 'List', 'Map', 'Table', 'NTuple')
-__version__ = '0.11.0' # uxf module version
+           'naturalize', 'List', 'Map', 'Table')
+__version__ = '0.12.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
 _KEY_TYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
 _VALUE_TYPES = _KEY_TYPES | {'bool', 'real'}
-_ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table', 'ntuple'}
+_ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table'}
 _BOOL_FALSE = {'no', 'false'}
 _BOOL_TRUE = {'yes', 'true'}
 _CONSTANTS = {'null'} | _BOOL_FALSE | _BOOL_TRUE
@@ -187,6 +179,7 @@ class _Lexer(_ErrorMixin):
         self.text_kind = _Kind.STR
         self.pos = 0 # current
         self.custom = None
+        self.inttype = False
         self.tokens = []
 
 
@@ -228,29 +221,28 @@ class _Lexer(_ErrorMixin):
         c = self.getch()
         if c.isspace():
             pass
-        elif c == '[':
-            if self.peek() == '=':
+        elif c == '(':
+            if self.peek() == ':':
                 self.pos += 1
+                self.read_bytes()
+            else:
+                self.check_ttype()
                 self.add_token(_Kind.TABLE_BEGIN)
-                self.text_kind = _Kind.TABLE_NAME
-            else:
-                self.add_token(_Kind.LIST_BEGIN)
+        elif c == ')':
+            self.add_token(_Kind.TABLE_END)
+        elif c == '[':
+            self.check_ttype()
+            self.add_token(_Kind.LIST_BEGIN)
         elif c == '=':
-            if self.peek() == ']':
-                self.pos += 1
-                self.add_token(_Kind.TABLE_END)
-                self.text_kind = _Kind.STR
-            elif (self.text_kind is _Kind.TABLE_FIELD_NAME or
-                    self.tokens[-1].kind is _Kind.IDENTIFIER):
-                self.add_token(_Kind.TABLE_ROWS)
-                self.text_kind = _Kind.STR
-            else:
-                self.error(f'unexpected character encountered: {c!r}')
+            self.add_token(_Kind.TTYPE_BEGIN)
+            self.inttype = True
         elif c == ']':
             self.add_token(_Kind.LIST_END)
         elif c == '{':
+            self.check_ttype()
             self.add_token(_Kind.MAP_BEGIN)
         elif c == '}':
+            self.inttype = False
             self.add_token(_Kind.MAP_END)
         elif c == '#':
             if self.tokens and self.tokens[-1].kind in {
@@ -264,11 +256,6 @@ class _Lexer(_ErrorMixin):
                            'Lists, and Tables')
         elif c == '<':
             self.read_string_or_name()
-        elif c == '(':
-            if self.peek() == ':':
-                self.read_ntuple()
-            else:
-                self.read_bytes()
         elif c == '-' and self.peek().isdecimal():
             c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
@@ -279,6 +266,11 @@ class _Lexer(_ErrorMixin):
         else:
             self.error(f'invalid character encountered: {c!r}')
 
+
+    def check_ttype(self):
+        if self.inttype:
+            self.inttype = False
+            self.add_token(_Kind.TTYPE_END)
 
     def read_comment(self):
         self.pos += 1 # skip the leading <
@@ -291,24 +283,6 @@ class _Lexer(_ErrorMixin):
         self.add_token(self.text_kind, unescape(value))
         if self.text_kind is _Kind.TABLE_NAME:
             self.text_kind = _Kind.TABLE_FIELD_NAME
-
-
-    def read_ntuple(self):
-        self.pos += 1 # skip the leading : of (:
-        value = self.match_to(':', error_text='unterminated ntuple')
-        if self.peek() != ')':
-            self.error(f'expected \')\', got {self.peek()!r}')
-        self.pos += 1 # skip the trailing ) of :)
-        parts = value.split()
-        if not (2 <= len(parts) <= 12):
-            self.error(f'expected 2-12 ints or floats, got {len(parts)}')
-        try:
-            int(parts[0])
-            Class = int
-        except ValueError:
-            Class = float
-        numbers = [Class(s) for s in parts]
-        self.add_token(_Kind.NTUPLE, NTuple(*numbers))
 
 
     def read_bytes(self):
@@ -405,7 +379,7 @@ class _Lexer(_ErrorMixin):
                         self.text[self.pos] != '_'):
                     break
                 self.pos += 1
-            self.add_token(_Kind.IDENTIFIER, self.text[start:self.pos])
+            self.add_token(_Kind.IDENTIFIER, self.text[start:self.pos][:80])
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
@@ -476,6 +450,8 @@ class _Token:
 
 @enum.unique
 class _Kind(enum.Enum):
+    TTYPE_BEGIN = enum.auto()
+    TTYPE_END = enum.auto()
     TABLE_BEGIN = enum.auto()
     TABLE_NAME = enum.auto()
     TABLE_FIELD_NAME = enum.auto()
@@ -486,7 +462,6 @@ class _Kind(enum.Enum):
     MAP_BEGIN = enum.auto()
     MAP_END = enum.auto()
     COMMENT = enum.auto()
-    NTUPLE = enum.auto()
     NULL = enum.auto()
     BOOL = enum.auto()
     INT = enum.auto()
@@ -498,117 +473,6 @@ class _Kind(enum.Enum):
     TYPE = enum.auto()
     IDENTIFIER = enum.auto()
     EOF = enum.auto()
-
-
-class NTuple:
-    '''Used to store a UXF ntuple.
-
-    A uxf.NTuple holds 2-12 ints or 2-12 floats.
-
-    When using write() when one_way_conversion is True then complex numbers
-    are converted to two-item uxf.NTuples.
-
-    NTuples are ideal for storing complex numbers, points (2D or 3D), IP
-    addresses, and RGB and RGBA values.
-
-    Examples:
-
-    >>> nt = NTuple(10, 20, 30, 40, 50)
-    >>> nt[0], nt.a, nt.x, nt.first
-    (10, 10, 10, 10)
-    >>> nt[1], nt.b, nt.y, nt.second
-    (20, 20, 20, 20)
-    >>> nt[2], nt.c, nt.z, nt.third
-    (30, 30, 30, 30)
-    >>> nt[3], nt.d, nt.fourth
-    (40, 40, 40)
-
-    Every item can be accessed by index 0 <= min(len(), 11) or by fieldname.
-    The first three items can also be accessed as attributes .x, .y, and .z,
-    respectively. All items can be accessed as attributes .a, .b, .c, ...,
-    .j, .k, .l, respectively, and as .first, .second, .third, ..., .tenth,
-    .eleventh, .twelth, respectively. In addition, for NTuples of length
-    two, the first item can be accessed as attribute .real and the second as
-    .imag or .imaginary.
-    '''
-
-    __slots__ = ('_items',)
-
-    def __init__(self, a, b, *args):
-        kind = type(a)
-        if type(b) is not kind:
-            raise Error(f'{self.__class__.__name__} may only hold all '
-                        'ints or all floats')
-        self._items = [a, b]
-        for n in args:
-            if type(n) is not kind:
-                raise Error(f'{self.__class__.__name__} only holds all '
-                            'ints or all floats')
-            self._items.append(n)
-            if len(self._items) > 12:
-                raise Error(f'{self.__class__.__name__} may only hold '
-                            '2-12 ints or 2-12 floats')
-
-
-    @property
-    def _asuxf(self):
-        items = ' '.join([str(n) for n in self._items])
-        return f'(:{items}:)'
-
-
-    @property
-    def astuple(self):
-        '''Returns the NTuple as a plain Python tuple'''
-        return tuple(self._items)
-
-
-    def __getattr__(self, name):
-        '''Returns the NTuple's value that corresponds to the given name'''
-        if name in {'a', 'x', 'first'}:
-            return self._items[0]
-        if name in {'b', 'y', 'second'}:
-            return self._items[1]
-        if name in {'c', 'z', 'third'}:
-            return self._items[2]
-        if name in {'d', 'fourth'}:
-            return self._items[3]
-        if name in {'e', 'fifth'}:
-            return self._items[4]
-        if name in {'f', 'sixth'}:
-            return self._items[5]
-        if name in {'g', 'seventh'}:
-            return self._items[6]
-        if name in {'h', 'eighth'}:
-            return self._items[7]
-        if name in {'i', 'ninth'}:
-            return self._items[8]
-        if name in {'j', 'tenth'}:
-            return self._items[9]
-        if name in {'k', 'eleventh'}:
-            return self._items[10]
-        if name in {'l', 'twelth'}:
-            return self._items[11]
-        if len(self._items) == 2:
-            if name == 'real':
-                return self._items[0]
-            if name in {'imag', 'imaginary'}:
-                return self._items[1]
-        raise AttributeError(f'{self.__class__.__name__!r} object has '
-                             f'no attribute {name!r}')
-
-
-    def __getitem__(self, index):
-        '''Returns the NTuple's value that corresponds to the given index'''
-        return self._items[index]
-
-
-    def __repr__(self):
-        items = ', '.join([str(n) for n in self._items])
-        return f'{self.__class__.__name__}({items})'
-
-
-    def __len__(self):
-        return len(self._items)
 
 
 class List(collections.UserList):
@@ -648,12 +512,21 @@ class TType:
             self.fields.append(Field(name_or_field, vtype))
 
 
+    def set_vtype(self, index, vtype):
+        self.fields[index].vtype = vtype
+
+
     def __bool__(self):
         return bool(self.name) and bool(self.fields)
 
 
     def __len__(self):
         return len(self.fields)
+
+
+    def __repr__(self):
+        fields = ', '.join(repr(field) for field in self.fields)
+        return f'{self.__class__.__name__}({self.name!r}, {fields})'
 
 
 class Field:
@@ -721,7 +594,6 @@ class Table:
         self.ttype = TType(name, fields)
         self.records = []
         self.comment = comment
-        self._table_index = 1
         if records:
             if not name:
                 raise Error('can\'t create an unnamed nonempty table')
@@ -778,10 +650,7 @@ class Table:
         if not self.fields:
             raise Error('can\'t create a table with no fields')
         self._Class = collections.namedtuple(
-            _canonicalize(self.name, f'Table{self._table_index}'),
-            [_canonicalize(field.name, f'Field{i}')
-             for i, field in enumerate(self.fields, 1)])
-        self._table_index += 1
+            self.name, [field.name for field in self.fields])
 
 
     def __iadd__(self, value):
@@ -798,7 +667,7 @@ class Table:
 
 
     def __getitem__(self, row):
-        '''Return the row-th record as a namedtype'''
+        '''Return the row-th record as a namedtuple'''
         return self._Class(*self.records[row])
 
 
@@ -822,15 +691,6 @@ class Table:
         return (f'{self.__class__.__name__}(name={self.name!r}, '
                 f'fields={self.fields!r}, '
                 f'records={self.records!r}, comment={self.comment!r})')
-
-
-def _canonicalize(s, prefix):
-    s = re.sub(r'\W+', '', s)
-    if not s:
-        s = f'{prefix}{id(s):X}'
-    elif not s.isalpha():
-        s = prefix + s
-    return s
 
 
 def _parse(tokens, *, text, check=False, fixtypes=False,
@@ -858,14 +718,15 @@ class _Parser(_ErrorMixin):
 
 
     def parse(self, tokens, text):
+        if not tokens:
+            return
         self.clear()
         self.tokens = tokens
         self.text = text
         data = None
-        # TODO handle optional TTypes before the overall collection
-        if tokens[0].kind is _Kind.IDENTIFIER:
-            pass # TODO read one or more TTypes & populate self.ttypes & then slice tokens
-        for token in tokens:
+        index = self._parse_ttypes()
+        print(index, self.ttypes)
+        for token in tokens[index:]:
             if token.kind is _Kind.EOF:
                 break
             self.pos = token.pos
@@ -906,6 +767,34 @@ class _Parser(_ErrorMixin):
                 if token.kind is not _Kind.EOF:
                     self._handle_any_value(token)
         return data
+
+
+    def _parse_ttypes(self):
+        ttype = None
+        for index, token in enumerate(self.tokens):
+            if token.kind is _Kind.TTYPE_BEGIN:
+                if ttype is not None and ttype.name is not None:
+                    self.ttypes[ttype.name] = ttype
+                ttype = TType(None)
+            elif token.kind is _Kind.IDENTIFIER:
+                if ttype.name is None:
+                    ttype.name = token.value
+                else:
+                    ttype.append(token.value)
+            elif token.kind is _Kind.TYPE:
+                if len(ttype) > 0:
+                    ttype.set_vtype(-1, token.value)
+                else:
+                    self.error(
+                        f'encountered type without field name: {token}')
+            elif token.kind is _Kind.TTYPE_END:
+                if ttype is not None and bool(ttype):
+                    self.ttypes[ttype.name] = ttype
+                return index + 1
+            else:
+                self.error(
+                    f'encountered unexpected token in ttype: {token}')
+        return 0
 
 
     def _is_collection_start(self, kind):
@@ -1164,9 +1053,9 @@ def dump(filename_or_filelike, data, custom='', *, compress=False,
 
     Set indent to 0 (and use_true_false to True) to minimize the file size.
 
-    Set one_way_conversion to True to convert bytearray items to bytes,
-    complex items to uxf.NTuples, and sets, frozensets, tuples, and
-    collections.deques to Lists rather than raise an Error.
+    Set one_way_conversion to True to convert bytearray items to bytes, and
+    sets, frozensets, tuples, and collections.deques to Lists rather than
+    raise an Error.
 
     If use_true_false is False (the default), bools are output as 'yes' or
     'no'; but if use_true_false is True the are output as 'true' or 'false'.
@@ -1198,9 +1087,9 @@ def dumps(data, custom='', *, indent=2, one_way_conversion=False,
     Set indent to 0 (and use_true_false to True) to minimize the string's
     size.
 
-    Set one_way_conversion to True to convert bytearray items to bytes,
-    complex items to uxf.NTuples, and sets, frozensets, tuples, and
-    collections.deques to Lists rather than raise an Error.
+    Set one_way_conversion to True to convert bytearray items to bytes, and
+    sets, frozensets, tuples, and collections.deques to Lists rather than
+    raise an Error.
 
     If use_true_false is False (the default), bools are output as 'yes' or
     'no'; but if use_true_false is True the are output as 'true' or 'false'.
@@ -1389,14 +1278,6 @@ class _Writer:
                 raise Error('can only convert bytearray to bytes if '
                             'one_way_conversion is True')
             self.file.write(f'({item.hex().upper()})')
-        elif isinstance(item, complex):
-            if not self.one_way_conversion:
-                raise Error('can only convert complex to ntuple if '
-                            'one_way_conversion is True')
-            self.file.write(
-                f'(:{realize(item.real)} {realize(item.imag)}:)')
-        elif isinstance(item, NTuple):
-            self.file.write(item._asuxf)
         else:
             print(f'error: ignoring unexpected item of type {type(item)}: '
                   f'{item!r}', file=sys.stderr)
