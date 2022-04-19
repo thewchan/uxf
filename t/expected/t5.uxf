@@ -1,6 +1,9 @@
 uxf 1.0 EPD (SQLite full list of tables)
+= Categories CID Selected Title
+= Playlists CID PID Selected Title
+= Tracks Filename PID Seconds Selected TID Title
 [
-  [= <Categories> <CID> <Title> <Selected> =
+  (Categories
     5 <Classical> yes
     4 <Modern Instrumental> no
     1 <New Acquistions> no
@@ -8,8 +11,8 @@ uxf 1.0 EPD (SQLite full list of tables)
     3 <Punk> no
     7 <Uncategorized> no
     6 <Unpopular Pop> no
-  =]
-  [= <Playlists> <PID> <Title> <CID> <Selected> =
+  )
+  (Playlists
     4 <ABBA> 2 no
     38 <Bach> 5 no
     39 <Bartok> 5 no
@@ -65,8 +68,8 @@ uxf 1.0 EPD (SQLite full list of tables)
     33 <The Saints> 3 yes
     31 <The Stranglers> 3 no
     53 <UB40> 6 no
-  =]
-  [= <Tracks> <TID> <Title> <Seconds> <Filename> <Selected> <PID> =
+  )
+  (Tracks
     48 <A Fool Such as I> 156.0 </home/mark/music/Housewives/Housewives-2/23-A Fool Such as I.ogg> no 1
     5 <A Little Bird Told Me> 161.0 </home/mark/music/Housewives/Housewives-1/05-A Little Bird Told Me.ogg> no 1
     51 <Answer Me> 157.0 </home/mark/music/Housewives/Housewives-3/01-Answer Me.ogg> no 1
@@ -1335,5 +1338,5 @@ uxf 1.0 EPD (SQLite full list of tables)
     1265 <Shining Star> 172.0 </home/mark/music/Earth, Wind And Fire/14-Shining Star.ogg> no 55
     1257 <Star> 261.0 </home/mark/music/Earth, Wind And Fire/06-Star.ogg> no 55
     1267 <That's The Way Of The World> 345.0 </home/mark/music/Earth, Wind And Fire/16-That's The Way Of The World.ogg> no 55
-  =]
+  )
 ]

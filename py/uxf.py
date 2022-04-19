@@ -29,6 +29,12 @@ as UXF data. The data must be a single Map, dict, List, list, or Table.
 dumps() writes the same but into a string that's returned. See the function
 docs for additional options.
 
+    def find_ttypes(data) -> list of TType
+
+find_ttypes() takes the data returned from dump() or dumps() and returns a
+list of all the TTypes used in the data (or an empty list if there aren't
+any).
+
     def naturalize(s) -> object
 
 This takes a str and returns a bool or datetime.datetime or datetime.date or
@@ -90,7 +96,7 @@ except ImportError:
 
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
-           'naturalize', 'List', 'Map', 'Table')
+           'find_ttypes', 'naturalize', 'List', 'Map', 'Table')
 __version__ = '0.12.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
@@ -176,10 +182,9 @@ class _Lexer(_ErrorMixin):
 
 
     def clear(self):
-        self.text_kind = _Kind.STR
         self.pos = 0 # current
         self.custom = None
-        self.inttype = False
+        self.in_ttype = False
         self.tokens = []
 
 
@@ -226,23 +231,23 @@ class _Lexer(_ErrorMixin):
                 self.pos += 1
                 self.read_bytes()
             else:
-                self.check_ttype()
+                self.check_in_ttype()
                 self.add_token(_Kind.TABLE_BEGIN)
         elif c == ')':
             self.add_token(_Kind.TABLE_END)
         elif c == '[':
-            self.check_ttype()
+            self.check_in_ttype()
             self.add_token(_Kind.LIST_BEGIN)
         elif c == '=':
             self.add_token(_Kind.TTYPE_BEGIN)
-            self.inttype = True
+            self.in_ttype = True
         elif c == ']':
             self.add_token(_Kind.LIST_END)
         elif c == '{':
-            self.check_ttype()
+            self.check_in_ttype()
             self.add_token(_Kind.MAP_BEGIN)
         elif c == '}':
-            self.inttype = False
+            self.in_ttype = False
             self.add_token(_Kind.MAP_END)
         elif c == '#':
             if self.tokens and self.tokens[-1].kind in {
@@ -255,7 +260,7 @@ class _Lexer(_ErrorMixin):
                 self.error('comments may only occur at the start of Maps, '
                            'Lists, and Tables')
         elif c == '<':
-            self.read_string_or_name()
+            self.read_string()
         elif c == '-' and self.peek().isdecimal():
             c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
@@ -267,10 +272,11 @@ class _Lexer(_ErrorMixin):
             self.error(f'invalid character encountered: {c!r}')
 
 
-    def check_ttype(self):
-        if self.inttype:
-            self.inttype = False
+    def check_in_ttype(self):
+        if self.in_ttype:
+            self.in_ttype = False
             self.add_token(_Kind.TTYPE_END)
+
 
     def read_comment(self):
         self.pos += 1 # skip the leading <
@@ -278,16 +284,17 @@ class _Lexer(_ErrorMixin):
         self.add_token(_Kind.COMMENT, unescape(value))
 
 
-    def read_string_or_name(self):
-        value = self.match_to('>', error_text='unterminated string or name')
-        self.add_token(self.text_kind, unescape(value))
-        if self.text_kind is _Kind.TABLE_NAME:
-            self.text_kind = _Kind.TABLE_FIELD_NAME
+    def read_string(self):
+        value = self.match_to('>', error_text='unterminated string')
+        self.add_token(_Kind.STR, unescape(value))
 
 
     def read_bytes(self):
-        value = self.match_to(')', error_text='unterminated bytes')
-        self.add_token(_Kind.BYTES, bytes.fromhex(value))
+        value = self.match_to(':)', error_text='unterminated bytes')
+        try:
+            self.add_token(_Kind.BYTES, bytes.fromhex(value))
+        except ValueError as err:
+            self.error(f'expected bytes, got {value!r}: {err}')
 
 
     def read_negative_number(self, c):
@@ -396,12 +403,12 @@ class _Lexer(_ErrorMixin):
         return c
 
 
-    def match_to(self, c, *, error_text):
+    def match_to(self, target, *, error_text):
         if not self.at_end():
-            i = self.text.find(c, self.pos)
+            i = self.text.find(target, self.pos)
             if i > -1:
                 text = self.text[self.pos:i]
-                self.pos = i + 1 # skip past target c
+                self.pos = i + len(target) # skip past target target
                 return text
         self.error(error_text)
 
@@ -453,9 +460,6 @@ class _Kind(enum.Enum):
     TTYPE_BEGIN = enum.auto()
     TTYPE_END = enum.auto()
     TABLE_BEGIN = enum.auto()
-    TABLE_NAME = enum.auto()
-    TABLE_FIELD_NAME = enum.auto()
-    TABLE_ROWS = enum.auto()
     TABLE_END = enum.auto()
     LIST_BEGIN = enum.auto()
     LIST_END = enum.auto()
@@ -518,6 +522,14 @@ class TType:
 
     def __bool__(self):
         return bool(self.name) and bool(self.fields)
+
+
+    def __hash__(self):
+        return hash(self.name)
+
+
+    def __lt__(self, other):
+        return self.name < other.name
 
 
     def __len__(self):
@@ -627,12 +639,6 @@ class Table:
         return self.ttype.fields[column]
 
 
-    def append_field(self, name_or_field, vtype=None):
-        '''Use to append a Field by name and optional vtype or directly as a
-        Field'''
-        self.ttype.append(name_or_field, vtype)
-
-
     def append(self, value):
         '''Use to append a value to the table. The value will be added to
         the last row if that isn't full, or as the first value in a new
@@ -725,7 +731,6 @@ class _Parser(_ErrorMixin):
         self.text = text
         data = None
         index = self._parse_ttypes()
-        print(index, self.ttypes)
         for token in tokens[index:]:
             if token.kind is _Kind.EOF:
                 break
@@ -744,15 +749,8 @@ class _Parser(_ErrorMixin):
                 self.states.pop() # _Expect.COLLECTION
                 self._on_collection_start(token.kind)
                 data = self.stack[0]
-            elif state is _Expect.TABLE_NAME:
-                self._handle_table_name(token)
-            elif state is _Expect.TABLE_FIELD_NAME:
-                self._handle_field_name(token)
-            elif state is _Expect.TABLE_ROWS:
-                if token.kind is not _Kind.TABLE_ROWS:
-                    self.error('expected Table \'=\' rows separator after '
-                               'table TType')
-                self.states[-1] = _Expect.TABLE_VALUE
+            elif state is _Expect.TTYPE_NAME:
+                self._handle_ttype_name(token)
             elif state is _Expect.TABLE_VALUE:
                 self._handle_table_value(token)
             elif state is _Expect.MAP_KEY:
@@ -792,8 +790,7 @@ class _Parser(_ErrorMixin):
                     self.ttypes[ttype.name] = ttype
                 return index + 1
             else:
-                self.error(
-                    f'encountered unexpected token in ttype: {token}')
+                break # no TTypes at all
         return 0
 
 
@@ -815,7 +812,7 @@ class _Parser(_ErrorMixin):
             self.states += [_Expect.ANY_VALUE, _Expect.COMMENT]
             self._on_collection_start_helper(List)
         elif kind is _Kind.TABLE_BEGIN:
-            self.states += [_Expect.TABLE_NAME, _Expect.COMMENT]
+            self.states += [_Expect.TTYPE_NAME, _Expect.COMMENT]
             self._on_collection_start_helper(Table)
         else:
             self.error('expected to create Map, List, or Table, got {kind}')
@@ -908,33 +905,15 @@ class _Parser(_ErrorMixin):
                     self.warn(str(err))
 
 
-    def _handle_table_name(self, token):
+    def _handle_ttype_name(self, token):
         if token.kind is _Kind.IDENTIFIER:
             ttype = self.ttypes.get(token.value)
             if ttype is None:
                 self.error(f'undefined Table TType name, {token.value!r}')
             self.stack[-1].ttype = ttype
-            self.states[-1] = _Expect.TABLE_ROWS
-        elif token.kind is not _Kind.TABLE_NAME:
-            self.error(f'expected Table name, got {token}')
-        self.stack[-1].name = token.value
-        self.states[-1] = _Expect.TABLE_FIELD_NAME
-
-
-    def _handle_field_name(self, token):
-        if token.kind is _Kind.TABLE_ROWS:
             self.states[-1] = _Expect.TABLE_VALUE
-        elif token.kind is _Kind.TYPE:
-            field = self.stack[-1].fields[-1]
-            if field.vtype is None:
-                field.vtype = token.value
-            else:
-                self.error('can only provide one type for each Table '
-                           f' field, got a second type {token}')
-        elif token.kind is _Kind.TABLE_FIELD_NAME:
-            self.stack[-1].append_field(token.value)
         else:
-            self.error(f'expected Table field, got {token}')
+            self.error(f'expected Table TType name, got {token}')
 
 
     def _handle_table_value(self, token):
@@ -1028,10 +1007,8 @@ class _Expect(enum.Enum):
     MAP_KEY = enum.auto()
     MAP_VALUE = enum.auto()
     ANY_VALUE = enum.auto()
-    TABLE_NAME = enum.auto()
-    TABLE_FIELD_NAME = enum.auto()
+    TTYPE_NAME = enum.auto()
     TABLE_VALUE = enum.auto()
-    TABLE_ROWS = enum.auto()
     COMMENT = enum.auto()
     EOF = enum.auto()
 
@@ -1109,6 +1086,7 @@ class _Writer:
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
         self.write_header(custom)
+        self.write_ttypes(data)
         self.write_value(data, pad=pad)
 
 
@@ -1117,6 +1095,16 @@ class _Writer:
         if custom:
             self.file.write(f' {custom}')
         self.file.write('\n')
+
+
+    def write_ttypes(self, data):
+        for ttype in find_ttypes(data):
+            self.file.write(f'= {ttype.name}')
+            for field in sorted(ttype.fields, key=lambda f: f.name):
+                self.file.write(f' {field.name}')
+                if field.vtype is not None:
+                    self.file.write(f' {field.vtype}')
+            self.file.write('\n')
 
 
     def write_value(self, item, indent=0, *, pad, map_value=False):
@@ -1230,18 +1218,14 @@ class _Writer:
     def write_table(self, item, indent=0, *, pad, map_value=False):
         tab = '' if map_value else pad * indent
         comment = getattr(item, 'comment', None)
-        self.file.write(f'{tab}[= ')
+        self.file.write(f'{tab}(')
         if comment is not None:
-            self.file.write(f'#<{escape(comment)}> ')
-        self.file.write(f'<{escape(item.name)}>')
-        for field in item.fields:
-            self.file.write(f' <{escape(field.name)}>')
-            if field.vtype is not None:
-                self.file.write(f' {field.vtype}')
+            self.file.write(f' #<{escape(comment)}> ')
+        self.file.write(item.ttype.name)
         if len(item) == 0:
-            self.file.write(' = =]\n')
+            self.file.write(')\n')
         else:
-            self.file.write(' =\n')
+            self.file.write('\n')
             indent += 1
             for record in item:
                 self.file.write(pad * indent)
@@ -1252,7 +1236,7 @@ class _Writer:
                     sep = ' '
                 self.file.write('\n')
             tab = pad * (indent - 1)
-            self.file.write(f'{tab}=]\n')
+            self.file.write(f'{tab})\n')
         return True
 
 
@@ -1272,12 +1256,12 @@ class _Writer:
         elif isinstance(item, str):
             self.file.write(f'<{escape(item)}>')
         elif isinstance(item, bytes):
-            self.file.write(f'({item.hex().upper()})')
+            self.file.write(f'(:{item.hex().upper()}:)')
         elif isinstance(item, bytearray):
             if not self.one_way_conversion:
                 raise Error('can only convert bytearray to bytes if '
                             'one_way_conversion is True')
-            self.file.write(f'({item.hex().upper()})')
+            self.file.write(f'(:{item.hex().upper()}:)')
         else:
             print(f'error: ignoring unexpected item of type {type(item)}: '
                   f'{item!r}', file=sys.stderr)
@@ -1383,6 +1367,26 @@ def naturalize(s):
                     return datetime.date.fromisoformat(s)
             except ValueError:
                 return s
+
+
+def find_ttypes(data):
+    '''Given the UXF data returned by dump() or dumps(), returns a list of
+    all the TTypes used in the data (or an empty list if there aren't
+    any).'''
+    return sorted(set(_find_ttypes(data)))
+
+
+def _find_ttypes(data):
+    ttypes = []
+    if isinstance(data, Table):
+        ttypes.append(data.ttype)
+    elif isinstance(data, List):
+        for value in data:
+            ttypes += find_ttypes(value)
+    elif isinstance(data, Map):
+        for value in data.values():
+            ttypes += find_ttypes(value)
+    return ttypes
 
 
 if __name__ == '__main__':

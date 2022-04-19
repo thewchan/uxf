@@ -1,5 +1,6 @@
 uxf 1.0 EPD (simple table)
-[= <Categories> <CID> <Title> <Selected> <Date> =
+= Categories CID Date Selected Title
+(Categories
   5 <Classical &amp; &lt;Special&gt;> yes 1999-07-21
   4 <Modern Instrumental> no 1976-11-30
   1 <New Acquistions> no 1947-02-28
@@ -7,4 +8,4 @@ uxf 1.0 EPD (simple table)
   3 <Punk> no 2002-01-17
   7 <Uncategorized> no 2020-02-02
   6 <Unpopular Pop> no 2022-12-21
-=]
+)
