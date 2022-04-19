@@ -108,6 +108,7 @@ _BOOL_FALSE = {'no', 'false'}
 _BOOL_TRUE = {'yes', 'true'}
 _CONSTANTS = {'null'} | _BOOL_FALSE | _BOOL_TRUE
 _BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
+_MISSING = object()
 
 
 def load(filename_or_filelike, *, check=False, fixtypes=False,
@@ -716,11 +717,10 @@ class _Parser(_ErrorMixin):
 
 
     def clear(self):
-        self.keys = []
         self.stack = []
         self.ttypes = {}
+        self.pending_key = _MISSING
         self.pos = -1
-        self.states = [_Expect.COLLECTION]
 
 
     def parse(self, tokens, text):
@@ -730,41 +730,92 @@ class _Parser(_ErrorMixin):
         self.tokens = tokens
         self.text = text
         data = None
-        index = self._parse_ttypes()
-        for token in tokens[index:]:
-            if token.kind is _Kind.EOF:
+        self._parse_ttypes()
+        for i, token in enumerate(self.tokens):
+            print(i, token, self.stack[-1])
+            kind = token.kind
+            collection_start = self._is_collection_start(kind)
+            if data is None and not collection_start:
+                self.error(f'expected a map, list, or table, got {token}')
+            if collection_start:
+                self._on_collection_start(token)
+                if data is None:
+                    data = self.stack[-1]
+            elif self._is_collection_end(kind):
+                self._on_collection_end(token)
+            elif kind is _Kind.COMMENT:
+                self._handle_comment(i, token)
+            elif kind is _Kind.IDENTIFIER:
+                self._handle_identifier(i, token)
+            elif kind is _Kind.TYPE:
+                self._handle_type(i, token)
+            elif kind in {_Kind.NULL, _Kind.BOOL, _Kind.INT, _Kind.REAL,
+                          _Kind.DATE, _Kind.DATE_TIME, _Kind.STR,
+                          _Kind.BYTES}:
+                self._handle_value(token)
+            elif kind is _Kind.EOF:
                 break
-            self.pos = token.pos
-            state = self.states[-1]
-            if state is _Expect.COMMENT:
-                if token.kind is _Kind.COMMENT:
-                    self.stack[-1].comment = token.value
-                    continue
-                self.states.pop() # Didn't get a comment after all
-                state = self.states[-1]
-            if state is _Expect.COLLECTION:
-                if not self._is_collection_start(token.kind):
-                    self.error(f'expected Map, dict, List, list, or '
-                               f'Table, got {token}')
-                self.states.pop() # _Expect.COLLECTION
-                self._on_collection_start(token.kind)
-                data = self.stack[0]
-            elif state is _Expect.TTYPE_NAME:
-                self._handle_ttype_name(token)
-            elif state is _Expect.TABLE_VALUE:
-                self._handle_table_value(token)
-            elif state is _Expect.MAP_KEY:
-                self._handle_map_key(token)
-            elif state is _Expect.MAP_VALUE:
-                self._handle_map_value(token)
-            elif state is _Expect.EOF:
-                if token.kind is not _Kind.EOF:
-                    self.error(f'expected EOF, got {token}')
-                break # should be redundant
-            elif state is _Expect.ANY_VALUE:
-                if token.kind is not _Kind.EOF:
-                    self._handle_any_value(token)
+            else:
+                self.error(f'unexpected token, got {token}')
         return data
+
+
+    def _handle_comment(self, i, token):
+        parent = self.stack[-1]
+        prev_token = self.tokens[i - 1]
+        if not self._is_collection_start(prev_token.kind):
+            self.error('comments may only be put at the beginning of a '
+                       f'map, list, or table, not after {prev_token}')
+        parent.comment = token.value
+
+
+    def _handle_identifier(self, i, token):
+        parent = self.stack[-1]
+        if not isinstance(parent, Table):
+            self.error('ttype name may only appear at the start a '
+                       f'table, {token}')
+        if self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
+                self.tokens[i - 1].kind is _Kind.COMMENT and
+                self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
+            ttype = self.ttypes.get(token.value)
+            if ttype is None:
+                self.error(f'undefined table ttype, {token}')
+            parent.ttype = ttype
+        else: # should never happen
+            self.error('ttype name may only appear at the start of a '
+                       f'table, {token}')
+
+
+    def _handle_type(self, i, token):
+        parent = self.stack[-1]
+        if isinstance(parent, List):
+            if parent.vtype is not None:
+                self.error('can only have at most one vtype for a list, '
+                           f'got {token}')
+            parent.vtype = token.value
+        elif isinstance(self.stack[-1], Map):
+            if parent.ktype is None:
+                parent.ktype = token.value
+            elif parent.vtype is None:
+                parent.vtype = token.value
+            else:
+                self.error('can only have at most one ktype and one vtype '
+                           f'for a map, got {token}')
+        else:
+            self.error('ktypes and vtypes are only allowed at the start '
+                       f'of maps and lists, got {token}')
+
+
+    def _handle_value(self, token):
+        parent = self.stack[-1]
+        if isinstance(parent, (List, Table)):
+            parent.append(token.value)
+        elif isinstance(parent, Map):
+            if self.pending_key is _MISSING:
+                self.pending_key = token.value
+            else:
+                parent[self.pending_key] = token.value
+                self.pending_key = _MISSING
 
 
     def _parse_ttypes(self):
@@ -788,10 +839,9 @@ class _Parser(_ErrorMixin):
             elif token.kind is _Kind.TTYPE_END:
                 if ttype is not None and bool(ttype):
                     self.ttypes[ttype.name] = ttype
-                return index + 1
+                self.tokens = self.tokens[index + 1:]
             else:
                 break # no TTypes at all
-        return 0
 
 
     def _is_collection_start(self, kind):
@@ -804,45 +854,36 @@ class _Parser(_ErrorMixin):
                         _Kind.TABLE_END}
 
 
-    def _on_collection_start(self, kind):
+    def _on_collection_start(self, token):
+        kind = token.kind
         if kind is _Kind.MAP_BEGIN:
-            self.states += [_Expect.MAP_KEY, _Expect.COMMENT]
-            self._on_collection_start_helper(Map)
+            data = Map()
         elif kind is _Kind.LIST_BEGIN:
-            self.states += [_Expect.ANY_VALUE, _Expect.COMMENT]
-            self._on_collection_start_helper(List)
+            data = List()
         elif kind is _Kind.TABLE_BEGIN:
-            self.states += [_Expect.TTYPE_NAME, _Expect.COMMENT]
-            self._on_collection_start_helper(Table)
+            data = Table()
         else:
-            self.error('expected to create Map, List, or Table, got {kind}')
-
-
-    def _on_collection_start_helper(self, Class):
-        if self.stack and isinstance(self.stack[-1], (list, List)):
-            self.stack[-1].append(Class())
-            self.stack.append(self.stack[-1][-1])
+            self.error(
+                f'expected to create map, list, or table, got {token}')
+        if not self.stack: # root
+            self.stack.append(data)
         else:
-            self.stack.append(Class())
+            parent = self.stack[-1]
+            if isinstance(parent, (List, Table)):
+                parent.append(data)
+            elif isinstance(parent, Map):
+                if self.pending_key is _MISSING:
+                    self.error(f'map keys may only be scalars, got {token}')
+                parent[self.pending_key] = data
+                self.pending_key = _MISSING
 
 
     def _on_collection_end(self, token):
-        if self.stack and self.check:
+        if self.pending_key is not _MISSING:
+            self.error(f'map key without value, got {token}')
+        if self.check:
             self._check(self.stack[-1])
-        self.states.pop()
         self.stack.pop()
-        if self.stack:
-            parent = self.stack[-1]
-            if isinstance(parent, (list, List)):
-                self.states.append(_Expect.ANY_VALUE)
-            elif isinstance(parent, (dict, Map)):
-                self.states.append(_Expect.MAP_KEY)
-            elif isinstance(parent, Table):
-                self.states.append(_Expect.TABLE_VALUE)
-            else:
-                self.error(f'unexpected token, {token}')
-        else:
-            self.states.append(_Expect.EOF)
 
 
     def _check(self, item):
@@ -903,114 +944,6 @@ class _Parser(_ErrorMixin):
                     table[row][column] = value
                 if err is not None:
                     self.warn(str(err))
-
-
-    def _handle_ttype_name(self, token):
-        if token.kind is _Kind.IDENTIFIER:
-            ttype = self.ttypes.get(token.value)
-            if ttype is None:
-                self.error(f'undefined Table TType name, {token.value!r}')
-            self.stack[-1].ttype = ttype
-            self.states[-1] = _Expect.TABLE_VALUE
-        else:
-            self.error(f'expected Table TType name, got {token}')
-
-
-    def _handle_table_value(self, token):
-        if token.kind is _Kind.TABLE_END:
-            self._on_collection_end(token)
-        elif token.kind in {
-                _Kind.NULL, _Kind.BOOL, _Kind.INT,
-                _Kind.REAL, _Kind.DATE, _Kind.DATE_TIME,
-                _Kind.STR, _Kind.BYTES}:
-            self.stack[-1].append(token.value)
-        else:
-            self.error('Table values may only be null, bool, int, real, '
-                       f'date, datetime, str, or bytes, got {token}')
-
-
-    def _handle_map_key(self, token):
-        if token.kind is _Kind.MAP_END:
-            self._on_collection_end(token)
-        elif token.kind is _Kind.TYPE:
-            parent = self.stack[-1]
-            if len(parent) > 0:
-                self.error('can provide at most two types for Maps, both '
-                           f'before the first value, got {token}')
-            if parent.ktype is None:
-                parent.ktype = token.value
-            elif parent.vtype is None:
-                parent.vtype = token.value
-            else:
-                self.error('can only provide key and value types for '
-                           f'Maps, got a third type {token}')
-        elif token.kind in {
-                _Kind.INT, _Kind.DATE, _Kind.DATE_TIME,
-                _Kind.STR, _Kind.BYTES}:
-            self.keys.append(token.value)
-            self.states[-1] = _Expect.MAP_VALUE
-        else:
-            self.error('Map keys may only be int, date, datetime, str, '
-                       f'or bytes, got {token}')
-
-
-    def _handle_map_value(self, token):
-        if self._is_collection_start(token.kind):
-            # this adds a new List, Map, or Table to the stack
-            self._on_collection_start(token.kind)
-            # this adds a key-value item to the Map that contains the above
-            # List, Map, or Table, the key being the key acquired earlier,
-            # the value being the new List, Map, or Table
-            self.stack[-2][self.keys[-1]] = self.stack[-1]
-        elif self._is_collection_end(token.kind):
-            self.states[-1] = _Expect.MAP_KEY
-            self.stack.pop()
-            if self.stack and isinstance(self.stack[-1], (dict, Map)):
-                self.keys.pop()
-        else: # a scalar
-            self.states[-1] = _Expect.MAP_KEY
-            self.stack[-1][self.keys.pop()] = token.value
-
-
-    def _handle_any_value(self, token):
-        if token.kind is _Kind.TYPE:
-            parent = self.stack[-1]
-            if not isinstance(parent, List):
-                self.error(f'unexpected type, {token}')
-            if len(parent) > 0:
-                self.error('can only provide one type for '
-                           f'Lists, before the first value, got {token}')
-            if parent.vtype is None:
-                parent.vtype = token.value
-            else:
-                self.error('can only provide one type for '
-                           f'Lists, got a second type {token}')
-        elif self._is_collection_start(token.kind):
-            # this adds a new List, Map, or Table to the stack
-            self._on_collection_start(token.kind)
-        elif self._is_collection_end(token.kind):
-            if self.check and self.stack:
-                parent = self.stack[-1]
-                if isinstance(parent, (Map, List, Table)):
-                    self._check(parent)
-            self.states.pop()
-            if self.states and self.states[-1] is _Expect.MAP_VALUE:
-                self.states[-1] = _Expect.MAP_KEY
-            self.stack.pop()
-        else: # a scalar
-            self.stack[-1].append(token.value)
-
-
-@enum.unique
-class _Expect(enum.Enum):
-    COLLECTION = enum.auto()
-    MAP_KEY = enum.auto()
-    MAP_VALUE = enum.auto()
-    ANY_VALUE = enum.auto()
-    TTYPE_NAME = enum.auto()
-    TABLE_VALUE = enum.auto()
-    COMMENT = enum.auto()
-    EOF = enum.auto()
 
 
 def dump(filename_or_filelike, data, custom='', *, compress=False,
