@@ -123,8 +123,11 @@ def load(filename_or_filelike, *, check=False, fixtypes=False,
 
     If warn_is_error is True warnings raise Error exceptions.
     '''
-    return loads(_read_text(filename_or_filelike), check=check,
-                 fixtypes=fixtypes, warn_is_error=warn_is_error)
+    filename = (filename_or_filelike
+                if isinstance(filename_or_filelike, str) else '-')
+    return _loads(_read_text(filename_or_filelike), check=check,
+                  fixtypes=fixtypes, warn_is_error=warn_is_error,
+                  filename=filename)
 
 
 def loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False):
@@ -137,15 +140,22 @@ def loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False):
 
     If warn_is_error is True warnings raise Error exceptions.
     '''
-    data = None
-    tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error)
-    data = _parse(tokens, text=uxf_text, check=check, fixtypes=fixtypes,
+    return _loads(uxf_text, check=check, fixtypes=fixtypes,
                   warn_is_error=warn_is_error)
+
+
+def _loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False,
+           filename='-'):
+    data = None
+    tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error,
+                                     filename=filename)
+    data = _parse(tokens, text=uxf_text, check=check, fixtypes=fixtypes,
+                  warn_is_error=warn_is_error, filename=filename)
     return data, custom
 
 
-def _tokenize(uxf_text, *, warn_is_error=False):
-    lexer = _Lexer(warn_is_error=warn_is_error)
+def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
+    lexer = _Lexer(warn_is_error=warn_is_error, filename=filename)
     tokens = lexer.tokenize(uxf_text)
     return tokens, lexer.custom, uxf_text
 
@@ -167,19 +177,20 @@ class _ErrorMixin:
         if self.warn_is_error:
             self.error(message)
         lino = self.text.count('\n', 0, self.pos) + 1
-        print(f'Warning:{self._what}:{lino}: {message}')
+        print(f'Warning:{self._what}:{self.filename}:{lino}: {message}')
 
 
     def error(self, message):
         lino = self.text.count('\n', 0, self.pos) + 1
-        raise Error(f'{self._what}:{lino}: {message}')
+        raise Error(f'{self._what}:{self.filename}:{lino}: {message}')
 
 
 class _Lexer(_ErrorMixin):
 
-    def __init__(self, *, warn_is_error=False):
+    def __init__(self, *, warn_is_error=False, filename='-'):
         self.warn_is_error = warn_is_error
         self._what = 'lexer'
+        self.filename = filename
 
 
     def clear(self):
@@ -701,25 +712,27 @@ class Table:
 
 
 def _parse(tokens, *, text, check=False, fixtypes=False,
-           warn_is_error=False):
+           warn_is_error=False, filename='-'):
     parser = _Parser(check=check, fixtypes=fixtypes,
-                     warn_is_error=warn_is_error)
+                     warn_is_error=warn_is_error, filename=filename)
     return parser.parse(tokens, text)
 
 
 class _Parser(_ErrorMixin):
 
-    def __init__(self, *, check=False, fixtypes=False, warn_is_error=False):
+    def __init__(self, *, check=False, fixtypes=False, warn_is_error=False,
+                 filename='-'):
         self.check = check
         self.fixtypes = fixtypes
         self.warn_is_error = warn_is_error
+        self.filename = filename
         self._what = 'parser'
 
 
     def clear(self):
+        self.keys = []
         self.stack = []
         self.ttypes = {}
-        self.pending_key = _MISSING
         self.pos = -1
 
 
@@ -732,7 +745,7 @@ class _Parser(_ErrorMixin):
         data = None
         self._parse_ttypes()
         for i, token in enumerate(self.tokens):
-            print(i, token, self.stack[-1])
+            #print(i, token, self.stack[-1] if self.stack else None)#TODO
             kind = token.kind
             collection_start = self._is_collection_start(kind)
             if data is None and not collection_start:
@@ -772,7 +785,7 @@ class _Parser(_ErrorMixin):
     def _handle_identifier(self, i, token):
         parent = self.stack[-1]
         if not isinstance(parent, Table):
-            self.error('ttype name may only appear at the start a '
+            self.error('ttype name may only appear at the start of a '
                        f'table, {token}')
         if self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
@@ -807,15 +820,59 @@ class _Parser(_ErrorMixin):
 
 
     def _handle_value(self, token):
+        #print('_handle_value', token, self.stack, [type(x) for x in self.stack])# TODO
         parent = self.stack[-1]
         if isinstance(parent, (List, Table)):
             parent.append(token.value)
         elif isinstance(parent, Map):
-            if self.pending_key is _MISSING:
-                self.pending_key = token.value
+            if not self.keys:
+                self.keys.append(token.value)
             else:
-                parent[self.pending_key] = token.value
-                self.pending_key = _MISSING
+                key = self.keys.pop()
+                parent[key] = token.value
+
+
+    def _on_collection_start(self, token):
+        kind = token.kind
+        if kind is _Kind.MAP_BEGIN:
+            value = Map()
+        elif kind is _Kind.LIST_BEGIN:
+            value = List()
+        elif kind is _Kind.TABLE_BEGIN:
+            value = Table()
+        else:
+            self.error(
+                f'expected to create map, list, or table, got {token}')
+        if not self.stack: # root
+            self.stack.append(value)
+        else:
+            parent = self.stack[-1]
+            if isinstance(parent, (List, Table)):
+                parent.append(value)
+            elif isinstance(parent, Map):
+                if not self.keys:
+                    self.error(f'map keys may only be scalars, got {token}')
+                key = self.keys.pop()
+                parent[key] = value
+            self.stack.append(value) # Want to add values to innermost
+        #print('_on_collection_start', token, self.stack)#TODO
+
+
+    def _on_collection_end(self, token):
+        if self.check:
+            self._check(self.stack[-1])
+        self.stack.pop()
+        #print('_on_collection_end', token, self.stack)#TODO
+
+
+    def _is_collection_start(self, kind):
+        return kind in {_Kind.MAP_BEGIN, _Kind.LIST_BEGIN,
+                        _Kind.TABLE_BEGIN}
+
+
+    def _is_collection_end(self, kind):
+        return kind in {_Kind.MAP_END, _Kind.LIST_END,
+                        _Kind.TABLE_END}
 
 
     def _parse_ttypes(self):
@@ -842,48 +899,6 @@ class _Parser(_ErrorMixin):
                 self.tokens = self.tokens[index + 1:]
             else:
                 break # no TTypes at all
-
-
-    def _is_collection_start(self, kind):
-        return kind in {_Kind.MAP_BEGIN, _Kind.LIST_BEGIN,
-                        _Kind.TABLE_BEGIN}
-
-
-    def _is_collection_end(self, kind):
-        return kind in {_Kind.MAP_END, _Kind.LIST_END,
-                        _Kind.TABLE_END}
-
-
-    def _on_collection_start(self, token):
-        kind = token.kind
-        if kind is _Kind.MAP_BEGIN:
-            data = Map()
-        elif kind is _Kind.LIST_BEGIN:
-            data = List()
-        elif kind is _Kind.TABLE_BEGIN:
-            data = Table()
-        else:
-            self.error(
-                f'expected to create map, list, or table, got {token}')
-        if not self.stack: # root
-            self.stack.append(data)
-        else:
-            parent = self.stack[-1]
-            if isinstance(parent, (List, Table)):
-                parent.append(data)
-            elif isinstance(parent, Map):
-                if self.pending_key is _MISSING:
-                    self.error(f'map keys may only be scalars, got {token}')
-                parent[self.pending_key] = data
-                self.pending_key = _MISSING
-
-
-    def _on_collection_end(self, token):
-        if self.pending_key is not _MISSING:
-            self.error(f'map key without value, got {token}')
-        if self.check:
-            self._check(self.stack[-1])
-        self.stack.pop()
 
 
     def _check(self, item):
