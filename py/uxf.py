@@ -526,9 +526,13 @@ class Map(collections.UserDict):
         if self._pending_key is _MISSING:
             if not isinstance(value, (int, datetime.date,
                                       datetime.datetime, str, bytes)):
-                raise Error('map keys may only be of type int, date, '
-                            f'datetime, str, or bytes, got {value!r} of '
-                            f'type {type(value)}')
+                prefix = ('map keys may only be of type int, date, '
+                          'datetime, str, or bytes, got ')
+                if isinstance(value, Table):
+                    raise Error(f'{prefix} a Table ( … ) maybe bytes '
+                                '(: … :) was intended?')
+                else:
+                    raise Error(f'{prefix} {value!r} of type {type(value)}')
             self._pending_key = value
         else:
             self.data[self._pending_key] = value
