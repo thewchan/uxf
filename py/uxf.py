@@ -93,9 +93,9 @@ This class is used to store a Table's name and fields (see below).
     Field
 
 This class is used to store a Table's fields. The .name must start with a
-letter and be followed by 0-79 letters, digits, or underscores..vtype must
-be one of these strs: 'bool', 'int', 'real', 'date', 'datetime', 'str',
-'bytes', or None (which means accept any valid type).
+letter and be followed by 0-uxf.MAX_IDENTIFIER_LEN-1 letters, digits, or
+underscores..vtype must be one of these strs: 'bool', 'int', 'real', 'date',
+'datetime', 'str', 'bytes', or None (which means accept any valid type).
 
 Note that the __version__ is the module version (i.e., the versio of this
 implementation), while the VERSION is the maximum UXF version that this
@@ -107,7 +107,6 @@ import datetime
 import enum
 import gzip
 import io
-import re
 import sys
 from xml.sax.saxutils import escape, unescape
 
@@ -118,11 +117,13 @@ except ImportError:
 
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
-           'find_ttypes', 'naturalize', 'List', 'Map', 'Table')
+           'find_ttypes', 'naturalize', 'realize', 'canonicalize',
+           'is_scalar', 'List', 'Map', 'Table', 'TType', 'Field')
 __version__ = '0.12.1' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
+MAX_IDENTIFIER_LEN = 60
 _KEY_TYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
 _VALUE_TYPES = _KEY_TYPES | {'bool', 'real'}
 _ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table'}
@@ -1409,12 +1410,23 @@ def _find_ttypes(data):
 def canonicalize(name, prefix='T_'):
     '''Given a name and an optional prefix, returns a name that is a valid
     table or field name.'''
-    s = re.sub(r'\W+', '', name.replace(' ', '_'))
-    if not s:
-        s = f'{prefix}{id(s):X}'
-    if not s[0].isupper():
-        s = (s[0].upper() if s[0].isalpha() else prefix) + s
-    return s
+    cs = []
+    for c in name:
+        if c.isalnum() or c == '_':
+            cs.append(c)
+        elif c.isspace():
+            if cs and cs[-1] != '_':
+                cs.append('_')
+    if cs and not cs[0].isupper() and cs[0].isalpha():
+        cs[0] = cs[0].upper()
+    s = ''.join(cs)
+    if prefix and not prefix[0].isupper() and prefix[0].isalpha():
+        prefix[0] = prefix[0].upper()
+    if not s or not s[0].isupper():
+        s = prefix + s
+    if not s or not s[0].isupper():
+        s = f'T{id(s)}'
+    return s[:MAX_IDENTIFIER_LEN]
 
 
 if __name__ == '__main__':

@@ -122,7 +122,7 @@ defined at the start of the `.uxf` file. A _TType_ begins with an `=` sign
 followed by a table name, followed by one or more fields. A field consists
 of a name optionally followed by a type (here only names are given). Both
 table and field names are user chosen and must consist of an initial capital
-letter followed by 0-79 letters, digits, or underscores. (If whitespace is
+letter followed by 0-59 letters, digits, or underscores. (If whitespace is
 wanted one convention is to use underscores in their place.)
 
 Once we have a _TType_ we can use it.
@@ -494,7 +494,7 @@ optional `map`, `list`, or `table`.
     DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
     BYTES        ::= '(:' (OWS [A-Fa-f0-9]{2})* OWS ':)'
-    IDENTIFIER   ::= /\p{Lu}\w{0,79}/ # Must start with an uppercase letter
+    IDENTIFIER   ::= /\p{Lu}\w{0,59}/ # Must start with an uppercase letter
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 
