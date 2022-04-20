@@ -11,6 +11,10 @@ The uxf module can be used as an executable. To see the command line help run:
 
     python3 -m uxf -h
 
+or
+
+    path/to/uxf.py -h
+
 The uxf module's public API provides the following free functions and
 classes.
 
@@ -391,12 +395,6 @@ class _Lexer(_ErrorMixin):
             return
         elif match in _ANY_VALUE_TYPES:
             self.add_token(_Kind.TYPE, match)
-            return
-        elif match in _VALUE_TYPES:
-            self.add_token(_Kind.VALUE_TYPE, match)
-            return
-        elif match in _ANY_VALUE_TYPES:
-            self.add_token(_Kind.ANY_VALUE_TYPE, match)
             return
         start = self.pos - 1
         if self.text[start].isupper():
@@ -796,7 +794,7 @@ class _Parser(_ErrorMixin):
             if collection_start:
                 self._on_collection_start(token)
                 if data is None:
-                    data = self.stack[-1]
+                    data = self.stack[0]
             elif self._is_collection_end(kind):
                 self._on_collection_end(token)
             elif kind is _Kind.COMMENT:
@@ -1193,21 +1191,21 @@ class _Writer:
             self.file.write(')\n')
         elif len(item) == 1:
             self.file.write(' ')
-            self._write_record(item[0], '')
+            self.write_record(item[0], '')
             self.file.write(')\n')
         else:
             self.file.write('\n')
             indent += 1
             for record in item:
                 self.file.write(pad * indent)
-                self._write_record(record, pad)
+                self.write_record(record, pad)
                 self.file.write('\n')
             tab = pad * (indent - 1)
             self.file.write(f'{tab})\n')
         return True
 
 
-    def _write_record(self, record, pad):
+    def write_record(self, record, pad):
         sep = ''
         for value in record:
             self.file.write(sep)
