@@ -41,7 +41,6 @@ UXF supports eleven datatypes.
 |`table`    |`(TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _TType_, or any table value type where no type has been specified.|
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
-(The name we use for a `map` _key-value_ pair is _item_.)
 
 Map and list values may be of _any_ type (including nested ``map``s and
 ``list``s), unless restricted to a specified type.
@@ -64,6 +63,14 @@ newlines.
 
 If you don't want to be committed to a particular UXF type, just use a `str`
 and do whatever conversion you want.
+
+### Terminolgy
+
+- A `map` _key-value_ is collectively called an _item_.
+- A “single” valued type (`bool`, `int`, `str`, `bytes`, `date`,
+  `datetime`), is called a _scalar_.
+- A `map`, `list`, or `table` which contains only scalar values is called a
+  scalar `map`, scalar `list`, or scalar `table`, respectively.
 
 ## Examples
 

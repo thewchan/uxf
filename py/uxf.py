@@ -506,6 +506,20 @@ class Map(collections.UserDict):
         self.comment = None
         self.ktype = None
         self.vtype = None
+        self._pending_key = _MISSING
+
+
+    def append(self, value):
+        if self._pending_key is _MISSING:
+            if not isinstance(value, (int, datetime.date,
+                                      datetime.datetime, str, bytes)):
+                raise Error('map keys may only be of type int, date, '
+                            f'datetime, str, or bytes, got {value!r} of '
+                            f'type {type(value)}')
+            self._pending_key = value
+        else:
+            self.data[self._pending_key] = value
+            self._pending_key = _MISSING
 
 
 class TType:
@@ -625,7 +639,7 @@ class Table:
                 raise Error('can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
                 if self._Class is None:
-                    self._make_row_class()
+                    self._make_record_class()
                 self.records = list(records)
             else:
                 for value in records:
@@ -656,19 +670,19 @@ class Table:
         the last row if that isn't full, or as the first value in a new
         row'''
         if self._Class is None:
-            self._make_row_class()
+            self._make_record_class()
         if not self.records or len(self.records[-1]) >= len(self.ttype):
             self.records.append([])
         self.records[-1].append(value)
 
 
-    def _make_row_class(self):
+    def _make_record_class(self):
         if not self.name:
             raise Error('can\'t use an unnamed table')
         if not self.fields:
             raise Error('can\'t create a table with no fields')
-        self._Class = collections.namedtuple(
-            self.name, [field.name for field in self.fields])
+        self._Class = collections.namedtuple( # prefix avoids name clashes
+            f'UXF{self.name}', [field.name for field in self.fields])
 
 
     def __iadd__(self, value):
@@ -691,7 +705,7 @@ class Table:
 
     def __iter__(self):
         if self._Class is None:
-            self._make_row_class()
+            self._make_record_class()
         for record in self.records:
             yield self._Class(*record)
 
@@ -730,7 +744,6 @@ class _Parser(_ErrorMixin):
 
 
     def clear(self):
-        self.keys = []
         self.stack = []
         self.ttypes = {}
         self.pos = -1
@@ -765,7 +778,7 @@ class _Parser(_ErrorMixin):
             elif kind in {_Kind.NULL, _Kind.BOOL, _Kind.INT, _Kind.REAL,
                           _Kind.DATE, _Kind.DATE_TIME, _Kind.STR,
                           _Kind.BYTES}:
-                self._handle_value(token)
+                self.stack[-1].append(token.value)
             elif kind is _Kind.EOF:
                 break
             else:
@@ -819,19 +832,6 @@ class _Parser(_ErrorMixin):
                        f'of maps and lists, got {token}')
 
 
-    def _handle_value(self, token):
-        #print('_handle_value', token, self.stack, [type(x) for x in self.stack])# TODO
-        parent = self.stack[-1]
-        if isinstance(parent, (List, Table)):
-            parent.append(token.value)
-        elif isinstance(parent, Map):
-            if not self.keys:
-                self.keys.append(token.value)
-            else:
-                key = self.keys.pop()
-                parent[key] = token.value
-
-
     def _on_collection_start(self, token):
         kind = token.kind
         if kind is _Kind.MAP_BEGIN:
@@ -843,18 +843,9 @@ class _Parser(_ErrorMixin):
         else:
             self.error(
                 f'expected to create map, list, or table, got {token}')
-        if not self.stack: # root
-            self.stack.append(value)
-        else:
-            parent = self.stack[-1]
-            if isinstance(parent, (List, Table)):
-                parent.append(value)
-            elif isinstance(parent, Map):
-                if not self.keys:
-                    self.error(f'map keys may only be scalars, got {token}')
-                key = self.keys.pop()
-                parent[key] = value
-            self.stack.append(value) # Want to add values to innermost
+        if self.stack:
+            self.stack[-1].append(value) # stack the collection
+        self.stack.append(value) # ensure the collection is added to
         #print('_on_collection_start', token, self.stack)#TODO
 
 
@@ -1364,6 +1355,9 @@ To get an uncompressed .uxf file run: `uxf.py infile.uxf outfile.uxf`
 
 To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 -z infile.uxf outfile.uxf`
+
+Converting uxf to uxf will drop any unused ttypes and alphabetically order
+any remaining ttypes.
 ''')
     check = False
     fixtypes = False

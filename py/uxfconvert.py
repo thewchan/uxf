@@ -420,8 +420,8 @@ Converting from multiple csv files to uxf, the outfile will either be a
 list of tables (if the fieldnames option is given), or a list of lists of
 scalars otherwise. Converting from one csv file will produce a uxf with a
 table (if fieldnames is set) or a list of lists of scalars. Converting from
-uxf to csv can only be done if the uxf contains a single table or a single
-list of lists of scalars.
+uxf to csv can only be done if the uxf contains a single scalar table or a
+single list of lists of scalars.
 
 Converting from ini to uxf is purely for example purposes (e.g., ini
 comments are dropped). In a real application (e.g., migrating from ini to
@@ -430,7 +430,7 @@ supported.
 
 Converting sqlite to uxf only converts the sql tables and so won't
 roundtrip. Converting uxf to sqlite is only supported if the uxf file is a
-single table or a list of tables.
+single scalar table or a list of scalar tables.
 
 Converting from uxf to json and back (i.e., using uxfconvert.py's own json
 format) roundtrips with perfect fidelity.
