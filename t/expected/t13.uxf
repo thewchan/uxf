@@ -1,15 +1,17 @@
 uxf 1.0 TLM Config
+= Categories CID Title Selected
+= Files Kind Filename
 {
   <General> { #<Map comment #1>
     <saved> 2022-03-21
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> [= #<Table comment #2> <Files> <kind> <filename> =
+    <files> ( #<Table comment #2> Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
-    =]
+    )
   }
   <Window> {
     <x> 383
@@ -18,7 +20,7 @@ uxf 1.0 TLM Config
     <height> 536
     <scale> 1.1
   }
-  <Magic> (1F8B)
+  <Magic> (:1F8B:)
   <Nested Map> { #<Map comment #3>
     <Classical> [ #<List comment #4> 5 yes]
     <Modern Instrumental> [ #<List comment #5> 4 no]
@@ -28,7 +30,7 @@ uxf 1.0 TLM Config
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> no]
     ]
-    <Nested Table> [= #<Table comment #8> <Categories> <CID> <Title> <Selected> =
+    <Nested Table> ( #<Table comment #8> Categories
       5 <Classical> yes
       4 <Modern Instrumental> no
       1 <New Acquistions> no
@@ -36,6 +38,6 @@ uxf 1.0 TLM Config
       3 <Punk> no
       7 <Uncategorized> no
       6 <Unpopular Pop> no
-    =]
+    )
   }
 }

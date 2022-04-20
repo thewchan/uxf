@@ -1,6 +1,6 @@
 uxf 1.0 TLM Config
-= Categories CID Selected Title
-= Playlists CID PID Selected Title
+= Categories CID Title Selected
+= Playlists PID Title CID Selected
 { <Nested List of Tables> [
   (Categories
    5 <Classical> yes

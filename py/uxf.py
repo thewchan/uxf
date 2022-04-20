@@ -14,67 +14,74 @@ The uxf module can be used as an executable. To see the command line help run:
 The uxf module's public API provides the following free functions and
 classes.
 
-    def load(filename_or_filelike): -> (data, custom_header)
-    def loads(uxf_text): -> (data, custom_header)
+    load(filename_or_filelike): -> (data, custom_header)
+    loads(uxf_text): -> (data, custom_header)
 
+These functions read UXF data from a file, file-like, or string.
 In the returned 2-tuple the data is a Map, List, or Table, and the
 custom_header is a (possibly empty) custom string. See the function
 docs for additional options.
 
-    def dump(filename_or_filelike, data, custom)
-    def dumps(data, custom) -> uxf_text
+    dump(filename_or_filelike, data, custom)
+    dumps(data, custom) -> uxf_text
 
+These functions write UXF data to a file, file-like, or string.
 dump() writes the data (and custom header if supplied) into the given file
 as UXF data. The data must be a single Map, dict, List, list, or Table.
 dumps() writes the same but into a string that's returned. See the function
 docs for additional options.
 
-    def find_ttypes(data) -> list of TType
+    find_ttypes(data) -> list of TType
 
-find_ttypes() takes the data returned from dump() or dumps() and returns a
+This function takes the data returned from dump() or dumps() and returns a
 list of all the TTypes used in the data (or an empty list if there aren't
 any).
 
-    def naturalize(s) -> object
+    naturalize(s) -> object
 
-This takes a str and returns a bool or datetime.datetime or datetime.date or
-int or float if any of these can be parsed, otherwise returns the original
-string s. This is provided as a helper function (e.g., it is used by
-uxfconvert.py).
+This function takes a str and returns a bool or datetime.datetime or
+datetime.date or int or float if any of these can be parsed, otherwise
+returns the original string s. This is provided as a helper function (e.g.,
+it is used by uxfconvert.py).
 
-    def realize(n: float) -> str
+    realize(n: float) -> str
 
-Returns a UXF-compatible, (i.e., naturalize-able) str representing the float n.
+This function takes a float and eturns a UXF-compatible, (i.e.,
+naturalize-able) str representing the float n.
 
-    class Error
+    Error
 
-Used to propagate errors (and warnings if warn_is_error is True).
+This class is used to propagate errors (and warnings if warn_is_error is
+True).
 
-    class List
+    List
 
-This is used to represent a UXF list. It is a collections.UserList subclass
-that also has a .comment attribute.
+This class is used to represent a UXF list. It is a collections.UserList
+subclass that also has .comment and .vtype attributes.
 
-    class Map
+    Map
 
-This is used to represent a UXF map. It is a collections.UserDict subclass
-that also has a .comment attribute.
+This class is used to represent a UXF map. It is a collections.UserDict
+subclass that also has .comment, .ktype, and .vtype attributes. It also has
+a special append() method.
 
-    class Table
+    Table
 
-Used to store UXF Tables. A Table has a TType (see below) and a records
-list which is a list of lists of scalars with each sublist having the same
-number of items as the number of fields. It also has a .comment attribute.
+This class is used to store UXF Tables. A Table has a TType (see below) and
+a records list which is a list of lists of scalars with each sublist having
+the same number of items as the number of fields. It also has .comment and
+.ttype attributes and a special append() method.
 
-    class TType
+    TType
 
-Used to store a Table's name and fields (see below).
+This class is used to store a Table's name and fields (see below).
 
-    class Field
+    Field
 
-Used to store a Table's fields. The .vtype must be one of these strs:
-'bool', 'int', 'real', 'date', 'datetime', 'str', 'bytes', or None (which
-means accept any valid type).
+This class is used to store a Table's fields. The .name must start with a
+letter and be followed by 0-79 letters, digits, or underscores..vtype must
+be one of these strs: 'bool', 'int', 'real', 'date', 'datetime', 'str',
+'bytes', or None (which means accept any valid type).
 
 Note that the __version__ is the module version (i.e., the versio of this
 implementation), while the VERSION is the maximum UXF version that this
@@ -510,6 +517,9 @@ class Map(collections.UserDict):
 
 
     def append(self, value):
+        '''If there's no pending key, sets the value as the pending key;
+        otherwise adds a new item with the pending key and this value and
+        clears the pending key.'''
         if self._pending_key is _MISSING:
             if not isinstance(value, (int, datetime.date,
                                       datetime.datetime, str, bytes)):
@@ -570,13 +580,25 @@ class TType:
 class Field:
 
     def __init__(self, name, vtype=None):
-        self._name = name
-        self._vtype = vtype
+        self.name = name
+        self.vtype = vtype
 
 
     @property
     def name(self):
         return self._name
+
+
+    @name.setter
+    def name(self, name):
+        if not name[0].isupper():
+            raise Error(
+                f'field names must start with a capital letter, got {name}')
+        for x in name[1:]:
+            if not (x.isalnum() or x == '_'):
+                raise Error('field names may only contain letters, digits, '
+                            f'or underscores, got {name}')
+        self._name = name
 
 
     @property
@@ -587,7 +609,7 @@ class Field:
     @vtype.setter
     def vtype(self, vtype):
         if vtype is None:
-            vtype = None # This means accept any valid type
+            self._vtype = None # This means accept any valid type
         elif vtype in _VALUE_TYPES:
             self._vtype = vtype
         else:
@@ -700,14 +722,23 @@ class Table:
 
     def __getitem__(self, row):
         '''Return the row-th record as a namedtuple'''
-        return self._Class(*self.records[row])
+        try:
+            return self._Class(*self.records[row])
+        except TypeError as err:
+            if 'missing' in str(err):
+                raise Error('table\'s ttype has fewer fields than in a row')
+
 
 
     def __iter__(self):
         if self._Class is None:
             self._make_record_class()
-        for record in self.records:
-            yield self._Class(*record)
+        try:
+            for record in self.records:
+                yield self._Class(*record)
+        except TypeError as err:
+            if 'missing' in str(err):
+                raise Error('table\'s ttype has fewer fields than in a row')
 
 
     def __len__(self):
@@ -1039,7 +1070,7 @@ class _Writer:
     def write_ttypes(self, data):
         for ttype in find_ttypes(data):
             self.file.write(f'= {ttype.name}')
-            for field in sorted(ttype.fields, key=lambda f: f.name):
+            for field in ttype.fields:
                 self.file.write(f' {field.name}')
                 if field.vtype is not None:
                     self.file.write(f' {field.vtype}')
@@ -1163,20 +1194,29 @@ class _Writer:
         self.file.write(item.ttype.name)
         if len(item) == 0:
             self.file.write(')\n')
+        elif len(item) == 1:
+            self.file.write(' ')
+            self._write_record(item[0], '')
+            self.file.write(')\n')
         else:
             self.file.write('\n')
             indent += 1
             for record in item:
                 self.file.write(pad * indent)
                 sep = ''
-                for value in record:
-                    self.file.write(sep)
-                    self.write_scalar(value, pad=pad)
-                    sep = ' '
+                self._write_record(record, pad)
                 self.file.write('\n')
             tab = pad * (indent - 1)
             self.file.write(f'{tab})\n')
         return True
+
+
+    def _write_record(self, record, pad):
+        sep = ''
+        for value in record:
+            self.file.write(sep)
+            self.write_scalar(value, pad=pad)
+            sep = ' '
 
 
     def write_scalar(self, item, indent=0, *, pad, map_value=False):

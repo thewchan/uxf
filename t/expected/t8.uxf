@@ -1,6 +1,6 @@
 uxf 1.0 TLM Config
-= Categories CID Selected Title
-= Files Filename Kind
+= Categories CID Title Selected
+= Files Kind Filename
 {
   <General> {
     <saved> 2022-03-21

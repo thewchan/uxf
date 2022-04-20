@@ -1,9 +1,10 @@
 uxf 1.0 One Column Table
-[= <Countries> <Name> =
+= Countries Name
+(Countries
   <Netherlands>
   <Wales>
   <Belgium>
   <Australia>
   <Japan>
   <Ukraine>
-=]
+)

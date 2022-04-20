@@ -1,6 +1,6 @@
 uxf 1.0 EPD (list of tables)
-= Categories CID Selected Title
-= Playlists CID PID Selected Title
+= Categories CID Title Selected
+= Playlists PID Title CID Selected
 [
   (Categories
     5 <Classical> yes

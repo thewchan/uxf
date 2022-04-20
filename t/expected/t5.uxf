@@ -1,7 +1,7 @@
 uxf 1.0 EPD (SQLite full list of tables)
-= Categories CID Selected Title
-= Playlists CID PID Selected Title
-= Tracks Filename PID Seconds Selected TID Title
+= Categories CID Title Selected
+= Playlists PID Title CID Selected
+= Tracks TID Title Seconds Filename Selected PID
 [
   (Categories
     5 <Classical> yes

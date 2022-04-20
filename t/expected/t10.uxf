@@ -1,7 +1,7 @@
 uxf 1.0 TLM Config
-= Categories CID Selected Title
-= Files Filename Kind
-= Playlists CID PID Selected Title
+= Categories CID Title Selected
+= Files Kind Filename
+= Playlists PID Title CID Selected
 {
   <General> {
     <saved> 2022-03-21

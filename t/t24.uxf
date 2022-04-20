@@ -1,6 +1,6 @@
 uxf 1.0
-= Playlists PID int Title str CID int Selected =
-= Categories CID int Title Selected bool =
+= Playlists PID int Title str CID int Selected
+= Categories CID int Title Selected bool
 [ list
   (Categories
     5 <Classical> yes

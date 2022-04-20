@@ -1,15 +1,16 @@
 uxf 1.0 TLM Config
+= Files Kind Filename
 {
   <General> { #<Map comment>
     <saved> 2022-03-21
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> [= #<Table comment> <Files> <kind> <filename> =
+    <files> ( #<Table comment> Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
-    =]
+    )
   }
   <Window> {
     <x> 383
@@ -18,7 +19,7 @@ uxf 1.0 TLM Config
     <height> 536
     <scale> 1.1
   }
-  <Magic> (1F8B)
+  <Magic> (:1F8B11FF0C:)
   <Nested Map> {
     <Classical> [5 yes]
     <Modern Instrumental> [4 no]
@@ -33,13 +34,13 @@ uxf 1.0 TLM Config
       <hello> 2021-02-01
       2001-01-31 <world>
       1965-04-27T16:05:00 <UXF in ASCII bytes follows>
-      (757866) 1985-05-22T04:31:00
+      (:757866:) 1985-05-22T04:31:00
     }
     <Map Test #2> { #<Map same type of non-str keys>
       1 <one>
       2 2
       3 3.0
-      4 (:2 2:)
+      4 (:0220:)
     }
   }
 }
