@@ -16,8 +16,8 @@
             "name": "Files",
             "comment": "Another little comment",
             "fields": {
-              "kind": null,
-              "filename": null
+              "Kind": null,
+              "Filename": null
             },
             "records": [
               [
@@ -45,16 +45,36 @@
       "vtype": null,
       "map": {
         "pos": {
-          "UXF^ntuple": [
-            383,
-            124
-          ]
+          "UXF^table": {
+            "name": "IntPair",
+            "comment": null,
+            "fields": {
+              "First": "int",
+              "Second": "int"
+            },
+            "records": [
+              [
+                383,
+                124
+              ]
+            ]
+          }
         },
         "size": {
-          "UXF^ntuple": [
-            590,
-            536
-          ]
+          "UXF^table": {
+            "name": "IntPair",
+            "comment": null,
+            "fields": {
+              "First": "int",
+              "Second": "int"
+            },
+            "records": [
+              [
+                590,
+                536
+              ]
+            ]
+          }
         },
         "scale": 1.1
       }
@@ -63,55 +83,97 @@
   "UXF Type Tests": [
     "one",
     {
-      "UXF^ntuple": [
-        -14.1,
-        17.9,
-        199.0
-      ]
-    },
-    "many",
-    [
-      {
-        "UXF^ntuple": [
-          172,
-          16,
-          254,
-          1
-        ]
-      },
-      {
-        "UXF^ntuple": [
-          192,
-          0,
-          2,
-          235
-        ]
-      },
-      {
-        "UXF^ntuple": [
-          127,
-          0,
-          0,
-          1
+      "UXF^table": {
+        "name": "IPv4",
+        "comment": null,
+        "fields": {
+          "A": "int",
+          "B": "int",
+          "C": "int",
+          "D": "int"
+        },
+        "records": [
+          [
+            141,
+            179,
+            19,
+            9
+          ]
         ]
       }
-    ],
+    },
+    "many",
+    {
+      "UXF^table": {
+        "name": "IPv4",
+        "comment": null,
+        "fields": {
+          "A": "int",
+          "B": "int",
+          "C": "int",
+          "D": "int"
+        },
+        "records": [
+          [
+            172,
+            16,
+            254,
+            1
+          ],
+          [
+            192,
+            0,
+            2,
+            235
+          ],
+          [
+            127,
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    },
     "red",
     {
-      "UXF^ntuple": [
-        255,
-        0,
-        0
-      ]
+      "UXF^table": {
+        "name": "RGB",
+        "comment": null,
+        "fields": {
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int"
+        },
+        "records": [
+          [
+            255,
+            0,
+            0
+          ]
+        ]
+      }
     },
     "semi-transparent blue",
     {
-      "UXF^ntuple": [
-        0,
-        0,
-        255,
-        80
-      ]
+      "UXF^table": {
+        "name": "RGBA",
+        "comment": null,
+        "fields": {
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int",
+          "Alpha": "int"
+        },
+        "records": [
+          [
+            0,
+            0,
+            255,
+            80
+          ]
+        ]
+      }
     }
   ],
   "Magic": {

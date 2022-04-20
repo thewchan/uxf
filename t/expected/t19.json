@@ -1,0 +1,42 @@
+{
+  "UXF^table": {
+    "name": "PriceList",
+    "comment": null,
+    "fields": {
+      "Date": null,
+      "Price": null,
+      "Quantity": null,
+      "ID": null,
+      "Description": null
+    },
+    "records": [
+      [
+        {
+          "UXF^date": "2022-09-21"
+        },
+        3.99,
+        2,
+        "CH1-A2",
+        "Chisels (pair), 1in & 1\u00bcin"
+      ],
+      [
+        {
+          "UXF^date": "2022-10-02"
+        },
+        4.49,
+        1,
+        "HV2-K9",
+        "Hammer, 2lb"
+      ],
+      [
+        {
+          "UXF^date": "2022-10-02"
+        },
+        5.89,
+        1,
+        "SX4-D1",
+        "Eversure Sealant, 13-floz"
+      ]
+    ]
+  }
+}

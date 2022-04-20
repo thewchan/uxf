@@ -1,5 +1,6 @@
 uxf 1.0 2.csv
-[= <2> <TID> <Artist> <CID> <Selected> =
+= T_2 TID Artist CID Selected
+(T_2
   4 <ABBA> 2 no
   38 <Bach> 5 no
   39 <Bartok> 5 no
@@ -11,4 +12,4 @@ uxf 1.0 2.csv
   41 <Chopin> 5 yes
   37 <Classical &amp; &lt;Special&gt;> 5 no
   8 <David Bowie> 2 no
-=]
+)

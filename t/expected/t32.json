@@ -1,0 +1,103 @@
+{
+  "UXF^map": {
+    "comment": "Notes on this configuration file format",
+    "ktype": "str",
+    "vtype": "map",
+    "map": {
+      "General": {
+        "UXF^map": {
+          "comment": "Miscellaneous settings",
+          "ktype": "str",
+          "vtype": null,
+          "map": {
+            "shapename": "Hexagon",
+            "zoom": 150,
+            "showtoolbar": false,
+            "Files": {
+              "UXF^map": {
+                "comment": null,
+                "ktype": "str",
+                "vtype": null,
+                "map": {
+                  "current": "test1.uxf",
+                  "recent": {
+                    "UXF^list": {
+                      "comment": "From most to least recent",
+                      "vtype": "str",
+                      "list": [
+                        "/tmp/test2.uxf",
+                        "C:\\Users\\mark\\test3.uxf"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Windows": {
+        "UXF^map": {
+          "comment": "Window dimensions and scales",
+          "ktype": null,
+          "vtype": null,
+          "map": {
+            "pos": {
+              "UXF^table": {
+                "name": "Pos",
+                "comment": null,
+                "fields": {
+                  "X": "int",
+                  "Y": "int"
+                },
+                "records": [
+                  [
+                    615,
+                    252
+                  ],
+                  [
+                    28,
+                    42
+                  ],
+                  [
+                    57,
+                    98
+                  ]
+                ]
+              }
+            },
+            "size": {
+              "UXF^table": {
+                "name": "Size",
+                "comment": null,
+                "fields": {
+                  "Width": "int",
+                  "Height": "int"
+                },
+                "records": [
+                  [
+                    592,
+                    636
+                  ],
+                  [
+                    140,
+                    81
+                  ],
+                  [
+                    89,
+                    22
+                  ]
+                ]
+              }
+            },
+            "scale": [
+              1.1,
+              1.0,
+              0.5
+            ]
+          }
+        }
+      }
+    }
+  }
+}

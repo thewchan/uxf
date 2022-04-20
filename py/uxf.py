@@ -551,6 +551,23 @@ class TType:
                 else:
                     self.fields.append(field)
 
+    @property
+    def name(self):
+        return self._name
+
+
+    @name.setter
+    def name(self, name):
+        if name is not None:
+            if not name[0].isupper():
+                raise Error('table names must start with a capital letter, '
+                            f'got {name}')
+            for x in name[1:]:
+                if not (x.isalnum() or x == '_'):
+                    raise Error('table names may only contain letters, '
+                                f'digits, or underscores, got {name}')
+        self._name = name
+
 
     def append(self, name_or_field, vtype=None):
         if isinstance(name_or_field, Field):
@@ -1362,19 +1379,22 @@ def naturalize(s):
 
 def find_ttypes(data):
     '''Given the UXF data returned by dump() or dumps(), returns a list of
-    all the TTypes used in the data (or an empty list if there aren't
+    all the unique TTypes used in the data (or an empty list if there aren't
     any).'''
-    return sorted(set(_find_ttypes(data)))
+    ttypes = {}
+    for ttype in _find_ttypes(data):
+        ttypes[ttype.name] = ttype
+    return sorted(ttypes.values())
 
 
 def _find_ttypes(data):
     ttypes = []
     if isinstance(data, Table):
         ttypes.append(data.ttype)
-    elif isinstance(data, List):
+    elif isinstance(data, (list, List)):
         for value in data:
             ttypes += find_ttypes(value)
-    elif isinstance(data, Map):
+    elif isinstance(data, (dict, Map)):
         for value in data.values():
             ttypes += find_ttypes(value)
     return ttypes

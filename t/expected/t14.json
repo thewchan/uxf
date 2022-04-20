@@ -16,8 +16,8 @@
             "name": "Files",
             "comment": "Table comment",
             "fields": {
-              "kind": null,
-              "filename": null
+              "Kind": null,
+              "Filename": null
             },
             "records": [
               [
@@ -46,7 +46,7 @@
     "scale": 1.1
   },
   "Magic": {
-    "UXF^bytes": "1F8B"
+    "UXF^bytes": "1F8B11FF0C"
   },
   "Nested Map": {
     "Classical": [
@@ -118,10 +118,7 @@
           "2": 2,
           "3": 3.0,
           "4": {
-            "UXF^ntuple": [
-              2,
-              2
-            ]
+            "UXF^bytes": "0220"
           }
         },
         "itype": "uxf"

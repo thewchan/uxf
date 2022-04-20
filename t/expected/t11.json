@@ -11,8 +11,8 @@
         "name": "Files",
         "comment": null,
         "fields": {
-          "kind": null,
-          "filename": null
+          "Kind": null,
+          "Filename": null
         },
         "records": [
           [
@@ -32,78 +32,122 @@
     }
   },
   "Window": {
-    "pos": {
-      "UXF^ntuple": [
-        383,
-        124
-      ]
-    },
-    "size": {
-      "UXF^ntuple": [
-        590,
-        536
-      ]
-    },
+    "pos": [
+      383,
+      124
+    ],
+    "size": [
+      590,
+      536
+    ],
     "scale": 1.1
   },
-  "Pxd Type Tests": [
-    "one",
-    {
-      "UXF^ntuple": [
-        -14.1,
-        17.9,
-        199.0
-      ]
-    },
-    "many",
-    [
-      {
-        "UXF^ntuple": [
-          172,
-          16,
-          254,
-          1
-        ]
-      },
-      {
-        "UXF^ntuple": [
-          192,
-          0,
-          2,
-          235
-        ]
-      },
-      {
-        "UXF^ntuple": [
-          127,
-          0,
-          0,
-          1
-        ]
-      }
-    ],
-    "red",
-    {
-      "UXF^ntuple": [
-        255,
-        0,
-        0
-      ]
-    },
-    "semi-transparent blue",
-    {
-      "UXF^ntuple": [
-        0,
-        0,
-        255,
-        80
+  "More Tests": {
+    "UXF^list": {
+      "comment": "A list of name value pairs; normally would be a map",
+      "vtype": null,
+      "list": [
+        "one",
+        {
+          "UXF^table": {
+            "name": "IPv4",
+            "comment": null,
+            "fields": {
+              "A": "int",
+              "B": "int",
+              "C": "int",
+              "D": "int"
+            },
+            "records": [
+              [
+                141,
+                179,
+                19,
+                9
+              ]
+            ]
+          }
+        },
+        "many",
+        {
+          "UXF^table": {
+            "name": "IPv4",
+            "comment": null,
+            "fields": {
+              "A": "int",
+              "B": "int",
+              "C": "int",
+              "D": "int"
+            },
+            "records": [
+              [
+                172,
+                16,
+                254,
+                1
+              ],
+              [
+                192,
+                0,
+                2,
+                235
+              ],
+              [
+                127,
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        },
+        "red",
+        {
+          "UXF^table": {
+            "name": "RGB",
+            "comment": null,
+            "fields": {
+              "Red": "int",
+              "Green": "int",
+              "Blue": "int"
+            },
+            "records": [
+              [
+                255,
+                0,
+                0
+              ]
+            ]
+          }
+        },
+        "semi-transparent blue",
+        {
+          "UXF^table": {
+            "name": "RGBA",
+            "comment": null,
+            "fields": {
+              "Red": "int",
+              "Green": "int",
+              "Blue": "int",
+              "Alpha": "int"
+            },
+            "records": [
+              [
+                0,
+                0,
+                255,
+                80
+              ]
+            ]
+          }
+        }
       ]
     }
-  ],
+  },
   "Magic": {
     "UXF^bytes": "1F8B"
   },
-  "Nested Dict": {
+  "Nested Map": {
     "Classical": [
       5,
       true

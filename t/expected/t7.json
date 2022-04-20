@@ -16,8 +16,8 @@
             "name": "Files",
             "comment": "Table comment",
             "fields": {
-              "kind": null,
-              "filename": null
+              "Kind": null,
+              "Filename": null
             },
             "records": [
               [

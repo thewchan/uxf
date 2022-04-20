@@ -1,108 +1,4 @@
 {
-  "General": {
-    "saved": {
-      "UXF^date": "2022-03-21"
-    },
-    "autosave": true,
-    "historysize": -35,
-    "volume": 0.7,
-    "files": {
-      "UXF^table": {
-        "name": "Files",
-        "comment": null,
-        "fields": {
-          "kind": null,
-          "filename": null
-        },
-        "records": [
-          [
-            "current",
-            "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-          ],
-          [
-            "recent1",
-            "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-          ],
-          [
-            "recent2",
-            "/home/mark/data/playlists-all.tlm"
-          ]
-        ]
-      }
-    }
-  },
-  "Window": {
-    "pos": {
-      "UXF^ntuple": [
-        383,
-        124
-      ]
-    },
-    "size": {
-      "UXF^ntuple": [
-        590,
-        536
-      ]
-    },
-    "scale": 1.1
-  },
-  "UXF Type Tests": [
-    "one",
-    {
-      "UXF^ntuple": [
-        -14.1,
-        17.9,
-        199.0
-      ]
-    },
-    "many",
-    [
-      {
-        "UXF^ntuple": [
-          172,
-          16,
-          254,
-          1
-        ]
-      },
-      {
-        "UXF^ntuple": [
-          192,
-          0,
-          2,
-          235
-        ]
-      },
-      {
-        "UXF^ntuple": [
-          127,
-          0,
-          0,
-          1
-        ]
-      }
-    ],
-    "red",
-    {
-      "UXF^ntuple": [
-        255,
-        0,
-        0
-      ]
-    },
-    "semi-transparent blue",
-    {
-      "UXF^ntuple": [
-        0,
-        0,
-        255,
-        80
-      ]
-    }
-  ],
-  "Magic": {
-    "UXF^bytes": "1F8B"
-  },
   "Nested Map": {
     "Classical": [
       5,
@@ -138,9 +34,9 @@
         "name": "Categories",
         "comment": null,
         "fields": {
-          "CID": null,
+          "CID": "int",
           "Title": "str",
-          "Selected": null
+          "Selected": "bool"
         },
         "records": [
           [

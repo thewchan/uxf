@@ -142,9 +142,14 @@ def _read_csv_to_data(config):
         for row in reader:
             if data is None:
                 if config.fieldnames:
-                    data = uxf.Table(name=pathlib.Path(filename).stem,
-                                     fields=[uxf.Field(name)
-                                             for name in row])
+                    name = pathlib.Path(filename).stem
+                    if not name[0].isupper():
+                        if name[0].isalpha():
+                            name = name[0].upper() + name[1:]
+                        else:
+                            name = f'T_{name}'
+                    data = uxf.Table(name=name, fields=[uxf.Field(name)
+                                     for name in row])
                     continue
                 else:
                     data = []

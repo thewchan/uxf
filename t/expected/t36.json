@@ -1,0 +1,123 @@
+{
+  "UXF^list": {
+    "comment": "There is a 1:M relationship between the Invoices and Items tables",
+    "vtype": null,
+    "list": [
+      {
+        "UXF^table": {
+          "name": "Customers",
+          "comment": null,
+          "fields": {
+            "CID": null,
+            "Company": null,
+            "Address": null,
+            "Contact": null,
+            "Email": null
+          },
+          "records": [
+            [
+              50,
+              "Best People",
+              "123 Somewhere",
+              "John Doe",
+              "j@doe.com"
+            ],
+            [
+              19,
+              "Supersuppliers",
+              null,
+              "Jane Doe",
+              "jane@super.com"
+            ]
+          ]
+        }
+      },
+      {
+        "UXF^table": {
+          "name": "Invoices",
+          "comment": null,
+          "fields": {
+            "INUM": null,
+            "CID": null,
+            "Raised_Date": null,
+            "Due_Date": null,
+            "Paid": null,
+            "Description": null
+          },
+          "records": [
+            [
+              152,
+              50,
+              {
+                "UXF^date": "2022-01-17"
+              },
+              {
+                "UXF^date": "2022-02-17"
+              },
+              false,
+              "COD"
+            ],
+            [
+              153,
+              19,
+              {
+                "UXF^date": "2022-01-19"
+              },
+              {
+                "UXF^date": "2022-02-19"
+              },
+              true,
+              ""
+            ]
+          ]
+        }
+      },
+      {
+        "UXF^table": {
+          "name": "Items",
+          "comment": null,
+          "fields": {
+            "IID": null,
+            "INUM": null,
+            "Delivery_Date": null,
+            "Unit_Price": null,
+            "Quantity": null,
+            "Description": null
+          },
+          "records": [
+            [
+              1839,
+              152,
+              {
+                "UXF^date": "2022-01-16"
+              },
+              29.99,
+              2,
+              "Bales of hay"
+            ],
+            [
+              1840,
+              152,
+              {
+                "UXF^date": "2022-01-16"
+              },
+              5.98,
+              3,
+              "Straps"
+            ],
+            [
+              1620,
+              153,
+              {
+                "UXF^date": "2022-01-19"
+              },
+              11.5,
+              1,
+              "Washers (1-in)"
+            ]
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -132,8 +132,8 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number,
 
 
 def normalize_uxf_text(text, skip_ttypes):
-    i = text.find('\n') + 1
-    header, body = text[:i], text[i:]
+    i = text.find('\n') + 1 # ignore header
+    body = text[i:]
     match = re.match(r'(^=[^[({]+$)*', body, flags=re.DOTALL | re.MULTILINE)
     if match is not None:
         body = body[match.end():]
@@ -141,7 +141,7 @@ def normalize_uxf_text(text, skip_ttypes):
             ttypes = sorted(match.group().splitlines())
             body = '\n'.join(ttypes) + '\n' + body
     body = ''.join(body.split()) # eliminate whitespace
-    return header + '\n'.join(textwrap.wrap(body, 40)) # easier to compare
+    return '\n'.join(textwrap.wrap(body, 40)).strip() # easier to compare
 
 
 def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose, number):
