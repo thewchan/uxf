@@ -193,8 +193,6 @@ class _JsonEncoder(json.JSONEncoder):
             return _json_encode_map(obj)
         if isinstance(obj, dict):
             return obj
-        if isinstance(obj, uxf.NTuple):
-            return {JSON_NTUPLE: obj.astuple}
         if isinstance(obj, uxf.Table):
             return {JSON_TABLE: dict(
                 name=obj.name, comment=obj.comment,
@@ -271,8 +269,6 @@ def _json_naturalize(d):
                 key = key if itype is None else uxf.naturalize(key)
             m[key] = value
         return m
-    elif JSON_NTUPLE in d:
-        return uxf.NTuple(*d[JSON_NTUPLE])
     elif JSON_TABLE in d:
         jtable = d[JSON_TABLE]
         fields = [uxf.Field(name, vtype) for name, vtype in
@@ -384,7 +380,6 @@ JSON_DATE = 'UXF^date'
 JSON_DATETIME = 'UXF^datetime'
 JSON_LIST = 'UXF^list'
 JSON_MAP = 'UXF^map'
-JSON_NTUPLE = 'UXF^ntuple'
 JSON_TABLE = 'UXF^table'
 KTYPE = 'ktype'
 LIST = 'list'

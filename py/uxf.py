@@ -53,6 +53,11 @@ it is used by uxfconvert.py).
 This function takes a float and eturns a UXF-compatible, (i.e.,
 naturalize-able) str representing the float n.
 
+    is_scalar(x) -> bool
+
+Returns True if x is None or a bool, int, float, datetime.date,
+datetime.datetime, str, bytes, or bytearray; otherwise returns False.
+
     Error
 
 This class is used to propagate errors (and warnings if warn_is_error is
@@ -696,6 +701,15 @@ class Table:
         self.records[-1].append(value)
 
 
+    @property
+    def is_scalar(self):
+        for row in self.records:
+            for x in row:
+                if not is_scalar(x):
+                    return False
+        return True
+
+
     def _make_record_class(self):
         if not self.name:
             raise Error('can\'t use an unnamed table')
@@ -1112,8 +1126,8 @@ class _Writer:
             if vtype is not None:
                 self.file.write(f' {vtype}')
             indent += 1
-            is_scalar = _is_scalar(item[0])
-            if is_scalar:
+            scalar = is_scalar(item[0])
+            if scalar:
                 kwargs = dict(indent=0, pad=' ', map_value=False)
                 if comment is not None or vtype is not None:
                     self.file.write(' ')
@@ -1122,10 +1136,10 @@ class _Writer:
                 kwargs = dict(indent=indent, pad=pad, map_value=False)
             for value in item:
                 self.write_value(value, **kwargs)
-                if is_scalar:
+                if scalar:
                     kwargs['indent'] = 1 # 0 for first item
             tab = pad * (indent - 1)
-            self.file.write(']\n' if is_scalar else f'{tab}]\n')
+            self.file.write(']\n' if scalar else f'{tab}]\n')
         return True
 
 
@@ -1259,7 +1273,7 @@ def realize(n: float) -> str:
     return value
 
 
-def _is_scalar(x):
+def is_scalar(x):
     return x is None or isinstance(
         x, (bool, int, float, datetime.date, datetime.datetime, str, bytes,
             bytearray))

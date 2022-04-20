@@ -314,13 +314,11 @@ _TType_).
           </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
-      <Windows> { #<Window dimensions and scales>
-        (Geometry
+      <Windows> ( #<Window dimensions and scales> Geometry
          615 252 592 636 1.1
          28 42 140 81 1.0
          57 98 89 22 0.5
-        )
-      }
+      )
     }
 
 For this final variation we've gathered all the window data into a single

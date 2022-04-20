@@ -1,7 +1,6 @@
 uxf 1.0
 = Playlists PID int Title str CID int Selected bool
 = Categories CID int Title str Selected bool
-= Categories CID Title str Selected
 {
     <Nested Map> {
         <Classical> [5 yes]
