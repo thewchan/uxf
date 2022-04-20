@@ -142,12 +142,7 @@ def _read_csv_to_data(config):
         for row in reader:
             if data is None:
                 if config.fieldnames:
-                    name = pathlib.Path(filename).stem
-                    if not name[0].isupper():
-                        if name[0].isalpha():
-                            name = name[0].upper() + name[1:]
-                        else:
-                            name = f'T_{name}'
+                    name = uxf.canonicalize(pathlib.Path(filename).stem)
                     data = uxf.Table(name=name, fields=[uxf.Field(name)
                                      for name in row])
                     continue
@@ -327,7 +322,7 @@ def _uxf_to_sqlite(config, tables):
 
 
 def _create_table(db, table, table_index):
-    table_name = uxf._canonicalize(table.name, f'Table{table_index}')
+    table_name = uxf.canonicalize(table.name, f'Table{table_index}')
     sql = ['CREATE TABLE IF NOT EXISTS ', table_name, ' (']
     types = ['TEXT'] * len(table.fieldnames)
     if table.records:
@@ -340,7 +335,7 @@ def _create_table(db, table, table_index):
                 types[i] = 'BLOB'
     sep = ''
     for i, name in enumerate(table.fieldnames):
-        field_name = uxf._canonicalize(name, f'Field{i + 1}')
+        field_name = uxf.canonicalize(name, f'Field{i + 1}')
         sql += [sep, field_name, ' ', types[i]]
         sep = ', '
     sql += [');']

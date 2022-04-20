@@ -53,6 +53,11 @@ it is used by uxfconvert.py).
 This function takes a float and eturns a UXF-compatible, (i.e.,
 naturalize-able) str representing the float n.
 
+    canonicalize(name, prefix)
+
+Given a name and an optional prefix, returns a name that is a valid table or
+field name.
+
     is_scalar(x) -> bool
 
 Returns True if x is None or a bool, int, float, datetime.date,
@@ -102,6 +107,7 @@ import datetime
 import enum
 import gzip
 import io
+import re
 import sys
 from xml.sax.saxutils import escape, unescape
 
@@ -113,7 +119,7 @@ except ImportError:
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
            'find_ttypes', 'naturalize', 'List', 'Map', 'Table')
-__version__ = '0.12.0' # uxf module version
+__version__ = '0.12.1' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
@@ -1398,6 +1404,17 @@ def _find_ttypes(data):
         for value in data.values():
             ttypes += find_ttypes(value)
     return ttypes
+
+
+def canonicalize(name, prefix='T_'):
+    '''Given a name and an optional prefix, returns a name that is a valid
+    table or field name.'''
+    s = re.sub(r'\W+', '', name.replace(' ', '_'))
+    if not s:
+        s = f'{prefix}{id(s):X}'
+    if not s[0].isupper():
+        s = (s[0].upper() if s[0].isalpha() else prefix) + s
+    return s
 
 
 if __name__ == '__main__':
