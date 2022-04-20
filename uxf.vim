@@ -19,24 +19,35 @@ syn keyword uxfConst yes true no false
 syn keyword uxfNull null
 syn keyword uxfType bool int real date datetime str bytes list map table
 syn match uxfPunctuation /[][{}()=]/
-syn region uxfComment start="#<" end=">" contains=uxfTodo,uxfIdentifier
-syn region uxfStr start="<" end=">" contains=uxfIdentifier keepend
-syn match uxfIdentifier /\u\w*/ transparent contained contains=NONE
+syn match uxfIdentifier /\<\u\w*\>/ 
+syn region uxfStr start="<" end=">"
+syn region uxfComment start="#<" end=">"
 syn match uxfBytes /(:[A-Fa-f0-9\s]\+:)/ contains=uxfIdentifier keepend
 syn match uxfNumber /\<[-+]\=\d\+\(\.\d\+\([Ee][-+]\=\d\+\)\=\)\=\>/
 syn match uxfDateTime /\<\d\d\d\d-\d\d-\d\d\(T\d\d\(:\d\d\(:\d\d\)\=\)\=\)\=\>/
-syn match uxfHeader /^uxf\s*\d\+.\d\+/
+syn match uxfHeader /^uxf\s*\d\+.\d\+.*$/
 
-hi uxfTodo guibg=yellow term=italic cterm=italic gui=italic
-hi uxfConst guifg=navy
-hi uxfNull guifg=red
-hi uxfType  guifg=purple
-hi uxfPunctuation guifg=darkyellow term=bold   cterm=bold   gui=bold
-hi uxfComment	guifg=darkgreen term=italic cterm=italic gui=italic
-hi uxfStr  guifg=teal
-hi uxfBytes  guifg=darkyellow
-hi uxfNumber  guifg=blue
-hi uxfDateTime  guifg=darkmagenta
-hi uxfIdentifier  guifg=red
-hi uxfHeader  guifg=navy guibg=#FFDAE0
-hi uxfMagic  guifg=brown
+" yellow
+hi uxfTodo guibg=#FFE119 term=italic cterm=italic gui=italic
+" navy
+hi uxfConst guifg=#000075
+" red
+hi uxfNull guifg=#E6194B
+" purple
+hi uxfType guifg=#911EB4
+" magenta
+hi uxfPunctuation guifg=#F032E6 term=bold   cterm=bold   gui=bold
+" olive
+hi uxfComment	guifg=#808000 term=italic cterm=italic gui=italic
+" teal
+hi uxfStr  guifg=#469990
+" orange
+hi uxfBytes  guifg=#F58231
+" blue
+hi uxfNumber  guifg=#4363D8
+" cyan
+hi uxfDateTime guifg=#42D4F4
+" brown
+hi uxfIdentifier guifg=#9A6324
+" beige
+hi uxfHeader  guifg=navy guibg=#FFFAC8
