@@ -789,7 +789,6 @@ class _Parser(_ErrorMixin):
         data = None
         self._parse_ttypes()
         for i, token in enumerate(self.tokens):
-            #print(i, token, self.stack[-1] if self.stack else None)#TODO
             kind = token.kind
             collection_start = self._is_collection_start(kind)
             if data is None and not collection_start:
@@ -877,14 +876,12 @@ class _Parser(_ErrorMixin):
         if self.stack:
             self.stack[-1].append(value) # stack the collection
         self.stack.append(value) # ensure the collection is added to
-        #print('_on_collection_start', token, self.stack)#TODO
 
 
     def _on_collection_end(self, token):
         if self.check:
             self._check(self.stack[-1])
         self.stack.pop()
-        #print('_on_collection_end', token, self.stack)#TODO
 
 
     def _is_collection_start(self, kind):
@@ -1203,7 +1200,6 @@ class _Writer:
             indent += 1
             for record in item:
                 self.file.write(pad * indent)
-                sep = ''
                 self._write_record(record, pad)
                 self.file.write('\n')
             tab = pad * (indent - 1)
