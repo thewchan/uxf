@@ -1,9 +1,5 @@
-py/uxf.py
-py/uxfconvert.py
 # TODO
 # - Nested tables? Try & if successful update docs.
-#
-# - add some tests for TTypes, e.g., t64, t84, t94 (based on t4, t24, t34)
 #
 # - make sure all test files have some nulls (for every typed value),
 #   esp. t4, t24, t34
@@ -33,6 +29,9 @@ py/uxfconvert.py
 # - uxf_to_xml: same tests as JSON for full round trip
 #
 # - xml_to_uxf: same tests as JSON for full round trip
+
+py/uxf.py
+py/uxfconvert.py
 
 README.md
 
