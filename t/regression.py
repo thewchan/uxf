@@ -32,8 +32,10 @@ def main():
     print('.', end='', flush=True)
     total, ok = test_uxf_files(uxf, uxffiles, verbose=verbose,
                                number=number)
-    total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose,
-                                     number=number)
+    no_ttype_round_trip = {'t13.uxf', 't14.uxf', 't28.uxf'}
+    total, ok = test_uxf_loads_dumps(
+        uxffiles, total, ok, verbose=verbose, number=number,
+        no_ttype_round_trip=no_ttype_round_trip)
     total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
                                 verbose=verbose, number=number)
     if total < 128:
@@ -93,7 +95,8 @@ def test_uxf_files(uxf, uxffiles, *, verbose, number):
     return total, ok
 
 
-def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
+def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number,
+                         no_ttype_round_trip):
     for name in uxffiles:
         total += 1
         if total > number:
@@ -105,14 +108,16 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxf_text = file.read()
         use_true_false = 'true' in uxf_text or 'false' in uxf_text
+        skip_ttypes = os.path.basename(name) in no_ttype_round_trip
         try:
             data, custom = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
         new_uxf_text = uxf.dumps(data, custom, one_way_conversion=True,
                                  use_true_false=use_true_false)
-        nws_uxf_text = normalize_uxf_text(uxf_text)
-        nws_new_uxf_text = normalize_uxf_text(new_uxf_text)
+        nws_uxf_text = normalize_uxf_text(uxf_text, skip_ttypes=skip_ttypes)
+        nws_new_uxf_text = normalize_uxf_text(new_uxf_text,
+                                              skip_ttypes=skip_ttypes)
         if nws_uxf_text == nws_new_uxf_text:
             ok += 1
             if verbose:
@@ -126,9 +131,15 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
     return total, ok
 
 
-def normalize_uxf_text(text):
+def normalize_uxf_text(text, skip_ttypes):
     i = text.find('\n') + 1
     header, body = text[:i], text[i:]
+    match = re.match(r'(^=[^[({]+$)*', body, flags=re.DOTALL | re.MULTILINE)
+    if match is not None:
+        body = body[match.end():]
+        if not skip_ttypes:
+            ttypes = sorted(match.group().splitlines())
+            body = '\n'.join(ttypes) + '\n' + body
     body = ''.join(body.split()) # eliminate whitespace
     return header + '\n'.join(textwrap.wrap(body, 40)) # easier to compare
 
