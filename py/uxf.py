@@ -366,15 +366,7 @@ class _Lexer(_ErrorMixin):
         self.pos -= 1 # wind back to terminating non-numeric non-date char
         text = self.text[start:self.pos]
         if is_datetime:
-            if isoparse is None:
-                convert = datetime.datetime.fromisoformat
-                if text.endswith('Z'):
-                    text = text[:-1] # Py std lib can't handle UTC 'Z'
-            else:
-                convert = isoparse
-            convert = (datetime.datetime.fromisoformat if isoparse is None
-                       else isoparse)
-            token = _Kind.DATE_TIME
+            convert, token = self.read_datetime(text)
         elif hyphens == 2:
             convert = (datetime.date.fromisoformat if isoparse is None
                        else isoparse)
@@ -391,7 +383,32 @@ class _Lexer(_ErrorMixin):
                 value = value.date()
             self.add_token(token, value)
         except ValueError as err:
+            if is_datetime and len(text) > 19:
+                self.reread_datetime(text, convert)
+                return
             self.error(f'invalid number or date/time: {text}: {err}')
+
+
+    def read_datetime(self, text):
+        if isoparse is None:
+            convert = datetime.datetime.fromisoformat
+            if text.endswith('Z'):
+                text = text[:-1] # Py std lib can't handle UTC 'Z'
+        else:
+            convert = isoparse
+        convert = (datetime.datetime.fromisoformat if isoparse is None
+                   else isoparse)
+        return convert, _Kind.DATE_TIME
+
+
+    def reread_datetime(self, text, convert):
+        try:
+            value = convert(text[:19])
+            self.add_token(_Kind.DATE_TIME, value)
+            self.warn(f'skipped timezone data, used {text[:19]!r}, got '
+                      f'{text!r}')
+        except ValueError as err:
+            self.error(f'invalid datetime: {text}: {err}')
 
 
     def read_name(self):

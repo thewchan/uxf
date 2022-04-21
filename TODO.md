@@ -1,5 +1,10 @@
 # TODOS
 
+- allow a ktype of null
+  This is because the user may want any valid ktype for the key but still
+  want a specific type for the vtype, e.g.,
+  `{null int 1 2 <two> 3 (:6548:) 4}`
+
 - make ttype valid as a vtype for maps, lists, and tables
     - add tests
     - update the \_check*() methods
