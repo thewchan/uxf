@@ -67,7 +67,7 @@ def _postprocess_args(parser, config):
 
 
 def _postprocess_csv_args(parser, config):
-    if not config.file[-1].upper().endswith(DOT_UXF):
+    if not config.file[-1].upper().endswith((DOT_UXF, DOT_UXF_GZ)):
         parser.error('multiple infiles may only be converted to .uxf')
     for name in config.file[:-1]:
         if not name.upper().endswith(DOT_CSV):
@@ -82,10 +82,11 @@ def _postprocess_other_args(parser, config):
     config.outfile = config.file[-1]
     infile = config.infiles[0].upper()
     outfile = config.outfile.upper()
-    if infile.endswith(DOT_UXF) and outfile.endswith(DOT_UXF):
+    if (infile.endswith((DOT_UXF, DOT_UXF_GZ)) and
+            outfile.endswith((DOT_UXF, DOT_UXF_GZ))):
         parser.error('connot convert uxf to uxf, instead use: '
                      'python3 -m uxf infile.uxf outfile.uxf')
-    if outfile.endswith(DOT_UXF):
+    if outfile.endswith((DOT_UXF, DOT_UXF_GZ)):
         if infile.endswith(DOT_CSV):
             config.convert = csv_to_uxf
         elif infile.endswith(DOT_INI):
@@ -96,7 +97,7 @@ def _postprocess_other_args(parser, config):
             config.convert = sqlite_to_uxf
         elif infile.endswith(DOT_XML):
             config.convert = xml_to_uxf
-    elif infile.endswith(DOT_UXF):
+    elif infile.endswith((DOT_UXF, DOT_UXF_GZ)):
         if outfile.endswith(DOT_CSV):
             config.convert = uxf_to_csv
         elif outfile.endswith((DOT_JSN, DOT_JSON)):
@@ -371,6 +372,7 @@ DOT_JSN = '.JSN'
 DOT_JSON = '.JSON'
 DOT_SQLITE = '.SQLITE'
 DOT_UXF = '.UXF'
+DOT_UXF_GZ = '.UXF.GZ'
 DOT_XML = '.XML'
 FIELDS = 'fields'
 ITYPE = 'itype'

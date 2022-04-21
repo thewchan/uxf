@@ -1040,7 +1040,9 @@ def dump(filename_or_filelike, data, custom='', *, compress=False,
     type description.
 
     If compress is True and the filename_or_filelike is a filename (i.e.,
-    not stdout) then gzip compression is used.
+    not stdout) then gzip compression is used. And if the filename suffix is
+    .uxf, the suffix is changed to .uxf.gz. If the suffix is anything else
+    it is left as-is. If the filename ends with .gz compress is set to True
 
     Set indent to 0 (and use_true_false to True) to minimize the file size.
 
@@ -1054,7 +1056,13 @@ def dump(filename_or_filelike, data, custom='', *, compress=False,
     pad = ' ' * indent
     close = False
     if isinstance(filename_or_filelike, str):
-        opener = gzip.open if compress else open
+        ufilename_or_filelike = filename_or_filelike.upper()
+        if compress or ufilename_or_filelike.endswith('.GZ'):
+            opener = gzip.open
+            if ufilename_or_filelike.endswith('.UXF'):
+                filename_or_filelike += '.gz'
+        else:
+            opener = open
         file = opener(filename_or_filelike, 'wt', encoding=UTF8)
         close = True
     else:

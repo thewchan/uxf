@@ -27,7 +27,8 @@ def main():
     cleanup()
     t = time.monotonic()
     uxffiles = sorted((name for name in os.listdir('.')
-                       if os.path.isfile(name) and name.endswith('.uxf')),
+                       if os.path.isfile(name) and name.endswith(
+                           ('.uxf', '.uxf.gz'))),
                       key=by_number)
     print('.', end='', flush=True)
     total, ok = test_uxf_files(uxf, uxffiles, verbose=verbose,
@@ -84,6 +85,8 @@ def test_uxf_files(uxf, uxffiles, *, verbose, number):
             return total - 1, ok
         actual = f'actual/{name}'
         expected = f'expected/{name}'
+        if expected.endswith('.gz'):
+            expected = expected[:-3]
         cmd = [uxf, name, actual]
         reply = subprocess.call(cmd)
         cmd = ' '.join(cmd)
