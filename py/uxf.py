@@ -644,7 +644,7 @@ class Field:
         elif vtype in _ANY_VALUE_TYPES:
             self._vtype = vtype
         else:
-            types = " ".join(sorted(_ANY_VALUE_TYPES)) + ' uxf'
+            types = " ".join(sorted(_ANY_VALUE_TYPES))
             raise Error(
                 f'expected field type to be one of: {types}, got {vtype}')
 
@@ -980,10 +980,10 @@ class _Parser(_ErrorMixin):
 
 
     def _check_list(self, lst):
-        vtype = _type_for_name(lst.vtype)
+        vclass = _type_for_name(lst.vtype)
         for i in len(lst):
             value, fixed, err = _maybe_fixtype(
-                lst[i], vtype, check=self.check, fixtypes=self.fixtypes)
+                lst[i], vclass, check=self.check, fixtypes=self.fixtypes)
             if fixed:
                 lst[i] = value
             if err is not None:
@@ -991,16 +991,16 @@ class _Parser(_ErrorMixin):
 
 
     def _check_map(self, m):
-        ktype = _type_for_name(m.ktype)
-        vtype = _type_for_name(m.vtype)
+        kclass = _type_for_name(m.ktype)
+        vclass = _type_for_name(m.vtype)
         d = {}
         for key, value in m.items():
             key, _, err = _maybe_fixtype(
-                key, ktype, check=self.check, fixtypes=self.fixtypes)
+                key, kclass, check=self.check, fixtypes=self.fixtypes)
             if err is not None:
                 self.warn(str(err))
             value, _, err = _maybe_fixtype(
-                value, vtype, check=self.check, fixtypes=self.fixtypes)
+                value, vclass, check=self.check, fixtypes=self.fixtypes)
             if err is not None:
                 self.warn(str(err))
             if self.fixtypes:
@@ -1011,15 +1011,15 @@ class _Parser(_ErrorMixin):
 
     def _check_table(self, table):
         columns = len(table.fields)
-        vtypes = [_type_for_name(table.fields[column].vtype)
-                  for column in range(columns)]
+        vclasses = [_type_for_name(table.fields[column].vtype)
+                    for column in range(columns)]
         for row in range(len(table.records)):
             if len(row) != columns:
                 self.warn(f'expected row of {columns} columns, got '
                           f'{len(row)} columns')
             for column in range(len(row)):
                 value, fixed, err = _maybe_fixtype(
-                    table[row][column], vtypes[column], check=self.check,
+                    table[row][column], vclasses[column], check=self.check,
                     fixtypes=self.fixtypes)
                 if fixed:
                     table[row][column] = value
@@ -1349,14 +1349,14 @@ def _maybe_fixtype(value, vtype, *, check=False, fixtypes=False):
 def _try_fixtype(value, outtype):
     if isinstance(outtype, str):
         return str(value), True
-    vtype = type(value)
-    if isinstance(vtype, str) and isinstance(outtype, (
+    vclass = type(value)
+    if isinstance(vclass, str) and isinstance(outtype, (
             bool, int, float, datetime.date, datetime.datetime)):
         new_value = naturalize(value)
         return new_value, isinstance(new_value, outtype)
-    if isinstance(vtype, int) and isinstance(outtype, float):
+    if isinstance(vclass, int) and isinstance(outtype, float):
         return float(value), True
-    if isinstance(vtype, float) and isinstance(outtype, int):
+    if isinstance(vclass, float) and isinstance(outtype, int):
         return int(value), True
     return value, False
 
