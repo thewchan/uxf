@@ -766,8 +766,8 @@ class Table:
             return self._Class(*self.records[row])
         except TypeError as err:
             if 'missing' in str(err):
-                raise Error('table\'s ttype has fewer fields than in a row')
-
+                err = 'table\'s ttype has fewer fields than in a row'
+                raise Error(err) from None
 
 
     def __iter__(self):
@@ -1230,28 +1230,30 @@ class _Writer:
             self.file.write(f' #<{escape(comment)}> ')
         self.file.write(item.ttype.name)
         if len(item) == 0:
-            self.file.write(')\n')
+            self.file.write(')')
+            return False
         elif len(item) == 1:
             self.file.write(' ')
-            self.write_record(item[0], '')
-            self.file.write(')\n')
+            self.write_record(item[0], map_value)
+            self.file.write(')')
+            return False
         else:
             self.file.write('\n')
             indent += 1
             for record in item:
                 self.file.write(pad * indent)
-                self.write_record(record, pad)
+                self.write_record(record, map_value)
                 self.file.write('\n')
             tab = pad * (indent - 1)
             self.file.write(f'{tab})\n')
-        return True
+            return True
 
 
-    def write_record(self, record, pad):
+    def write_record(self, record, map_value):
         sep = ''
         for value in record:
             self.file.write(sep)
-            self.write_scalar(value, pad=pad)
+            self.write_value(value, 0, pad='', map_value=map_value)
             sep = ' '
 
 
