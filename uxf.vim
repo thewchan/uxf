@@ -1,9 +1,9 @@
 " Vim syntax file
-" Language:	        UXF
-" Author:	          Mark Summerfield <mark@qtrac.eu>
-" URL:		          https://github.com/mark-summerfield/uxf
-" Licence:	        Public Domain
-" Latest Revision:  2022-04-12
+" Language:        UXF
+" Author:          Mark Summerfield <mark@qtrac.eu>
+" URL:             https://github.com/mark-summerfield/uxf
+" Licence:         Public Domain
+" Latest Revision: 2022-04-21
 
 if exists("b:current_syntax")
   finish
@@ -27,6 +27,7 @@ syn match uxfNumber /\<[-+]\=\d\+\(\.\d\+\([Ee][-+]\=\d\+\)\=\)\=\>/
 syn match uxfDateTime /\<\d\d\d\d-\d\d-\d\d\(T\d\d\(:\d\d\(:\d\d\)\=\)\=\)\=\>/
 syn match uxfHeader /^uxf\s*\d\+.\d\+.*$/
 
+" See https://sashamaps.net/docs/resources/20-colors/
 " yellow
 hi uxfTodo guibg=#FFE119 term=italic cterm=italic gui=italic
 " navy
