@@ -18,8 +18,9 @@ open source software.
 
 Every `.uxf` file consists of a header line (starting `uxf 1.0`), then any
 _TType_ (table type) definitions, and then a single `map`, `list`, or
-`table` in which all the values are stored. Since ``map``s and ``list``s can
-be nested inside each other, the UXF format is extremely flexible.
+`table` in which all the values are stored. Since ``map``s, ``list``s, and
+``table``s can be nested inside each other, the UXF format is extremely
+flexible.
 
 UXF supports eleven datatypes.
 
@@ -38,12 +39,12 @@ UXF supports eleven datatypes.
 |`map`      |`{key1 value1 key2 value2 ... keyN valueN}`|A map with keys of any valid key type and values of any type.|
 |`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of any type.|
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of type _vtype_.|
-|`table`    |`(TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _TType_, or any table value type where no type has been specified.|
+|`table`    |`(TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _TType_, or any value type where no type has been specified.|
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 
-Map and list values may be of _any_ type (including nested ``map``s and
-``list``s), unless restricted to a specified type.
+Map, list, and table values may be of _any_ type (including nested ``map``s,
+``list``s, and ``table``s), unless restricted to a specified type.
 
 A `table` starts with a _TType_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
@@ -391,6 +392,25 @@ the container, something like:
         ]
     }
 
+### Nested Tables
+
+As mentioned earlier, is possible to nest tables.
+
+    uxf 1.0
+    = Pair First Second
+    = Triple First Second Third
+    [ #<Nested tables>
+      (Pair (Pair 17 21) (Pair 98 65))
+      (Triple
+        (Pair <a> <b>) (Triple 2020-01-17 2020-02-18 2021-12-05) (Pair null no)
+        1 2 3
+        <x> <y> <z>
+      )
+    ]
+
+This rather abstract example gives a flavor of what's possible.
+Here we have a list of tables, with some tables nested inside others.
+
 ## Libraries
 
 _Implementations in additional languages are planned._
@@ -474,18 +494,16 @@ optional `map`, `list`, or `table`.
     DATA         ::= TTYPE* (MAP | LIST | TABLE)
     TTYPE        ::= '=' OWS IDENTIFIER (RWS FIELD)+ # IDENTIFIER is table name
     FIELD        ::= IDENTIFIER (RWS VALUETYPE)? # IDENTIFIER is field name
-    MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
-    MAPTYPES     ::= OWS KEYTYPE (RWS ANYVALUETYPE)?
+    MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
+    MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
-    VALUETYPE    ::= KEYTYPE | 'null' | 'bool' | 'real' 
-    ANYVALUETYPE ::= VALUETYPE | 'list' | 'map' | 'table'
-    LIST         ::= '[' COMMENT? LISTTYPE? OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
-    LISTTYPE     ::= OWS ANYVALUETYPE
+    VALUETYPE    ::= KEYTYPE | 'null' | 'bool' | 'real' | 'list' | 'map' | 'table'
+    LIST         ::= '[' COMMENT? LISTTYPE? OWS VALUE? (RWS VALUE)* OWS ']'
+    LISTTYPE     ::= OWS VALUETYPE
     TABLE        ::= '(' COMMENT? OWS IDENTIFIER (RWS VALUE)* ')' # IDENTIFIER is TTYPE name
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
-    VALUE        ::= KEY | NULL | BOOL | REAL
-    ANYVALUE     ::= VALUE | LIST | MAP | TABLE
+    VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
     NULL         ::= 'null'
     BOOL         ::= 'no' | 'false' | 'yes' | 'true'
     INT          ::= /[-+]?\d+/
@@ -500,18 +518,14 @@ optional `map`, `list`, or `table`.
 
 To indicate any type valid for the context, simply omit the type name.
 
-As the BNF shows, `map` and `list` values may be of _any_ type including
-nested ``map``s and ``list``s.
+As the BNF shows, `map`, `list`, and `table` values may be of _any_ type
+including nested ``map``s, ``list``s, and ``table``s.
 
-For a `table`, after the optional comment, is an identifier which is the
-table's _TType_. This is followed by the table's values. There's no need to
-distinguish between one row and the next (although it is common to start new
-rows on new lines) since the number of fields indicate how many values each
-row has.
-
-Notice that `table` values may only be scalars (i.e., the literal `null`, or
-of type `bool`, `int`, `real`, `date`, `datetime`, `str`, or `bytes`), not
-``map``s, ``list``s, or ``table``s.
+For a `table`, after the optional comment, there must be an identifier which
+is the table's _TType_. This is followed by the table's values. There's no
+need to distinguish between one row and the next (although it is common to
+start new rows on new lines) since the number of fields indicate how many
+values each row has.
 
 If a map key, list value, or table value's type is specified, then the UXF
 processor is expected to be able to check for (and if requested and
