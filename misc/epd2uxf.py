@@ -7,6 +7,7 @@ import os
 import sqlite3
 from xml.sax.saxutils import escape
 
+
 def main():
     infile = 'playlists-epd.uxf'
     with sqlite3.connect(os.path.expanduser('~/data/playlists.epd')) as db:
