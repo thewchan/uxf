@@ -1458,7 +1458,8 @@ To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 -z infile.uxf outfile.uxf`
 
 Converting uxf to uxf will drop any unused ttypes and alphabetically order
-any remaining ttypes.
+any remaining ttypes. To preserved an unused ttype, include an empty table
+that uses it.
 ''')
     check = False
     fixtypes = False

@@ -46,41 +46,6 @@ uxf.vim
 pypi.sh
 st.sh
 
-t/t0.uxf
-t/t1.uxf
-t/t2.uxf
-t/t3.uxf
-t/t4.uxf
-t/t5.uxf
-t/t6.uxf
-t/t7.uxf
-t/t8.uxf
-t/t9.uxf
-t/t10.uxf
-t/t11.uxf
-t/t12.uxf
-t/t13.uxf
-t/t14.uxf
-t/t15.uxf
-t/t16.uxf
-t/t17.uxf
-t/t18.uxf
-t/t20.uxf
-t/t21.uxf
-t/t22.uxf
-t/t23.uxf
-t/t24.uxf
-t/t27.uxf
-t/t28.uxf
-t/t29.uxf
-t/t31.uxf
-t/t34.uxf
-t/t35.uxf
-
-t/0.csv
-t/1.csv
-t/2.csv
-
 # TODO (6) UXF libraries
 # for .js use Dart or TypeScript or similar that can output JS
 # uxf.rs uxf.cpp uxf.java uxf.rb ...

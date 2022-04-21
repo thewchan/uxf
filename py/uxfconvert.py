@@ -428,10 +428,12 @@ roundtrip. Converting uxf to sqlite is only supported if the uxf file is a
 single scalar table or a list of scalar tables.
 
 Converting from uxf to json and back (i.e., using uxfconvert.py's own json
-format) roundtrips with perfect fidelity.
+format) roundtrips with perfect fidelity, except that unused ttypes are
+dropped. An unused ttype can be preserved by including an empty table that
+uses it.
 
 Converting from uxf to xml and back (i.e., using uxfconvert.py's own xml
-format) roundtrips with perfect fidelity.
+format) roundtrips with perfect fidelity (except as noted above).
 
 Support for uxf to uxf conversions is provided by the uxf.py module itself,
 which can be run directly or via python, e.g., `uxf.py infile.uxf
