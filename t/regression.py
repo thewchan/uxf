@@ -38,6 +38,7 @@ def main():
         no_ttype_round_trip=no_ttype_round_trip)
     total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
                                 verbose=verbose, number=number)
+    total, ok = test_table_is_scalar(total, ok)
     if total < 128:
         print('\b' * total, end='', flush=True)
     if total == ok:
@@ -204,6 +205,19 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose, number):
         ok += compare(cmd, infile, actual, expected, verbose=verbose)
         if not verbose and not ok % 10:
             print('.', end='', flush=True)
+    return total, ok
+
+
+def test_table_is_scalar(total, ok):
+    for (filename, is_scalar) in (('t40.uxf', True), ('t41.uxf', False),
+                                  ('t42.uxf', True), ('t43.uxf', False)):
+        total += 1
+        table, _ = uxf.load(filename)
+        if is_scalar == table.is_scalar:
+            ok += 1
+        else:
+            print(f'{filename} • FAIL (Table.is_scalar)')
+    print('test_table_is_scalar')
     return total, ok
 
 

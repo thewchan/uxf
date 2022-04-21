@@ -1,0 +1,30 @@
+{
+  "UXF^table": {
+    "name": "Pair",
+    "comment": null,
+    "fields": {
+      "First": "int",
+      "Second": "list"
+    },
+    "records": [
+      [
+        1,
+        []
+      ],
+      [
+        2,
+        [
+          "a",
+          "b"
+        ]
+      ],
+      [
+        3,
+        [
+          9.8,
+          7.1
+        ]
+      ]
+    ]
+  }
+}

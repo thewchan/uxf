@@ -641,10 +641,10 @@ class Field:
     def vtype(self, vtype):
         if vtype is None:
             self._vtype = None # This means accept any valid type
-        elif vtype in _VALUE_TYPES:
+        elif vtype in _ANY_VALUE_TYPES:
             self._vtype = vtype
         else:
-            types = " ".join(sorted(_VALUE_TYPES)) + ' uxf'
+            types = " ".join(sorted(_ANY_VALUE_TYPES)) + ' uxf'
             raise Error(
                 f'expected field type to be one of: {types}, got {vtype}')
 
@@ -734,7 +734,7 @@ class Table:
         for field in self.fields:
             if field.vtype is None:
                 break # any type allowed so need to check records themselves
-            if not is_scalar(_type_for_name(field.vtype)):
+            if field.vtype not in _VALUE_TYPES:
                 return False # non-scalar expected so not a scalar table
         else:
             return True # all vtypes specified and all scalar
