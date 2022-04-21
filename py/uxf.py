@@ -731,6 +731,13 @@ class Table:
 
     @property
     def is_scalar(self):
+        for field in self.fields:
+            if field.vtype is None:
+                break # any type allowed so need to check records themselves
+            if not is_scalar(_type_for_name(field.vtype)):
+                return False # non-scalar expected so not a scalar table
+        else:
+            return True # all vtypes specified and all scalar
         for row in self.records:
             for x in row:
                 if not is_scalar(x):
