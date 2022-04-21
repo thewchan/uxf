@@ -537,8 +537,9 @@ only supports timezones as time offsets; for `Z` etc, the `dateutil`
 module must be installed, but even that doesn't necessarily support the full
 ISO8601 specification.
 
-Note that a UXF reader (writer) must be able to read (write) a plain text
-_or_ gzipped plain text `.uxf` file containing UTF-8 encoded text.
+Note that a UXF reader (writer) _must_ be able to read (write) a plain text
+file containing UTF-8 encoded text, and _ought_ to be able to read and write
+gzipped plain text `.uxf.gz` files.
 
 Note also that UXF readers and writers should not care about the actual file
 extension since users are free to use their own.
