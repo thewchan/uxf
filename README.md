@@ -538,11 +538,12 @@ module must be installed, but even that doesn't necessarily support the full
 ISO8601 specification.
 
 Note that a UXF reader (writer) _must_ be able to read (write) a plain text
-file containing UTF-8 encoded text, and _ought_ to be able to read and write
-gzipped plain text `.uxf.gz` files.
+`.uxf` file containing UTF-8 encoded text, and _ought_ to be able to read
+and write gzipped plain text `.uxf.gz` files.
 
 Note also that UXF readers and writers should not care about the actual file
-extension since users are free to use their own.
+extension (apart from the `.gz` needed for gzipped files), since users are
+free to use their own. For example, `data.myapp` and `data.myapp.gz`.
 
 ## Vim Support
 
