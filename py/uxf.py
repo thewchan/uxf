@@ -142,7 +142,7 @@ def load(filename_or_filelike, *, check=False, fixtypes=False,
     (if any) from the file's header.
 
     filename_or_filelike is sys.stdin or a filename or an open readable file
-    (text mode UTF-8 encoded).
+    (text mode UTF-8 encoded, optionally gzipped).
 
     If warn_is_error is True warnings raise Error exceptions.
     '''
@@ -1040,9 +1040,10 @@ def dump(filename_or_filelike, data, custom='', *, compress=False,
     type description.
 
     If compress is True and the filename_or_filelike is a filename (i.e.,
-    not stdout) then gzip compression is used. And if the filename suffix is
-    .uxf, the suffix is changed to .uxf.gz. If the suffix is anything else
-    it is left as-is. If the filename ends with .gz compress is set to True
+    not stdout) then gzip compression is used. If compress is True and the
+    filename suffix is .uxf, the suffix is changed to .uxf.gz. If the suffix
+    is anything else it is left as-is. If the filename ends with .gz,
+    compress is set to True.
 
     Set indent to 0 (and use_true_false to True) to minimize the file size.
 
@@ -1056,10 +1057,10 @@ def dump(filename_or_filelike, data, custom='', *, compress=False,
     pad = ' ' * indent
     close = False
     if isinstance(filename_or_filelike, str):
-        ufilename_or_filelike = filename_or_filelike.upper()
-        if compress or ufilename_or_filelike.endswith('.GZ'):
+        end = filename_or_filelike[-4:].upper()
+        if compress or end.endswith('.GZ'):
             opener = gzip.open
-            if ufilename_or_filelike.endswith('.UXF'):
+            if end.endswith('.UXF'):
                 filename_or_filelike += '.gz'
         else:
             opener = open
