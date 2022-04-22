@@ -1,13 +1,8 @@
 # TODOS
 
-- allow a ktype of null (`?`)
-  This is because the user may want any valid ktype for the key but still
-  want a specific type for the vtype, e.g.,
-  `{? int 1 2 <two> 3 (:6548:) 4}`
-
 - make ttype valid as a vtype for maps, lists, and tables
     - add tests
-    - update the check*() methods
+    - update the check\*() methods
     - update the docs & egs
 
 - Writer → Writer2 & create new Writer
@@ -54,26 +49,6 @@
 
 - create tests t50.uxf ... one for every error or warning that uxf.py
   can produce to ensure they all work & are understandable.
-
-- create a book markup, either pure uxf, or uxf-inspired.
-
-    uxf 1.0 book 1.0
-    = P Style Text
-    = B Text
-    = BI Text
-    = I Text
-    [#<Style is either a predefined style name or a map of on-the-fly style
-    attributes (incl. &lt;parent&gt; for inheriting), or null for inheriting
-    the default. TType P holds paragraphs, TType B holds bold and TType I
-    holds italic, etc.>
-      (P?<This is the start of a para with some> (B<bold text> (I and some
-      bold italic since this is nested inside the B,>))(BI<or here we have
-      both.>) <Now we're back to body text.>)
-      (P<style name><Body text>)
-      (P{<fontfamily> <helvetica> <fontsize> 11.5}<More text in the default
-      paragraph style but with the font and font size overwridden.>)
-
-  May be better to use uxf-inspired since the above is a bit heavy!
 
 - UXF libraries
     - for .js use Dart or TypeScript or similar that can output JS
