@@ -249,7 +249,16 @@ def compare(cmd, infile, actual, expected, *, verbose,
                     if verbose:
                         print(f'{cmd} • {infile} → {actual} (roundtrip) OK')
                     return 1
-        print(f'{cmd} • FAIL (compare) {actual} != {expected}')
+        flags = re.DOTALL | re.MULTILINE
+        with open(actual, 'rb') as file:
+            adata = re.sub(rb'\s+', b'', file.read(), flags=flags)
+        with open(expected, 'rb') as file:
+            edata = re.sub(rb'\s+', b'', file.read(), flags=flags)
+        if adata == edata:
+            print(
+                f'{cmd} • FAIL (compare whitespace) {actual} != {expected}')
+        else:
+            print(f'{cmd} • FAIL (compare) {actual} != {expected}')
     except FileNotFoundError:
         print(f'{cmd} • FAIL (missing {expected!r})')
     return 0
