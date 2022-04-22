@@ -26,7 +26,7 @@ UXF supports eleven datatypes.
 
 |**Type**   |**Example(s)**|**Notes**|
 |-----------|----------------------|--|
-|`null`     |`null`||
+|`?`        |`?`                   |This is UXF's _null_ type.|
 |`bool`     |`no` `false` `yes` `true`||
 |`int`      |`-192` `+234` `7891409`||
 |`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific with at least one digit before and after the point.|
@@ -50,7 +50,7 @@ A `table` starts with a _TType_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
 _TType_. Values must be of the type specified in the _TType_, or where not
 specified, may be of types `bool`, `int`, `real`, `date`, `datetime`, `str`,
-or `bytes`. Or the value can be `null`. (See the examples below).
+or `bytes`. Or the value can be `?` (null). (See the examples below).
 
 Maps, lists, and tables may begin with a comment, and may optionally by
 typed as indicated above. (See also the examples below and the BNF at the end).
@@ -339,7 +339,7 @@ a `list` of ``table``s is easily made.
     [ #<There is a 1:M relationship between the Invoices and Items tables>
       (Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
-        19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
+        19 <Supersuppliers> ? <Jane Doe> <jane@super.com> 
       )
       (Invoices
         152 50 2022-01-17 2022-02-17 no <COD> 
@@ -355,8 +355,8 @@ a `list` of ``table``s is easily made.
 Here we have a `list` of ``table``s representing three database tables.
 The `list` begins with a comment.
 
-Notice that the second customer has a `null` address and the second invoice
-has an empty description.
+Notice that the second customer has a null (`?`) address and the second
+invoice has an empty description.
 
     uxf 1.0 MyApp Data
     = Customers CID int Company str Address str Contact str Email str
@@ -365,7 +365,7 @@ has an empty description.
     [ #<There is a 1:M relationship between the Invoices and Items tables>
       (Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
-        19 <Supersuppliers> null <Jane Doe> <jane@super.com> 
+        19 <Supersuppliers> ? <Jane Doe> <jane@super.com> 
       )
       (Invoices
         152 50 2022-01-17 2022-02-17 no <COD> 
@@ -402,7 +402,7 @@ As mentioned earlier, is possible to nest tables.
     [ #<Nested tables>
       (Pair (Pair 17 21) (Pair 98 65))
       (Triple
-        (Pair <a> <b>) (Triple 2020-01-17 2020-02-18 2021-12-05) (Pair null no)
+        (Pair <a> <b>) (Triple 2020-01-17 2020-02-18 2021-12-05) (Pair ? no)
         1 2 3
         <x> <y> <z>
       )
@@ -432,7 +432,7 @@ Most Python types convert losslessly to and from UXF types. In particular:
 
 |**Python Type**     |**UXF type**|
 |--------------------|------------|
-|`None`              | `null`     |
+|`None`              | `?`        |
 |`bool`              | `bool`     |
 |`int`               | `int`      |
 |`float`             | `real`     |
@@ -497,14 +497,14 @@ optional `map`, `list`, or `table`.
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
-    VALUETYPE    ::= KEYTYPE | 'null' | 'bool' | 'real' | 'list' | 'map' | 'table'
+    VALUETYPE    ::= KEYTYPE | '?' | 'bool' | 'real' | 'list' | 'map' | 'table'
     LIST         ::= '[' COMMENT? LISTTYPE? OWS VALUE? (RWS VALUE)* OWS ']'
     LISTTYPE     ::= OWS VALUETYPE
     TABLE        ::= '(' COMMENT? OWS IDENTIFIER (RWS VALUE)* ')' # IDENTIFIER is TTYPE name
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
     VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
-    NULL         ::= 'null'
+    NULL         ::= '?'
     BOOL         ::= 'no' | 'false' | 'yes' | 'true'
     INT          ::= /[-+]?\d+/
     REAL         ::= # standard or scientific (but must contain decimal point)

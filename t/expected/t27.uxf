@@ -26,7 +26,7 @@ uxf 1.0
     <New Acquistions> [1 no]
     <Nested List of Lists> [ #<List comment> list
       [5 <Classical &amp; &lt;Special&gt;> yes]
-      [4 <Modern Instrumental> null]
+      [4 <Modern Instrumental> ?]
       [1 <New Acquistions> no]
     ]
   }

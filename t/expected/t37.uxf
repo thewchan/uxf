@@ -5,7 +5,7 @@ uxf 1.0 MyApp Data
 [ #<There is a 1:M relationship between the Invoices and Items tables>
   (Customers
     50 <Best People> <123 Somewhere> <John Doe> <j@doe.com>
-    19 <Supersuppliers> null <Jane Doe> <jane@super.com>
+    19 <Supersuppliers> ? <Jane Doe> <jane@super.com>
   )
   (Invoices
     152 50 2022-01-17 2022-02-17 no <COD>

@@ -129,7 +129,7 @@ _VALUE_TYPES = _KEY_TYPES | {'bool', 'real'}
 _ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table'}
 _BOOL_FALSE = {'no', 'false'}
 _BOOL_TRUE = {'yes', 'true'}
-_CONSTANTS = {'null'} | _BOOL_FALSE | _BOOL_TRUE
+_CONSTANTS = _BOOL_FALSE | _BOOL_TRUE
 _BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
 _MISSING = object()
 
@@ -284,6 +284,8 @@ class _Lexer(_ErrorMixin):
         elif c == '}':
             self.in_ttype = False
             self.add_token(_Kind.MAP_END)
+        elif c == '?':
+            self.add_token(_Kind.NULL)
         elif c == '#':
             if self.tokens and self.tokens[-1].kind in {
                     _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN}:
@@ -413,10 +415,7 @@ class _Lexer(_ErrorMixin):
 
     def read_name(self):
         match = self.match_any_of(_BAREWORDS)
-        if match == 'null':
-            self.add_token(_Kind.NULL)
-            return
-        elif match in _BOOL_FALSE:
+        if match in _BOOL_FALSE:
             self.add_token(_Kind.BOOL, False)
             return
         elif match in _BOOL_TRUE:
@@ -1294,7 +1293,7 @@ class _Writer:
         if not map_value:
             self.file.write(pad * indent)
         if item is None:
-            self.file.write('null')
+            self.file.write('?')
         elif isinstance(item, bool):
             self.file.write(self.yes if item else self.no)
         elif isinstance(item, int):
@@ -1352,7 +1351,7 @@ def _name_for_type(vtype):
     return {bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
             datetime.date: 'date', datetime.datetime: 'datetime',
             float: 'real', int: 'int', List: 'list', Map: 'map',
-            str: 'str', Table: 'table', type(None): 'null'}.get(vtype)
+            str: 'str', Table: 'table', type(None): '?'}.get(vtype)
 
 
 def _maybe_fixtype(value, vtype, *, check=False, fixtypes=False):
