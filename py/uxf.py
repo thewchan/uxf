@@ -48,11 +48,6 @@ datetime.date or int or float if any of these can be parsed, otherwise
 returns the original string s. This is provided as a helper function (e.g.,
 it is used by uxfconvert.py).
 
-    realize(n: float) -> str
-
-This function takes a float and eturns a UXF-compatible, (i.e.,
-naturalize-able) str representing the float n.
-
     canonicalize(name, prefix)
 
 Given a name and an optional prefix, returns a name that is a valid table or
@@ -117,8 +112,8 @@ except ImportError:
 
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
-           'find_ttypes', 'naturalize', 'realize', 'canonicalize',
-           'is_scalar', 'List', 'Map', 'Table', 'TType', 'Field')
+           'find_ttypes', 'naturalize', 'canonicalize', 'is_scalar', 'List',
+           'Map', 'Table', 'TType', 'Field')
 __version__ = '0.12.2' # uxf module version
 VERSION = 1.0 # uxf file format version
 
@@ -1296,10 +1291,8 @@ class _Writer:
             self.file.write('?')
         elif isinstance(item, bool):
             self.file.write(self.yes if item else self.no)
-        elif isinstance(item, int):
+        elif isinstance(item, (int, float)):
             self.file.write(str(item))
-        elif isinstance(item, float):
-            self.file.write(realize(item))
         elif isinstance(item, (datetime.date, datetime.datetime)):
             self.file.write(item.isoformat())
         elif isinstance(item, str):
@@ -1315,24 +1308,6 @@ class _Writer:
             print(f'error: ignoring unexpected item of type {type(item)}: '
                   f'{item!r}', file=sys.stderr)
         return False
-
-
-def realize(n: float) -> str:
-    '''Returns a str representation of the given number n with the str
-    guaranteed to include a decimal point and a digit either side of the
-    point whether the representation is standard or scientific, as required
-    by the UXF BNF.
-    '''
-    value = str(n)
-    if '.' not in value:
-        i = value.find('e')
-        if i == -1:
-            i = value.find('E')
-        if i == -1:
-            value += '.0'
-        else:
-            value = value[:i] + '.0' + value[i:]
-    return value
 
 
 def is_scalar(x):

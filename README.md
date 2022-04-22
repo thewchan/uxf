@@ -507,7 +507,7 @@ optional `map`, `list`, or `table`.
     NULL         ::= '?'
     BOOL         ::= 'no' | 'false' | 'yes' | 'true'
     INT          ::= /[-+]?\d+/
-    REAL         ::= # standard or scientific (but must contain decimal point)
+    REAL         ::= # standard or scientific notation
     DATE         ::= /\d\d\d\d-\d\d-\d\d/ # basic ISO8601 YYYY-MM-DD format
     DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
