@@ -382,8 +382,8 @@ class _Lexer(_ErrorMixin):
         except ValueError as err:
             if is_datetime and len(text) > 19:
                 self.reread_datetime(text, convert)
-                return
-            self.error(f'invalid number or date/time: {text}: {err}')
+            else:
+                self.error(f'invalid number or date/time: {text}: {err}')
 
 
     def read_datetime(self, text):
@@ -448,7 +448,7 @@ class _Lexer(_ErrorMixin):
             i = self.text.find(target, self.pos)
             if i > -1:
                 text = self.text[self.pos:i]
-                self.pos = i + len(target) # skip past target target
+                self.pos = i + len(target) # skip past target
                 return text
         self.error(error_text)
 
@@ -557,7 +557,19 @@ class Map(collections.UserDict):
             self._pending_key = _MISSING
 
 
-class TType:
+class _CheckNameMixin:
+
+    def _check_name(self, name):
+        if not name[0].isupper():
+            raise Error(
+                f'names must start with a capital letter, got {name}')
+        for x in name[1:]:
+            if not (x.isalnum() or x == '_'):
+                raise Error('names may only contain letters, digits, or '
+                            f'underscores, got {name}')
+
+
+class TType(_CheckNameMixin):
 
     def __init__(self, name, fields=None):
         self.name = name
@@ -569,6 +581,7 @@ class TType:
                 else:
                     self.fields.append(field)
 
+
     @property
     def name(self):
         return self._name
@@ -577,13 +590,7 @@ class TType:
     @name.setter
     def name(self, name):
         if name is not None:
-            if not name[0].isupper():
-                raise Error('table names must start with a capital letter, '
-                            f'got {name}')
-            for x in name[1:]:
-                if not (x.isalnum() or x == '_'):
-                    raise Error('table names may only contain letters, '
-                                f'digits, or underscores, got {name}')
+            self._check_name(name)
         self._name = name
 
 
@@ -619,7 +626,7 @@ class TType:
         return f'{self.__class__.__name__}({self.name!r}, {fields})'
 
 
-class Field:
+class Field(_CheckNameMixin):
 
     def __init__(self, name, vtype=None):
         self.name = name
@@ -633,13 +640,7 @@ class Field:
 
     @name.setter
     def name(self, name):
-        if not name[0].isupper():
-            raise Error(
-                f'field names must start with a capital letter, got {name}')
-        for x in name[1:]:
-            if not (x.isalnum() or x == '_'):
-                raise Error('field names may only contain letters, digits, '
-                            f'or underscores, got {name}')
+        self._check_name(name)
         self._name = name
 
 
@@ -932,8 +933,8 @@ class _Parser(_ErrorMixin):
             self.error(
                 f'expected to create map, list, or table, got {token}')
         if self.stack:
-            self.stack[-1].append(value) # stack the collection
-        self.stack.append(value) # ensure the collection is added to
+            self.stack[-1].append(value) # add the collection to the parent
+        self.stack.append(value) # make the collection the current parent
 
 
     def _on_collection_end(self, token):
@@ -981,9 +982,8 @@ class _Parser(_ErrorMixin):
     def _check(self, item):
         if isinstance(item, List) and item.vtype is not None:
             self._check_list(item)
-        elif isinstance(item, Map) and (
-                item.vtype is not None or
-                item.ktype is not None):
+        elif isinstance(item, Map) and (item.vtype is not None or
+                                        item.ktype is not None):
             self._check_map(item)
         elif isinstance(item, Table) and (
                 any(field.vtype is not None for field in item.fields)):
@@ -1309,7 +1309,7 @@ def is_scalar(x):
 def _type_for_name(typename):
     return dict(bool=bool, bytes=(bytes, bytearray), date=datetime.date,
                 datetime=datetime.datetime, int=int, list=List, map=Map,
-                real=float, str=str, table=Table, uxf=None).get(typename)
+                real=float, str=str, table=Table).get(typename)
 
 
 def _name_for_type(vtype):
@@ -1408,7 +1408,7 @@ def _find_ttypes(data):
 
 def canonicalize(name, prefix='T_'):
     '''Given a name and an optional prefix, returns a name that is a valid
-    table or field name.'''
+    table or field name. (See uxfconvert.py for uses.)'''
     cs = []
     for c in name:
         if c.isalnum() or c == '_':
