@@ -1038,23 +1038,18 @@ class _Parser(_ErrorMixin):
                     self.warn(str(err))
 
 
-def dump(filename_or_filelike, data, custom='', *, compress=False,
-         indent=2, one_way_conversion=False, use_true_false=False):
+def dump(filename_or_filelike, data, custom='', *, indent=2,
+         one_way_conversion=False, use_true_false=False):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
-    file (text mode UTF-8 encoded).
+    file (text mode UTF-8 encoded). If filename_or_filelike is a filename
+    with a .gz suffix then the output will be gzip-compressed.
 
     data is a Map, dict, List, list, or Table that this function will write
     to the filename_or_filelike in UXF format.
 
     custom is an optional short user string (with no newlines), e.g., a file
     type description.
-
-    If compress is True and the filename_or_filelike is a filename (i.e.,
-    not stdout) then gzip compression is used. If compress is True and the
-    filename suffix is .uxf, the suffix is changed to .uxf.gz. If the suffix
-    is anything else it is left as-is. If the filename ends with .gz,
-    compress is set to True.
 
     Set indent to 0 (and use_true_false to True) to minimize the file size.
 
@@ -1068,13 +1063,8 @@ def dump(filename_or_filelike, data, custom='', *, compress=False,
     pad = ' ' * indent
     close = False
     if isinstance(filename_or_filelike, str):
-        end = filename_or_filelike[-4:].upper()
-        if compress or end.endswith('.GZ'):
-            opener = gzip.open
-            if end.endswith('.UXF'):
-                filename_or_filelike += '.gz'
-        else:
-            opener = open
+        opener = (gzip.open if filename_or_filelike[-3:].upper().endswith(
+                  '.GZ') else open)
         file = opener(filename_or_filelike, 'wt', encoding=UTF8)
         close = True
     else:
@@ -1444,8 +1434,8 @@ if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
 usage: uxf.py \
-[-c|--check] [-f|--fix-types] [-w|--warn-is-error] [-z|--compress] \
-[-iN|--indent=N] <infile.uxf> [<outfile.uxf>]
+[-c|--check] [-f|--fix-types] [-w|--warn-is-error] [-iN|--indent=N] \
+<infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
 If check is set any given types are checked against the actual \
@@ -1455,16 +1445,15 @@ If fixtypes is set mistyped values are correctly typed where possible \
 automatically set too.
 If warn-is-error is set warnings are treated as errors \
 (i.e., the program will terminate with the first error or warning message).
-If compress is set and the outfile is uxf, the outfile will be gzip \
-compressed. (If there's no outfile, i.e., for stdout, \
-this option is ignored.)
+If an outfile is specified and ends .gz it will be gzip-compressed.
 Indent defaults to 2 and accepts a range of 0-8. \
 The default is silently used if an out of range value is given.
 
-To get an uncompressed .uxf file run: `uxf.py infile.uxf outfile.uxf`
+To get an uncompressed .uxf file run: `uxf.py infile.uxf.gz outfile.uxf` or
+simply `gunzip infile.uxf.gz`.
 
 To produce a compressed and compact .uxf file run: \
-`uxf.py -i0 -z infile.uxf outfile.uxf`
+`uxf.py -i0 infile.uxf outfile.uxf.gz`
 
 Converting uxf to uxf will drop any unused ttypes and alphabetically order
 any remaining ttypes. To preserved an unused ttype, include an empty table
@@ -1473,7 +1462,6 @@ that uses it.
     check = False
     fixtypes = False
     warn_is_error = False
-    compress = False
     indent = 2
     args = sys.argv[1:]
     infile = outfile = None
@@ -1485,8 +1473,6 @@ that uses it.
             check = True
         elif arg in {'-w', '--warn-is-error'}:
             warn_is_error = True
-        elif arg in {'-z', '--compress'}:
-            compress = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
                 indent = int(arg[2:])
@@ -1505,7 +1491,6 @@ that uses it.
         data, custom = load(infile, check=check, fixtypes=fixtypes,
                             warn_is_error=warn_is_error)
         outfile = sys.stdout if outfile is None else outfile
-        dump(outfile, data=data, custom=custom, compress=compress,
-             indent=indent)
+        dump(outfile, data=data, custom=custom, indent=indent)
     except (FileNotFoundError, Error) as err:
         print(f'Error:{err}')

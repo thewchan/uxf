@@ -28,7 +28,6 @@ def _get_config():
     parser = argparse.ArgumentParser(usage=PREFIX + _get_usage())
     parser.add_argument('-i', '--indent', type=int, default=2,
                         help='default: 2, range 0-8')
-    parser.add_argument('-z', '--compress', help='default: don\'t compress')
     parser.add_argument(
         '-f', '--fieldnames', action='store_true',
         help='if set the first row of csv file(s) is read as field names; '
@@ -393,17 +392,17 @@ UXF = 'uxf'
 VTYPE = 'vtype'
 
 PREFIX = '''
-uxfconvert.py <infile.uxf> <outfile.{csv,json,sqlite,xml}>
-uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames] \
-<infile.{csv,ini,json,sqlite,xml}> <outfile.uxf>
-uxfconvert.py [-z|--compress] [-i|--indent=N] [-f|--fieldnames] \
-<infile1.csv> [infile2.csv ... infileM.csv] <outfile.uxf>
+uxfconvert.py <infile.uxf[.gz]> <outfile.{csv,json,sqlite,xml}>
+uxfconvert.py [-i|--indent=N] [-f|--fieldnames] \
+<infile.{csv,ini,json,sqlite,xml}> <outfile.uxf[.gz]>
+uxfconvert.py [-i|--indent=N] [-f|--fieldnames] \
+<infile1.csv> [infile2.csv ... infileM.csv] <outfile.uxf[.gz]>
 
 '''
 
 USAGE = '''Converts to and from uxf format.
 
-If compress is set and the output is uxf, the uxf will be gzip compressed.
+If the outfile is .uxf.gz, the output will be gzip compressed UXF.
 
 Indent defaults to 2 (uxf's default); but can be set to any value 0-8.
 
@@ -411,7 +410,7 @@ If fieldnames is set and the infile(s) is(are) csv the first row of each
 infile will be read as field (column) names; otherwise all rows will be
 assumed to contain values.
 
-To produce compact uxf output use options: -z -i0.
+To produce compact uxf output use a .gz suffix and -i0.
 
 Converting from multiple csv files to uxf, the outfile will either be a
 list of tables (if the fieldnames option is given), or a list of lists of
@@ -440,7 +439,7 @@ format) roundtrips with perfect fidelity (except as noted above).
 Support for uxf to uxf conversions is provided by the uxf.py module itself,
 which can be run directly or via python, e.g., `uxf.py infile.uxf
 outfile.uxf` or `python3 -m uxf infile.uxf outfile.uxf` with the same indent
-and compress options as here, plus additional options (use uxf.py's -h or
+and compression options as here, plus additional options (use uxf.py's -h or
 --help for details).'''
 
 
