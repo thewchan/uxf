@@ -26,7 +26,7 @@ UXF supports eleven datatypes.
 
 |**Type**   |**Example(s)**|**Notes**|
 |-----------|----------------------|--|
-|`?`        |`?`                   |This is UXF's _null_ type.|
+|`null`     |`?`                   |This is UXF's _null_ type.|
 |`bool`     |`no` `false` `yes` `true`||
 |`int`      |`-192` `+234` `7891409`||
 |`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific with at least one digit before and after the point.|
@@ -41,10 +41,12 @@ UXF supports eleven datatypes.
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of type _vtype_.|
 |`table`    |`(TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _TType_, or any value type where no type has been specified.|
 
-Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
+Map keys (i.e., _ktype_) may only be of types `int`, `date`, `datetime`,
+`str`, and `bytes`.
 
 Map, list, and table values may be of _any_ type (including nested ``map``s,
-``list``s, and ``table``s), unless restricted to a specified type.
+``list``s, and ``table``s), unless restricted to a specified type. If
+restricted to a specific _vtype_, the _vtype_ may be any type except `null`.
 
 A `table` starts with a _TType_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
