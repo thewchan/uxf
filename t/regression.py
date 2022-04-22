@@ -136,9 +136,12 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number,
 
 
 def normalize_uxf_text(text, skip_ttypes):
+    flags = re.DOTALL | re.MULTILINE
     i = text.find('\n') + 1 # ignore header
     body = text[i:]
-    match = re.match(r'(^=[^[({]+$)*', body, flags=re.DOTALL | re.MULTILINE)
+    body = re.sub(r'\d+[Ee]\d+', lambda m: str(float(m.group())), body,
+                  flags=flags)
+    match = re.match(r'(^=[^[({]+$)*', body, flags=flags)
     if match is not None:
         body = body[match.end():]
         if not skip_ttypes:
