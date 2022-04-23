@@ -662,23 +662,6 @@ class Field(_CheckNameMixin):
         self._name = name
 
 
-    @property
-    def vtype(self):
-        return self._vtype
-
-
-    @vtype.setter
-    def vtype(self, vtype):
-        if vtype is None:
-            self._vtype = None # This means accept any valid type
-        elif vtype in _ANY_VALUE_TYPES:
-            self._vtype = vtype
-        else:
-            types = " ".join(sorted(_ANY_VALUE_TYPES))
-            raise Error(
-                f'expected field type to be one of: {types}, got {vtype}')
-
-
     def __repr__(self):
         return f'{self.__class__.__name__}({self.name!r}, {self.vtype!r})'
 
@@ -972,6 +955,7 @@ class _Parser(_ErrorMixin):
 
 
     def _parse_ttypes(self):
+        used = set()
         ttype = None
         for index, token in enumerate(self.tokens):
             if token.kind is _Kind.TTYPE_BEGIN:
@@ -985,7 +969,10 @@ class _Parser(_ErrorMixin):
                     ttype.append(token.value)
             elif token.kind is _Kind.TYPE:
                 if len(ttype) > 0:
-                    ttype.set_vtype(-1, token.value)
+                    vtype = token.value
+                    ttype.set_vtype(-1, vtype)
+                    if vtype[0].isupper():
+                        used.add(vtype)
                 else:
                     self.error(
                         f'encountered type without field name: {token}')
@@ -995,6 +982,15 @@ class _Parser(_ErrorMixin):
                 self.tokens = self.tokens[index + 1:]
             else:
                 break # no TTypes at all
+        if self.ttypes: # Check that all ttypes referred to are defined
+            diff = used - set(self.ttypes.keys())
+            if diff:
+                diff = sorted(diff)
+                if len(diff) == 1:
+                    self.error(f'ttype uses undefined type: {diff[0]!r}')
+                else:
+                    diff = ', '.join(repr(t) for t in diff)
+                    self.error(f'ttype uses undefined types: {diff}')
 
 
     def _check(self, item):

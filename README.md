@@ -45,14 +45,15 @@ Map keys (i.e., _ktype_) may only be of types `int`, `date`, `datetime`,
 `str`, and `bytes`.
 
 Map, list, and table values may be of _any_ type (including nested ``map``s,
-``list``s, and ``table``s), unless restricted to a specified type. If
-restricted to a specific _vtype_, the _vtype_ may be any type except `null`.
+``list``s, and ``table``s), unless restricted to a specific type. If
+restricted to a specific _vtype_, the _vtype_ may be any built-in type (as
+listed above, except `null`), or any user-defined _TType_, and the
+corresponding value or values must be any valid value for the specified type
+or `?` (null).
 
 A `table` starts with a _TType_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
-_TType_. Values must be of the type specified in the _TType_, or where not
-specified, may be of types `bool`, `int`, `real`, `date`, `datetime`, `str`,
-or `bytes`. Or the value can be `?` (null). (See the examples below).
+_TType_.
 
 Maps, lists, and tables may begin with a comment, and may optionally by
 typed as indicated above. (See also the examples below and the BNF at the end).
@@ -123,10 +124,10 @@ The most _appropriate_ UXF equivalent is to use a UXF `table`:
 When one or more tables are used each one's _TType_ (table type) must be
 defined at the start of the `.uxf` file. A _TType_ begins with an `=` sign
 followed by a table name, followed by one or more fields. A field consists
-of a name optionally followed by a type (here only names are given). Both
-table and field names are user chosen and must consist of an initial capital
-letter followed by 0-59 letters, digits, or underscores. (If whitespace is
-wanted one convention is to use underscores in their place.)
+of a name optionally followed by a `:` and then a type (here only names are
+given). Both table and field names are user chosen and must consist of an
+initial capital letter followed by 0-59 letters, digits, or underscores. (If
+whitespace is wanted one convention is to use underscores in their place.)
 
 Once we have a _TType_ we can use it.
 

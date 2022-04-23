@@ -1,10 +1,5 @@
 # TODOS
 
-- make ttype valid as a vtype for maps, lists, and tables
-    - add tests
-    - update the check\*() methods
-    - update the docs & egs
-
 - Writer → Writer2 & create new Writer
     - map|list|table:
 	{COMMENT ktype vtype values}
