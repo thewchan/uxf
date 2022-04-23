@@ -26,7 +26,7 @@ UXF supports eleven datatypes.
 
 |**Type**   |**Example(s)**|**Notes**|
 |-----------|----------------------|--|
-|`null`     |`?`                   |This is UXF's _null_ type.|
+|`null`     |`?`                   |`?` is the UXF _null_ type's literal representation.|
 |`bool`     |`no` `false` `yes` `true`||
 |`int`      |`-192` `+234` `7891409`||
 |`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific with at least one digit before and after the point.|
@@ -48,8 +48,8 @@ Map, list, and table values may be of _any_ type (including nested ``map``s,
 ``list``s, and ``table``s), unless restricted to a specific type. If
 restricted to a specific _vtype_, the _vtype_ may be any built-in type (as
 listed above, except `null`), or any user-defined _TType_, and the
-corresponding value or values must be any valid value for the specified type
-or `?` (null).
+corresponding value or values must be any valid value for the specified
+type, or `?` (null).
 
 A `table` starts with a _TType_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
@@ -496,7 +496,7 @@ optional `map`, `list`, or `table`.
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DATA         ::= TTYPE* (MAP | LIST | TABLE)
     TTYPE        ::= '=' OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is table name
-    FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is field name; no whitespace
+    FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
