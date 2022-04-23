@@ -941,6 +941,9 @@ class _Parser(_ErrorMixin):
     def _on_collection_end(self, token):
         if self.check:
             self._check(self.stack[-1])
+        if not self.stack:
+            self.error(f'unexpected {token} suggests unmatched map, list, '
+                       'or table start/end pair')
         self.stack.pop()
 
 
