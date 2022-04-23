@@ -130,8 +130,18 @@ _MISSING = object()
 
 
 class Uxf:
+    '''A Uxf object holds three attributes.
+
+    .data is a List, Map, or Table of data
+    .custom is an opional custom string used for customizing the file format
+    .ttypes is a dict where each key is a ttype name and each value is a
+    TType object.
+    '''
 
     def __init__(self, data, custom='', *, ttypes=None):
+        '''data may be a list, List, dict, Map, or Table; if given ttypes
+        must be a dict whose values are TTypes and whose corresponding keys
+        are the TTypes' names'''
         self.data = data
         self.custom = custom
         self.ttypes = ttypes
@@ -144,7 +154,11 @@ class Uxf:
 
     @data.setter
     def data(self, data):
-        if not isinstance(data, (list, dict, List, Map, Table)):
+        if isinstance(data, list):
+            data = List(data)
+        elif isinstance(data, dict):
+            data = Map(data)
+        if not isinstance(data, (List, Map, Table)):
             raise Error('Uxf data must be a list, List, dict, Map, or '
                         f'Table, got {type(data)}')
         self._data = data
@@ -153,9 +167,7 @@ class Uxf:
 def load(filename_or_filelike, *, check=False, fixtypes=False,
          warn_is_error=False):
     '''
-    Returns a 2-tuple, the first item of which is a Map, List, or Table
-    containing all the UXF data read. The second item is the custom string
-    (if any) from the file's header.
+    Returns a Uxf object.
 
     filename_or_filelike is sys.stdin or a filename or an open readable file
     (text mode UTF-8 encoded, optionally gzipped).
@@ -171,9 +183,7 @@ def load(filename_or_filelike, *, check=False, fixtypes=False,
 
 def loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False):
     '''
-    Returns a 2-tuple, the first item of which is a Map, List, or Table
-    containing all the UXF data read. The second item is the custom string
-    (if any) from the file's header.
+    Returns a Uxf object.
 
     uxf_text must be a string of UXF data.
 
@@ -303,15 +313,7 @@ class _Lexer(_ErrorMixin):
         elif c == '?':
             self.add_token(_Kind.NULL)
         elif c == '#':
-            if self.tokens and self.tokens[-1].kind in {
-                    _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN}:
-                if self.peek() != '<':
-                    self.error('a str must follow the # comment '
-                               f'introducer, got {c!r}')
-                self.read_comment()
-            else:
-                self.error('comments may only occur at the start of Maps, '
-                           'Lists, and Tables')
+            self.read_comment()
         elif c == '<':
             self.read_string()
         elif c == ':':
@@ -334,9 +336,18 @@ class _Lexer(_ErrorMixin):
 
 
     def read_comment(self):
-        self.pos += 1 # skip the leading <
-        value = self.match_to('>', error_text='unterminated string or name')
-        self.add_token(_Kind.COMMENT, unescape(value))
+        if self.tokens and self.tokens[-1].kind in {
+                _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN}:
+            if self.peek() != '<':
+                self.error('a str must follow the # comment introducer, '
+                           f'got {self.peek()!r}')
+            self.pos += 1 # skip the leading <
+            value = self.match_to('>',
+                                  error_text='unterminated string or name')
+            self.add_token(_Kind.COMMENT, unescape(value))
+        else:
+            self.error('comments may only occur at the start of Maps, '
+                       'Lists, and Tables')
 
 
     def read_string(self):
@@ -1085,8 +1096,8 @@ def dump(filename_or_filelike, data, *, indent=2,
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
     with a .gz suffix then the output will be gzip-compressed.
 
-    data is a Uxf or a list, List, dict, Map, or Table, that this function
-    will write to the filename_or_filelike in UXF format.
+    data is a Uxf object, or a list, List, dict, Map, or Table, that this
+    function will write to the filename_or_filelike in UXF format.
 
     Set indent to 0 (and use_true_false to True) to minimize the file size.
 
@@ -1118,8 +1129,9 @@ def dump(filename_or_filelike, data, *, indent=2,
 def dumps(data, *, indent=2, one_way_conversion=False,
           use_true_false=False):
     '''
-    data is a Uxf or a list, List, dict, Map, or Table that this function
-    will write to a string in UXF format which will then be returned.
+    data is a Uxf object, or a list, List, dict, Map, or Table that this
+    function will write to a string in UXF format which will then be
+    returned.
 
     Set indent to 0 (and use_true_false to True) to minimize the string's
     size.
