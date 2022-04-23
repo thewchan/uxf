@@ -32,9 +32,9 @@
 - test --check and --fix-types:
   - Add test t40.uxf that exercises all fixtypes in each of a
     list, map, and table
-    (i.e., any→str, int↔float, str→bool|int|float|date|datetime)
+    (i.e., any→str, int↔float, str→bool|int|float|date|datetime|Pair|MyType)
   - Add test t41.uxf ... one for every fixtype that cannot work
-  - Do 3 lots of tests: for t40.uxf ...:
+  - Do 3 lots of tests covering built-in vtypes and TTypes: for t40.uxf ...:
       * no check, no fixtypes
       * check, no fixtypes
       * check, fixtypes
