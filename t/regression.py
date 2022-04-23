@@ -113,8 +113,8 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
             uxf_obj = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
-        new_uxf_text = uxf.dumps(uxf_obj, one_way_conversion=True,
-                                 use_true_false=use_true_false)
+        new_uxf_text = uxf_obj.dumps(one_way_conversion=True,
+                                     use_true_false=use_true_false)
         nws_uxf_text = normalize_uxf_text(uxf_text)
         nws_new_uxf_text = normalize_uxf_text(new_uxf_text)
         if nws_uxf_text == nws_new_uxf_text:

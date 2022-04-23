@@ -61,7 +61,7 @@ True).
 This class has a .data attribute which holds a Map, List, or Table, a
 .custom str holding a (possibly empty) custom string, and a .ttypes holding
 a (possibly empty) dict whose names are TType table names and whose values
-are TTypes.
+are TTypes. It also has convenience dump() and dumps() methods.
 
     List
 
@@ -162,6 +162,26 @@ class Uxf:
             raise Error('Uxf data must be a list, List, dict, Map, or '
                         f'Table, got {type(data)}')
         self._data = data
+
+
+    def dump(self, filename_or_filelike, *, indent=2,
+             one_way_conversion=False, use_true_false=False):
+        '''Convenience method that wraps module-level dump() function'''
+        dump(filename_or_filelike, self, indent=indent,
+             one_way_conversion=one_way_conversion,
+             use_true_false=use_true_false)
+
+
+    def dumps(self, *, indent=2, one_way_conversion=False,
+              use_true_false=False):
+        '''Convenience method that wraps module-level dumps() function'''
+        return dumps(self, indent=indent,
+                     one_way_conversion=one_way_conversion,
+                     use_true_false=use_true_false)
+
+
+    def typecheck(self, fixtypes=False):
+        self.data.check(self.ttypes)
 
 
 def load(filename_or_filelike, *, check=False, fixtypes=False,
@@ -577,6 +597,18 @@ class List(collections.UserList):
         self.vtype = None
 
 
+    def typecheck(self, ttypes, fixtypes=False):
+        # NOTE must work recursively on values that are maps, lists, or
+        # tables
+        print('List.typecheck') # TODO
+        # vclass = _type_for_name(self.vtype)
+        # for i in range(len(self.data)):
+        #     value, fixed = _maybe_fixtype(self.data[i], vclass,
+        #                                   fixtypes=self.fixtypes)
+        #     if fixed:
+        #         self.data[i] = value
+
+
 class Map(collections.UserDict):
 
     def __init__(self, *args, **kwargs):
@@ -605,6 +637,22 @@ class Map(collections.UserDict):
         else:
             self.data[self._pending_key] = value
             self._pending_key = _MISSING
+
+
+    def typecheck(self, ttypes, fixtypes=False):
+        # NOTE must work recursively on values that are maps, lists, or
+        # tables
+        print('Map.typecheck') # TODO
+        # kclass = _type_for_name(self.ktype)
+        # vclass = _type_for_name(self.vtype)
+        # d = {}
+        # for key, value in self.items():
+        #     key, _ = _maybe_fixtype(key, kclass, fixtypes=self.fixtypes)
+        #     value, _ = _maybe_fixtype(value, vclass, fixtypes=self.fixtypes)
+        #     if self.fixtypes:
+        #         d[key] = value
+        # if self.fixtypes:
+        #     self.data = d
 
 
 class _CheckNameMixin:
@@ -788,6 +836,25 @@ class Table:
                 if not is_scalar(x):
                     return False
         return True
+
+
+    def typecheck(self, ttypes, fixtypes=False):
+        # NOTE must work recursively on values that are maps, lists, or
+        # tables
+        print('Table.typecheck') # TODO
+        # columns = len(self.fields)
+        # vclasses = [_type_for_name(self.fields[column].vtype)
+        #             for column in range(columns)]
+        # for row in range(len(self.records)):
+        #     if len(row) != columns:
+        #         raise Error(f'expected row of {columns} columns, got '
+        #                     f'{len(row)} columns')
+        #     for column in range(len(row)):
+        #         value, fixed = _maybe_fixtype(
+        #                 self[row][column], vclasses[column],
+        #                 fixtypes=self.fixtypes)
+        #         if fixed:
+        #             table[row][column] = value
 
 
     def _make_record_class(self):
@@ -1028,65 +1095,6 @@ class _Parser(_ErrorMixin):
                 else:
                     diff = ', '.join(repr(t) for t in diff)
                     self.error(f'ttype uses undefined types: {diff}')
-
-
-    def _check(self, item):
-        if isinstance(item, List) and item.vtype is not None:
-            self._check_list(item)
-        elif isinstance(item, Map) and (item.vtype is not None or
-                                        item.ktype is not None):
-            self._check_map(item)
-        elif isinstance(item, Table) and (
-                any(field.vtype is not None for field in item.fields)):
-            self._check_table(item)
-
-
-    def _check_list(self, lst):
-        vclass = _type_for_name(lst.vtype)
-        for i in len(lst):
-            value, fixed, err = _maybe_fixtype(
-                lst[i], vclass, check=self.check, fixtypes=self.fixtypes)
-            if fixed:
-                lst[i] = value
-            if err is not None:
-                self.warn(str(err))
-
-
-    def _check_map(self, m):
-        kclass = _type_for_name(m.ktype)
-        vclass = _type_for_name(m.vtype)
-        d = {}
-        for key, value in m.items():
-            key, _, err = _maybe_fixtype(
-                key, kclass, check=self.check, fixtypes=self.fixtypes)
-            if err is not None:
-                self.warn(str(err))
-            value, _, err = _maybe_fixtype(
-                value, vclass, check=self.check, fixtypes=self.fixtypes)
-            if err is not None:
-                self.warn(str(err))
-            if self.fixtypes:
-                d[key] = value
-        if self.fixtypes:
-            m.data = d
-
-
-    def _check_table(self, table):
-        columns = len(table.fields)
-        vclasses = [_type_for_name(table.fields[column].vtype)
-                    for column in range(columns)]
-        for row in range(len(table.records)):
-            if len(row) != columns:
-                self.warn(f'expected row of {columns} columns, got '
-                          f'{len(row)} columns')
-            for column in range(len(row)):
-                value, fixed, err = _maybe_fixtype(
-                    table[row][column], vclasses[column], check=self.check,
-                    fixtypes=self.fixtypes)
-                if fixed:
-                    table[row][column] = value
-                if err is not None:
-                    self.warn(str(err))
 
 
 def dump(filename_or_filelike, data, *, indent=2,
@@ -1357,51 +1365,6 @@ def is_scalar(x):
             bytearray))
 
 
-def _type_for_name(typename):
-    return dict(bool=bool, bytes=(bytes, bytearray), date=datetime.date,
-                datetime=datetime.datetime, int=int, list=List, map=Map,
-                real=float, str=str, table=Table).get(typename)
-
-
-def _name_for_type(vtype):
-    return {bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
-            datetime.date: 'date', datetime.datetime: 'datetime',
-            float: 'real', int: 'int', List: 'list', Map: 'map',
-            str: 'str', Table: 'table', type(None): '?'}.get(vtype)
-
-
-def _maybe_fixtype(value, vtype, *, check=False, fixtypes=False):
-    '''Returns value (possibly fixed), fixed (bool), err (None or Error)'''
-    if (vtype is None or value is None or check is False or
-            isinstance(value, vtype)):
-        return value, False, None
-    if fixtypes:
-        new_value, fixed = _try_fixtype(value, vtype)
-        if fixed:
-            return new_value, True, None
-    if check:
-        expected = _name_for_type(vtype)
-        actual = _name_for_type(type(value))
-        err = Error(f'expected value of type {expected}, got value '
-                    f'{value!r} of type {actual}')
-        return value, False, err
-
-
-def _try_fixtype(value, outtype):
-    if isinstance(outtype, str):
-        return str(value), True
-    vclass = type(value)
-    if isinstance(vclass, str) and isinstance(outtype, (
-            bool, int, float, datetime.date, datetime.datetime)):
-        new_value = naturalize(value)
-        return new_value, isinstance(new_value, outtype)
-    if isinstance(vclass, int) and isinstance(outtype, float):
-        return float(value), True
-    if isinstance(vclass, float) and isinstance(outtype, int):
-        return int(value), True
-    return value, False
-
-
 def naturalize(s):
     '''Given string s returns True if the string is 't', 'true', 'y', 'yes',
     or False if the string is 'f', 'false', 'n', 'no' (case-insensitive), or
@@ -1514,8 +1477,9 @@ Converting uxf to uxf will alphabetically order any ttypes.
         if (outfile is not None and os.path.abspath(infile) ==
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
-        uxf_obj = load(infile, check=check, fixtypes=fixtypes,
-                       warn_is_error=warn_is_error)
+        uxf_obj = load(infile, warn_is_error=warn_is_error)
+        if check:
+            uxf_obj.typecheck(fixtypes=fixtypes)
         outfile = sys.stdout if outfile is None else outfile
         dump(outfile, uxf_obj, indent=indent)
     except (FileNotFoundError, Error) as err:
