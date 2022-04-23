@@ -39,17 +39,14 @@
       * check, no fixtypes
       * check, fixtypes
 
--  --strip-comments
-  Offer this?
-
 - create tests t50.uxf ... one for every error or warning that uxf.py
   can produce to ensure they all work & are understandable.
-
-- Uniform eXchange Format - a 7"x9" PDF book (see paper notes)
 
 - UXF libraries
     - for .js use Dart or TypeScript or similar that can output JS
     - uxf.rs uxf.cpp uxf.java uxf.rb ...
+
+- Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 
 # IDEAS
 
