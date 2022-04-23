@@ -435,7 +435,7 @@ Most Python types convert losslessly to and from UXF types. In particular:
 
 |**Python Type**     |**UXF type**|
 |--------------------|------------|
-|`None`              | `?`        |
+|`None`              | `null`     |
 |`bool`              | `bool`     |
 |`int`               | `int`      |
 |`float`             | `real`     |
