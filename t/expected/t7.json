@@ -1,87 +1,101 @@
 {
-  "General": {
-    "UXF^map": {
-      "comment": "Map comment",
-      "ktype": null,
-      "vtype": null,
-      "map": {
-        "saved": {
-          "UXF^date": "2022-03-21"
-        },
-        "autosave": true,
-        "historysize": -35,
-        "volume": 0.7,
-        "files": {
-          "UXF^table": {
-            "name": "Files",
-            "comment": "Table comment",
-            "fields": {
-              "Kind": null,
-              "Filename": null
-            },
-            "records": [
-              [
-                "current",
-                "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-              ],
-              [
-                "recent1",
-                "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-              ],
-              [
-                "recent2",
-                "/home/mark/data/playlists-all.tlm"
-              ]
-            ]
-          }
+  "UXF^custom": "TLM Config",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Files",
+        "fields": {
+          "Kind": null,
+          "Filename": null
         }
       }
     }
-  },
-  "Window": {
-    "x": 383,
-    "y": 124,
-    "width": 590,
-    "height": 536,
-    "scale": 1.1
-  },
-  "Magic": {
-    "UXF^bytes": "1F8B"
-  },
-  "Nested Map": {
-    "Classical": [
-      5,
-      true
-    ],
-    "Modern Instrumental": [
-      4,
-      false
-    ],
-    "New Acquistions": [
-      1,
-      false
-    ],
-    "Nested List of Lists": {
-      "UXF^list": {
-        "comment": "List comment",
+  ],
+  "UXF^data": {
+    "General": {
+      "UXF^map": {
+        "comment": "Map comment",
+        "ktype": null,
         "vtype": null,
-        "list": [
-          [
-            5,
-            "Classical & <Special>",
-            true
-          ],
-          [
-            4,
-            "Modern Instrumental",
-            false
-          ],
-          [
-            1,
-            "New Acquistions",
-            null
+        "map": {
+          "saved": {
+            "UXF^date": "2022-03-21"
+          },
+          "autosave": true,
+          "historysize": -35,
+          "volume": 0.7,
+          "files": {
+            "UXF^table": {
+              "name": "Files",
+              "comment": "Table comment",
+              "fields": {
+                "Kind": null,
+                "Filename": null
+              },
+              "records": [
+                [
+                  "current",
+                  "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+                ],
+                [
+                  "recent1",
+                  "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+                ],
+                [
+                  "recent2",
+                  "/home/mark/data/playlists-all.tlm"
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "Window": {
+      "x": 383,
+      "y": 124,
+      "width": 590,
+      "height": 536,
+      "scale": 1.1
+    },
+    "Magic": {
+      "UXF^bytes": "1F8B"
+    },
+    "Nested Map": {
+      "Classical": [
+        5,
+        true
+      ],
+      "Modern Instrumental": [
+        4,
+        false
+      ],
+      "New Acquistions": [
+        1,
+        false
+      ],
+      "Nested List of Lists": {
+        "UXF^list": {
+          "comment": "List comment",
+          "vtype": null,
+          "list": [
+            [
+              5,
+              "Classical & <Special>",
+              true
+            ],
+            [
+              4,
+              "Modern Instrumental",
+              false
+            ],
+            [
+              1,
+              "New Acquistions",
+              null
+            ]
           ]
-        ]
+        }
       }
     }
   }

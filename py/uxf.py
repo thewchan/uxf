@@ -18,28 +18,21 @@ or
 The uxf module's public API provides the following free functions and
 classes.
 
-    load(filename_or_filelike): -> (data, custom_header)
-    loads(uxf_text): -> (data, custom_header)
+    load(filename_or_filelike): -> uxf_obj
+    loads(uxf_text): -> uxf_obj
 
 These functions read UXF data from a file, file-like, or string.
-In the returned 2-tuple the data is a Map, List, or Table, and the
-custom_header is a (possibly empty) custom string. See the function
-docs for additional options.
+The returned uxf_obj is of type Uxf (see below).
+See the function docs for additional options.
 
-    dump(filename_or_filelike, data, custom)
-    dumps(data, custom) -> uxf_text
+    dump(filename_or_filelike, data)
+    dumps(data) -> uxf_text
 
 These functions write UXF data to a file, file-like, or string.
-dump() writes the data (and custom header if supplied) into the given file
-as UXF data. The data must be a single Map, dict, List, list, or Table.
-dumps() writes the same but into a string that's returned. See the function
-docs for additional options.
-
-    find_ttypes(data) -> list of TType
-
-This function takes the data returned from dump() or dumps() and returns a
-list of all the TTypes used in the data (or an empty list if there aren't
-any).
+The data can be a Uxf object or a single list, List, dict, Map, or Table.
+dump() writes the data to the filename_or_filelike; dumps() writes the data
+into a string that's then returned. See the function docs for additional
+options.
 
     naturalize(s) -> object
 
@@ -62,6 +55,13 @@ datetime.datetime, str, bytes, or bytearray; otherwise returns False.
 
 This class is used to propagate errors (and warnings if warn_is_error is
 True).
+
+    Uxf
+
+This class has a .data attribute which holds a Map, List, or Table, a
+.custom str holding a (possibly empty) custom string, and a .ttypes holding
+a (possibly empty) dict whose names are TType table names and whose values
+are TTypes.
 
     List
 
@@ -112,7 +112,7 @@ except ImportError:
 
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
-           'find_ttypes', 'naturalize', 'canonicalize', 'is_scalar', 'List',
+           'naturalize', 'canonicalize', 'is_scalar', 'Uxf', 'List',
            'Map', 'Table', 'TType', 'Field')
 __version__ = '0.13.0' # uxf module version
 VERSION = 1.0 # uxf file format version
@@ -127,6 +127,27 @@ _BOOL_TRUE = {'yes', 'true'}
 _CONSTANTS = _BOOL_FALSE | _BOOL_TRUE
 _BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
 _MISSING = object()
+
+
+class Uxf:
+
+    def __init__(self, data, custom='', *, ttypes=None):
+        self.data = data
+        self.custom = custom
+        self.ttypes = ttypes
+
+
+    @property
+    def data(self):
+        return self._data
+
+
+    @data.setter
+    def data(self, data):
+        if not isinstance(data, (list, dict, List, Map, Table)):
+            raise Error('Uxf data must be a list, List, dict, Map, or '
+                        f'Table, got {type(data)}')
+        self._data = data
 
 
 def load(filename_or_filelike, *, check=False, fixtypes=False,
@@ -164,12 +185,12 @@ def loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False):
 
 def _loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False,
            filename='-'):
-    data = None
     tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error,
                                      filename=filename)
-    data = _parse(tokens, text=uxf_text, check=check, fixtypes=fixtypes,
-                  warn_is_error=warn_is_error, filename=filename)
-    return data, custom
+    data, ttypes = _parse(tokens, text=uxf_text, check=check,
+                          fixtypes=fixtypes, warn_is_error=warn_is_error,
+                          filename=filename)
+    return Uxf(data, custom, ttypes=ttypes)
 
 
 def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
@@ -820,7 +841,9 @@ def _parse(tokens, *, text, check=False, fixtypes=False,
            warn_is_error=False, filename='-'):
     parser = _Parser(check=check, fixtypes=fixtypes,
                      warn_is_error=warn_is_error, filename=filename)
-    return parser.parse(tokens, text)
+    data = parser.parse(tokens, text)
+    ttypes = parser.ttypes
+    return data, ttypes
 
 
 class _Parser(_ErrorMixin):
@@ -1055,18 +1078,15 @@ class _Parser(_ErrorMixin):
                     self.warn(str(err))
 
 
-def dump(filename_or_filelike, data, custom='', *, indent=2,
+def dump(filename_or_filelike, data, *, indent=2,
          one_way_conversion=False, use_true_false=False):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
     with a .gz suffix then the output will be gzip-compressed.
 
-    data is a Map, dict, List, list, or Table that this function will write
-    to the filename_or_filelike in UXF format.
-
-    custom is an optional short user string (with no newlines), e.g., a file
-    type description.
+    data is a Uxf or a list, List, dict, Map, or Table, that this function
+    will write to the filename_or_filelike in UXF format.
 
     Set indent to 0 (and use_true_false to True) to minimize the file size.
 
@@ -1087,20 +1107,19 @@ def dump(filename_or_filelike, data, custom='', *, indent=2,
     else:
         file = filename_or_filelike
     try:
-        _Writer(file, custom, data, pad, one_way_conversion, use_true_false)
+        if not isinstance(data, Uxf):
+            data = Uxf(data)
+        _Writer(file, data, pad, one_way_conversion, use_true_false)
     finally:
         if close:
             file.close()
 
 
-def dumps(data, custom='', *, indent=2, one_way_conversion=False,
+def dumps(data, *, indent=2, one_way_conversion=False,
           use_true_false=False):
     '''
-    data is a Map, dict, List, list, or Table. This function will write the
-    data to a string in UXF format which will then be returned.
-
-    custom is an optional short user string (with no newlines), e.g., a file
-    type description.
+    data is a Uxf or a list, List, dict, Map, or Table that this function
+    will write to a string in UXF format which will then be returned.
 
     Set indent to 0 (and use_true_false to True) to minimize the string's
     size.
@@ -1114,21 +1133,24 @@ def dumps(data, custom='', *, indent=2, one_way_conversion=False,
     '''
     pad = ' ' * indent
     string = io.StringIO()
-    _Writer(string, custom, data, pad, one_way_conversion, use_true_false)
+    if not isinstance(data, Uxf):
+        data = Uxf(data)
+    _Writer(string, data, pad, one_way_conversion, use_true_false)
     return string.getvalue()
 
 
 class _Writer:
 
-    def __init__(self, file, custom, data, pad, one_way_conversion,
+    def __init__(self, file, uxf_obj, pad, one_way_conversion,
                  use_true_false):
         self.file = file
         self.one_way_conversion = one_way_conversion
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
-        self.write_header(custom)
-        self.write_ttypes(data)
-        self.write_value(data, pad=pad)
+        self.write_header(uxf_obj.custom)
+        if uxf_obj.ttypes:
+            self.write_ttypes(uxf_obj.ttypes)
+        self.write_value(uxf_obj.data, pad=pad)
 
 
     def write_header(self, custom):
@@ -1138,8 +1160,8 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_ttypes(self, data):
-        for ttype in find_ttypes(data):
+    def write_ttypes(self, ttypes):
+        for ttype in sorted(ttypes.values()):
             self.file.write(f'= {ttype.name}')
             for field in ttype.fields:
                 self.file.write(f' {field.name}')
@@ -1400,29 +1422,6 @@ def naturalize(s):
                 return s
 
 
-def find_ttypes(data):
-    '''Given the UXF data returned by dump() or dumps(), returns a list of
-    all the unique TTypes used in the data (or an empty list if there aren't
-    any).'''
-    ttypes = {}
-    for ttype in _find_ttypes(data):
-        ttypes[ttype.name] = ttype
-    return sorted(ttypes.values())
-
-
-def _find_ttypes(data):
-    ttypes = []
-    if isinstance(data, Table):
-        ttypes.append(data.ttype)
-    elif isinstance(data, (list, List)):
-        for value in data:
-            ttypes += find_ttypes(value)
-    elif isinstance(data, (dict, Map)):
-        for value in data.values():
-            ttypes += find_ttypes(value)
-    return ttypes
-
-
 def canonicalize(name, prefix='T_'):
     '''Given a name and an optional prefix, returns a name that is a valid
     table or field name. (See uxfconvert.py for uses.)'''
@@ -1472,9 +1471,7 @@ simply `gunzip infile.uxf.gz`.
 To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 infile.uxf outfile.uxf.gz`
 
-Converting uxf to uxf will drop any unused ttypes and alphabetically order
-any remaining ttypes. To preserved an unused ttype, include an empty table
-that uses it.
+Converting uxf to uxf will alphabetically order any ttypes.
 ''')
     check = False
     fixtypes = False
@@ -1505,9 +1502,9 @@ that uses it.
         if (outfile is not None and os.path.abspath(infile) ==
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
-        data, custom = load(infile, check=check, fixtypes=fixtypes,
-                            warn_is_error=warn_is_error)
+        uxf_obj = load(infile, check=check, fixtypes=fixtypes,
+                       warn_is_error=warn_is_error)
         outfile = sys.stdout if outfile is None else outfile
-        dump(outfile, data=data, custom=custom, indent=indent)
+        dump(outfile, uxf_obj, indent=indent)
     except (FileNotFoundError, Error) as err:
         print(f'Error:{err}')

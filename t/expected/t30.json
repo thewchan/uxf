@@ -1,139 +1,162 @@
 {
-  "General": {
-    "UXF^map": {
-      "comment": "Miscellaneous settings",
-      "ktype": null,
-      "vtype": null,
-      "map": {
-        "shapename": "Hexagon",
-        "zoom": 150,
-        "showtoolbar": false,
-        "Files": {
-          "current": "test1.uxf",
-          "recent": {
-            "UXF^list": {
-              "comment": "From most to least recent",
-              "vtype": null,
-              "list": [
-                "/tmp/test2.uxf",
-                "C:\\Users\\mark\\test3.uxf"
-              ]
+  "UXF^custom": "MyApp 1.2.0 Config",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pos",
+        "fields": {
+          "X": "int",
+          "Y": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Size",
+        "fields": {
+          "Width": "int",
+          "Height": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "General": {
+      "UXF^map": {
+        "comment": "Miscellaneous settings",
+        "ktype": null,
+        "vtype": null,
+        "map": {
+          "shapename": "Hexagon",
+          "zoom": 150,
+          "showtoolbar": false,
+          "Files": {
+            "current": "test1.uxf",
+            "recent": {
+              "UXF^list": {
+                "comment": "From most to least recent",
+                "vtype": null,
+                "list": [
+                  "/tmp/test2.uxf",
+                  "C:\\Users\\mark\\test3.uxf"
+                ]
+              }
             }
           }
         }
       }
-    }
-  },
-  "Window1": {
-    "UXF^map": {
-      "comment": "Window dimensions and scales",
-      "ktype": "str",
-      "vtype": null,
-      "map": {
-        "pos": {
-          "UXF^table": {
-            "name": "Pos",
-            "comment": null,
-            "fields": {
-              "X": "int",
-              "Y": "int"
-            },
-            "records": [
-              [
-                615,
-                252
+    },
+    "Window1": {
+      "UXF^map": {
+        "comment": "Window dimensions and scales",
+        "ktype": "str",
+        "vtype": null,
+        "map": {
+          "pos": {
+            "UXF^table": {
+              "name": "Pos",
+              "comment": null,
+              "fields": {
+                "X": "int",
+                "Y": "int"
+              },
+              "records": [
+                [
+                  615,
+                  252
+                ]
               ]
-            ]
-          }
-        },
-        "size": {
-          "UXF^table": {
-            "name": "Size",
-            "comment": null,
-            "fields": {
-              "Width": "int",
-              "Height": "int"
-            },
-            "records": [
-              [
-                592,
-                636
+            }
+          },
+          "size": {
+            "UXF^table": {
+              "name": "Size",
+              "comment": null,
+              "fields": {
+                "Width": "int",
+                "Height": "int"
+              },
+              "records": [
+                [
+                  592,
+                  636
+                ]
               ]
+            }
+          },
+          "scale": 1.1
+        }
+      }
+    },
+    "Window2": {
+      "pos": {
+        "UXF^table": {
+          "name": "Pos",
+          "comment": null,
+          "fields": {
+            "X": "int",
+            "Y": "int"
+          },
+          "records": [
+            [
+              28,
+              42
             ]
-          }
-        },
-        "scale": 1.1
-      }
+          ]
+        }
+      },
+      "size": {
+        "UXF^table": {
+          "name": "Size",
+          "comment": null,
+          "fields": {
+            "Width": "int",
+            "Height": "int"
+          },
+          "records": [
+            [
+              140,
+              81
+            ]
+          ]
+        }
+      },
+      "scale": 1.0
+    },
+    "Window3": {
+      "pos": {
+        "UXF^table": {
+          "name": "Pos",
+          "comment": null,
+          "fields": {
+            "X": "int",
+            "Y": "int"
+          },
+          "records": [
+            [
+              57,
+              98
+            ]
+          ]
+        }
+      },
+      "size": {
+        "UXF^table": {
+          "name": "Size",
+          "comment": null,
+          "fields": {
+            "Width": "int",
+            "Height": "int"
+          },
+          "records": [
+            [
+              89,
+              22
+            ]
+          ]
+        }
+      },
+      "scale": 0.5
     }
-  },
-  "Window2": {
-    "pos": {
-      "UXF^table": {
-        "name": "Pos",
-        "comment": null,
-        "fields": {
-          "X": "int",
-          "Y": "int"
-        },
-        "records": [
-          [
-            28,
-            42
-          ]
-        ]
-      }
-    },
-    "size": {
-      "UXF^table": {
-        "name": "Size",
-        "comment": null,
-        "fields": {
-          "Width": "int",
-          "Height": "int"
-        },
-        "records": [
-          [
-            140,
-            81
-          ]
-        ]
-      }
-    },
-    "scale": 1.0
-  },
-  "Window3": {
-    "pos": {
-      "UXF^table": {
-        "name": "Pos",
-        "comment": null,
-        "fields": {
-          "X": "int",
-          "Y": "int"
-        },
-        "records": [
-          [
-            57,
-            98
-          ]
-        ]
-      }
-    },
-    "size": {
-      "UXF^table": {
-        "name": "Size",
-        "comment": null,
-        "fields": {
-          "Width": "int",
-          "Height": "int"
-        },
-        "records": [
-          [
-            89,
-            22
-          ]
-        ]
-      }
-    },
-    "scale": 0.5
   }
 }

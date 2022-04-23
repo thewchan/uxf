@@ -1,138 +1,164 @@
 {
-  "Nested List of Tables": [
+  "UXF^custom": "TLM Config",
+  "UXF^ttypes": [
     {
-      "UXF^table": {
+      "UXF^ttype": {
         "name": "Categories",
-        "comment": null,
         "fields": {
           "CID": null,
           "Title": null,
           "Selected": null
-        },
-        "records": [
-          [
-            5,
-            "Classical",
-            true
-          ],
-          [
-            4,
-            "Modern Instrumental",
-            false
-          ],
-          [
-            1,
-            "New Acquistions",
-            false
-          ],
-          [
-            2,
-            "Pop",
-            false
-          ],
-          [
-            3,
-            "Punk",
-            false
-          ],
-          [
-            7,
-            "Uncategorized",
-            false
-          ],
-          [
-            6,
-            "Unpopular Pop",
-            false
-          ]
-        ]
+        }
       }
     },
     {
-      "UXF^table": {
+      "UXF^ttype": {
         "name": "Playlists",
-        "comment": null,
         "fields": {
           "PID": null,
           "Title": null,
           "CID": null,
           "Selected": null
-        },
-        "records": [
-          [
-            4,
-            "ABBA",
-            2,
-            false
-          ],
-          [
-            38,
-            "Bach",
-            5,
-            false
-          ],
-          [
-            39,
-            "Bartok",
-            5,
-            false
-          ],
-          [
-            5,
-            "Beatles",
-            2,
-            false
-          ],
-          [
-            40,
-            "Beethoven",
-            5,
-            false
-          ],
-          [
-            6,
-            "Blondie",
-            2,
-            false
-          ],
-          [
-            52,
-            "Bob Marley",
-            6,
-            true
-          ],
-          [
-            7,
-            "Bruce Springsteen",
-            2,
-            false
-          ],
-          [
-            41,
-            "Chopin",
-            5,
-            true
-          ],
-          [
-            37,
-            "Classical",
-            5,
-            false
-          ],
-          [
-            8,
-            "David Bowie",
-            2,
-            false
-          ],
-          [
-            9,
-            "Dire Straits",
-            2,
-            false
-          ]
-        ]
+        }
       }
     }
-  ]
+  ],
+  "UXF^data": {
+    "Nested List of Tables": [
+      {
+        "UXF^table": {
+          "name": "Categories",
+          "comment": null,
+          "fields": {
+            "CID": null,
+            "Title": null,
+            "Selected": null
+          },
+          "records": [
+            [
+              5,
+              "Classical",
+              true
+            ],
+            [
+              4,
+              "Modern Instrumental",
+              false
+            ],
+            [
+              1,
+              "New Acquistions",
+              false
+            ],
+            [
+              2,
+              "Pop",
+              false
+            ],
+            [
+              3,
+              "Punk",
+              false
+            ],
+            [
+              7,
+              "Uncategorized",
+              false
+            ],
+            [
+              6,
+              "Unpopular Pop",
+              false
+            ]
+          ]
+        }
+      },
+      {
+        "UXF^table": {
+          "name": "Playlists",
+          "comment": null,
+          "fields": {
+            "PID": null,
+            "Title": null,
+            "CID": null,
+            "Selected": null
+          },
+          "records": [
+            [
+              4,
+              "ABBA",
+              2,
+              false
+            ],
+            [
+              38,
+              "Bach",
+              5,
+              false
+            ],
+            [
+              39,
+              "Bartok",
+              5,
+              false
+            ],
+            [
+              5,
+              "Beatles",
+              2,
+              false
+            ],
+            [
+              40,
+              "Beethoven",
+              5,
+              false
+            ],
+            [
+              6,
+              "Blondie",
+              2,
+              false
+            ],
+            [
+              52,
+              "Bob Marley",
+              6,
+              true
+            ],
+            [
+              7,
+              "Bruce Springsteen",
+              2,
+              false
+            ],
+            [
+              41,
+              "Chopin",
+              5,
+              true
+            ],
+            [
+              37,
+              "Classical",
+              5,
+              false
+            ],
+            [
+              8,
+              "David Bowie",
+              2,
+              false
+            ],
+            [
+              9,
+              "Dire Straits",
+              2,
+              false
+            ]
+          ]
+        }
+      }
+    ]
+  }
 }

@@ -1,14 +1,18 @@
 {
-  "Classical": [
-    5,
-    true
-  ],
-  "Modern Instrumental": [
-    4,
-    false
-  ],
-  "New Acquistions": [
-    1,
-    false
-  ]
+  "UXF^custom": "EPD (simple dict of lists)",
+  "UXF^ttypes": [],
+  "UXF^data": {
+    "Classical": [
+      5,
+      true
+    ],
+    "Modern Instrumental": [
+      4,
+      false
+    ],
+    "New Acquistions": [
+      1,
+      false
+    ]
+  }
 }

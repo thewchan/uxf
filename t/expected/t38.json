@@ -1,57 +1,92 @@
 {
-  "UXF^list": {
-    "comment": "Unused TTypes are dropped when converting from uxf to uxf;\n    to preserve them, just use them to make an empty table",
-    "vtype": null,
-    "list": [
-      {
-        "UXF^table": {
-          "name": "IntPair",
-          "comment": null,
-          "fields": {
-            "First": "int",
-            "Second": "int"
-          },
-          "records": []
-        }
-      },
-      {
-        "UXF^table": {
-          "name": "IP4",
-          "comment": null,
-          "fields": {
-            "A": "int",
-            "B": "int",
-            "C": "int",
-            "D": "int"
-          },
-          "records": [
-            [
-              168,
-              1,
-              4,
-              29
-            ],
-            [
-              192,
-              0,
-              18,
-              27
-            ]
-          ]
-        }
-      },
-      {
-        "UXF^table": {
-          "name": "RGB",
-          "comment": null,
-          "fields": {
-            "Red": "int",
-            "Green": "int",
-            "Blue": "int"
-          },
-          "records": []
+  "UXF^custom": null,
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "IP4",
+        "fields": {
+          "A": "int",
+          "B": "int",
+          "C": "int",
+          "D": "int"
         }
       }
-    ]
+    },
+    {
+      "UXF^ttype": {
+        "name": "RGB",
+        "fields": {
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "IntPair",
+        "fields": {
+          "First": "int",
+          "Second": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^list": {
+      "comment": "Unused TTypes are dropped when converting from uxf to uxf;\n    to preserve them, just use them to make an empty table",
+      "vtype": null,
+      "list": [
+        {
+          "UXF^table": {
+            "name": "IntPair",
+            "comment": null,
+            "fields": {
+              "First": "int",
+              "Second": "int"
+            },
+            "records": []
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "IP4",
+            "comment": null,
+            "fields": {
+              "A": "int",
+              "B": "int",
+              "C": "int",
+              "D": "int"
+            },
+            "records": [
+              [
+                168,
+                1,
+                4,
+                29
+              ],
+              [
+                192,
+                0,
+                18,
+                27
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "RGB",
+            "comment": null,
+            "fields": {
+              "Red": "int",
+              "Green": "int",
+              "Blue": "int"
+            },
+            "records": []
+          }
+        }
+      ]
+    }
   }
 }

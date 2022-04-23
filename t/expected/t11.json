@@ -1,232 +1,249 @@
 {
-  "General": {
-    "saved": {
-      "UXF^date": "2022-03-21"
-    },
-    "autosave": true,
-    "historysize": -35,
-    "volume": 0.7,
-    "files": {
-      "UXF^table": {
+  "UXF^custom": "TLM Config",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
         "name": "Files",
-        "comment": null,
         "fields": {
           "Kind": null,
           "Filename": null
-        },
-        "records": [
-          [
-            "current",
-            "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-          ],
-          [
-            "recent1",
-            "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-          ],
-          [
-            "recent2",
-            "/home/mark/data/playlists-all.tlm"
-          ]
-        ]
-      }
-    }
-  },
-  "Window": {
-    "pos": [
-      383,
-      124
-    ],
-    "size": [
-      590,
-      536
-    ],
-    "scale": 1.1
-  },
-  "More Tests": {
-    "UXF^list": {
-      "comment": "A list of name value pairs; normally would be a map",
-      "vtype": null,
-      "list": [
-        "one",
-        {
-          "UXF^table": {
-            "name": "IPv4",
-            "comment": null,
-            "fields": {
-              "A": "int",
-              "B": "int",
-              "C": "int",
-              "D": "int"
-            },
-            "records": [
-              [
-                141,
-                179,
-                19,
-                9
-              ]
-            ]
-          }
-        },
-        "many",
-        {
-          "UXF^table": {
-            "name": "IPv4",
-            "comment": null,
-            "fields": {
-              "A": "int",
-              "B": "int",
-              "C": "int",
-              "D": "int"
-            },
-            "records": [
-              [
-                172,
-                16,
-                254,
-                1
-              ],
-              [
-                192,
-                0,
-                2,
-                235
-              ],
-              [
-                127,
-                0,
-                0,
-                1
-              ]
-            ]
-          }
-        },
-        "red",
-        {
-          "UXF^table": {
-            "name": "RGB",
-            "comment": null,
-            "fields": {
-              "Red": "int",
-              "Green": "int",
-              "Blue": "int"
-            },
-            "records": [
-              [
-                255,
-                0,
-                0
-              ]
-            ]
-          }
-        },
-        "semi-transparent blue",
-        {
-          "UXF^table": {
-            "name": "RGBA",
-            "comment": null,
-            "fields": {
-              "Red": "int",
-              "Green": "int",
-              "Blue": "int",
-              "Alpha": "int"
-            },
-            "records": [
-              [
-                0,
-                0,
-                255,
-                80
-              ]
-            ]
-          }
         }
-      ]
-    }
-  },
-  "Magic": {
-    "UXF^bytes": "1F8B"
-  },
-  "Nested Map": {
-    "Classical": [
-      5,
-      true
-    ],
-    "Modern Instrumental": [
-      4,
-      false
-    ],
-    "New Acquistions": [
-      1,
-      false
-    ],
-    "Nested List of Lists": [
-      [
-        5,
-        "Classical",
-        true
-      ],
-      [
-        4,
-        "Modern Instrumental",
-        false
-      ],
-      [
-        1,
-        "New Acquistions",
-        false
-      ]
-    ],
-    "Nested Table": {
-      "UXF^table": {
+      }
+    },
+    {
+      "UXF^ttype": {
         "name": "Categories",
-        "comment": null,
         "fields": {
           "CID": null,
           "Title": null,
           "Selected": null
-        },
-        "records": [
-          [
-            5,
-            "Classical",
-            true
-          ],
-          [
-            4,
-            "Modern Instrumental",
-            false
-          ],
-          [
-            1,
-            "New Acquistions",
-            false
-          ],
-          [
-            2,
-            "Pop",
-            false
-          ],
-          [
-            3,
-            "Punk",
-            false
-          ],
-          [
-            7,
-            "Uncategorized",
-            false
-          ],
-          [
-            6,
-            "Unpopular Pop",
-            false
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Playlists",
+        "fields": {
+          "PID": null,
+          "Title": null,
+          "CID": null,
+          "Selected": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "IPv4",
+        "fields": {
+          "A": "int",
+          "B": "int",
+          "C": "int",
+          "D": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "RGB",
+        "fields": {
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "RGBA",
+        "fields": {
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int",
+          "Alpha": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "General": {
+      "saved": {
+        "UXF^date": "2022-03-21"
+      },
+      "autosave": true,
+      "historysize": -35,
+      "volume": 0.7,
+      "files": {
+        "UXF^table": {
+          "name": "Files",
+          "comment": null,
+          "fields": {
+            "Kind": null,
+            "Filename": null
+          },
+          "records": [
+            [
+              "current",
+              "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+            ],
+            [
+              "recent1",
+              "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+            ],
+            [
+              "recent2",
+              "/home/mark/data/playlists-all.tlm"
+            ]
           ]
+        }
+      }
+    },
+    "Window": {
+      "pos": [
+        383,
+        124
+      ],
+      "size": [
+        590,
+        536
+      ],
+      "scale": 1.1
+    },
+    "More Tests": {
+      "UXF^list": {
+        "comment": "A list of name value pairs; normally would be a map",
+        "vtype": null,
+        "list": [
+          "one",
+          {
+            "UXF^table": {
+              "name": "IPv4",
+              "comment": null,
+              "fields": {
+                "A": "int",
+                "B": "int",
+                "C": "int",
+                "D": "int"
+              },
+              "records": [
+                [
+                  141,
+                  179,
+                  19,
+                  9
+                ]
+              ]
+            }
+          },
+          "many",
+          {
+            "UXF^table": {
+              "name": "IPv4",
+              "comment": null,
+              "fields": {
+                "A": "int",
+                "B": "int",
+                "C": "int",
+                "D": "int"
+              },
+              "records": [
+                [
+                  172,
+                  16,
+                  254,
+                  1
+                ],
+                [
+                  192,
+                  0,
+                  2,
+                  235
+                ],
+                [
+                  127,
+                  0,
+                  0,
+                  1
+                ]
+              ]
+            }
+          },
+          "red",
+          {
+            "UXF^table": {
+              "name": "RGB",
+              "comment": null,
+              "fields": {
+                "Red": "int",
+                "Green": "int",
+                "Blue": "int"
+              },
+              "records": [
+                [
+                  255,
+                  0,
+                  0
+                ]
+              ]
+            }
+          },
+          "semi-transparent blue",
+          {
+            "UXF^table": {
+              "name": "RGBA",
+              "comment": null,
+              "fields": {
+                "Red": "int",
+                "Green": "int",
+                "Blue": "int",
+                "Alpha": "int"
+              },
+              "records": [
+                [
+                  0,
+                  0,
+                  255,
+                  80
+                ]
+              ]
+            }
+          }
         ]
       }
     },
-    "Nested List of Tables": [
-      {
+    "Magic": {
+      "UXF^bytes": "1F8B"
+    },
+    "Nested Map": {
+      "Classical": [
+        5,
+        true
+      ],
+      "Modern Instrumental": [
+        4,
+        false
+      ],
+      "New Acquistions": [
+        1,
+        false
+      ],
+      "Nested List of Lists": [
+        [
+          5,
+          "Classical",
+          true
+        ],
+        [
+          4,
+          "Modern Instrumental",
+          false
+        ],
+        [
+          1,
+          "New Acquistions",
+          false
+        ]
+      ],
+      "Nested Table": {
         "UXF^table": {
           "name": "Categories",
           "comment": null,
@@ -274,92 +291,142 @@
           ]
         }
       },
-      {
-        "UXF^table": {
-          "name": "Playlists",
-          "comment": null,
-          "fields": {
-            "PID": null,
-            "Title": null,
-            "CID": null,
-            "Selected": null
-          },
-          "records": [
-            [
-              4,
-              "ABBA",
-              2,
-              false
-            ],
-            [
-              38,
-              "Bach",
-              5,
-              false
-            ],
-            [
-              39,
-              "Bartok",
-              5,
-              false
-            ],
-            [
-              5,
-              "Beatles",
-              2,
-              false
-            ],
-            [
-              40,
-              "Beethoven",
-              5,
-              false
-            ],
-            [
-              6,
-              "Blondie",
-              2,
-              false
-            ],
-            [
-              52,
-              "Bob Marley",
-              6,
-              true
-            ],
-            [
-              7,
-              "Bruce Springsteen",
-              2,
-              false
-            ],
-            [
-              41,
-              "Chopin",
-              5,
-              true
-            ],
-            [
-              37,
-              "Classical",
-              5,
-              false
-            ],
-            [
-              8,
-              "David Bowie",
-              2,
-              false
-            ],
-            [
-              9,
-              "Dire Straits",
-              2,
-              false
+      "Nested List of Tables": [
+        {
+          "UXF^table": {
+            "name": "Categories",
+            "comment": null,
+            "fields": {
+              "CID": null,
+              "Title": null,
+              "Selected": null
+            },
+            "records": [
+              [
+                5,
+                "Classical",
+                true
+              ],
+              [
+                4,
+                "Modern Instrumental",
+                false
+              ],
+              [
+                1,
+                "New Acquistions",
+                false
+              ],
+              [
+                2,
+                "Pop",
+                false
+              ],
+              [
+                3,
+                "Punk",
+                false
+              ],
+              [
+                7,
+                "Uncategorized",
+                false
+              ],
+              [
+                6,
+                "Unpopular Pop",
+                false
+              ]
             ]
-          ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "Playlists",
+            "comment": null,
+            "fields": {
+              "PID": null,
+              "Title": null,
+              "CID": null,
+              "Selected": null
+            },
+            "records": [
+              [
+                4,
+                "ABBA",
+                2,
+                false
+              ],
+              [
+                38,
+                "Bach",
+                5,
+                false
+              ],
+              [
+                39,
+                "Bartok",
+                5,
+                false
+              ],
+              [
+                5,
+                "Beatles",
+                2,
+                false
+              ],
+              [
+                40,
+                "Beethoven",
+                5,
+                false
+              ],
+              [
+                6,
+                "Blondie",
+                2,
+                false
+              ],
+              [
+                52,
+                "Bob Marley",
+                6,
+                true
+              ],
+              [
+                7,
+                "Bruce Springsteen",
+                2,
+                false
+              ],
+              [
+                41,
+                "Chopin",
+                5,
+                true
+              ],
+              [
+                37,
+                "Classical",
+                5,
+                false
+              ],
+              [
+                8,
+                "David Bowie",
+                2,
+                false
+              ],
+              [
+                9,
+                "Dire Straits",
+                2,
+                false
+              ]
+            ]
+          }
         }
-      }
-    ]
+      ]
+    }
   }
 }

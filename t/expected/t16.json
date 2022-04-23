@@ -1,29 +1,42 @@
 {
-  "UXF^table": {
-    "name": "Countries",
-    "comment": null,
-    "fields": {
-      "Name": null
-    },
-    "records": [
-      [
-        "Netherlands"
-      ],
-      [
-        "Wales"
-      ],
-      [
-        "Belgium"
-      ],
-      [
-        "Australia"
-      ],
-      [
-        "Japan"
-      ],
-      [
-        "Ukraine"
+  "UXF^custom": "One Column Table",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Countries",
+        "fields": {
+          "Name": null
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^table": {
+      "name": "Countries",
+      "comment": null,
+      "fields": {
+        "Name": null
+      },
+      "records": [
+        [
+          "Netherlands"
+        ],
+        [
+          "Wales"
+        ],
+        [
+          "Belgium"
+        ],
+        [
+          "Australia"
+        ],
+        [
+          "Japan"
+        ],
+        [
+          "Ukraine"
+        ]
       ]
-    ]
+    }
   }
 }

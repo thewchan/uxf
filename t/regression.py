@@ -114,10 +114,10 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number,
         use_true_false = 'true' in uxf_text or 'false' in uxf_text
         skip_ttypes = os.path.basename(name) in no_ttype_round_trip
         try:
-            data, custom = uxf.loads(uxf_text)
+            uxf_obj = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
-        new_uxf_text = uxf.dumps(data, custom, one_way_conversion=True,
+        new_uxf_text = uxf.dumps(uxf_obj, one_way_conversion=True,
                                  use_true_false=use_true_false)
         nws_uxf_text = normalize_uxf_text(uxf_text, skip_ttypes=skip_ttypes)
         nws_new_uxf_text = normalize_uxf_text(new_uxf_text,
@@ -218,8 +218,8 @@ def test_table_is_scalar(total, ok, *, verbose):
     for (filename, is_scalar) in (('t40.uxf', True), ('t41.uxf', False),
                                   ('t42.uxf', True), ('t43.uxf', False)):
         total += 1
-        table, _ = uxf.load(filename)
-        if is_scalar == table.is_scalar:
+        uxf_obj = uxf.load(filename)
+        if is_scalar == uxf_obj.data.is_scalar:
             ok += 1
             if verbose:
                 print(f'{filename} • (Table.is_scalar) OK')

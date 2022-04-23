@@ -1,146 +1,150 @@
 {
-  "UXF^map": {
-    "comment": null,
-    "ktype": "str",
-    "vtype": "map",
-    "map": {
-      "Map Test #1": {
-        "UXF^map": {
-          "comment": "Map with different types of key",
-          "ktype": null,
-          "vtype": null,
-          "map": {
-            "5": 6,
-            "hello": {
-              "UXF^date": "2021-02-01"
+  "UXF^custom": "TLM Config",
+  "UXF^ttypes": [],
+  "UXF^data": {
+    "UXF^map": {
+      "comment": null,
+      "ktype": "str",
+      "vtype": "map",
+      "map": {
+        "Map Test #1": {
+          "UXF^map": {
+            "comment": "Map with different types of key",
+            "ktype": null,
+            "vtype": null,
+            "map": {
+              "5": 6,
+              "hello": {
+                "UXF^date": "2021-02-01"
+              },
+              "2001-01-31": "world",
+              "1965-04-27T16:05:00": "UXF in ASCII bytes follows",
+              "757866": {
+                "UXF^datetime": "1985-05-22T04:31:00"
+              }
             },
-            "2001-01-31": "world",
-            "1965-04-27T16:05:00": "UXF in ASCII bytes follows",
-            "757866": {
-              "UXF^datetime": "1985-05-22T04:31:00"
+            "itypes": {
+              "5": "uxf",
+              "2001-01-31": "uxf",
+              "1965-04-27T16:05:00": "uxf",
+              "757866": "bytes"
             }
-          },
-          "itypes": {
-            "5": "uxf",
-            "2001-01-31": "uxf",
-            "1965-04-27T16:05:00": "uxf",
-            "757866": "bytes"
           }
-        }
-      },
-      "Map Test #2": {
-        "UXF^map": {
-          "comment": "Map same type of non-str keys",
-          "ktype": "int",
-          "vtype": null,
-          "map": {
-            "1": "one",
-            "2": 2,
-            "3": 3.0,
-            "4": {
-              "UXF^bytes": "0220"
-            }
-          },
-          "itype": "uxf"
-        }
-      },
-      "Map Test #3": {
-        "UXF^map": {
-          "comment": "Map same type of non-str keys and values",
-          "ktype": "int",
-          "vtype": "date",
-          "map": {
-            "5": {
-              "UXF^date": "2001-12-27"
+        },
+        "Map Test #2": {
+          "UXF^map": {
+            "comment": "Map same type of non-str keys",
+            "ktype": "int",
+            "vtype": null,
+            "map": {
+              "1": "one",
+              "2": 2,
+              "3": 3.0,
+              "4": {
+                "UXF^bytes": "0220"
+              }
             },
-            "4": {
-              "UXF^date": "1973-10-18"
+            "itype": "uxf"
+          }
+        },
+        "Map Test #3": {
+          "UXF^map": {
+            "comment": "Map same type of non-str keys and values",
+            "ktype": "int",
+            "vtype": "date",
+            "map": {
+              "5": {
+                "UXF^date": "2001-12-27"
+              },
+              "4": {
+                "UXF^date": "1973-10-18"
+              },
+              "1": {
+                "UXF^date": "2019-02-10"
+              },
+              "2": {
+                "UXF^date": "1983-04-07"
+              },
+              "3": {
+                "UXF^date": "1999-06-09"
+              },
+              "7": {
+                "UXF^date": "1992-02-24"
+              },
+              "6": {
+                "UXF^date": "2004-04-11"
+              }
             },
-            "1": {
-              "UXF^date": "2019-02-10"
+            "itype": "uxf"
+          }
+        },
+        "Map Test #4": {
+          "UXF^map": {
+            "comment": null,
+            "ktype": null,
+            "vtype": null,
+            "map": {
+              "2001-12-27": 5,
+              "1973-10-18": 4,
+              "2019-02-10": 1,
+              "1983-04-07": 2,
+              "1999-06-09": 3,
+              "1992-02-24": 7,
+              "2004-04-11": 6
             },
-            "2": {
-              "UXF^date": "1983-04-07"
+            "itype": "uxf"
+          }
+        },
+        "Map Test #5": {
+          "UXF^map": {
+            "comment": null,
+            "ktype": null,
+            "vtype": null,
+            "map": {
+              "2001-12-27": 5,
+              "1973-10-18": 4,
+              "2019-02-10": 1,
+              "1983-04-07": 2,
+              "1999-06-09": 3,
+              "1992-02-24": 7,
+              "2004-04-11": 6
             },
-            "3": {
-              "UXF^date": "1999-06-09"
+            "itype": "uxf"
+          }
+        },
+        "Map Test #6": {
+          "UXF^map": {
+            "comment": null,
+            "ktype": "date",
+            "vtype": null,
+            "map": {
+              "2001-12-27": 5,
+              "1973-10-18": 4,
+              "2019-02-10": 1,
+              "1983-04-07": 2,
+              "1999-06-09": 3,
+              "1992-02-24": 7,
+              "2004-04-11": 6
             },
-            "7": {
-              "UXF^date": "1992-02-24"
+            "itype": "uxf"
+          }
+        },
+        "Map Test #7": {
+          "UXF^map": {
+            "comment": null,
+            "ktype": "date",
+            "vtype": "int",
+            "map": {
+              "2001-12-27": 5,
+              "1973-10-18": 4,
+              "2019-02-10": 1,
+              "1983-04-07": 2,
+              "1999-06-09": 3,
+              "1992-02-24": 7,
+              "2004-04-11": 6
             },
-            "6": {
-              "UXF^date": "2004-04-11"
-            }
-          },
-          "itype": "uxf"
-        }
-      },
-      "Map Test #4": {
-        "UXF^map": {
-          "comment": null,
-          "ktype": null,
-          "vtype": null,
-          "map": {
-            "2001-12-27": 5,
-            "1973-10-18": 4,
-            "2019-02-10": 1,
-            "1983-04-07": 2,
-            "1999-06-09": 3,
-            "1992-02-24": 7,
-            "2004-04-11": 6
-          },
-          "itype": "uxf"
-        }
-      },
-      "Map Test #5": {
-        "UXF^map": {
-          "comment": null,
-          "ktype": null,
-          "vtype": null,
-          "map": {
-            "2001-12-27": 5,
-            "1973-10-18": 4,
-            "2019-02-10": 1,
-            "1983-04-07": 2,
-            "1999-06-09": 3,
-            "1992-02-24": 7,
-            "2004-04-11": 6
-          },
-          "itype": "uxf"
-        }
-      },
-      "Map Test #6": {
-        "UXF^map": {
-          "comment": null,
-          "ktype": "date",
-          "vtype": null,
-          "map": {
-            "2001-12-27": 5,
-            "1973-10-18": 4,
-            "2019-02-10": 1,
-            "1983-04-07": 2,
-            "1999-06-09": 3,
-            "1992-02-24": 7,
-            "2004-04-11": 6
-          },
-          "itype": "uxf"
-        }
-      },
-      "Map Test #7": {
-        "UXF^map": {
-          "comment": null,
-          "ktype": "date",
-          "vtype": "int",
-          "map": {
-            "2001-12-27": 5,
-            "1973-10-18": 4,
-            "2019-02-10": 1,
-            "1983-04-07": 2,
-            "1999-06-09": 3,
-            "1992-02-24": 7,
-            "2004-04-11": 6
-          },
-          "itype": "uxf"
+            "itype": "uxf"
+          }
         }
       }
     }

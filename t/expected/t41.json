@@ -1,34 +1,48 @@
 {
-  "UXF^table": {
-    "name": "Pair",
-    "comment": null,
-    "fields": {
-      "First": null,
-      "Second": null
-    },
-    "records": [
-      [
-        1,
-        2
-      ],
-      [
-        3,
-        4
-      ],
-      [
-        5,
-        6
-      ],
-      [
-        7,
-        8
-      ],
-      [
+  "UXF^custom": null,
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pair",
+        "fields": {
+          "First": null,
+          "Second": null
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^table": {
+      "name": "Pair",
+      "comment": null,
+      "fields": {
+        "First": null,
+        "Second": null
+      },
+      "records": [
         [
-          8.6
+          1,
+          2
         ],
-        10
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          [
+            8.6
+          ],
+          10
+        ]
       ]
-    ]
+    }
   }
 }

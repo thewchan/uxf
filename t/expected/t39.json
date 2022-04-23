@@ -1,135 +1,159 @@
 {
-  "UXF^list": {
-    "comment": "Nested tables",
-    "vtype": null,
-    "list": [
-      {
-        "UXF^table": {
-          "name": "Pair",
-          "comment": null,
-          "fields": {
-            "First": null,
-            "Second": null
-          },
-          "records": [
-            [
-              {
-                "UXF^table": {
-                  "name": "Pair",
-                  "comment": null,
-                  "fields": {
-                    "First": null,
-                    "Second": null
-                  },
-                  "records": [
-                    [
-                      17,
-                      21
-                    ]
-                  ]
-                }
-              },
-              {
-                "UXF^table": {
-                  "name": "Pair",
-                  "comment": null,
-                  "fields": {
-                    "First": null,
-                    "Second": null
-                  },
-                  "records": [
-                    [
-                      98,
-                      65
-                    ]
-                  ]
-                }
-              }
-            ]
-          ]
-        }
-      },
-      {
-        "UXF^table": {
-          "name": "Triple",
-          "comment": null,
-          "fields": {
-            "First": null,
-            "Second": null,
-            "Third": null
-          },
-          "records": [
-            [
-              {
-                "UXF^table": {
-                  "name": "Pair",
-                  "comment": null,
-                  "fields": {
-                    "First": null,
-                    "Second": null
-                  },
-                  "records": [
-                    [
-                      "a",
-                      "b"
-                    ]
-                  ]
-                }
-              },
-              {
-                "UXF^table": {
-                  "name": "Triple",
-                  "comment": null,
-                  "fields": {
-                    "First": null,
-                    "Second": null,
-                    "Third": null
-                  },
-                  "records": [
-                    [
-                      {
-                        "UXF^date": "2020-01-17"
-                      },
-                      {
-                        "UXF^date": "2020-02-18"
-                      },
-                      {
-                        "UXF^date": "2021-12-05"
-                      }
-                    ]
-                  ]
-                }
-              },
-              {
-                "UXF^table": {
-                  "name": "Pair",
-                  "comment": null,
-                  "fields": {
-                    "First": null,
-                    "Second": null
-                  },
-                  "records": [
-                    [
-                      null,
-                      false
-                    ]
-                  ]
-                }
-              }
-            ],
-            [
-              1,
-              2,
-              3
-            ],
-            [
-              "x",
-              "y",
-              "z"
-            ]
-          ]
+  "UXF^custom": null,
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pair",
+        "fields": {
+          "First": null,
+          "Second": null
         }
       }
-    ]
+    },
+    {
+      "UXF^ttype": {
+        "name": "Triple",
+        "fields": {
+          "First": null,
+          "Second": null,
+          "Third": null
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^list": {
+      "comment": "Nested tables",
+      "vtype": null,
+      "list": [
+        {
+          "UXF^table": {
+            "name": "Pair",
+            "comment": null,
+            "fields": {
+              "First": null,
+              "Second": null
+            },
+            "records": [
+              [
+                {
+                  "UXF^table": {
+                    "name": "Pair",
+                    "comment": null,
+                    "fields": {
+                      "First": null,
+                      "Second": null
+                    },
+                    "records": [
+                      [
+                        17,
+                        21
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "UXF^table": {
+                    "name": "Pair",
+                    "comment": null,
+                    "fields": {
+                      "First": null,
+                      "Second": null
+                    },
+                    "records": [
+                      [
+                        98,
+                        65
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "Triple",
+            "comment": null,
+            "fields": {
+              "First": null,
+              "Second": null,
+              "Third": null
+            },
+            "records": [
+              [
+                {
+                  "UXF^table": {
+                    "name": "Pair",
+                    "comment": null,
+                    "fields": {
+                      "First": null,
+                      "Second": null
+                    },
+                    "records": [
+                      [
+                        "a",
+                        "b"
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "UXF^table": {
+                    "name": "Triple",
+                    "comment": null,
+                    "fields": {
+                      "First": null,
+                      "Second": null,
+                      "Third": null
+                    },
+                    "records": [
+                      [
+                        {
+                          "UXF^date": "2020-01-17"
+                        },
+                        {
+                          "UXF^date": "2020-02-18"
+                        },
+                        {
+                          "UXF^date": "2021-12-05"
+                        }
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "UXF^table": {
+                    "name": "Pair",
+                    "comment": null,
+                    "fields": {
+                      "First": null,
+                      "Second": null
+                    },
+                    "records": [
+                      [
+                        null,
+                        false
+                      ]
+                    ]
+                  }
+                }
+              ],
+              [
+                1,
+                2,
+                3
+              ],
+              [
+                "x",
+                "y",
+                "z"
+              ]
+            ]
+          }
+        }
+      ]
+    }
   }
 }

@@ -1,158 +1,234 @@
 {
-  "General": {
-    "UXF^map": {
-      "comment": "Map comment #1",
-      "ktype": null,
-      "vtype": null,
-      "map": {
-        "saved": {
-          "UXF^date": "2022-03-21"
-        },
-        "autosave": true,
-        "historysize": -35,
-        "volume": 0.7,
-        "files": {
-          "UXF^table": {
-            "name": "Files",
-            "comment": "Table comment #2",
-            "fields": {
-              "Kind": null,
-              "Filename": null
-            },
-            "records": [
-              [
-                "current",
-                "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-              ],
-              [
-                "recent1",
-                "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
-              ],
-              [
-                "recent2",
-                "/home/mark/data/playlists-all.tlm"
-              ]
-            ]
-          }
+  "UXF^custom": "TLM Config",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Files",
+        "fields": {
+          "Kind": null,
+          "Filename": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Categories",
+        "fields": {
+          "CID": null,
+          "Title": null,
+          "Selected": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Playlists",
+        "fields": {
+          "PID": null,
+          "Title": null,
+          "CID": null,
+          "Selected": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "IPv4",
+        "fields": {
+          "A": "int",
+          "B": "int",
+          "C": "int",
+          "D": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "RGB",
+        "fields": {
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "RGBA",
+        "fields": {
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int",
+          "Alpha": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "IntPair",
+        "fields": {
+          "First": "int",
+          "Second": "int"
         }
       }
     }
-  },
-  "Window": {
-    "x": 383,
-    "y": 124,
-    "width": 590,
-    "height": 536,
-    "scale": 1.1
-  },
-  "Magic": {
-    "UXF^bytes": "1F8B"
-  },
-  "Nested Map": {
-    "UXF^map": {
-      "comment": "Map comment #3",
-      "ktype": null,
-      "vtype": null,
-      "map": {
-        "Classical": {
-          "UXF^list": {
-            "comment": "List comment #4",
-            "vtype": null,
-            "list": [
-              5,
-              true
-            ]
-          }
-        },
-        "Modern Instrumental": {
-          "UXF^list": {
-            "comment": "List comment #5",
-            "vtype": null,
-            "list": [
-              4,
-              false
-            ]
-          }
-        },
-        "New Acquistions": [
-          1,
-          false
-        ],
-        "Nested List of Lists": {
-          "UXF^list": {
-            "comment": "List comment #6",
-            "vtype": null,
-            "list": [
-              {
-                "UXF^list": {
-                  "comment": "List comment #7",
-                  "vtype": null,
-                  "list": [
-                    5,
-                    "Classical",
-                    true
-                  ]
-                }
+  ],
+  "UXF^data": {
+    "General": {
+      "UXF^map": {
+        "comment": "Map comment #1",
+        "ktype": null,
+        "vtype": null,
+        "map": {
+          "saved": {
+            "UXF^date": "2022-03-21"
+          },
+          "autosave": true,
+          "historysize": -35,
+          "volume": 0.7,
+          "files": {
+            "UXF^table": {
+              "name": "Files",
+              "comment": "Table comment #2",
+              "fields": {
+                "Kind": null,
+                "Filename": null
               },
-              [
-                4,
-                "Modern Instrumental",
-                false
-              ],
-              [
-                1,
-                "New Acquistions",
-                false
+              "records": [
+                [
+                  "current",
+                  "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+                ],
+                [
+                  "recent1",
+                  "/home/mark/app/rs/tlm/PlaylistsTest.tlm"
+                ],
+                [
+                  "recent2",
+                  "/home/mark/data/playlists-all.tlm"
+                ]
               ]
-            ]
+            }
           }
-        },
-        "Nested Table": {
-          "UXF^table": {
-            "name": "Categories",
-            "comment": "Table comment #8",
-            "fields": {
-              "CID": null,
-              "Title": null,
-              "Selected": null
-            },
-            "records": [
-              [
+        }
+      }
+    },
+    "Window": {
+      "x": 383,
+      "y": 124,
+      "width": 590,
+      "height": 536,
+      "scale": 1.1
+    },
+    "Magic": {
+      "UXF^bytes": "1F8B"
+    },
+    "Nested Map": {
+      "UXF^map": {
+        "comment": "Map comment #3",
+        "ktype": null,
+        "vtype": null,
+        "map": {
+          "Classical": {
+            "UXF^list": {
+              "comment": "List comment #4",
+              "vtype": null,
+              "list": [
                 5,
-                "Classical",
                 true
-              ],
-              [
+              ]
+            }
+          },
+          "Modern Instrumental": {
+            "UXF^list": {
+              "comment": "List comment #5",
+              "vtype": null,
+              "list": [
                 4,
-                "Modern Instrumental",
-                false
-              ],
-              [
-                1,
-                "New Acquistions",
-                false
-              ],
-              [
-                2,
-                "Pop",
-                false
-              ],
-              [
-                3,
-                "Punk",
-                false
-              ],
-              [
-                7,
-                "Uncategorized",
-                false
-              ],
-              [
-                6,
-                "Unpopular Pop",
                 false
               ]
-            ]
+            }
+          },
+          "New Acquistions": [
+            1,
+            false
+          ],
+          "Nested List of Lists": {
+            "UXF^list": {
+              "comment": "List comment #6",
+              "vtype": null,
+              "list": [
+                {
+                  "UXF^list": {
+                    "comment": "List comment #7",
+                    "vtype": null,
+                    "list": [
+                      5,
+                      "Classical",
+                      true
+                    ]
+                  }
+                },
+                [
+                  4,
+                  "Modern Instrumental",
+                  false
+                ],
+                [
+                  1,
+                  "New Acquistions",
+                  false
+                ]
+              ]
+            }
+          },
+          "Nested Table": {
+            "UXF^table": {
+              "name": "Categories",
+              "comment": "Table comment #8",
+              "fields": {
+                "CID": null,
+                "Title": null,
+                "Selected": null
+              },
+              "records": [
+                [
+                  5,
+                  "Classical",
+                  true
+                ],
+                [
+                  4,
+                  "Modern Instrumental",
+                  false
+                ],
+                [
+                  1,
+                  "New Acquistions",
+                  false
+                ],
+                [
+                  2,
+                  "Pop",
+                  false
+                ],
+                [
+                  3,
+                  "Punk",
+                  false
+                ],
+                [
+                  7,
+                  "Uncategorized",
+                  false
+                ],
+                [
+                  6,
+                  "Unpopular Pop",
+                  false
+                ]
+              ]
+            }
           }
         }
       }

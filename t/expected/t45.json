@@ -1,162 +1,185 @@
-[
-  {
-    "UXF^table": {
-      "name": "Quad",
-      "comment": null,
-      "fields": {
-        "First": "Pair",
-        "Second": "Pair"
-      },
-      "records": [
-        [
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  1,
-                  2
-                ]
-              ]
-            }
-          },
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  3,
-                  4
-                ]
-              ]
-            }
-          }
-        ]
-      ]
+{
+  "UXF^custom": null,
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pair",
+        "fields": {
+          "First": null,
+          "Second": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Quad",
+        "fields": {
+          "First": "Pair",
+          "Second": "Pair"
+        }
+      }
     }
-  },
-  {
-    "UXF^table": {
-      "name": "Quad",
-      "comment": null,
-      "fields": {
-        "First": "Pair",
-        "Second": "Pair"
-      },
-      "records": [
-        [
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  1,
-                  2
+  ],
+  "UXF^data": [
+    {
+      "UXF^table": {
+        "name": "Quad",
+        "comment": null,
+        "fields": {
+          "First": "Pair",
+          "Second": "Pair"
+        },
+        "records": [
+          [
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    1,
+                    2
+                  ]
                 ]
-              ]
-            }
-          },
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  3,
-                  4
+              }
+            },
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    3,
+                    4
+                  ]
                 ]
-              ]
+              }
             }
-          }
-        ],
-        [
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  5,
-                  6
-                ]
-              ]
-            }
-          },
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  7,
-                  8
-                ]
-              ]
-            }
-          }
-        ],
-        [
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  9,
-                  10
-                ]
-              ]
-            }
-          },
-          {
-            "UXF^table": {
-              "name": "Pair",
-              "comment": null,
-              "fields": {
-                "First": null,
-                "Second": null
-              },
-              "records": [
-                [
-                  11,
-                  12
-                ]
-              ]
-            }
-          }
+          ]
         ]
-      ]
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Quad",
+        "comment": null,
+        "fields": {
+          "First": "Pair",
+          "Second": "Pair"
+        },
+        "records": [
+          [
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    1,
+                    2
+                  ]
+                ]
+              }
+            },
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    3,
+                    4
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    5,
+                    6
+                  ]
+                ]
+              }
+            },
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    7,
+                    8
+                  ]
+                ]
+              }
+            }
+          ],
+          [
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    9,
+                    10
+                  ]
+                ]
+              }
+            },
+            {
+              "UXF^table": {
+                "name": "Pair",
+                "comment": null,
+                "fields": {
+                  "First": null,
+                  "Second": null
+                },
+                "records": [
+                  [
+                    11,
+                    12
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
     }
-  }
-]
+  ]
+}

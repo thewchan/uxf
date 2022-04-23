@@ -108,7 +108,8 @@ def _postprocess_other_args(parser, config):
 
 
 def uxf_to_csv(config):
-    data, _ = uxf.load(config.infiles[0])
+    uxf_obj = uxf.load(config.infiles[0])
+    data = uxf_obj.data
     if isinstance(data, uxf.Table):
         with open(config.outfile, 'w') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
@@ -129,12 +130,13 @@ def uxf_to_csv(config):
 
 
 def csv_to_uxf(config):
-    data, filename = _read_csv_to_data(config)
-    uxf.dump(config.outfile, data=data, custom=filename,
+    data, filename, ttypes = _read_csv_to_data(config)
+    uxf.dump(config.outfile, uxf.Uxf(data, filename, ttypes=ttypes),
              one_way_conversion=True)
 
 
 def _read_csv_to_data(config):
+    ttypes = {}
     data = None
     filename = config.infiles[0]
     with open(filename) as file:
@@ -145,6 +147,7 @@ def _read_csv_to_data(config):
                     name = uxf.canonicalize(pathlib.Path(filename).stem)
                     data = uxf.Table(name=name, fields=[uxf.Field(name)
                                      for name in row])
+                    ttypes[name] = data.ttype
                     continue
                 else:
                     data = []
@@ -153,22 +156,29 @@ def _read_csv_to_data(config):
                 data += row
             else:
                 data.append(row)
-    return data, filename
+    return data, filename, ttypes
 
 
 def multi_csv_to_uxf(config):
     infiles = config.infiles
     data = []
+    ttypes = {}
     for infile in infiles:
         config.infiles = [infile]
-        datum, _ = _read_csv_to_data(config)
+        datum, _, new_ttypes = _read_csv_to_data(config)
         data.append(datum)
-    uxf.dump(config.outfile, data=data, custom=' '.join(infiles),
+        if new_ttypes:
+            ttypes.update(new_ttypes)
+    uxf.dump(config.outfile,
+             uxf.Uxf(data, ' '.join(infiles), ttypes=ttypes),
              one_way_conversion=True)
 
 
 def uxf_to_json(config):
-    data, _ = uxf.load(config.infiles[0])
+    uxf_obj = uxf.load(config.infiles[0])
+    data = {JSON_CUSTOM: uxf_obj.custom,
+            JSON_TTYPES: list(uxf_obj.ttypes.values()),
+            JSON_DATA: uxf_obj.data}
     with open(config.outfile, 'wt', encoding=UTF8) as file:
         json.dump(data, file, cls=_JsonEncoder, indent=2)
 
@@ -198,6 +208,10 @@ class _JsonEncoder(json.JSONEncoder):
                 name=obj.name, comment=obj.comment,
                 fields={field.name: field.vtype for field in obj.fields},
                 records=obj.records)}
+        if isinstance(obj, uxf.TType):
+            return {JSON_TTYPE: dict(
+                name=obj.name,
+                fields={field.name: field.vtype for field in obj.fields})}
         return json.JSONEncoder.default(self, obj)
 
 
@@ -236,7 +250,15 @@ def json_to_uxf(config):
     filename = config.infiles[0]
     with open(filename, 'rt', encoding=UTF8) as file:
         data = json.load(file, object_hook=_json_naturalize)
-    uxf.dump(config.outfile, data=data, custom=filename)
+    custom = data.get(JSON_CUSTOM)
+    ttypes = None
+    ttype_list = data.get(JSON_TTYPES)
+    if ttype_list:
+        ttypes = {}
+        for ttype in ttype_list:
+            ttypes[ttype.name] = ttype
+    data = data.get(JSON_DATA)
+    uxf.dump(config.outfile, uxf.Uxf(data, custom, ttypes=ttypes))
 
 
 def _json_naturalize(d):
@@ -269,12 +291,16 @@ def _json_naturalize(d):
                 key = key if itype is None else uxf.naturalize(key)
             m[key] = value
         return m
-    elif JSON_TABLE in d:
+    if JSON_TABLE in d:
         jtable = d[JSON_TABLE]
         fields = [uxf.Field(name, vtype) for name, vtype in
                   jtable[FIELDS].items()]
         return uxf.Table(name=jtable[NAME], comment=jtable[COMMENT],
                          fields=fields, records=jtable[RECORDS])
+    if JSON_TTYPE in d:
+        fields = [uxf.Field(name, vtype) for name, vtype in
+                  d[JSON_TTYPE][FIELDS].items()]
+        return uxf.TType(d[JSON_TTYPE][NAME], fields)
     return d
 
 
@@ -289,7 +315,7 @@ def ini_to_uxf(config):
             m = data[section] = uxf.Map()
             for key, value in d.items():
                 m[uxf.naturalize(key)] = uxf.naturalize(value)
-    uxf.dump(config.outfile, data=data, custom=filename,
+    uxf.dump(config.outfile, uxf.Uxf(data, filename),
              one_way_conversion=True)
 
 
@@ -376,6 +402,10 @@ DOT_XML = '.XML'
 FIELDS = 'fields'
 ITYPE = 'itype'
 ITYPES = 'itypes'
+JSON_CUSTOM = 'UXF^custom'
+JSON_TTYPES = 'UXF^ttypes'
+JSON_TTYPE = 'UXF^ttype'
+JSON_DATA = 'UXF^data'
 JSON_BYTES = 'UXF^bytes'
 JSON_DATE = 'UXF^date'
 JSON_DATETIME = 'UXF^datetime'
@@ -429,12 +459,10 @@ roundtrip. Converting uxf to sqlite is only supported if the uxf file is a
 single scalar table or a list of scalar tables.
 
 Converting from uxf to json and back (i.e., using uxfconvert.py's own json
-format) roundtrips with perfect fidelity, except that unused ttypes are
-dropped. An unused ttype can be preserved by including an empty table that
-uses it.
+format) roundtrips with perfect fidelity.
 
 Converting from uxf to xml and back (i.e., using uxfconvert.py's own xml
-format) roundtrips with perfect fidelity (except as noted above).
+format) roundtrips with perfect fidelity.
 
 Support for uxf to uxf conversions is provided by the uxf.py module itself,
 which can be run directly or via python, e.g., `uxf.py infile.uxf

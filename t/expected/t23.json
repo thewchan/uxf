@@ -1,125 +1,129 @@
 {
-  "UXF^list": {
-    "comment": null,
-    "vtype": "list",
-    "list": [
-      {
-        "UXF^list": {
-          "comment": null,
-          "vtype": "list",
-          "list": [
-            [
-              5,
-              "Classical",
-              true
-            ],
-            [
-              4,
-              "Modern Instrumental",
-              false
-            ],
-            [
-              1,
-              "New Acquistions",
-              false
-            ],
-            [
-              2,
-              "Pop",
-              false
-            ],
-            [
-              3,
-              "Punk",
-              false
-            ],
-            [
-              7,
-              "Uncategorized",
-              false
-            ],
-            [
-              6,
-              "Unpopular Pop",
-              false
+  "UXF^custom": null,
+  "UXF^ttypes": [],
+  "UXF^data": {
+    "UXF^list": {
+      "comment": null,
+      "vtype": "list",
+      "list": [
+        {
+          "UXF^list": {
+            "comment": null,
+            "vtype": "list",
+            "list": [
+              [
+                5,
+                "Classical",
+                true
+              ],
+              [
+                4,
+                "Modern Instrumental",
+                false
+              ],
+              [
+                1,
+                "New Acquistions",
+                false
+              ],
+              [
+                2,
+                "Pop",
+                false
+              ],
+              [
+                3,
+                "Punk",
+                false
+              ],
+              [
+                7,
+                "Uncategorized",
+                false
+              ],
+              [
+                6,
+                "Unpopular Pop",
+                false
+              ]
             ]
-          ]
-        }
-      },
-      {
-        "UXF^list": {
-          "comment": null,
-          "vtype": "list",
-          "list": [
-            [
-              4,
-              "ABBA",
-              2,
-              false
-            ],
-            [
-              38,
-              "Bach",
-              5,
-              false
-            ],
-            [
-              39,
-              "Bartok",
-              5,
-              false
-            ],
-            [
-              5,
-              "Beatles",
-              2,
-              false
-            ],
-            [
-              40,
-              "Beethoven",
-              5,
-              false
-            ],
-            [
-              6,
-              "Blondie",
-              2,
-              false
-            ],
-            [
-              52,
-              "Bob Marley",
-              6,
-              true
-            ],
-            [
-              7,
-              "Bruce Springsteen",
-              2,
-              false
-            ],
-            [
-              41,
-              "Chopin",
-              5,
-              true
-            ],
-            [
-              37,
-              "Classical",
-              5,
-              false
-            ],
-            [
-              8,
-              "David Bowie",
-              2,
-              false
+          }
+        },
+        {
+          "UXF^list": {
+            "comment": null,
+            "vtype": "list",
+            "list": [
+              [
+                4,
+                "ABBA",
+                2,
+                false
+              ],
+              [
+                38,
+                "Bach",
+                5,
+                false
+              ],
+              [
+                39,
+                "Bartok",
+                5,
+                false
+              ],
+              [
+                5,
+                "Beatles",
+                2,
+                false
+              ],
+              [
+                40,
+                "Beethoven",
+                5,
+                false
+              ],
+              [
+                6,
+                "Blondie",
+                2,
+                false
+              ],
+              [
+                52,
+                "Bob Marley",
+                6,
+                true
+              ],
+              [
+                7,
+                "Bruce Springsteen",
+                2,
+                false
+              ],
+              [
+                41,
+                "Chopin",
+                5,
+                true
+              ],
+              [
+                37,
+                "Classical",
+                5,
+                false
+              ],
+              [
+                8,
+                "David Bowie",
+                2,
+                false
+              ]
             ]
-          ]
+          }
         }
-      }
-    ]
+      ]
+    }
   }
 }

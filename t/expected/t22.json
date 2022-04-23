@@ -1,70 +1,86 @@
 {
-  "UXF^table": {
-    "name": "Categories",
-    "comment": null,
-    "fields": {
-      "CID": "int",
-      "Title": "str",
-      "Selected": "bool",
-      "Date": "date"
-    },
-    "records": [
-      [
-        5,
-        "Classical & <Special>",
-        true,
-        {
-          "UXF^date": "1999-07-21"
+  "UXF^custom": null,
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Categories",
+        "fields": {
+          "CID": "int",
+          "Title": "str",
+          "Selected": "bool",
+          "Date": "date"
         }
-      ],
-      [
-        4,
-        "Modern Instrumental",
-        false,
-        {
-          "UXF^date": "1976-11-30"
-        }
-      ],
-      [
-        1,
-        "New Acquistions",
-        false,
-        {
-          "UXF^date": "1947-02-28"
-        }
-      ],
-      [
-        2,
-        "Pop",
-        false,
-        {
-          "UXF^date": "1997-10-01"
-        }
-      ],
-      [
-        3,
-        "Punk",
-        false,
-        {
-          "UXF^date": "2002-01-17"
-        }
-      ],
-      [
-        7,
-        "Uncategorized",
-        false,
-        {
-          "UXF^date": "2020-02-02"
-        }
-      ],
-      [
-        6,
-        "Unpopular Pop",
-        false,
-        {
-          "UXF^date": "2022-12-21"
-        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^table": {
+      "name": "Categories",
+      "comment": null,
+      "fields": {
+        "CID": "int",
+        "Title": "str",
+        "Selected": "bool",
+        "Date": "date"
+      },
+      "records": [
+        [
+          5,
+          "Classical & <Special>",
+          true,
+          {
+            "UXF^date": "1999-07-21"
+          }
+        ],
+        [
+          4,
+          "Modern Instrumental",
+          false,
+          {
+            "UXF^date": "1976-11-30"
+          }
+        ],
+        [
+          1,
+          "New Acquistions",
+          false,
+          {
+            "UXF^date": "1947-02-28"
+          }
+        ],
+        [
+          2,
+          "Pop",
+          false,
+          {
+            "UXF^date": "1997-10-01"
+          }
+        ],
+        [
+          3,
+          "Punk",
+          false,
+          {
+            "UXF^date": "2002-01-17"
+          }
+        ],
+        [
+          7,
+          "Uncategorized",
+          false,
+          {
+            "UXF^date": "2020-02-02"
+          }
+        ],
+        [
+          6,
+          "Unpopular Pop",
+          false,
+          {
+            "UXF^date": "2022-12-21"
+          }
+        ]
       ]
-    ]
+    }
   }
 }

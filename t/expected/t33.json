@@ -1,75 +1,92 @@
 {
-  "UXF^map": {
-    "comment": "Notes on this configuration file format",
-    "ktype": "str",
-    "vtype": "map",
-    "map": {
-      "General": {
-        "UXF^map": {
-          "comment": "Miscellaneous settings",
-          "ktype": "str",
-          "vtype": null,
-          "map": {
-            "shapename": "Hexagon",
-            "zoom": 150,
-            "showtoolbar": false,
-            "Files": {
-              "UXF^map": {
-                "comment": null,
-                "ktype": "str",
-                "vtype": null,
-                "map": {
-                  "current": "test1.uxf",
-                  "recent": {
-                    "UXF^list": {
-                      "comment": "From most to least recent",
-                      "vtype": "str",
-                      "list": [
-                        "/tmp/test2.uxf",
-                        "C:\\Users\\mark\\test3.uxf"
-                      ]
+  "UXF^custom": "MyApp 1.2.0 Config",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Geometry",
+        "fields": {
+          "X": "int",
+          "Y": "int",
+          "Width": "int",
+          "Height": "int",
+          "Scale": "real"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^map": {
+      "comment": "Notes on this configuration file format",
+      "ktype": "str",
+      "vtype": "map",
+      "map": {
+        "General": {
+          "UXF^map": {
+            "comment": "Miscellaneous settings",
+            "ktype": "str",
+            "vtype": null,
+            "map": {
+              "shapename": "Hexagon",
+              "zoom": 150,
+              "showtoolbar": false,
+              "Files": {
+                "UXF^map": {
+                  "comment": null,
+                  "ktype": "str",
+                  "vtype": null,
+                  "map": {
+                    "current": "test1.uxf",
+                    "recent": {
+                      "UXF^list": {
+                        "comment": "From most to least recent",
+                        "vtype": "str",
+                        "list": [
+                          "/tmp/test2.uxf",
+                          "C:\\Users\\mark\\test3.uxf"
+                        ]
+                      }
                     }
                   }
                 }
               }
             }
           }
-        }
-      },
-      "Windows": {
-        "UXF^table": {
-          "name": "Geometry",
-          "comment": "Window dimensions and scales",
-          "fields": {
-            "X": "int",
-            "Y": "int",
-            "Width": "int",
-            "Height": "int",
-            "Scale": "real"
-          },
-          "records": [
-            [
-              615,
-              252,
-              592,
-              636,
-              1.1
-            ],
-            [
-              28,
-              42,
-              140,
-              81,
-              1.0
-            ],
-            [
-              57,
-              98,
-              89,
-              22,
-              0.5
+        },
+        "Windows": {
+          "UXF^table": {
+            "name": "Geometry",
+            "comment": "Window dimensions and scales",
+            "fields": {
+              "X": "int",
+              "Y": "int",
+              "Width": "int",
+              "Height": "int",
+              "Scale": "real"
+            },
+            "records": [
+              [
+                615,
+                252,
+                592,
+                636,
+                1.1
+              ],
+              [
+                28,
+                42,
+                140,
+                81,
+                1.0
+              ],
+              [
+                57,
+                98,
+                89,
+                22,
+                0.5
+              ]
             ]
-          ]
+          }
         }
       }
     }
