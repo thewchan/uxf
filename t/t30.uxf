@@ -1,6 +1,6 @@
 uxf 1.0 MyApp 1.2.0 Config
-= Pos X int Y int
-= Size Width int Height int
+= Pos X:int Y:int
+= Size Width:int Height:int
 {
   <General> { #<Miscellaneous settings>
     <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> {

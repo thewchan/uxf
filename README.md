@@ -138,7 +138,7 @@ example, the UXF processor will treat every five values as a single record
 (row) since the _TType_ has five fields.
 
     uxf 1.0 Price List
-    = PriceList Date date Price real Quantity int ID str Description str
+    = PriceList Date:date Price:real Quantity:int ID:str Description:str
     (PriceList
       2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
       2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
@@ -238,8 +238,8 @@ Of course, we can nest as deep as we like and mix ``map``s and ``list``s.
 For example, here's an alternative:
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Pos X int Y int
-    = Size Width int Height int
+    = Pos X:int Y:int
+    = Size Width:int Height:int
     {
       <General> { #<Miscellaneous settings>
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> {
@@ -279,8 +279,8 @@ start of a map before the optional _ktype_ or the first key, or at the start
 of a table before the _TType_ name.
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Pos X int Y int
-    = Size Width int Height int
+    = Pos X:int Y:int
+    = Size Width:int Height:int
     { #<Notes on this configuration file format> str map
       <General> { #<Miscellaneous settings> str
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
@@ -308,7 +308,7 @@ this case three (since each row has two fields based on each table's
 _TType_).
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Geometry X int Y int Width int Height int Scale real
+    = Geometry X:int Y:int Width:int Height:int Scale:real
     { #<Notes on this configuration file format> str map
       <General> { #<Miscellaneous settings> str
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
@@ -361,9 +361,9 @@ Notice that the second customer has a null (`?`) address and the second
 invoice has an empty description.
 
     uxf 1.0 MyApp Data
-    = Customers CID int Company str Address str Contact str Email str
-    = Invoices INUM int CID int Raised_Date date Due_Date date Paid bool Description str
-    = Items IID int INUM int Delivery_Date date Unit_Price real Quantity int Description str
+    = Customers CID:int Company:str Address:str Contact:str Email:str
+    = Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool Description:str
+    = Items IID:int INUM:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
     [ #<There is a 1:M relationship between the Invoices and Items tables>
       (Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
@@ -494,15 +494,15 @@ optional `map`, `list`, or `table`.
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DATA         ::= TTYPE* (MAP | LIST | TABLE)
-    TTYPE        ::= '=' OWS IDENTIFIER (RWS FIELD)+ # IDENTIFIER is table name
-    FIELD        ::= IDENTIFIER (RWS VALUETYPE)? # IDENTIFIER is field name
+    TTYPE        ::= '=' OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is table name
+    FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is field name; no whitespace
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
-    VALUETYPE    ::= KEYTYPE | '?' | 'bool' | 'real' | 'list' | 'map' | 'table'
+    VALUETYPE    ::= KEYTYPE | 'bool' | 'real' | 'list' | 'map' | 'table' | IDENFIFIER # IDENFIFIER is table name
     LIST         ::= '[' COMMENT? LISTTYPE? OWS VALUE? (RWS VALUE)* OWS ']'
     LISTTYPE     ::= OWS VALUETYPE
-    TABLE        ::= '(' COMMENT? OWS IDENTIFIER (RWS VALUE)* ')' # IDENTIFIER is TTYPE name
+    TABLE        ::= '(' COMMENT? OWS IDENFIFIER (RWS VALUE)* ')' # IDENFIFIER is table name
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
     VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
@@ -514,7 +514,7 @@ optional `map`, `list`, or `table`.
     DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
     BYTES        ::= '(:' (OWS [A-Fa-f0-9]{2})* OWS ':)'
-    IDENTIFIER   ::= /\p{Lu}\w{0,59}/ # Must start with an uppercase letter
+    IDENFIFIER	 ::= /\p{Lu}\w{0,59}/ # Must start with an uppercase letter
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 

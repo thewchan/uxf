@@ -1,11 +1,11 @@
 uxf 1.0 TLM Config
 = Categories CID Title Selected
 = Files Kind Filename
-= IPv4 A int B int C int D int
-= IntPair First int Second int
+= IPv4 A:int B:int C:int D:int
+= IntPair First:int Second:int
 = Playlists PID Title CID Selected
-= RGB Red int Green int Blue int
-= RGBA Red int Green int Blue int Alpha int
+= RGB Red:int Green:int Blue:int
+= RGBA Red:int Green:int Blue:int Alpha:int
 {
   <General> { #<Various configuration items>
     <saved> 2022-03-21

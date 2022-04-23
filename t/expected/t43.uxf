@@ -1,5 +1,5 @@
 uxf 1.0
-= Pair First int Second list
+= Pair First:int Second:list
 (Pair
   1 []
 

@@ -1,5 +1,5 @@
 uxf 1.0 TLM Config
-= Categories CID int Title Selected bool
+= Categories CID:int Title Selected:bool
 = Files Kind Filename
 {
   <General> {

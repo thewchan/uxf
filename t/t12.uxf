@@ -2,10 +2,10 @@ uxf 1.0 TLM Config
 = Files Kind Filename
 = Categories CID Title Selected
 = Playlists PID Title CID Selected
-= IPv4 A int B int C int D int
-= RGB Red int Green int Blue int
-= RGBA Red int Green int Blue int Alpha int
-= IntPair First int Second int
+= IPv4 A:int B:int C:int D:int
+= RGB Red:int Green:int Blue:int
+= RGBA Red:int Green:int Blue:int Alpha:int
+= IntPair First:int Second:int
 {
     <General> { #<Various configuration items>
         <saved> 2022-03-21 <autosave> yes <historysize> -35 <volume> 0.7

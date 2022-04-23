@@ -1,6 +1,6 @@
 uxf 1.0
-= Categories CID int Title str Selected bool Date date
-= Playlists PID int Title CID int Selected bool Timestamp datetime
+= Categories CID:int Title:str Selected:bool Date:date
+= Playlists PID:int Title CID:int Selected:bool Timestamp:datetime
 [
   (Categories
     5 <Classical> yes 2001-12-27

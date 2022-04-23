@@ -293,6 +293,8 @@ class _Lexer(_ErrorMixin):
                            'Lists, and Tables')
         elif c == '<':
             self.read_string()
+        elif c == ':':
+            self.read_field_vtype()
         elif c == '-' and self.peek().isdecimal():
             c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
@@ -421,16 +423,19 @@ class _Lexer(_ErrorMixin):
             return
         start = self.pos - 1
         if self.text[start].isupper():
-            while self.pos < len(self.text):
-                if (not self.text[self.pos].isalnum() and
-                        self.text[self.pos] != '_'):
-                    break
-                self.pos += 1
-            self.add_token(_Kind.IDENTIFIER, self.text[start:self.pos][:80])
+            identifier = self. match_identifier(start, 'identifier')
+            self.add_token(_Kind.IDENTIFIER, identifier)
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
-            self.error(f'expected const, got {text!r}')
+            self.error(f'expected const or identifier, got {text!r}')
+
+
+    def read_field_vtype(self):
+        while self.pos < len(self.text) and self.text[self.pos].isspace():
+            self.pos += 1
+        identifier = self.match_identifier(self.pos, 'field vtype')
+        self.add_token(_Kind.TYPE, identifier)
 
 
     def peek(self):
@@ -441,6 +446,19 @@ class _Lexer(_ErrorMixin):
         c = self.text[self.pos]
         self.pos += 1
         return c
+
+
+    def match_identifier(self, start, what):
+        while self.pos < len(self.text):
+            if (not self.text[self.pos].isalnum() and
+                    self.text[self.pos] != '_'):
+                break
+            self.pos += 1
+        identifier = self.text[start:self.pos][:MAX_IDENTIFIER_LEN]
+        if identifier:
+            return identifier
+        text = self.text[start:start + 10]
+        self.error(f'expected {what}, got {text}…')
 
 
     def match_to(self, target, *, error_text):
@@ -1127,7 +1145,7 @@ class _Writer:
             for field in ttype.fields:
                 self.file.write(f' {field.name}')
                 if field.vtype is not None:
-                    self.file.write(f' {field.vtype}')
+                    self.file.write(f':{field.vtype}')
             self.file.write('\n')
 
 
