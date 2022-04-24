@@ -1,14 +1,5 @@
 # TODOS
 
-- Since we now have a Utf class add support for a file-level comment, e.g.,
-        uxf 1.0 ....
-        #<This is an optional file level comment>
-        ... optional ttypes ...
-        ... map or list or table ...
-  - implement for UXF (uxf.py) and for JSON (uxfconvert.py)
-  - add to some t/\*.uxf for testing
-  - update docs (e.g., include in one shown example, & update BNF)
-
 - Writer → Writer2 & create new Writer
     - map|list|table:
 	{COMMENT ktype vtype values}
