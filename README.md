@@ -362,6 +362,8 @@ Notice that the second customer has a null (`?`) address and the second
 invoice has an empty description.
 
     uxf 1.0 MyApp Data
+    #<It is also possible to have one overall comment at the beginning,
+    after the uxf header and before any ttypes or the data.>
     = Customers CID:int Company:str Address:str Contact:str Email:str
     = Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool Description:str
     = Items IID:int INUM:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
@@ -494,7 +496,7 @@ optional `map`, `list`, or `table`.
 
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA         ::= TTYPE* (MAP | LIST | TABLE)
+    DATA         ::= COMMENT? TTYPE* (MAP | LIST | TABLE)
     TTYPE        ::= '=' OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is table name
     FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'

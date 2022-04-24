@@ -136,14 +136,17 @@ class Uxf:
     .custom is an opional custom string used for customizing the file format
     .ttypes is a dict where each key is a ttype name and each value is a
     TType object.
+    .comment is an optional file-level comment
     '''
 
-    def __init__(self, data, custom='', *, ttypes=None):
+    def __init__(self, data, custom='', *, ttypes=None, comment=None):
         '''data may be a list, List, dict, Map, or Table; if given ttypes
         must be a dict whose values are TTypes and whose corresponding keys
-        are the TTypes' names'''
+        are the TTypes' names; if given the comment is a file-level comment
+        that follows the uxf header and precedes any TTypes and data'''
         self.data = data
         self.custom = custom
+        self.comment = comment
         self.ttypes = ttypes
 
 
@@ -218,10 +221,13 @@ def _loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False,
            filename='-'):
     tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error,
                                      filename=filename)
-    data, ttypes = _parse(tokens, text=uxf_text, check=check,
-                          fixtypes=fixtypes, warn_is_error=warn_is_error,
-                          filename=filename)
-    return Uxf(data, custom, ttypes=ttypes)
+    data, comment, ttypes = _parse(
+        tokens, text=uxf_text, warn_is_error=warn_is_error,
+        filename=filename)
+    uxf_obj = Uxf(data, custom, ttypes=ttypes, comment=comment)
+    if check:
+        uxf_obj.typecheck(fixtypes=fixtypes)
+    return uxf_obj
 
 
 def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
@@ -274,6 +280,7 @@ class _Lexer(_ErrorMixin):
         self.clear()
         self.text = text
         self.scan_header()
+        self.maybe_read_comment()
         while not self.at_end():
             self.scan_next()
         self.add_token(_Kind.EOF)
@@ -298,6 +305,20 @@ class _Lexer(_ErrorMixin):
             self.warn('failed to read UXF file version number')
         if len(parts) > 2:
             self.custom = parts[2]
+
+
+    def maybe_read_comment(self):
+        self.skip_ws()
+        if not self.at_end() and self.text[self.pos] == '#':
+            self.pos += 1 # skip the #
+            if self.peek() == '<':
+                self.pos += 1 # skip the leading <
+                value = self.match_to(
+                    '>', error_text='unterminated comment string')
+                self.add_token(_Kind.COMMENT, unescape(value))
+            else:
+                self.error('invalid comment syntax: expected \'<\', got '
+                           f'{self.peek()}')
 
 
     def at_end(self):
@@ -364,7 +385,7 @@ class _Lexer(_ErrorMixin):
                            f'got {self.peek()!r}')
             self.pos += 1 # skip the leading <
             value = self.match_to('>',
-                                  error_text='unterminated string or name')
+                                  error_text='unterminated comment string')
             self.add_token(_Kind.COMMENT, unescape(value))
         else:
             self.error('comments may only occur at the start of Maps, '
@@ -485,14 +506,18 @@ class _Lexer(_ErrorMixin):
 
 
     def read_field_vtype(self):
-        while self.pos < len(self.text) and self.text[self.pos].isspace():
-            self.pos += 1
+        self.skip_ws()
         identifier = self.match_identifier(self.pos, 'field vtype')
         self.add_token(_Kind.TYPE, identifier)
 
 
     def peek(self):
         return '\0' if self.at_end() else self.text[self.pos]
+
+
+    def skip_ws(self):
+        while self.pos < len(self.text) and self.text[self.pos].isspace():
+            self.pos += 1
 
 
     def getch(self): # advance
@@ -919,21 +944,16 @@ class Table:
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, *, text, check=False, fixtypes=False,
-           warn_is_error=False, filename='-'):
-    parser = _Parser(check=check, fixtypes=fixtypes,
-                     warn_is_error=warn_is_error, filename=filename)
-    data = parser.parse(tokens, text)
+def _parse(tokens, *, text, warn_is_error=False, filename='-'):
+    parser = _Parser(warn_is_error=warn_is_error, filename=filename)
+    data, comment = parser.parse(tokens, text)
     ttypes = parser.ttypes
-    return data, ttypes
+    return data, comment, ttypes
 
 
 class _Parser(_ErrorMixin):
 
-    def __init__(self, *, check=False, fixtypes=False, warn_is_error=False,
-                 filename='-'):
-        self.check = check
-        self.fixtypes = fixtypes
+    def __init__(self, *, warn_is_error=False, filename='-'):
         self.warn_is_error = warn_is_error
         self.filename = filename
         self._what = 'parser'
@@ -952,6 +972,7 @@ class _Parser(_ErrorMixin):
         self.tokens = tokens
         self.text = text
         data = None
+        comment = self._parse_file_comment()
         self._parse_ttypes()
         for i, token in enumerate(self.tokens):
             kind = token.kind
@@ -978,9 +999,7 @@ class _Parser(_ErrorMixin):
                 break
             else:
                 self.error(f'unexpected token, got {token}')
-        if self.check:
-            self._check(data)
-        return data
+        return data, comment
 
 
     def _handle_comment(self, i, token):
@@ -1060,6 +1079,15 @@ class _Parser(_ErrorMixin):
     def _is_collection_end(self, kind):
         return kind in {_Kind.MAP_END, _Kind.LIST_END,
                         _Kind.TABLE_END}
+
+
+    def _parse_file_comment(self):
+        if self.tokens:
+            token = self.tokens[0]
+            if token.kind is _Kind.COMMENT:
+                self.tokens = self.tokens[1:]
+                return token.value
+        return None
 
 
     def _parse_ttypes(self):
@@ -1172,6 +1200,8 @@ class _Writer:
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
         self.write_header(uxf_obj.custom)
+        if uxf_obj.comment is not None:
+            self.file.write(f'#<{escape(uxf_obj.comment)}>\n')
         if uxf_obj.ttypes:
             self.write_ttypes(uxf_obj.ttypes)
         self.write_value(uxf_obj.data, pad=pad)

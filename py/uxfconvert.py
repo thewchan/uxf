@@ -179,6 +179,8 @@ def uxf_to_json(config):
     data = {JSON_CUSTOM: uxf_obj.custom,
             JSON_TTYPES: list(uxf_obj.ttypes.values()),
             JSON_DATA: uxf_obj.data}
+    if uxf_obj.comment is not None:
+        data[JSON_COMMENT] = uxf_obj.comment
     with open(config.outfile, 'wt', encoding=UTF8) as file:
         json.dump(data, file, cls=_JsonEncoder, indent=2)
 
@@ -251,6 +253,7 @@ def json_to_uxf(config):
     with open(filename, 'rt', encoding=UTF8) as file:
         data = json.load(file, object_hook=_json_naturalize)
     custom = data.get(JSON_CUSTOM)
+    comment = data.get(JSON_COMMENT)
     ttypes = None
     ttype_list = data.get(JSON_TTYPES)
     if ttype_list:
@@ -258,7 +261,8 @@ def json_to_uxf(config):
         for ttype in ttype_list:
             ttypes[ttype.name] = ttype
     data = data.get(JSON_DATA)
-    uxf.dump(config.outfile, uxf.Uxf(data, custom, ttypes=ttypes))
+    uxf.dump(config.outfile, uxf.Uxf(data, custom, ttypes=ttypes,
+                                     comment=comment))
 
 
 def _json_naturalize(d):
@@ -403,6 +407,7 @@ FIELDS = 'fields'
 ITYPE = 'itype'
 ITYPES = 'itypes'
 JSON_CUSTOM = 'UXF^custom'
+JSON_COMMENT = 'UXF^comment'
 JSON_TTYPES = 'UXF^ttypes'
 JSON_TTYPE = 'UXF^ttype'
 JSON_DATA = 'UXF^data'

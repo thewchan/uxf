@@ -1,4 +1,6 @@
 uxf 1.0 TLM Config
+#<A single comment may be placed at the start after the uxf header and
+before evertthing else.>
 = Files Kind Filename
 = Categories CID Title Selected
 {

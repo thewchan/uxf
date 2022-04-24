@@ -1,4 +1,5 @@
 uxf 1.0 TLM Config
+#<This is a file-level comment.>
 = Files Kind Filename
 = Categories CID Title Selected
 = Playlists PID Title CID Selected
