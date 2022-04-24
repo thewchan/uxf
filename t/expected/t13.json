@@ -1,5 +1,6 @@
 {
   "UXF^custom": "TLM Config",
+  "UXF^comment": "This is a file-level comment.",
   "UXF^ttypes": [
     {
       "UXF^ttype": {

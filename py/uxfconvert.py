@@ -176,13 +176,16 @@ def multi_csv_to_uxf(config):
 
 def uxf_to_json(config):
     uxf_obj = uxf.load(config.infiles[0])
-    data = {JSON_CUSTOM: uxf_obj.custom,
-            JSON_TTYPES: list(uxf_obj.ttypes.values()),
-            JSON_DATA: uxf_obj.data}
+    d = {}
+    if uxf_obj.custom is not None:
+        d[JSON_CUSTOM] = uxf_obj.custom
     if uxf_obj.comment is not None:
-        data[JSON_COMMENT] = uxf_obj.comment
+        d[JSON_COMMENT] = uxf_obj.comment
+    if uxf_obj.ttypes:
+        d[JSON_TTYPES] = list(uxf_obj.ttypes.values())
+    d[JSON_DATA] = uxf_obj.data
     with open(config.outfile, 'wt', encoding=UTF8) as file:
-        json.dump(data, file, cls=_JsonEncoder, indent=2)
+        json.dump(d, file, cls=_JsonEncoder, indent=2)
 
 
 class _JsonEncoder(json.JSONEncoder):
@@ -251,16 +254,16 @@ def _json_encode_map(obj):
 def json_to_uxf(config):
     filename = config.infiles[0]
     with open(filename, 'rt', encoding=UTF8) as file:
-        data = json.load(file, object_hook=_json_naturalize)
-    custom = data.get(JSON_CUSTOM)
-    comment = data.get(JSON_COMMENT)
+        d = json.load(file, object_hook=_json_naturalize)
+    custom = d.get(JSON_CUSTOM)
+    comment = d.get(JSON_COMMENT)
     ttypes = None
-    ttype_list = data.get(JSON_TTYPES)
+    ttype_list = d.get(JSON_TTYPES)
     if ttype_list:
         ttypes = {}
         for ttype in ttype_list:
             ttypes[ttype.name] = ttype
-    data = data.get(JSON_DATA)
+    data = d.get(JSON_DATA)
     uxf.dump(config.outfile, uxf.Uxf(data, custom, ttypes=ttypes,
                                      comment=comment))
 
@@ -459,9 +462,10 @@ comments are dropped). In a real application (e.g., migrating from ini to
 uxf), a custom ini parser would be needed. Converting uxf to ini is not
 supported.
 
-Converting sqlite to uxf only converts the sql tables and so won't
-roundtrip. Converting uxf to sqlite is only supported if the uxf file is a
-single scalar table or a list of scalar tables.
+Converting sqlite to uxf is purely for example purposes and only converts
+the sql tables and so won't roundtrip. Converting uxf to sqlite is again
+only for example purposes and only supported if the uxf file is a single
+scalar table or a list of scalar tables.
 
 Converting from uxf to json and back (i.e., using uxfconvert.py's own json
 format) roundtrips with perfect fidelity.

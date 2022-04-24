@@ -1,5 +1,6 @@
 {
   "UXF^custom": "TLM Config",
+  "UXF^comment": "A single comment may be placed at the start after the uxf header and\nbefore evertthing else.",
   "UXF^ttypes": [
     {
       "UXF^ttype": {

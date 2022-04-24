@@ -134,6 +134,15 @@ def normalize_uxf_text(text):
     flags = re.DOTALL | re.MULTILINE
     i = text.find('\n') + 1 # ignore header
     body = text[i:]
+    comment = ''
+    if body.lstrip().startswith('#<'):
+        i = body.find('#<')
+        if i > -1:
+            end = body.find('>')
+            if end > -1:
+                end += 1
+                comment = body[:end].strip()
+                body = body[end:].lstrip()
     body = re.sub(r'\d+[Ee]\d+', lambda m: str(float(m.group())), body,
                   flags=flags)
     match = re.match(r'(^=[^[({]+$)*', body, flags=flags)
@@ -141,6 +150,7 @@ def normalize_uxf_text(text):
         body = body[match.end():]
         ttypes = sorted(match.group().splitlines())
         body = '\n'.join(ttypes) + '\n' + body
+    body = comment + body
     body = ''.join(body.split()) # eliminate whitespace
     return '\n'.join(textwrap.wrap(body, 40)).strip() # easier to compare
 
