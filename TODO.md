@@ -43,58 +43,10 @@
     list, map, and table
     (i.e., any→str, int↔float, str→bool|int|float|date|datetime|Pair|MyType)
   - Add test t41.uxf ... one for every fixtype that cannot work
-  - Do 3 lots of tests covering built-in vtypes and TTypes: for t40.uxf ...:
+  - Do 3 lots of tests covering built-in vtypes _and_ TTypes: for t40.uxf …:
       * no check, no fixtypes
       * check, no fixtypes
       * check, fixtypes
-
-```
-# TODO these are part of the typecheck()ing functionality and may need
-# reworking/rethinking in the light of nested collections and ttypes.
-
-def _name_for_type(vtype):
-    return {bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
-            datetime.date: 'date', datetime.datetime: 'datetime',
-            float: 'real', int: 'int', List: 'list', Map: 'map',
-            str: 'str', Table: 'table', type(None): '?'}.get(vtype)
-
-
-def _type_for_name(typename):
-    return dict(bool=bool, bytes=(bytes, bytearray), date=datetime.date,
-                datetime=datetime.datetime, int=int, list=List, map=Map,
-                real=float, str=str, table=Table).get(typename)
-
-
-def _maybe_fixtype(value, vtype, *, fixtypes=False):
-    # TODO rework/rethink in the light of nested collections and ttypes?
-    '''Returns value (possibly fixed), fixed (bool), err (None or Error)'''
-    if (vtype is None or value is None or isinstance(value, vtype)):
-        return value, False, None
-    if fixtypes:
-        new_value, fixed = _try_fixtype(value, vtype)
-        if fixed:
-            return new_value, True, None
-    expected = _name_for_type(vtype)
-    actual = _name_for_type(type(value))
-    raise Error(f'expected value of type {expected}, got value '
-                f'{value!r} of type {actual}')
-
-
-def _try_fixtype(value, outtype):
-    # TODO rework/rethink in the light of nested collections and ttypes?
-    if isinstance(outtype, str):
-        return str(value), True
-    vclass = type(value)
-    if isinstance(vclass, str) and isinstance(outtype, (
-            bool, int, float, datetime.date, datetime.datetime)):
-        new_value = naturalize(value)
-        return new_value, isinstance(new_value, outtype)
-    if isinstance(vclass, int) and isinstance(outtype, float):
-        return float(value), True
-    if isinstance(vclass, float) and isinstance(outtype, int):
-        return int(value), True
-    return value, False
-```
 
 - create tests t50.uxf ... one for every error or warning that uxf.py
   can produce to ensure they all work & are understandable.

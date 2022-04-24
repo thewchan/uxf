@@ -181,7 +181,8 @@ class Uxf:
 
 
     def typecheck(self, fixtypes=False):
-        self.data.check(self.ttypes)
+        _typecheck(self.data, 'collection', ttypes=self.ttypes)
+        self.data.typecheck(self.ttypes, fixtypes=fixtypes)
 
 
 def load(filename_or_filelike, *, check=False, fixtypes=False,
@@ -597,16 +598,16 @@ class List(collections.UserList):
         self.vtype = None
 
 
-    def typecheck(self, ttypes, fixtypes=False):
-        # NOTE must work recursively on values that are maps, lists, or
-        # tables
-        print('List.typecheck') # TODO
-        # vclass = _type_for_name(self.vtype)
-        # for i in range(len(self.data)):
-        #     value, fixed = _maybe_fixtype(self.data[i], vclass,
-        #                                   fixtypes=self.fixtypes)
-        #     if fixed:
-        #         self.data[i] = value
+    def typecheck(self, ttypes, *, fixtypes=False):
+        for i in range(len(self.data)):
+            value = self.data[i]
+            check = _typecheck(value, self.vtype, ttypes=ttypes,
+                               fixtypes=fixtypes)
+            if check.fixed:
+                value = check.value
+                self.data[i] = value
+            if isinstance(value, (List, Map, Table)):
+                value.typecheck(ttypes, fixtypes=fixtypes)
 
 
 class Map(collections.UserDict):
@@ -639,20 +640,23 @@ class Map(collections.UserDict):
             self._pending_key = _MISSING
 
 
-    def typecheck(self, ttypes, fixtypes=False):
-        # NOTE must work recursively on values that are maps, lists, or
-        # tables
-        print('Map.typecheck') # TODO
-        # kclass = _type_for_name(self.ktype)
-        # vclass = _type_for_name(self.vtype)
-        # d = {}
-        # for key, value in self.items():
-        #     key, _ = _maybe_fixtype(key, kclass, fixtypes=self.fixtypes)
-        #     value, _ = _maybe_fixtype(value, vclass, fixtypes=self.fixtypes)
-        #     if self.fixtypes:
-        #         d[key] = value
-        # if self.fixtypes:
-        #     self.data = d
+    def typecheck(self, ttypes, *, fixtypes=False):
+        keys = list(self.keys())
+        for key in keys:
+            value = self[key]
+            check = _typecheck(key, self.ktype, ttypes=ttypes,
+                               fixtypes=fixtypes)
+            if check.fixed: # unlikely
+                del self[key]
+                key = check.value
+                self[key] = value
+            check = _typecheck(value, self.vtype, ttypes=ttypes,
+                               fixtypes=fixtypes)
+            if check.fixed:
+                value = check.value
+                self[key] = value
+            if isinstance(value, (List, Map, Table)):
+                value.typecheck(ttypes, fixtypes=fixtypes)
 
 
 class _CheckNameMixin:
@@ -838,23 +842,23 @@ class Table:
         return True
 
 
-    def typecheck(self, ttypes, fixtypes=False):
-        # NOTE must work recursively on values that are maps, lists, or
-        # tables
-        print('Table.typecheck') # TODO
-        # columns = len(self.fields)
-        # vclasses = [_type_for_name(self.fields[column].vtype)
-        #             for column in range(columns)]
-        # for row in range(len(self.records)):
-        #     if len(row) != columns:
-        #         raise Error(f'expected row of {columns} columns, got '
-        #                     f'{len(row)} columns')
-        #     for column in range(len(row)):
-        #         value, fixed = _maybe_fixtype(
-        #                 self[row][column], vclasses[column],
-        #                 fixtypes=self.fixtypes)
-        #         if fixed:
-        #             table[row][column] = value
+    def typecheck(self, ttypes, *, fixtypes=False):
+        for row in range(len(self.records)):
+            columns = len(self.records[row])
+            if columns != len(self.fields):
+                print(f'typecheck: expected {len(self.fields)} fields, '
+                      f'got {columns}')
+            for column in range(columns):
+                if column < len(self.fields):
+                    field = self.field(column)
+                    value = self.records[row][column]
+                    check = _typecheck(value, field.vtype, ttypes=ttypes,
+                                       fixtypes=fixtypes)
+                    if check.fixed:
+                        value = check.value
+                        self.records[row][column] = value
+                    if isinstance(value, (List, Map, Table)):
+                        value.typecheck(ttypes, fixtypes=fixtypes)
 
 
     def _make_record_class(self):
@@ -1417,6 +1421,51 @@ def canonicalize(name, prefix='T_'):
     if not s or not s[0].isupper():
         s = f'T{id(s)}'
     return s[:MAX_IDENTIFIER_LEN]
+
+
+def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
+    if value is None or not vtype: # null is always a valid value
+        return _Typecheck(value, False, True)
+    if isinstance(value, Table):
+        if vtype == 'collection':
+            return value, False, True # any collection type is ok
+        if ttypes is None:
+            print(
+                f'typecheck: got table of unknown type {value.ttype.name}')
+            return value, False, False
+        ttype = ttypes.get(value.ttype.name)
+        if vtype == ttype:
+            return value, False, True
+        else:
+            print(f'typecheck: expected a table of type {vtype}, got '
+                  f'{value.ttype.name}')
+            return value, False, False
+    classes = dict(collection=(List, Map, Table), bool=bool,
+                   bytes=(bytes, bytearray), date=datetime.date,
+                   datetime=datetime.datetime, int=int, list=List,
+                   map=Map, real=float, str=str, table=Table).get(vtype)
+    if (not isinstance(value, classes) and fixtypes and
+            vtype != 'collection'):
+        if isinstance(value, str) and vtype in {'bool', 'int', 'real',
+                                                'date', 'datetime'}:
+            new_value = naturalize(value)
+            return _Typecheck(new_value, isinstance(new_value, classes),
+                              True)
+        if isinstance(value, int) and vtype == 'real':
+            return _Typecheck(float(value), True, True)
+        if isinstance(value, float) and vtype == 'int':
+            return _Typecheck(int(value), True, True)
+    if isinstance(value, classes):
+        return _Typecheck(value, False, True)
+    atype = {bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
+             datetime.date: 'date', datetime.datetime: 'datetime',
+             float: 'real', int: 'int', List: 'list', Map: 'map',
+             str: 'str', Table: 'table', type(None): '?'}.get(type(value))
+    print(f'typecheck: expected a {vtype}, got {atype}')
+    return _Typecheck(value, False, False)
+
+
+_Typecheck = collections.namedtuple('_Typecheck', 'value fixed ok')
 
 
 if __name__ == '__main__':
