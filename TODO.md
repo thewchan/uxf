@@ -42,6 +42,8 @@
 - create tests t50.uxf ... one for every error or warning that uxf.py
   can produce to ensure they all work & are understandable.
 
+- create misc/tlm2uxf.py
+
 - UXF libraries
     - for .js use Dart or TypeScript or similar that can output JS
     - uxf.rs uxf.cpp uxf.java uxf.rb ...
