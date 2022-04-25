@@ -29,7 +29,7 @@
 - make sure all test files have some nulls (`?`s) (for every typed value),
   esp. t4, t24, t34
 
-- implement and test all typecheck() methods
+- add typecheck tests
   - Add test t40.uxf that exercises all fixtypes in each of a
     list, map, and table
     (i.e., any→str, int↔float, str→bool|int|float|date|datetime|Pair|MyType)

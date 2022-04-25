@@ -1458,18 +1458,18 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
         return _Typecheck(value, False, True)
     if isinstance(value, Table):
         if vtype == 'collection':
-            return value, False, True # any collection type is ok
+            return _Typecheck(value, False, True) # any collection is ok
         if ttypes is None:
             print(
                 f'typecheck: got table of unknown type {value.ttype.name}')
-            return value, False, False
+            return _Typecheck(value, False, False)
         ttype = ttypes.get(value.ttype.name)
-        if vtype == ttype:
-            return value, False, True
+        if vtype == ttype.name:
+            return _Typecheck(value, False, True)
         else:
             print(f'typecheck: expected a table of type {vtype}, got '
                   f'{value.ttype.name}')
-            return value, False, False
+            return _Typecheck(value, False, False)
     classes = dict(collection=(List, Map, Table), bool=bool,
                    bytes=(bytes, bytearray), date=datetime.date,
                    datetime=datetime.datetime, int=int, list=List,
