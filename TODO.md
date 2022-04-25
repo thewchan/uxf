@@ -1,12 +1,5 @@
 # TODOS
 
-- for TType definitions allow psuedo-types 'key' and 'scalar' to be used and
-  checked by the typecheck() methods?
-
-- for TType definitions in addition to or instead of a type allow ':'
-  'notnull'; then, if a null is encountered during parsing this should
-  produce a warning (and in typecheck() an error?)?
-
 - Writer → Writer2 & create new Writer
     - map|list|table:
 	{COMMENT ktype vtype values}
@@ -63,3 +56,6 @@
   formats), once I have a Rust UXF library, e.g., TLM
 - experiment with using uxf format to store various kinds of data,
   e.g., styled text, spreadsheet, graphics, etc.
+- for TType definitions in addition to or instead of a type allow ':'
+  'notnull'; then, if a null is encountered during parsing this should
+  produce a warning (and in typecheck() an error?)?
