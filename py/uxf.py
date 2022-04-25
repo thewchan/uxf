@@ -1160,7 +1160,7 @@ def dump(filename_or_filelike, data, *, indent=2,
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer(file, data, pad, one_way_conversion, use_true_false)
+        _Writer1(file, data, pad, one_way_conversion, use_true_false)
     finally:
         if close:
             file.close()
@@ -1187,11 +1187,186 @@ def dumps(data, *, indent=2, one_way_conversion=False,
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer(string, data, pad, one_way_conversion, use_true_false)
+    _Writer1(string, data, pad, one_way_conversion, use_true_false)
     return string.getvalue()
 
 
-class _Writer:
+class _Writer2:
+
+    def __init__(self, file, uxf_obj, pad, one_way_conversion,
+                 use_true_false):
+        self.file = file
+        self.pad = pad
+        self.one_way_conversion = one_way_conversion
+        self.yes = 'true' if use_true_false else 'yes'
+        self.no = 'false' if use_true_false else 'no'
+        self.write_header(uxf_obj.custom)
+        if uxf_obj.comment is not None:
+            self.file.write(f'#<{escape(uxf_obj.comment)}>\n')
+        if uxf_obj.ttypes:
+            self.write_ttypes(uxf_obj.ttypes)
+        if not self.write_value(uxf_obj.data, -1):
+            self.file.write('\n')
+
+
+    def write_header(self, custom):
+        self.file.write(f'uxf {VERSION}')
+        if custom:
+            self.file.write(f' {custom}')
+        self.file.write('\n')
+
+
+    def write_ttypes(self, ttypes):
+        for ttype in sorted(ttypes.values()):
+            self.file.write(f'= {ttype.name}')
+            for field in ttype.fields:
+                self.file.write(f' {field.name}')
+                if field.vtype is not None:
+                    self.file.write(f':{field.vtype}')
+            self.file.write('\n')
+
+
+    def write_value(self, item, depth=0, nl=False):
+        if isinstance(item, (set, frozenset, tuple, collections.deque)):
+            if self.one_way_conversion:
+                item = list(item)
+            else:
+                raise Error(f'can only convert {type(item)} to List if '
+                            'one_way_conversion is True')
+        depth += 1
+        if isinstance(item, (list, List)):
+            return self.write_list(item, depth, nl)
+        if isinstance(item, (dict, Map)):
+            return self.write_map(item, depth, nl)
+        if isinstance(item, Table):
+            return self.write_table(item, depth, nl)
+        self.write_scalar(item)
+        return False
+
+
+    def write_list(self, item, depth, nl):
+        prefix = self.collection_prefix(item)
+        if len(item) == 0:
+            self.file.write(f'[{prefix}]')
+        elif len(item) == 1:
+            self.file.write(f'[{prefix}')
+            self.write_value(item[0])
+            self.file.write(']')
+        else:
+            indent = self.pad * depth
+            self.file.write(f'{indent}[\n' if nl else '[\n')
+            offset = f'{indent}{self.pad}'
+            depth += 1
+            for value in item:
+                self.file.write(offset)
+                self.write_value(value, depth, False)
+                self.file.write('\n')
+            depth -= 1
+            self.file.write(f'{indent}]\n')
+            return True
+        return False
+
+
+    def write_map(self, item, depth, nl):
+        prefix = self.collection_prefix(item)
+        if len(item) == 0:
+            self.file.write(f'{{{prefix}}}')
+        elif len(item) == 1:
+            self.file.write(f'{{{prefix}')
+            key, value = item.items()[0]
+            self.write_value(key)
+            self.file.write(' ')
+            self.write_value(value)
+            self.file.write('}')
+        else:
+            indent = self.pad * depth
+            self.file.write(f'{indent}{{\n' if nl else '{\n')
+            offset = f'{indent}{self.pad}'
+            depth += 1
+            for key, value in item.items():
+                self.file.write(offset)
+                self.write_value(key, depth, False)
+                self.file.write(' ')
+                self.write_value(value, 0, False)
+                self.file.write('\n')
+            depth -= 1
+            self.file.write(f'{indent}}}\n')
+            return True
+        return False
+
+
+    def write_table(self, item, depth, nl):
+        prefix = self.collection_prefix(item)
+        if len(item) == 0:
+            self.file.write(f'({prefix})')
+        elif len(item) == 1:
+            self.file.write(f'({prefix}')
+            self.write_record(item[0])
+            self.file.write(')')
+        else:
+            indent = self.pad * depth
+            self.file.write(f'{indent}({prefix}\n' if nl else '(\n')
+            offset = f'{indent}{self.pad}'
+            depth += 1
+            for record in item:
+                self.file.write(offset)
+                self.write_record(record)
+                self.file.write('\n')
+            depth -= 1
+            self.file.write(f'{indent})\n')
+            return True
+        return False
+
+
+    def write_record(self, record):
+        sep = ''
+        for value in record:
+            self.file.write(sep)
+            self.write_value(value)
+            sep = ' '
+
+
+    def write_scalar(self, item):
+        if item is None:
+            self.file.write('?')
+        elif isinstance(item, bool):
+            self.file.write(self.yes if item else self.no)
+        elif isinstance(item, (int, float)):
+            self.file.write(str(item))
+        elif isinstance(item, (datetime.date, datetime.datetime)):
+            self.file.write(item.isoformat())
+        elif isinstance(item, str):
+            self.file.write(f'<{escape(item)}>')
+        elif isinstance(item, bytes):
+            self.file.write(f'(:{item.hex().upper()}:)')
+        elif isinstance(item, bytearray):
+            if not self.one_way_conversion:
+                raise Error('can only convert bytearray to bytes if '
+                            'one_way_conversion is True')
+            self.file.write(f'(:{item.hex().upper()}:)')
+        else:
+            print(f'error: ignoring unexpected item of type {type(item)}: '
+                  f'{item!r}', file=sys.stderr)
+
+
+    def collection_prefix(self, item):
+        comment = getattr(item, 'comment', None)
+        ktype = getattr(item, 'ktype', None)
+        vtype = getattr(item, 'vtype', None)
+        ttype = getattr(item, 'ttype', None)
+        parts = []
+        if comment is not None:
+            parts.append(f'#<{escape(comment)}>')
+        if ktype is not None:
+            parts.append(ktype)
+        if vtype is not None:
+            parts.append(vtype)
+        if ttype is not None:
+            parts.append(ttype.name)
+        return (' '.join(parts) + ' ') if parts else ''
+
+
+class _Writer1:
 
     def __init__(self, file, uxf_obj, pad, one_way_conversion,
                  use_true_false):

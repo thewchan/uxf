@@ -1,21 +1,6 @@
 # TODOS
 
-- Writer → Writer2 & create new Writer
-    - map|list|table:
-	{COMMENT ktype vtype values}
-	{COMMENT ktype values}
-	{COMMENT values}
-	{ktype vtype values}
-	{ktype values}
-	{values}
-	[COMMENT vtype values]
-	[vtype values]
-	[values]
-	(COMMENT ttype values)
-	(ttype values)
-    - treat empty and one item maps lists & tables as scalars
-    - ∴ add `@property\ndef is_scalar(self)` to Map and List
-    - so should only need two methods: write\_collection() and write\_one()
+- \_Writer2 - try to make better than \_Writer1
 
 - SQLite (see paper notes)
     - test uxf to sqlite: t2.uxf t4.uxf t15.uxf t22.uxf t24.uxf t35.uxf
