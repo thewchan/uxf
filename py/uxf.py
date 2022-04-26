@@ -1254,13 +1254,7 @@ class _Writer:
         self.file.write(f'{tab}[{prefix}')
         if len(item) == 1 or (len(item) <= MAX_LIST_IN_LINE and
                               _are_short_len(*item[:MAX_LIST_IN_LINE + 1])):
-            sep = ' ' if prefix else ''
-            for value in item:
-                self.file.write(sep)
-                self.write_value(value, pad='')
-                sep = ' '
-            self.file.write(']')
-            return False
+            return self.write_short_list(' ' if prefix else '', item)
         self.file.write('\n')
         indent += 1
         for value in item:
@@ -1271,6 +1265,15 @@ class _Writer:
         return True
 
 
+    def write_short_list(self, sep, item):
+        for value in item:
+            self.file.write(sep)
+            self.write_value(value, pad='')
+            sep = ' '
+        self.file.write(']')
+        return False
+
+
     def write_map(self, item, indent=0, *, pad, is_map_value=False):
         tab = '' if is_map_value else pad * indent
         prefix = self.collection_prefix(item)
@@ -1278,17 +1281,7 @@ class _Writer:
             self.file.write(f'{tab}{{{prefix}}}')
             return False
         if len(item) == 1:
-            self.file.write(f'{tab}{{{prefix}')
-            key, value = list(item.items())[0]
-            self.write_scalar(key, 1, pad=' ')
-            self.file.write(' ')
-            if self.write_value(value, 1, pad=' ', is_map_value=True):
-                self.file.write(tab)
-            self.file.write('}')
-            if is_scalar(value):
-                return False
-            self.file.write('\n')
-            return True
+            return self.write_single_item_map(tab, prefix, item)
         self.file.write(f'{tab}{{{prefix}\n')
         indent += 1
         for key, value in item.items():
@@ -1302,6 +1295,20 @@ class _Writer:
         return True
 
 
+    def write_single_item_map(self, tab, prefix, item):
+        self.file.write(f'{tab}{{{prefix}')
+        key, value = list(item.items())[0]
+        self.write_scalar(key, 1, pad=' ')
+        self.file.write(' ')
+        if self.write_value(value, 1, pad=' ', is_map_value=True):
+            self.file.write(tab)
+        self.file.write('}')
+        if is_scalar(value):
+            return False
+        self.file.write('\n')
+        return True
+
+
     def write_table(self, item, indent=0, *, pad, is_map_value=False):
         tab = '' if is_map_value else pad * indent
         prefix = self.collection_prefix(item)
@@ -1310,10 +1317,7 @@ class _Writer:
             self.file.write(')')
             return False
         if len(item) == 1:
-            self.file.write(' ')
-            self.write_record(item[0], is_map_value)
-            self.file.write(')')
-            return False
+            return self.write_one_record_table(item[0], is_map_value)
         self.file.write('\n')
         indent += 1
         tab = pad * indent
@@ -1324,6 +1328,13 @@ class _Writer:
         tab = pad * (indent - 1)
         self.file.write(f'{tab})\n')
         return True
+
+
+    def write_one_record_table(self, record, is_map_value):
+        self.file.write(' ')
+        self.write_record(record, is_map_value)
+        self.file.write(')')
+        return False
 
 
     def write_record(self, record, is_map_value):
