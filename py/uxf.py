@@ -163,7 +163,7 @@ class Uxf:
             data = List(data)
         elif isinstance(data, dict):
             data = Map(data)
-        if not isinstance(data, (List, Map, Table)):
+        if not _is_uxf_collection(data):
             raise Error('Uxf data must be a list, List, dict, Map, or '
                         f'Table, got {type(data)}')
         self._data = data
@@ -171,7 +171,7 @@ class Uxf:
 
     def dump(self, filename_or_filelike, *, indent=2,
              one_way_conversion=False, use_true_false=False):
-        '''Convenience method that wraps module-level dump() function'''
+        '''Convenience method that wraps the module-level dump() function'''
         dump(filename_or_filelike, self, indent=indent,
              one_way_conversion=one_way_conversion,
              use_true_false=use_true_false)
@@ -179,7 +179,8 @@ class Uxf:
 
     def dumps(self, *, indent=2, one_way_conversion=False,
               use_true_false=False):
-        '''Convenience method that wraps module-level dumps() function'''
+        '''Convenience method that wraps the module-level dumps()
+        function'''
         return dumps(self, indent=indent,
                      one_way_conversion=one_way_conversion,
                      use_true_false=use_true_false)
@@ -330,7 +331,7 @@ class _Lexer(_ErrorMixin):
     def scan_next(self):
         c = self.getch()
         if c.isspace():
-            pass
+            pass # ignore insignificant whitespace
         elif c == '(':
             if self.peek() == ':':
                 self.pos += 1
@@ -633,7 +634,7 @@ class List(collections.UserList):
             if check.fixed:
                 value = check.value
                 self.data[i] = value
-            if isinstance(value, (List, Map, Table)):
+            if _is_uxf_collection(value):
                 value.typecheck(ttypes, fixtypes=fixtypes)
 
 
@@ -652,8 +653,7 @@ class Map(collections.UserDict):
         otherwise adds a new item with the pending key and this value and
         clears the pending key.'''
         if self._pending_key is _MISSING:
-            if not isinstance(value, (int, datetime.date,
-                                      datetime.datetime, str, bytes)):
+            if not _is_key_type(value):
                 prefix = ('map keys may only be of type int, date, '
                           'datetime, str, or bytes, got ')
                 if isinstance(value, Table):
@@ -682,7 +682,7 @@ class Map(collections.UserDict):
             if check.fixed:
                 value = check.value
                 self[key] = value
-            if isinstance(value, (List, Map, Table)):
+            if _is_uxf_collection(value):
                 value.typecheck(ttypes, fixtypes=fixtypes)
 
 
@@ -884,7 +884,7 @@ class Table:
                     if check.fixed:
                         value = check.value
                         self.records[row][column] = value
-                    if isinstance(value, (List, Map, Table)):
+                    if _is_uxf_collection(value):
                         value.typecheck(ttypes, fixtypes=fixtypes)
 
 
@@ -1037,7 +1037,7 @@ class _Parser(_ErrorMixin):
                 self.error('can only have at most one vtype for a list, '
                            f'got {token}')
             parent.vtype = token.value
-        elif isinstance(self.stack[-1], Map):
+        elif isinstance(parent, Map):
             if parent.ktype is None:
                 parent.ktype = token.value
             elif parent.vtype is None:
@@ -1317,7 +1317,7 @@ class _Writer:
             self.file.write(')')
             return False
         if len(item) == 1:
-            return self.write_one_record_table(item[0], is_map_value)
+            return self.write_one_table_record(item[0], is_map_value)
         self.file.write('\n')
         indent += 1
         tab = pad * indent
@@ -1330,7 +1330,7 @@ class _Writer:
         return True
 
 
-    def write_one_record_table(self, record, is_map_value):
+    def write_one_table_record(self, record, is_map_value):
         self.file.write(' ')
         self.write_record(record, is_map_value)
         self.file.write(')')
@@ -1396,6 +1396,11 @@ def is_scalar(x):
             bytearray))
 
 
+def _is_key_type(x):
+    return isinstance(x, (int, datetime.date, datetime.datetime, str,
+                          bytes))
+
+
 def _are_short_len(*items):
     for x in items:
         if isinstance(x, (str, bytes, bytearray)):
@@ -1405,6 +1410,10 @@ def _are_short_len(*items):
                 x, (bool, int, float, datetime.date, datetime.datetime)):
             return False
     return True
+
+
+def _is_uxf_collection(value):
+    return isinstance(value, (List, Map, Table))
 
 
 def naturalize(s):
@@ -1478,10 +1487,7 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
             print(f'typecheck: expected a table of type {vtype}, got '
                   f'{value.ttype.name}')
             return _Typecheck(value, False, False)
-    classes = dict(collection=(List, Map, Table), bool=bool,
-                   bytes=(bytes, bytearray), date=datetime.date,
-                   datetime=datetime.datetime, int=int, list=List,
-                   map=Map, real=float, str=str, table=Table).get(vtype)
+    classes = _TYPECHECK_CLASSES.get(vtype)
     if (not isinstance(value, classes) and fixtypes and
             vtype != 'collection'):
         if isinstance(value, str) and vtype in {'bool', 'int', 'real',
@@ -1495,15 +1501,22 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
             return _Typecheck(int(value), True, True)
     if isinstance(value, classes):
         return _Typecheck(value, False, True)
-    atype = {bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
-             datetime.date: 'date', datetime.datetime: 'datetime',
-             float: 'real', int: 'int', List: 'list', Map: 'map',
-             str: 'str', Table: 'table', type(None): '?'}.get(type(value))
+    atype = _TYPECHECK_ATYPES.get(type(value))
     print(f'typecheck: expected a {vtype}, got {atype}')
     return _Typecheck(value, False, False)
 
 
 _Typecheck = collections.namedtuple('_Typecheck', 'value fixed ok')
+
+_TYPECHECK_CLASSES = dict(
+    collection=(List, Map, Table), bool=bool, bytes=(bytes, bytearray),
+    date=datetime.date, datetime=datetime.datetime, int=int, list=List,
+    map=Map, real=float, str=str, table=Table)
+_TYPECHECK_ATYPES = {
+    bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
+    datetime.date: 'date', datetime.datetime: 'datetime', float: 'real',
+    int: 'int', List: 'list', Map: 'map', str: 'str', Table: 'table',
+    type(None): '?'}
 
 
 if __name__ == '__main__':
