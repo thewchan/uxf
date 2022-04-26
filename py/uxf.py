@@ -1160,7 +1160,7 @@ def dump(filename_or_filelike, data, *, indent=2,
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer1(file, data, pad, one_way_conversion, use_true_false)
+        _Writer(file, data, pad, one_way_conversion, use_true_false)
     finally:
         if close:
             file.close()
@@ -1187,182 +1187,11 @@ def dumps(data, *, indent=2, one_way_conversion=False,
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer1(string, data, pad, one_way_conversion, use_true_false)
+    _Writer(string, data, pad, one_way_conversion, use_true_false)
     return string.getvalue()
 
 
-class _Writer2:
-
-    def __init__(self, file, uxf_obj, pad, one_way_conversion,
-                 use_true_false):
-        self.file = file
-        self.pad = pad
-        self.one_way_conversion = one_way_conversion
-        self.yes = 'true' if use_true_false else 'yes'
-        self.no = 'false' if use_true_false else 'no'
-        self.write_header(uxf_obj.custom)
-        if uxf_obj.comment is not None:
-            self.file.write(f'\n#<{escape(uxf_obj.comment)}>')
-        if uxf_obj.ttypes:
-            self.write_ttypes(uxf_obj.ttypes)
-        self.write_value(uxf_obj.data)
-
-
-    def write_header(self, custom):
-        self.file.write(f'uxf {VERSION}')
-        if custom:
-            self.file.write(f' {custom}')
-
-
-    def write_ttypes(self, ttypes):
-        self.file.write('\n')
-        for ttype in sorted(ttypes.values()):
-            self.file.write(f'= {ttype.name}')
-            for field in ttype.fields:
-                self.file.write(f' {field.name}')
-                if field.vtype is not None:
-                    self.file.write(f':{field.vtype}')
-
-
-    def write_value(self, item, depth=0, *, nl=False, map_value=False):
-        if isinstance(item, (set, frozenset, tuple, collections.deque)):
-            if self.one_way_conversion:
-                item = list(item)
-            else:
-                raise Error(f'can only convert {type(item)} to List if '
-                            'one_way_conversion is True')
-        if isinstance(item, (list, List)):
-            return self.write_list(item, depth, nl=nl, map_value=map_value)
-        if isinstance(item, (dict, Map)):
-            return self.write_map(item, depth, nl=nl, map_value=map_value)
-        if isinstance(item, Table):
-            return self.write_table(item, depth, nl=nl, map_value=map_value)
-        self.write_scalar(item)
-        return False
-
-
-    def write_list(self, item, depth, nl=False, map_value=False):
-        prefix = self.collection_prefix(item)
-        if len(item) == 0:
-            self.file.write(f'[{prefix}]')
-            return False
-        indent = self.pad * depth
-        if not nl and not map_value:
-            self.file.write(f'\n{indent}')
-        self.file.write('[\n')
-        offset = f'{indent}{self.pad}'
-        depth += 1
-        for value in item:
-            self.file.write(offset)
-            nl = self.write_value(value, depth)
-            if not nl and (map_value or not self.is_collection(value)):
-                self.file.write('\n')
-        depth -= 1
-        self.file.write(f'{indent}]')
-        if not nl:
-            self.file.write('\n')
-        return True
-
-
-    def write_map(self, item, depth, nl=False, map_value=False):
-        prefix = self.collection_prefix(item)
-        if len(item) == 0:
-            self.file.write(f'{{{prefix}}}')
-            return False
-        indent = self.pad * depth
-        if not nl and not map_value:
-            self.file.write(f'\n{indent}')
-        self.file.write('{\n')
-        offset = f'{indent}{self.pad}'
-        depth += 1
-        for key, value in item.items():
-            self.file.write(offset)
-            self.write_value(key, depth)
-            self.file.write(' ')
-            nl = self.write_value(value, depth, map_value=True)
-            if not nl and (map_value or not self.is_collection(value)):
-                self.file.write('\n')
-        depth -= 1
-        self.file.write(f'{indent}}}')
-        if not nl:
-            self.file.write('\n')
-        return True
-
-
-    def write_table(self, item, depth, nl=False, map_value=False):
-        prefix = self.collection_prefix(item)
-        if len(item) == 0:
-            self.file.write(f'({prefix})')
-            return False
-        indent = self.pad * depth
-        if not nl and not map_value:
-            self.file.write(f'\n{indent}')
-        self.file.write(f'({prefix}\n')
-        offset = f'{indent}{self.pad}'
-        depth += 1
-        for record in item:
-            self.file.write(offset)
-            self.write_record(record, depth)
-            self.file.write('\n')
-        depth -= 1
-        self.file.write(f'{indent})\n')
-        return True
-
-
-    def write_record(self, record, depth):
-        sep = ''
-        for value in record:
-            self.file.write(sep)
-            nl = self.write_value(value, depth)
-            if not nl and not self.is_collection(value):
-                sep = ' '
-
-
-    def write_scalar(self, item):
-        if item is None:
-            self.file.write('?')
-        elif isinstance(item, bool):
-            self.file.write(self.yes if item else self.no)
-        elif isinstance(item, (int, float)):
-            self.file.write(str(item))
-        elif isinstance(item, (datetime.date, datetime.datetime)):
-            self.file.write(item.isoformat())
-        elif isinstance(item, str):
-            self.file.write(f'<{escape(item)}>')
-        elif isinstance(item, bytes):
-            self.file.write(f'(:{item.hex().upper()}:)')
-        elif isinstance(item, bytearray):
-            if not self.one_way_conversion:
-                raise Error('can only convert bytearray to bytes if '
-                            'one_way_conversion is True')
-            self.file.write(f'(:{item.hex().upper()}:)')
-        else:
-            print(f'error: ignoring unexpected item of type {type(item)}: '
-                  f'{item!r}', file=sys.stderr)
-
-
-    def collection_prefix(self, item):
-        comment = getattr(item, 'comment', None)
-        ktype = getattr(item, 'ktype', None)
-        vtype = getattr(item, 'vtype', None)
-        ttype = getattr(item, 'ttype', None)
-        parts = []
-        if comment is not None:
-            parts.append(f'#<{escape(comment)}>')
-        if ktype is not None:
-            parts.append(ktype)
-        if vtype is not None:
-            parts.append(vtype)
-        if ttype is not None:
-            parts.append(ttype.name)
-        return (' '.join(parts) + ' ') if parts else ''
-
-
-    def is_collection(self, item):
-        return isinstance(item, (list, List, dict, Map, Table))
-
-
-class _Writer1:
+class _Writer:
 
     def __init__(self, file, uxf_obj, pad, one_way_conversion,
                  use_true_false):
@@ -1395,54 +1224,41 @@ class _Writer1:
             self.file.write('\n')
 
 
-    def write_value(self, item, indent=0, *, pad, map_value=False):
+    def write_value(self, item, indent=0, *, pad, is_map_value=False):
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
-            if self.one_way_conversion:
-                item = list(item)
-            else:
+            if not self.one_way_conversion:
                 raise Error(f'can only convert {type(item)} to List if '
                             'one_way_conversion is True')
+            item = list(item)
         if isinstance(item, (list, List)):
             return self.write_list(item, indent, pad=pad,
-                                   map_value=map_value)
+                                   is_map_value=is_map_value)
         if isinstance(item, (dict, Map)):
             return self.write_map(item, indent, pad=pad,
-                                  map_value=map_value)
+                                  is_map_value=is_map_value)
         if isinstance(item, Table):
             return self.write_table(item, indent, pad=pad,
-                                    map_value=map_value)
+                                    is_map_value=is_map_value)
         return self.write_scalar(item, indent=indent, pad=pad,
-                                 map_value=map_value)
+                                 is_map_value=is_map_value)
 
 
-    def write_list(self, item, indent=0, *, pad, map_value=False):
-        tab = '' if map_value else pad * indent
-        comment = getattr(item, 'comment', None)
-        vtype = getattr(item, 'vtype', None)
+    def write_list(self, item, indent=0, *, pad, is_map_value=False):
+        tab = '' if is_map_value else pad * indent
+        prefix = self.collection_prefix(item)
         if len(item) == 0:
-            self.file.write(f'{tab}[')
-            if comment is not None:
-                self.file.write(f' #<{escape(comment)}>')
-            if vtype is not None:
-                self.file.write(f' {vtype}')
-            if comment is not None or vtype is not None:
-                self.file.write(' ')
-            self.file.write(']\n')
+            self.file.write(f'{tab}[{prefix}]\n')
         else:
-            self.file.write(f'{tab}[')
-            if comment is not None:
-                self.file.write(f' #<{escape(comment)}>')
-            if vtype is not None:
-                self.file.write(f' {vtype}')
+            self.file.write(f'{tab}[{prefix}')
             indent += 1
             scalar = is_scalar(item[0])
             if scalar:
-                kwargs = dict(indent=0, pad=' ', map_value=False)
-                if comment is not None or vtype is not None:
+                kwargs = dict(indent=0, pad=' ', is_map_value=False)
+                if prefix:
                     self.file.write(' ')
             else:
                 self.file.write('\n')
-                kwargs = dict(indent=indent, pad=pad, map_value=False)
+                kwargs = dict(indent=indent, pad=pad, is_map_value=False)
             for value in item:
                 self.write_value(value, **kwargs)
                 if scalar:
@@ -1452,70 +1268,59 @@ class _Writer1:
         return True
 
 
-    def write_map(self, item, indent=0, *, pad, map_value=False):
-        tab = '' if map_value else pad * indent
+    def collection_prefix(self, item):
         comment = getattr(item, 'comment', None)
         ktype = getattr(item, 'ktype', None)
         vtype = getattr(item, 'vtype', None)
+        ttype = getattr(item, 'ttype', None)
+        parts = []
+        if comment is not None:
+            parts.append(f' #<{escape(comment)}>')
+        if ktype is not None:
+            parts.append(ktype)
+        if vtype is not None:
+            parts.append(vtype)
+        if ttype is not None:
+            parts.append(ttype.name)
+        return ' '.join(parts) if parts else ''
+
+
+    def write_map(self, item, indent=0, *, pad, is_map_value=False):
+        tab = '' if is_map_value else pad * indent
+        prefix = self.collection_prefix(item)
         if len(item) == 0:
-            self.file.write(f'{tab}{{')
-            if comment is not None:
-                self.file.write(f' #<{escape(comment)}>')
-            if ktype is not None:
-                self.file.write(f' {ktype}')
-            if vtype is not None:
-                self.file.write(f' {vtype}')
-            if (comment is not None or ktype is not None or
-                    vtype is not None):
-                self.file.write(' ')
-            self.file.write('}\n')
+            self.file.write(f'{tab}{{{prefix}}}\n')
         elif len(item) == 1:
-            self.file.write(f'{tab}{{')
-            if comment is not None:
-                self.file.write(f' #<{escape(comment)}>')
-            if ktype is not None:
-                self.file.write(f' {ktype}')
-            if vtype is not None:
-                self.file.write(f' {vtype}')
+            self.file.write(f'{tab}{{{prefix}')
             key, value = list(item.items())[0]
             self.write_scalar(key, 1, pad=' ')
             self.file.write(' ')
-            self.write_value(value, 1, pad=' ', map_value=True)
+            self.write_value(value, 1, pad=' ', is_map_value=True)
             self.file.write('}\n')
         else:
-            self.file.write(f'{tab}{{')
-            if comment is not None:
-                self.file.write(f' #<{escape(comment)}>')
-            if ktype is not None:
-                self.file.write(f' {ktype}')
-            if vtype is not None:
-                self.file.write(f' {vtype}')
-            self.file.write('\n')
+            self.file.write(f'{tab}{{{prefix}\n')
             indent += 1
             for key, value in item.items():
                 self.write_scalar(key, indent, pad=pad)
                 self.file.write(' ')
                 if not self.write_value(value, indent, pad=pad,
-                                        map_value=True):
+                                        is_map_value=True):
                     self.file.write('\n')
             tab = pad * (indent - 1)
             self.file.write(f'{tab}}}\n')
         return True
 
 
-    def write_table(self, item, indent=0, *, pad, map_value=False):
-        tab = '' if map_value else pad * indent
-        comment = getattr(item, 'comment', None)
-        self.file.write(f'{tab}(')
-        if comment is not None:
-            self.file.write(f' #<{escape(comment)}> ')
-        self.file.write(item.ttype.name)
+    def write_table(self, item, indent=0, *, pad, is_map_value=False):
+        tab = '' if is_map_value else pad * indent
+        prefix = self.collection_prefix(item)
+        self.file.write(f'{tab}({prefix}')
         if len(item) == 0:
             self.file.write(')')
             return False
         elif len(item) == 1:
             self.file.write(' ')
-            self.write_record(item[0], map_value)
+            self.write_record(item[0], is_map_value)
             self.file.write(')')
             return False
         else:
@@ -1523,23 +1328,23 @@ class _Writer1:
             indent += 1
             for record in item:
                 self.file.write(pad * indent)
-                self.write_record(record, map_value)
+                self.write_record(record, is_map_value)
                 self.file.write('\n')
             tab = pad * (indent - 1)
             self.file.write(f'{tab})\n')
             return True
 
 
-    def write_record(self, record, map_value):
+    def write_record(self, record, is_map_value):
         sep = ''
         for value in record:
             self.file.write(sep)
-            self.write_value(value, 0, pad='', map_value=map_value)
+            self.write_value(value, 0, pad='', is_map_value=is_map_value)
             sep = ' '
 
 
-    def write_scalar(self, item, indent=0, *, pad, map_value=False):
-        if not map_value:
+    def write_scalar(self, item, indent=0, *, pad, is_map_value=False):
+        if not is_map_value:
             self.file.write(pad * indent)
         if item is None:
             self.file.write('?')

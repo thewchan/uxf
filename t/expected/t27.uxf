@@ -1,6 +1,6 @@
 uxf 1.0
 = Files Kind Filename
-{ str
+{str
   <General> { #<Map comment> str
     <saved> 2022-03-21
     <autosave> yes
@@ -12,7 +12,7 @@ uxf 1.0
       <recent2> </home/mark/data/playlists-all.tlm>
     )
   }
-  <Window> { str
+  <Window> {str
     <x> 383
     <y> 124
     <width> 590
@@ -20,7 +20,7 @@ uxf 1.0
     <scale> 1.1
   }
   <Magic> (:1F8B11FF0C:)
-  <Nested Map> { str list
+  <Nested Map> {str list
     <Classical> [5 yes]
     <Modern Instrumental> [4 no]
     <New Acquistions> [1 no]

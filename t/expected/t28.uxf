@@ -30,7 +30,7 @@ uxf 1.0 TLM Config
     <Classical> [5 yes]
     <Modern Instrumental> [4 no]
     <New Acquistions> [1 no]
-    <Nested List of Lists> [ list
+    <Nested List of Lists> [list
       [5 <Classical> yes]
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> no]
