@@ -119,6 +119,8 @@ VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
 MAX_IDENTIFIER_LEN = 60
+MAX_LIST_IN_LINE = 10
+MAX_SHORT_LEN = 32
 _KEY_TYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
 _VALUE_TYPES = _KEY_TYPES | {'bool', 'real'}
 _ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table'}
@@ -1247,67 +1249,56 @@ class _Writer:
         tab = '' if is_map_value else pad * indent
         prefix = self.collection_prefix(item)
         if len(item) == 0:
-            self.file.write(f'{tab}[{prefix}]\n')
-        else:
-            self.file.write(f'{tab}[{prefix}')
-            indent += 1
-            scalar = is_scalar(item[0])
-            if scalar:
-                kwargs = dict(indent=0, pad=' ', is_map_value=False)
-                if prefix:
-                    self.file.write(' ')
-            else:
-                self.file.write('\n')
-                kwargs = dict(indent=indent, pad=pad, is_map_value=False)
+            self.file.write(f'{tab}[{prefix}]')
+            return False
+        self.file.write(f'{tab}[{prefix}')
+        if len(item) == 1 or (len(item) <= MAX_LIST_IN_LINE and
+                              _are_short_len(*item[:MAX_LIST_IN_LINE + 1])):
+            sep = ' ' if prefix else ''
             for value in item:
-                self.write_value(value, **kwargs)
-                if scalar:
-                    kwargs['indent'] = 1 # 0 for first item
-            tab = pad * (indent - 1)
-            self.file.write(']\n' if scalar else f'{tab}]\n')
+                self.file.write(sep)
+                self.write_value(value, pad='')
+                sep = ' '
+            self.file.write(']')
+            return False
+        self.file.write('\n')
+        indent += 1
+        for value in item:
+            if not self.write_value(value, indent, pad=pad):
+                self.file.write('\n')
+        tab = pad * (indent - 1)
+        self.file.write(f'{tab}]\n')
         return True
-
-
-    def collection_prefix(self, item):
-        comment = getattr(item, 'comment', None)
-        ktype = getattr(item, 'ktype', None)
-        vtype = getattr(item, 'vtype', None)
-        ttype = getattr(item, 'ttype', None)
-        parts = []
-        if comment is not None:
-            parts.append(f' #<{escape(comment)}>')
-        if ktype is not None:
-            parts.append(ktype)
-        if vtype is not None:
-            parts.append(vtype)
-        if ttype is not None:
-            parts.append(ttype.name)
-        return ' '.join(parts) if parts else ''
 
 
     def write_map(self, item, indent=0, *, pad, is_map_value=False):
         tab = '' if is_map_value else pad * indent
         prefix = self.collection_prefix(item)
         if len(item) == 0:
-            self.file.write(f'{tab}{{{prefix}}}\n')
-        elif len(item) == 1:
+            self.file.write(f'{tab}{{{prefix}}}')
+            return False
+        if len(item) == 1:
             self.file.write(f'{tab}{{{prefix}')
             key, value = list(item.items())[0]
             self.write_scalar(key, 1, pad=' ')
             self.file.write(' ')
-            self.write_value(value, 1, pad=' ', is_map_value=True)
-            self.file.write('}\n')
-        else:
-            self.file.write(f'{tab}{{{prefix}\n')
-            indent += 1
-            for key, value in item.items():
-                self.write_scalar(key, indent, pad=pad)
-                self.file.write(' ')
-                if not self.write_value(value, indent, pad=pad,
-                                        is_map_value=True):
-                    self.file.write('\n')
-            tab = pad * (indent - 1)
-            self.file.write(f'{tab}}}\n')
+            if self.write_value(value, 1, pad=' ', is_map_value=True):
+                self.file.write(tab)
+            self.file.write('}')
+            if is_scalar(value):
+                return False
+            self.file.write('\n')
+            return True
+        self.file.write(f'{tab}{{{prefix}\n')
+        indent += 1
+        for key, value in item.items():
+            self.write_scalar(key, indent, pad=pad)
+            self.file.write(' ')
+            if not self.write_value(value, indent, pad=pad,
+                                    is_map_value=True):
+                self.file.write('\n')
+        tab = pad * (indent - 1)
+        self.file.write(f'{tab}}}\n')
         return True
 
 
@@ -1318,29 +1309,31 @@ class _Writer:
         if len(item) == 0:
             self.file.write(')')
             return False
-        elif len(item) == 1:
+        if len(item) == 1:
             self.file.write(' ')
             self.write_record(item[0], is_map_value)
             self.file.write(')')
             return False
-        else:
-            self.file.write('\n')
-            indent += 1
-            for record in item:
-                self.file.write(pad * indent)
-                self.write_record(record, is_map_value)
+        self.file.write('\n')
+        indent += 1
+        tab = pad * indent
+        for record in item:
+            self.file.write(tab)
+            if not self.write_record(record, is_map_value):
                 self.file.write('\n')
-            tab = pad * (indent - 1)
-            self.file.write(f'{tab})\n')
-            return True
+        tab = pad * (indent - 1)
+        self.file.write(f'{tab})\n')
+        return True
 
 
     def write_record(self, record, is_map_value):
         sep = ''
         for value in record:
             self.file.write(sep)
-            self.write_value(value, 0, pad='', is_map_value=is_map_value)
+            nl = self.write_value(value, 0, pad='',
+                                  is_map_value=is_map_value)
             sep = ' '
+        return nl
 
 
     def write_scalar(self, item, indent=0, *, pad, is_map_value=False):
@@ -1369,10 +1362,38 @@ class _Writer:
         return False
 
 
+    def collection_prefix(self, item):
+        comment = getattr(item, 'comment', None)
+        ktype = getattr(item, 'ktype', None)
+        vtype = getattr(item, 'vtype', None)
+        ttype = getattr(item, 'ttype', None)
+        parts = []
+        if comment is not None:
+            parts.append(f' #<{escape(comment)}>')
+        if ktype is not None:
+            parts.append(ktype)
+        if vtype is not None:
+            parts.append(vtype)
+        if ttype is not None:
+            parts.append(ttype.name)
+        return ' '.join(parts) if parts else ''
+
+
 def is_scalar(x):
     return x is None or isinstance(
         x, (bool, int, float, datetime.date, datetime.datetime, str, bytes,
             bytearray))
+
+
+def _are_short_len(*items):
+    for x in items:
+        if isinstance(x, (str, bytes, bytearray)):
+            if len(x) > MAX_SHORT_LEN:
+                return False
+        elif x is not None and not isinstance(
+                x, (bool, int, float, datetime.date, datetime.datetime)):
+            return False
+    return True
 
 
 def naturalize(s):

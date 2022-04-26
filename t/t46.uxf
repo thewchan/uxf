@@ -1,0 +1,88 @@
+uxf 1.0 TLM Config
+= Files Kind Filename
+= Categories CID Title Selected
+= Playlists PID Title CID Selected
+= IPv4 A:int B:int C:int D:int
+= RGB Red:int Green:int Blue:int
+= RGBA Red:int Green:int Blue:int Alpha:int
+{
+    <General> {
+        <empty map 0> {}
+        <saved> 2022-03-21 <autosave> yes <historysize> -35 <volume> 0.7
+        <empty map 1> {}
+        <files> (Files
+            <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
+            <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
+            <recent2> </home/mark/data/playlists-all.tlm>
+        )
+        <empty map 2> {}
+    }
+    <Window> {<pos> [383 124] <size> [590 536] <scale> 1.1}
+    <More Tests> [#<A list of name value pairs; normally would be a map>
+        <empty table 0> (RGBA)
+        <one> (IPv4 141 179 19 9)
+        <empty table 1> (RGBA)
+        <many> (IPv4
+                172 16 254 1
+                192 0 2 235
+                127 0 0 1)
+        <red> (RGB 255 0 0)
+        <semi-transparent blue> (RGBA 0 0 255 80)
+        <empty table 2> (RGBA)
+    ]
+    <Magic> (:1F 8B:)
+    <Nested Map> {
+        <empty list 0> []
+        <Classical> [5 yes]
+        <empty list 1> []
+        <Modern Instrumental> [4 no]
+        <New Acquistions> [1 no]
+        <empty list 2> []
+        <Nested List of Lists> [
+            []
+            [5 <Classical> yes]
+            [4 <Modern Instrumental> no]
+            []
+            [1 <New Acquistions> no]
+            []
+        ]
+        <Nested Table> (Categories
+            5 <Classical> yes
+            4 <Modern Instrumental> no
+            1 <New Acquistions> no
+            2 <Pop> no
+            3 <Punk> no
+            7 <Uncategorized> no
+            6 <Unpopular Pop> no
+            )
+        <Nested List of Tables> [
+                (Categories)
+                (Categories
+                    5 <Classical> yes
+                    4 <Modern Instrumental> no
+                    1 <New Acquistions> no
+                    2 <Pop> no
+                    3 <Punk> no
+                    7 <Uncategorized> no
+                    6 <Unpopular Pop> no
+                )
+                (Categories)
+                (Playlists)
+                (Playlists
+                    4 <ABBA> 2 no
+                    38 <Bach> 5 no
+                    39 <Bartok> 5 no
+                    5 <Beatles> 2 no
+                    40 <Beethoven> 5 no
+                    6 <Blondie> 2 no
+                    52 <Bob Marley> 6 yes
+                    7 <Bruce Springsteen> 2 no
+                    41 <Chopin> 5 yes
+                    37 <Classical> 5 no
+                    8 <David Bowie> 2 no
+                    9 <Dire Straits> 2 no
+                )
+                (Playlists)
+            ]
+    }
+}
