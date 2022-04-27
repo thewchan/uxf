@@ -1,5 +1,9 @@
 # TODOS
 
+- slides.py: add prev & next links either side of the Contents link
+
+- slides.uxf: complete the text
+
 - SQLite (see paper notes)
     - test uxf to sqlite: t2.uxf t4.uxf t15.uxf t22.uxf t24.uxf t35.uxf
     - sqlite\_to\_uxf
