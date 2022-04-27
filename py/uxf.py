@@ -256,7 +256,7 @@ class _ErrorMixin:
         if self.warn_is_error:
             self.error(code, message)
         lino = self.text.count('\n', 0, self.pos) + 1
-        print(f'Warning#{code}:{self.filename}:{lino}: {message}')
+        print(f'Warning:#{code}:{self.filename}:{lino}: {message}')
 
 
     def error(self, code, message):
@@ -498,10 +498,10 @@ class _Lexer(_ErrorMixin):
         if match in _BOOL_FALSE:
             self.add_token(_Kind.BOOL, False)
             return
-        elif match in _BOOL_TRUE:
+        if match in _BOOL_TRUE:
             self.add_token(_Kind.BOOL, True)
             return
-        elif match in _ANY_VALUE_TYPES:
+        if match in _ANY_VALUE_TYPES:
             self.add_token(_Kind.TYPE, match)
             return
         start = self.pos - 1
@@ -904,7 +904,7 @@ class Table:
         for row in range(len(self.records)):
             columns = len(self.records[row])
             if columns != len(self.fields):
-                print(f'Typecheck#800:expected {len(self.fields)} fields, '
+                print(f'Typecheck:#800:expected {len(self.fields)} fields, '
                       f'got {columns}')
             for column in range(columns):
                 if column < len(self.fields):
@@ -1421,7 +1421,7 @@ class _Writer:
                             'one_way_conversion is True')
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            print('Warning#720:ignoring unexpected item of type '
+            print('Warning:#720:ignoring unexpected item of type '
                   f'{type(item)}: {item!r}', file=sys.stderr)
         return False
 
@@ -1545,7 +1545,7 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
     if isinstance(value, classes):
         return _Typecheck(value, False, True)
     atype = _TYPECHECK_ATYPES.get(type(value))
-    print(f'Typecheck#810:expected a {vtype}, got {atype}')
+    print(f'Typecheck:#810:expected a {vtype}, got {atype}')
     return _Typecheck(value, False, False)
 
 
@@ -1554,13 +1554,13 @@ def _typecheck_table(value, vtype, ttypes, fixtypes):
         return _Typecheck(value, False, True) # any collection is ok
     if ttypes is None:
         print(
-            f'Typecheck#820:got table of unknown type {value.ttype.name}')
+            f'Typecheck:#820:got table of unknown type {value.ttype.name}')
         return _Typecheck(value, False, False)
     ttype = ttypes.get(value.ttype.name)
     if vtype == ttype.name:
         return _Typecheck(value, False, True)
     else:
-        print(f'Typecheck#822:expected a table of type {vtype}, got '
+        print(f'Typecheck:#822:expected a table of type {vtype}, got '
               f'{value.ttype.name}')
         return _Typecheck(value, False, False)
 
