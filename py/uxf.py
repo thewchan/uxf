@@ -164,7 +164,7 @@ class Uxf:
         elif isinstance(data, dict):
             data = Map(data)
         if not _is_uxf_collection(data):
-            raise Error('Uxf data must be a list, List, dict, Map, or '
+            raise Error('#900:Uxf data must be a list, List, dict, Map, or '
                         f'Table, got {type(data)}')
         self._data = data
 
@@ -252,23 +252,22 @@ def _read_text(filename_or_filelike):
 
 class _ErrorMixin:
 
-    def warn(self, message):
+    def warn(self, code, message):
         if self.warn_is_error:
-            self.error(message)
+            self.error(code, message)
         lino = self.text.count('\n', 0, self.pos) + 1
-        print(f'Warning:{self._what}:{self.filename}:{lino}: {message}')
+        print(f'Warning#{code}:{self.filename}:{lino}: {message}')
 
 
-    def error(self, message):
+    def error(self, code, message):
         lino = self.text.count('\n', 0, self.pos) + 1
-        raise Error(f'{self._what}:{self.filename}:{lino}: {message}')
+        raise Error(f'#{code}:{self.filename}:{lino}: {message}')
 
 
 class _Lexer(_ErrorMixin):
 
     def __init__(self, *, warn_is_error=False, filename='-'):
         self.warn_is_error = warn_is_error
-        self._what = 'lexer'
         self.filename = filename
 
 
@@ -293,19 +292,19 @@ class _Lexer(_ErrorMixin):
     def scan_header(self):
         i = self.text.find('\n')
         if i == -1:
-            self.error('missing UXF file header or empty file')
+            self.error(100, 'missing UXF file header or empty file')
         self.pos = i
         parts = self.text[:i].split(None, 2)
         if len(parts) < 2:
-            self.error('invalid UXF file header')
+            self.error(110, 'invalid UXF file header')
         if parts[0] != 'uxf':
-            self.error('not a UXF file')
+            self.error(120, 'not a UXF file')
         try:
             version = float(parts[1])
             if version > VERSION:
-                self.warn(f'version ({version}) > current ({VERSION})')
+                self.warn(131, f'version ({version}) > current ({VERSION})')
         except ValueError:
-            self.warn('failed to read UXF file version number')
+            self.warn(141, 'failed to read UXF file version number')
         if len(parts) > 2:
             self.custom = parts[2]
 
@@ -320,8 +319,8 @@ class _Lexer(_ErrorMixin):
                     '>', error_text='unterminated comment string')
                 self.add_token(_Kind.COMMENT, unescape(value))
             else:
-                self.error('invalid comment syntax: expected \'<\', got '
-                           f'{self.peek()}')
+                self.error(150, 'invalid comment syntax: expected \'<\', '
+                           f'got {self.peek()}')
 
 
     def at_end(self):
@@ -371,7 +370,7 @@ class _Lexer(_ErrorMixin):
         elif c.isalpha():
             self.read_name()
         else:
-            self.error(f'invalid character encountered: {c!r}')
+            self.error(160, f'invalid character encountered: {c!r}')
 
 
     def check_in_ttype(self):
@@ -384,14 +383,14 @@ class _Lexer(_ErrorMixin):
         if self.tokens and self.tokens[-1].kind in {
                 _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN}:
             if self.peek() != '<':
-                self.error('a str must follow the # comment introducer, '
-                           f'got {self.peek()!r}')
+                self.error(170, 'a str must follow the # comment '
+                           f'introducer, got {self.peek()!r}')
             self.pos += 1 # skip the leading <
             value = self.match_to('>',
                                   error_text='unterminated comment string')
             self.add_token(_Kind.COMMENT, unescape(value))
         else:
-            self.error('comments may only occur at the start of Maps, '
+            self.error(180, 'comments may only occur at the start of Maps, '
                        'Lists, and Tables')
 
 
@@ -405,7 +404,7 @@ class _Lexer(_ErrorMixin):
         try:
             self.add_token(_Kind.BYTES, bytes.fromhex(value))
         except ValueError as err:
-            self.error(f'expected bytes, got {value!r}: {err}')
+            self.error(190, f'expected bytes, got {value!r}: {err}')
 
 
     def read_negative_number(self, c):
@@ -422,7 +421,7 @@ class _Lexer(_ErrorMixin):
             value = convert(text)
             self.add_token(_Kind.REAL if is_real else _Kind.INT, -value)
         except ValueError as err:
-            self.error(f'invalid number: {text}: {err}')
+            self.error(200, f'invalid number: {text}: {err}')
 
 
     def read_positive_number_or_date(self, c):
@@ -441,7 +440,8 @@ class _Lexer(_ErrorMixin):
             if is_datetime and len(text) > 19:
                 self.reread_datetime(text, convert)
             else:
-                self.error(f'invalid number or date/time: {text}: {err}')
+                self.error(210,
+                           f'invalid number or date/time: {text}: {err}')
 
 
     def read_number_or_date_chars(self, c):
@@ -487,10 +487,10 @@ class _Lexer(_ErrorMixin):
         try:
             value = convert(text[:19])
             self.add_token(_Kind.DATE_TIME, value)
-            self.warn(f'skipped timezone data, used {text[:19]!r}, got '
-                      f'{text!r}')
+            self.warn(221, f'skipped timezone data, used {text[:19]!r}, '
+                      f'got {text!r}')
         except ValueError as err:
-            self.error(f'invalid datetime: {text}: {err}')
+            self.error(230, f'invalid datetime: {text}: {err}')
 
 
     def read_name(self):
@@ -511,7 +511,7 @@ class _Lexer(_ErrorMixin):
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
-            self.error(f'expected const or identifier, got {text!r}')
+            self.error(240, f'expected const or identifier, got {text!r}')
 
 
     def read_field_vtype(self):
@@ -545,7 +545,7 @@ class _Lexer(_ErrorMixin):
         if identifier:
             return identifier
         text = self.text[start:start + 10]
-        self.error(f'expected {what}, got {text}…')
+        self.error(250, f'expected {what}, got {text}…')
 
 
     def match_to(self, target, *, error_text):
@@ -555,7 +555,7 @@ class _Lexer(_ErrorMixin):
                 text = self.text[self.pos:i]
                 self.pos = i + len(target) # skip past target
                 return text
-        self.error(error_text)
+        self.error(260, error_text)
 
 
     def match_any_of(self, targets):
@@ -678,10 +678,11 @@ class Map(collections.UserDict):
                 prefix = ('map keys may only be of type int, date, '
                           'datetime, str, or bytes, got ')
                 if isinstance(value, Table):
-                    raise Error(f'{prefix} a Table ( … ) maybe bytes '
+                    raise Error(f'#910:{prefix}a Table ( … ), maybe bytes '
                                 '(: … :) was intended?')
                 else:
-                    raise Error(f'{prefix} {value!r} of type {type(value)}')
+                    raise Error(
+                        f'#912:{prefix}{value!r} of type {type(value)}')
             self._pending_key = value
         else:
             self.data[self._pending_key] = value
@@ -712,11 +713,11 @@ class _CheckNameMixin:
     def _check_name(self, name):
         if not name[0].isupper():
             raise Error(
-                f'names must start with a capital letter, got {name}')
+                f'#920:names must start with a capital letter, got {name}')
         for x in name[1:]:
             if not (x.isalnum() or x == '_'):
-                raise Error('names may only contain letters, digits, or '
-                            f'underscores, got {name}')
+                raise Error('#922:names may only contain letters, digits, '
+                            f'or underscores, got {name}')
 
 
 class TType(_CheckNameMixin):
@@ -840,9 +841,10 @@ class Table:
         self.comment = comment
         if records:
             if not name:
-                raise Error('can\'t create an unnamed nonempty table')
+                raise Error('#930:can\'t create an unnamed nonempty table')
             if not self.ttype:
-                raise Error('can\'t create a nonempty table without fields')
+                raise Error(
+                    '#932:can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
                 if self._Class is None:
                     self._make_record_class()
@@ -902,7 +904,7 @@ class Table:
         for row in range(len(self.records)):
             columns = len(self.records[row])
             if columns != len(self.fields):
-                print(f'typecheck: expected {len(self.fields)} fields, '
+                print(f'Typecheck#800:expected {len(self.fields)} fields, '
                       f'got {columns}')
             for column in range(columns):
                 if column < len(self.fields):
@@ -919,18 +921,18 @@ class Table:
 
     def _make_record_class(self):
         if not self.name:
-            raise Error('can\'t use an unnamed table')
+            raise Error('#940:can\'t use an unnamed table')
         if not self.fields:
-            raise Error('can\'t create a table with no fields')
+            raise Error('#942:can\'t create a table with no fields')
         self._Class = collections.namedtuple( # prefix avoids name clashes
             f'UXF{self.name}', [field.name for field in self.fields])
 
 
     def __iadd__(self, value):
         if not self.name:
-            raise Error('can\'t append to an unnamed table')
+            raise Error('#950:can\'t append to an unnamed table')
         if not self.fields:
-            raise Error('can\'t append to a table with no fields')
+            raise Error('#952:can\'t append to a table with no fields')
         if isinstance(value, (list, List, tuple)):
             for v in value:
                 self.append(v)
@@ -945,7 +947,7 @@ class Table:
             return self._Class(*self.records[row])
         except TypeError as err:
             if 'missing' in str(err):
-                err = 'table\'s ttype has fewer fields than in a row'
+                err = '#960:table\'s ttype has fewer fields than in a row'
                 raise Error(err) from None
 
 
@@ -957,7 +959,8 @@ class Table:
                 yield self._Class(*record)
         except TypeError as err:
             if 'missing' in str(err):
-                raise Error('table\'s ttype has fewer fields than in a row')
+                raise Error(
+                    '#970:table\'s ttype has fewer fields than in a row')
 
 
     def __len__(self):
@@ -987,7 +990,6 @@ class _Parser(_ErrorMixin):
     def __init__(self, *, warn_is_error=False, filename='-'):
         self.warn_is_error = warn_is_error
         self.filename = filename
-        self._what = 'parser'
 
 
     def clear(self):
@@ -1009,7 +1011,8 @@ class _Parser(_ErrorMixin):
             kind = token.kind
             collection_start = self._is_collection_start(kind)
             if data is None and not collection_start:
-                self.error(f'expected a map, list, or table, got {token}')
+                self.error(400,
+                           f'expected a map, list, or table, got {token}')
             if collection_start:
                 self._on_collection_start(token)
                 if data is None:
@@ -1027,7 +1030,7 @@ class _Parser(_ErrorMixin):
             elif kind is _Kind.EOF:
                 break
             else:
-                self.error(f'unexpected token, got {token}')
+                self.error(410, f'unexpected token, got {token}')
         return data, comment
 
 
@@ -1035,25 +1038,25 @@ class _Parser(_ErrorMixin):
         parent = self.stack[-1]
         prev_token = self.tokens[i - 1]
         if not self._is_collection_start(prev_token.kind):
-            self.error('comments may only be put at the beginning of a '
-                       f'map, list, or table, not after {prev_token}')
+            self.error(420, 'comments may only be put at the beginning '
+                       f'of a map, list, or table, not after {prev_token}')
         parent.comment = token.value
 
 
     def _handle_identifier(self, i, token):
         parent = self.stack[-1]
         if not isinstance(parent, Table):
-            self.error('ttype name may only appear at the start of a '
+            self.error(430, 'ttype name may only appear at the start of a '
                        f'table, {token}')
         if self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
             ttype = self.ttypes.get(token.value)
             if ttype is None:
-                self.error(f'undefined table ttype, {token}')
+                self.error(440, f'undefined table ttype, {token}')
             parent.ttype = ttype
         else: # should never happen
-            self.error('ttype name may only appear at the start of a '
+            self.error(450, 'ttype name may only appear at the start of a '
                        f'table, {token}')
 
 
@@ -1061,8 +1064,8 @@ class _Parser(_ErrorMixin):
         parent = self.stack[-1]
         if isinstance(parent, List):
             if parent.vtype is not None:
-                self.error('can only have at most one vtype for a list, '
-                           f'got {token}')
+                self.error(460, 'can only have at most one vtype for a '
+                           f'list, got {token}')
             parent.vtype = token.value
         elif isinstance(parent, Map):
             if parent.ktype is None:
@@ -1070,11 +1073,11 @@ class _Parser(_ErrorMixin):
             elif parent.vtype is None:
                 parent.vtype = token.value
             else:
-                self.error('can only have at most one ktype and one vtype '
-                           f'for a map, got {token}')
+                self.error(470, 'can only have at most one ktype and one '
+                           f'vtype for a map, got {token}')
         else:
-            self.error('ktypes and vtypes are only allowed at the start '
-                       f'of maps and lists, got {token}')
+            self.error(480, 'ktypes and vtypes are only allowed at the '
+                       f'start of maps and lists, got {token}')
 
 
     def _on_collection_start(self, token):
@@ -1087,7 +1090,7 @@ class _Parser(_ErrorMixin):
             value = Table()
         else:
             self.error(
-                f'expected to create map, list, or table, got {token}')
+                490, f'expected to create map, list, or table, got {token}')
         if self.stack:
             self.stack[-1].append(value) # add the collection to the parent
         self.stack.append(value) # make the collection the current parent
@@ -1095,8 +1098,8 @@ class _Parser(_ErrorMixin):
 
     def _on_collection_end(self, token):
         if not self.stack:
-            self.error(f'unexpected {token} suggests unmatched map, list, '
-                       'or table start/end pair')
+            self.error(500, f'unexpected {token} suggests unmatched map, '
+                       'list, or table start/end pair')
         self.stack.pop()
 
 
@@ -1145,6 +1148,7 @@ class _Parser(_ErrorMixin):
                         used.add(vtype)
                 else:
                     self.error(
+                        510,
                         f'encountered type without field name: {token}')
             elif token.kind is _Kind.TTYPE_END:
                 if ttype is not None and bool(ttype):
@@ -1161,10 +1165,11 @@ class _Parser(_ErrorMixin):
             if diff:
                 diff = sorted(diff)
                 if len(diff) == 1:
-                    self.error(f'ttype uses undefined type: {diff[0]!r}')
+                    self.error(520,
+                               f'ttype uses undefined type: {diff[0]!r}')
                 else:
                     diff = ', '.join(repr(t) for t in diff)
-                    self.error(f'ttype uses undefined types: {diff}')
+                    self.error(530, f'ttype uses undefined types: {diff}')
 
 
 def dump(filename_or_filelike, data, *, indent=2,
@@ -1265,8 +1270,8 @@ class _Writer:
     def write_value(self, item, indent=0, *, pad, is_map_value=False):
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
             if not self.one_way_conversion:
-                raise Error(f'can only convert {type(item)} to List if '
-                            'one_way_conversion is True')
+                raise Error(f'#700:can only convert {type(item)} to List '
+                            'if one_way_conversion is True')
             item = list(item)
         if isinstance(item, (list, List)):
             return self.write_list(item, indent, pad=pad,
@@ -1412,12 +1417,12 @@ class _Writer:
             self.file.write(f'(:{item.hex().upper()}:)')
         elif isinstance(item, bytearray):
             if not self.one_way_conversion:
-                raise Error('can only convert bytearray to bytes if '
+                raise Error('#710: can only convert bytearray to bytes if '
                             'one_way_conversion is True')
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            print(f'error: ignoring unexpected item of type {type(item)}: '
-                  f'{item!r}', file=sys.stderr)
+            print('Warning#720:ignoring unexpected item of type '
+                  f'{type(item)}: {item!r}', file=sys.stderr)
         return False
 
 
@@ -1540,7 +1545,7 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
     if isinstance(value, classes):
         return _Typecheck(value, False, True)
     atype = _TYPECHECK_ATYPES.get(type(value))
-    print(f'typecheck: expected a {vtype}, got {atype}')
+    print(f'Typecheck#810:expected a {vtype}, got {atype}')
     return _Typecheck(value, False, False)
 
 
@@ -1548,13 +1553,14 @@ def _typecheck_table(value, vtype, ttypes, fixtypes):
     if vtype == 'collection':
         return _Typecheck(value, False, True) # any collection is ok
     if ttypes is None:
-        print(f'typecheck: got table of unknown type {value.ttype.name}')
+        print(
+            f'Typecheck#820:got table of unknown type {value.ttype.name}')
         return _Typecheck(value, False, False)
     ttype = ttypes.get(value.ttype.name)
     if vtype == ttype.name:
         return _Typecheck(value, False, True)
     else:
-        print(f'typecheck: expected a table of type {vtype}, got '
+        print(f'Typecheck#822:expected a table of type {vtype}, got '
               f'{value.ttype.name}')
         return _Typecheck(value, False, False)
 
