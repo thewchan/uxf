@@ -29,9 +29,9 @@ except ImportError: # needed for development
 
 
 def main():
-    uxf_obj = uxf.load(INFILE)
     shutil.rmtree(OUTDIR, ignore_errors=True)
     os.mkdir(OUTDIR)
+    uxf_obj = uxf.load(INFILE)
     titles = []
     for index, slide in enumerate(uxf_obj.data, 1):
         titles.append(write_slide(index, slide))
@@ -41,7 +41,7 @@ def main():
 def write_slide(index, slide):
     parts = ['<html><title>']
     doc_title = title = html_for_block(slide[0])
-    if title[0] == '<h1>' and title[-1] == '</h1>':
+    while len(doc_title) > 1:
         doc_title = doc_title[1:-1]
     parts += doc_title
     parts.append('</title><body>')
@@ -85,7 +85,8 @@ def html_for_block(block):
 def write_index(titles):
     with open(f'{OUTDIR}/index.html', 'wt', encoding='utf-8') as file:
         title = escape(titles[0])
-        file.write(f'<html><title>{title}</title><body>\n<ol>')
+        file.write(
+            f'<html><title>{title}</title><body>\n<h1>{title}</h1><ol>')
         for i, title in enumerate(titles, 1):
             title = escape(title)
             file.write(f'<li><a href="{i}.html">{title}</a></li>\n')

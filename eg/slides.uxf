@@ -1,5 +1,7 @@
 uxf 1.0 Slides 0.1.0
-#<This is a simple example of an application-specific use of UXF.>
+#<This is a simple example of an application-specific use of UXF.
+B signifies bullet point; M signifies monospace.
+See slides.py for an example of converting this format to HTML.>
 =Slide Title Body
 =H1 Content
 =H2 Content
@@ -35,8 +37,6 @@ uxf 1.0 Slides 0.1.0
 
 (H1 <Main Characteristics>)
 [
-  (B <>)
-  (B <>)
   (B <>)
   (B <>)
   (B <>)
