@@ -420,39 +420,18 @@ class _Lexer(_ErrorMixin):
         text = self.text[start:self.pos]
         try:
             value = convert(text)
-            self.add_token(_Kind.REAL if is_real else _Kind.INT,
-                           -value)
+            self.add_token(_Kind.REAL if is_real else _Kind.INT, -value)
         except ValueError as err:
             self.error(f'invalid number: {text}: {err}')
 
 
     def read_positive_number_or_date(self, c):
-        is_real = is_datetime = False
-        hyphens = 0
         start = self.pos - 1
-        while not self.at_end() and (c in '-+.:eETZ' or c.isdecimal()):
-            if c in '.eE':
-                is_real = True
-            elif c == '-':
-                hyphens += 1
-            elif c in ':TZ':
-                is_datetime = True
-            c = self.text[self.pos]
-            self.pos += 1
+        is_real, is_datetime, hyphens = self.read_number_or_date_chars(c)
         self.pos -= 1 # wind back to terminating non-numeric non-date char
         text = self.text[start:self.pos]
-        if is_datetime:
-            convert, token = self.read_datetime(text)
-        elif hyphens == 2:
-            convert = (datetime.date.fromisoformat if isoparse is None
-                       else isoparse)
-            token = _Kind.DATE
-        elif is_real:
-            convert = float
-            token = _Kind.REAL
-        else:
-            convert = int
-            token = _Kind.INT
+        convert, token = self.get_converter_and_token(is_real, is_datetime,
+                                                      hyphens, text)
         try:
             value = convert(text)
             if token is _Kind.DATE and isoparse is not None:
@@ -463,6 +442,33 @@ class _Lexer(_ErrorMixin):
                 self.reread_datetime(text, convert)
             else:
                 self.error(f'invalid number or date/time: {text}: {err}')
+
+
+    def read_number_or_date_chars(self, c):
+        is_real = is_datetime = False
+        hyphens = 0
+        while not self.at_end() and (c in '-+.:eETZ' or c.isdecimal()):
+            if c in '.eE':
+                is_real = True
+            elif c == '-':
+                hyphens += 1
+            elif c in ':TZ':
+                is_datetime = True
+            c = self.text[self.pos]
+            self.pos += 1
+        return is_real, is_datetime, hyphens
+
+
+    def get_converter_and_token(self, is_real, is_datetime, hyphens, text):
+        if is_datetime:
+            return self.read_datetime(text)
+        if hyphens == 2:
+            convert = (datetime.date.fromisoformat if isoparse is None
+                       else isoparse)
+            return convert, _Kind.DATE
+        if is_real:
+            return float, _Kind.REAL
+        return int, _Kind.INT
 
 
     def read_datetime(self, text):
@@ -618,9 +624,19 @@ class _Kind(enum.Enum):
     EOF = enum.auto()
 
 
+    @property
+    def is_scalar(self):
+        return self in {_Kind.NULL, _Kind.BOOL, _Kind.INT, _Kind.REAL,
+                        _Kind.DATE, _Kind.DATE_TIME, _Kind.STR, _Kind.BYTES}
+
+
 class List(collections.UserList):
 
     def __init__(self, *args, **kwargs):
+        '''Takes same arguments as list.
+        .data holds the actual list
+        .comment holds an optional comment
+        .vtype holds a UXF type name ('int', 'real', …)'''
         super().__init__(*args, **kwargs)
         self.comment = None
         self.vtype = None
@@ -641,6 +657,11 @@ class List(collections.UserList):
 class Map(collections.UserDict):
 
     def __init__(self, *args, **kwargs):
+        '''Takes same arguments as dict.
+        .data holds the actual dict
+        .comment holds an optional comment
+        .ktype and .vtype hold a UXF type name ('int', 'str', …);
+        .ktype may only be int, str, bytes, date, or datetime'''
         super().__init__(*args, **kwargs)
         self.comment = None
         self.ktype = None
@@ -701,6 +722,10 @@ class _CheckNameMixin:
 class TType(_CheckNameMixin):
 
     def __init__(self, name, fields=None):
+        '''The type of a Table
+        .name holds the ttype's name (equivalent to a vtype or ktype name,
+        but always starting with a captital letter)
+        .fields holds a list of fields of type Field'''
         self.name = name
         self.fields = []
         if fields is not None:
@@ -758,6 +783,10 @@ class TType(_CheckNameMixin):
 class Field(_CheckNameMixin):
 
     def __init__(self, name, vtype=None):
+        '''The type of one field in a Table
+        .name holds the field's name (equivalent to a vtype or ktype name,
+        but always starting with a captital letter)
+        .vtype holds a UXF type name ('int', 'real', …)'''
         self.name = name
         self.vtype = vtype
 
@@ -968,9 +997,9 @@ class _Parser(_ErrorMixin):
 
 
     def parse(self, tokens, text):
+        self.clear()
         if not tokens:
             return
-        self.clear()
         self.tokens = tokens
         self.text = text
         data = None
@@ -993,9 +1022,7 @@ class _Parser(_ErrorMixin):
                 self._handle_identifier(i, token)
             elif kind is _Kind.TYPE:
                 self._handle_type(i, token)
-            elif kind in {_Kind.NULL, _Kind.BOOL, _Kind.INT, _Kind.REAL,
-                          _Kind.DATE, _Kind.DATE_TIME, _Kind.STR,
-                          _Kind.BYTES}:
+            elif kind.is_scalar:
                 self.stack[-1].append(token.value)
             elif kind is _Kind.EOF:
                 break
@@ -1093,6 +1120,11 @@ class _Parser(_ErrorMixin):
 
 
     def _parse_ttypes(self):
+        used = self._read_ttypes()
+        self._check_used_ttypes(used)
+
+
+    def _read_ttypes(self):
         used = set()
         ttype = None
         for index, token in enumerate(self.tokens):
@@ -1120,6 +1152,10 @@ class _Parser(_ErrorMixin):
                 self.tokens = self.tokens[index + 1:]
             else:
                 break # no TTypes at all
+        return used
+
+
+    def _check_used_ttypes(self, used):
         if self.ttypes: # Check that all ttypes referred to are defined
             diff = used - set(self.ttypes.keys())
             if diff:
@@ -1254,7 +1290,20 @@ class _Writer:
         self.file.write(f'{tab}[{prefix}')
         if len(item) == 1 or (len(item) <= MAX_LIST_IN_LINE and
                               _are_short_len(*item[:MAX_LIST_IN_LINE + 1])):
-            return self.write_short_list(' ' if prefix else '', item)
+            return self._write_short_list(' ' if prefix else '', item)
+        return self._write_list(item, indent, pad)
+
+
+    def _write_short_list(self, sep, item):
+        for value in item:
+            self.file.write(sep)
+            self.write_value(value, pad='')
+            sep = ' '
+        self.file.write(']')
+        return False
+
+
+    def _write_list(self, item, indent, pad):
         self.file.write('\n')
         indent += 1
         for value in item:
@@ -1265,15 +1314,6 @@ class _Writer:
         return True
 
 
-    def write_short_list(self, sep, item):
-        for value in item:
-            self.file.write(sep)
-            self.write_value(value, pad='')
-            sep = ' '
-        self.file.write(']')
-        return False
-
-
     def write_map(self, item, indent=0, *, pad, is_map_value=False):
         tab = '' if is_map_value else pad * indent
         prefix = self.collection_prefix(item)
@@ -1281,21 +1321,11 @@ class _Writer:
             self.file.write(f'{tab}{{{prefix}}}')
             return False
         if len(item) == 1:
-            return self.write_single_item_map(tab, prefix, item)
-        self.file.write(f'{tab}{{{prefix}\n')
-        indent += 1
-        for key, value in item.items():
-            self.write_scalar(key, indent, pad=pad)
-            self.file.write(' ')
-            if not self.write_value(value, indent, pad=pad,
-                                    is_map_value=True):
-                self.file.write('\n')
-        tab = pad * (indent - 1)
-        self.file.write(f'{tab}}}\n')
-        return True
+            return self._write_single_item_map(tab, prefix, item)
+        return self._write_map(tab, prefix, item, indent, pad, is_map_value)
 
 
-    def write_single_item_map(self, tab, prefix, item):
+    def _write_single_item_map(self, tab, prefix, item):
         self.file.write(f'{tab}{{{prefix}')
         key, value = list(item.items())[0]
         self.write_scalar(key, 1, pad=' ')
@@ -1309,6 +1339,20 @@ class _Writer:
         return True
 
 
+    def _write_map(self, tab, prefix, item, indent, pad, is_map_value):
+        self.file.write(f'{tab}{{{prefix}\n')
+        indent += 1
+        for key, value in item.items():
+            self.write_scalar(key, indent, pad=pad)
+            self.file.write(' ')
+            if not self.write_value(value, indent, pad=pad,
+                                    is_map_value=True):
+                self.file.write('\n')
+        tab = pad * (indent - 1)
+        self.file.write(f'{tab}}}\n')
+        return True
+
+
     def write_table(self, item, indent=0, *, pad, is_map_value=False):
         tab = '' if is_map_value else pad * indent
         prefix = self.collection_prefix(item)
@@ -1317,7 +1361,18 @@ class _Writer:
             self.file.write(')')
             return False
         if len(item) == 1:
-            return self.write_one_table_record(item[0], is_map_value)
+            return self._write_single_record_table(item[0], is_map_value)
+        return self._write_table(tab, item, indent, pad, is_map_value)
+
+
+    def _write_single_record_table(self, record, is_map_value):
+        self.file.write(' ')
+        self.write_record(record, is_map_value)
+        self.file.write(')')
+        return False
+
+
+    def _write_table(self, tab, item, indent, pad, is_map_value):
         self.file.write('\n')
         indent += 1
         tab = pad * indent
@@ -1328,13 +1383,6 @@ class _Writer:
         tab = pad * (indent - 1)
         self.file.write(f'{tab})\n')
         return True
-
-
-    def write_one_table_record(self, record, is_map_value):
-        self.file.write(' ')
-        self.write_record(record, is_map_value)
-        self.file.write(')')
-        return False
 
 
     def write_record(self, record, is_map_value):
@@ -1474,19 +1522,9 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
     if value is None or not vtype: # null is always a valid value
         return _Typecheck(value, False, True)
     if isinstance(value, Table):
-        if vtype == 'collection':
-            return _Typecheck(value, False, True) # any collection is ok
-        if ttypes is None:
-            print(
-                f'typecheck: got table of unknown type {value.ttype.name}')
-            return _Typecheck(value, False, False)
-        ttype = ttypes.get(value.ttype.name)
-        if vtype == ttype.name:
-            return _Typecheck(value, False, True)
-        else:
-            print(f'typecheck: expected a table of type {vtype}, got '
-                  f'{value.ttype.name}')
-            return _Typecheck(value, False, False)
+        reply = _typecheck_table(value, vtype, ttypes, fixtypes)
+        if reply is not None:
+            return reply
     classes = _TYPECHECK_CLASSES.get(vtype)
     if (not isinstance(value, classes) and fixtypes and
             vtype != 'collection'):
@@ -1504,6 +1542,21 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
     atype = _TYPECHECK_ATYPES.get(type(value))
     print(f'typecheck: expected a {vtype}, got {atype}')
     return _Typecheck(value, False, False)
+
+
+def _typecheck_table(value, vtype, ttypes, fixtypes):
+    if vtype == 'collection':
+        return _Typecheck(value, False, True) # any collection is ok
+    if ttypes is None:
+        print(f'typecheck: got table of unknown type {value.ttype.name}')
+        return _Typecheck(value, False, False)
+    ttype = ttypes.get(value.ttype.name)
+    if vtype == ttype.name:
+        return _Typecheck(value, False, True)
+    else:
+        print(f'typecheck: expected a table of type {vtype}, got '
+              f'{value.ttype.name}')
+        return _Typecheck(value, False, False)
 
 
 _Typecheck = collections.namedtuple('_Typecheck', 'value fixed ok')
