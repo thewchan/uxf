@@ -1247,7 +1247,8 @@ class _Writer:
             self.file.write(f'#<{escape(uxf_obj.comment)}>\n')
         if uxf_obj.ttypes:
             self.write_ttypes(uxf_obj.ttypes)
-        self.write_value(uxf_obj.data, pad=pad)
+        if not self.write_value(uxf_obj.data, pad=pad):
+            self.file.write('\n')
 
 
     def write_header(self, custom):

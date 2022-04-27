@@ -5,6 +5,8 @@ README.md
 
 t/regression.py
 
+eg/slides.py
+eg/slides.uxf
 misc/epd2uxf.py
 misc/md2html.sh
 

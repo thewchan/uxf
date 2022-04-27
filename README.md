@@ -484,7 +484,8 @@ which might prove useful to see how to use `uxf`. For example,
 `uxfconvert.py` can losslessly convert `.uxf` to `.json` or `.xml` and back.
 It can also do some simple conversions to and from `.csv`, to `.ini`, and to
 and from `.sqlite`, but these are really to illustrate use of the uxf APIs.
-And also see the `t/*` test files.
+And also see the `t/*` test files and the `eg` folder (for example, the
+`eg/slides.uxf` and `eg/slides.py` files).
 
 If you just want to create a small standalone `.pyz`, simply copy
 `py/uxf.py` as `uxf.py` into your project folder and inlude it in your

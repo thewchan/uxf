@@ -1,0 +1,87 @@
+uxf 1.0 Slides 0.1.0
+#<This is a simple example of an application-specific use of UXF.>
+=Slide Title Body
+=H1 Content
+=H2 Content
+=B Content
+=M Content
+(Slide
+
+(H1 <The Uniform eXchange Format>)
+(H2 <A Brief Introduction>)
+
+(H1 <Overview>)
+[
+  (B <Motivation>)
+  (B <Main Characteristics>)
+  (B <Overall Structure>)
+  (B <Collection Types>)
+  (B <Scalar Types>)
+  (B <Conclusion>)
+]
+
+(H1 <Motivation>)
+[
+  (B [(M <.csv>) <has only one table, &amp; isn't standardized or typed>])
+  (B [(M <.ini>) <only nests 2-3 deep, &amp; isn't standardized or typed>])
+  (B [(M <.json>) <has lots of punctuation, no date/time support and is verbose>])
+  (B [(M <.xml>) <is heavyweight and isn't nice to hand edit>])
+  (B <UXF can hold any number of tables>)
+  (B <UXF is optionally typed>)
+  (B <UXF supports date/times and binary data>)
+  (B <UXF nests maps, lists, and tables, to any depth>)
+  (B <UXF is fairly lightweight and hand editable>)
+]
+
+(H1 <Main Characteristics>)
+[
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+]
+
+(H1 <Overall Structure>)
+[
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+]
+
+(H1 <Collection Types>)
+[
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+]
+
+(H1 <Scalar Types>)
+[
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+]
+
+(H1 <Conclusion>)
+[
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+]
+
+)
