@@ -33,12 +33,13 @@ def main():
     os.mkdir(OUTDIR)
     uxf_obj = uxf.load(INFILE)
     titles = []
-    for index, slide in enumerate(uxf_obj.data, 1):
-        titles.append(write_slide(index, slide))
+    slides = uxf_obj.data
+    for index, slide in enumerate(slides, 1):
+        titles.append(write_slide(index, slide, len(slides)))
     write_index(titles)
 
 
-def write_slide(index, slide):
+def write_slide(index, slide, last):
     parts = ['<html><title>']
     doc_title = title = html_for_block(slide[0])
     while len(doc_title) > 1:
@@ -48,7 +49,16 @@ def write_slide(index, slide):
     parts += title
     for block in slide[1:]:
         parts += html_for_block(block)
-    parts.append('<a href="index.html">Contents</a></body></html>')
+    if index > 1:
+        parts.append(f'<a href="{index - 1}.html">Prev</a>')
+    else:
+        parts.append('<a href="index.html">Prev</a>')
+    parts.append('&nbsp;<a href="index.html">Contents</a>&nbsp;')
+    if index != last:
+        parts.append(f'<a href="{index + 1}.html">Next</a>')
+    else:
+        parts.append('<font color="gray">Next</font>')
+    parts.append('</body></html>')
     with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
         file.write('\n'.join(parts))
     return doc_title[0]

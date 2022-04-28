@@ -1,7 +1,5 @@
 # TODOS
 
-- slides.py: add prev & next links either side of the Contents link
-
 - slides.uxf: complete the text
 
 - SQLite (see paper notes)
