@@ -1,6 +1,6 @@
 uxf 1.0 MyApp 1.2.0 Config
-= pos x:int y:int
-= size width:int height:int
+= #<nonnegative> pos x:int y:int
+= #<nonnegative &amp; &gt; 0> size width:int height:int
 { #<Notes on this configuration file format> str map
   <General> { #<Miscellaneous settings> str
     <shapename> <Hexagon>

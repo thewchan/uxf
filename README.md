@@ -55,8 +55,9 @@ A `table` starts with a _ttype_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
 _ttype_.
 
-Maps, lists, and tables may begin with a comment, and may optionally by
-typed as indicated above. (See also the examples below and the BNF at the end).
+Maps, lists, tables, and _ttype_ definitions may begin with a comment. And
+maps, lists, and tables may optionally by typed as indicated above. (See
+also the examples below and the BNF at the end).
 
 Strings may not include `&`, `<` or `>`, so if they are required, we must
 use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively in their
@@ -315,7 +316,7 @@ this case three (since each row has two fields based on each table's
 _ttype_).
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Geometry x:int y:int width:int height:int scale:real
+    = #<Window dimensions> Geometry x:int y:int width:int height:int scale:real
     { #<Notes on this configuration file format> str map
       <General> { #<Miscellaneous settings> str
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str

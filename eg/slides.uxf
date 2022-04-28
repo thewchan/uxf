@@ -1,18 +1,18 @@
 uxf 1.0 Slides 0.1.0
 #<This is a simple example of an application-specific use of UXF.
-B signifies bullet point; M signifies monospace.
+B signifies bullet point; m signifies monospace.
 See slides.py for an example of converting this format to HTML.>
-=Slide Title Body
-=H1 Content
-=H2 Content
-=B Content
-=M Content
+= Slide title body
+= #<title> h1 content
+= #<subtitle> h2 content
+= #<bullet item> B content
+= #<monospace> m content
 (Slide
 
-(H1 <The Uniform eXchange Format>)
-(H2 <A Brief Introduction>)
+(h1 <The Uniform eXchange Format>)
+(h2 <A Brief Introduction>)
 
-(H1 <Overview>)
+(h1 <Overview>)
 [
   (B <Motivation>)
   (B <Main Characteristics>)
@@ -22,12 +22,12 @@ See slides.py for an example of converting this format to HTML.>
   (B <Conclusion>)
 ]
 
-(H1 <Motivation>)
+(h1 <Motivation>)
 [
-  (B [(M <.csv>) <has only one table, &amp; isn't standardized or typed>])
-  (B [(M <.ini>) <only nests 2-3 deep, &amp; isn't standardized or typed>])
-  (B [(M <.json>) <has lots of punctuation, no date/time support and is verbose>])
-  (B [(M <.xml>) <is heavyweight and isn't nice to hand edit>])
+  (B [(m <.csv>) <has only one table, &amp; isn't standardized or typed>])
+  (B [(m <.ini>) <only nests 2-3 deep, &amp; isn't standardized or typed>])
+  (B [(m <.json>) <has lots of punctuation, no date/time support and is verbose>])
+  (B [(m <.xml>) <is heavyweight and isn't nice to hand edit>])
   (B <UXF can hold any number of tables>)
   (B <UXF is optionally typed>)
   (B <UXF supports date/times and binary data>)
@@ -35,7 +35,7 @@ See slides.py for an example of converting this format to HTML.>
   (B <UXF is fairly lightweight and hand editable>)
 ]
 
-(H1 <Main Characteristics>)
+(h1 <Main Characteristics>)
 [
   (B <>)
   (B <>)
@@ -44,17 +44,7 @@ See slides.py for an example of converting this format to HTML.>
   (B <>)
 ]
 
-(H1 <Overall Structure>)
-[
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-]
-
-(H1 <Collection Types>)
+(h1 <Overall Structure>)
 [
   (B <>)
   (B <>)
@@ -64,7 +54,7 @@ See slides.py for an example of converting this format to HTML.>
   (B <>)
 ]
 
-(H1 <Scalar Types>)
+(h1 <Collection Types>)
 [
   (B <>)
   (B <>)
@@ -74,7 +64,17 @@ See slides.py for an example of converting this format to HTML.>
   (B <>)
 ]
 
-(H1 <Conclusion>)
+(h1 <Scalar Types>)
+[
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+  (B <>)
+]
+
+(h1 <Conclusion>)
 [
   (B <>)
   (B <>)

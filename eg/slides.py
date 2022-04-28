@@ -64,21 +64,20 @@ def html_for_block(block):
         return parts
     # Must be a Table
     parts = []
-    if block.name == 'H1':
-        parts.append('<h1>')
-        end = '</h1>'
-    elif block.name == 'H2':
-        parts.append('<h2>')
-        end = '</h2>'
-    elif block.name == 'M':
+    end = None
+    if block.name in {'h1', 'h2'}:
+        parts.append(f'<{block.name}>')
+        end = f'</{block.name}>'
+    elif block.name == 'm':
         parts.append('<tt>')
         end = '</tt>'
     elif block.name == 'B':
         parts.append('<ul><li>')
         end = '</li></ul>'
     for record in block:
-        parts += html_for_block(record.Content)
-    parts.append(end)
+        parts += html_for_block(record.content)
+    if end is not None:
+        parts.append(end)
     return parts
 
 

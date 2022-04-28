@@ -10,7 +10,8 @@
           "width": "int",
           "height": "int",
           "scale": "real"
-        }
+        },
+        "comment": "Window dimensions"
       }
     }
   ],

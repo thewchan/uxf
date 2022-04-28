@@ -382,7 +382,8 @@ class _Lexer(_ErrorMixin):
 
     def read_comment(self):
         if self.tokens and self.tokens[-1].kind in {
-                _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN}:
+                _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN,
+                _Kind.TTYPE_BEGIN}:
             if self.peek() != '<':
                 self.error(170, 'a str must follow the # comment '
                            f'introducer, got {self.peek()!r}')
@@ -391,8 +392,8 @@ class _Lexer(_ErrorMixin):
                                   error_text='unterminated comment string')
             self.add_token(_Kind.COMMENT, unescape(value))
         else:
-            self.error(180, 'comments may only occur at the start of Maps, '
-                       'Lists, and Tables')
+            self.error(180, 'comments may only occur at the start of '
+                       'TTypes, Maps, Lists, and Tables')
 
 
     def read_string(self):
@@ -723,13 +724,15 @@ class _CheckNameMixin:
 
 class TType(_CheckNameMixin):
 
-    def __init__(self, name, fields=None):
+    def __init__(self, name, fields=None, *, comment=None):
         '''The type of a Table
         .name holds the ttype's name (equivalent to a vtype or ktype name,
         but always starting with a captital letter)
-        .fields holds a list of fields of type Field'''
+        .fields holds a list of fields of type Field
+        .comment holds an optional comment'''
         self.name = name
         self.fields = []
+        self.comment = comment
         if fields is not None:
             for field in fields:
                 if isinstance(field, str):
@@ -779,7 +782,8 @@ class TType(_CheckNameMixin):
 
     def __repr__(self):
         fields = ', '.join(repr(field) for field in self.fields)
-        return f'{self.__class__.__name__}({self.name!r}, {fields})'
+        return (f'{self.__class__.__name__}({self.name!r}, {fields}, '
+                f'comment={self.comment!r})')
 
 
 class Field(_CheckNameMixin):
@@ -1136,6 +1140,8 @@ class _Parser(_ErrorMixin):
                 if ttype is not None and ttype.name is not None:
                     self.ttypes[ttype.name] = ttype
                 ttype = TType(None)
+            elif token.kind is _Kind.COMMENT:
+                ttype.comment = token.value
             elif token.kind is _Kind.IDENTIFIER:
                 if ttype.name is None:
                     ttype.name = token.value
@@ -1261,7 +1267,10 @@ class _Writer:
 
     def write_ttypes(self, ttypes):
         for ttype in sorted(ttypes.values()):
-            self.file.write(f'= {ttype.name}')
+            self.file.write('=')
+            if ttype.comment:
+                self.file.write(f' #<{escape(ttype.comment)}>')
+            self.file.write(f' {ttype.name}')
             for field in ttype.fields:
                 self.file.write(f' {field.name}')
                 if field.vtype is not None:

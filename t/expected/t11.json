@@ -49,7 +49,8 @@
           "red": "int",
           "green": "int",
           "blue": "int"
-        }
+        },
+        "comment": "0-255 per component"
       }
     },
     {
@@ -60,7 +61,8 @@
           "green": "int",
           "blue": "int",
           "alpha": "int"
-        }
+        },
+        "comment": "0-255 per component"
       }
     }
   ],

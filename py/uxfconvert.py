@@ -214,9 +214,11 @@ class _JsonEncoder(json.JSONEncoder):
                 fields={field.name: field.vtype for field in obj.fields},
                 records=obj.records)}
         if isinstance(obj, uxf.TType):
-            return {JSON_TTYPE: dict(
-                name=obj.name,
-                fields={field.name: field.vtype for field in obj.fields})}
+            d = dict(name=obj.name, fields={field.name: field.vtype
+                                            for field in obj.fields})
+            if obj.comment is not None:
+                d[COMMENT] = obj.comment
+            return {JSON_TTYPE: d}
         return json.JSONEncoder.default(self, obj)
 
 
@@ -307,7 +309,8 @@ def _json_naturalize(d):
     if JSON_TTYPE in d:
         fields = [uxf.Field(name, vtype) for name, vtype in
                   d[JSON_TTYPE][FIELDS].items()]
-        return uxf.TType(d[JSON_TTYPE][NAME], fields)
+        return uxf.TType(d[JSON_TTYPE][NAME], fields,
+                         comment=d[JSON_TTYPE].get(COMMENT))
     return d
 
 

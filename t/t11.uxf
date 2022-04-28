@@ -3,8 +3,8 @@ uxf 1.0 TLM Config
 = Categories CID Title Selected
 = Playlists PID Title CID Selected
 = IPv4 A:int B:int C:int D:int
-= rgb red:int green:int blue:int
-= rgba red:int green:int blue:int alpha:int
+= #<0-255 per component> rgb red:int green:int blue:int
+= #<0-255 per component> rgba red:int green:int blue:int alpha:int
 {
     <General> {
         <saved> 2022-03-21 <autosave> yes <historysize> -35 <volume> 0.7
