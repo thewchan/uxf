@@ -165,7 +165,7 @@ class Uxf:
         elif isinstance(data, dict):
             data = Map(data)
         if not _is_uxf_collection(data):
-            raise Error('#900:Uxf data must be a list, List, dict, Map, or '
+            raise Error('#800:Uxf data must be a list, List, dict, Map, or '
                         f'Table, got {type(data)}')
         self._data = data
 
@@ -680,11 +680,11 @@ class Map(collections.UserDict):
                 prefix = ('map keys may only be of type int, date, '
                           'datetime, str, or bytes, got ')
                 if isinstance(value, Table):
-                    raise Error(f'#910:{prefix}a Table ( … ), maybe bytes '
+                    raise Error(f'#810:{prefix}a Table ( … ), maybe bytes '
                                 '(: … :) was intended?')
                 else:
                     raise Error(
-                        f'#912:{prefix}{value!r} of type {type(value)}')
+                        f'#820:{prefix}{value!r} of type {type(value)}')
             self._pending_key = value
         else:
             self.data[self._pending_key] = value
@@ -714,11 +714,11 @@ class _CheckNameMixin:
 
     def _check_name(self, name):
         if name[0].isdigit():
-            raise Error('#920:names must start with a letter or '
+            raise Error('#830:names must start with a letter or '
                         f'underscore, got {name}')
         for c in name[1:]:
             if not (c == '_' or c.isalnum()):
-                raise Error('#920:names may only contain letters, digits, '
+                raise Error('#840:names may only contain letters, digits, '
                             f'or underscores, got {name}')
 
 
@@ -846,10 +846,10 @@ class Table:
         self.comment = comment
         if records:
             if not name:
-                raise Error('#930:can\'t create an unnamed nonempty table')
+                raise Error('#850:can\'t create an unnamed nonempty table')
             if not self.ttype:
                 raise Error(
-                    '#932:can\'t create a nonempty table without fields')
+                    '#860:can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
                 if self._Class is None:
                     self._make_record_class()
@@ -926,18 +926,18 @@ class Table:
 
     def _make_record_class(self):
         if not self.name:
-            raise Error('#940:can\'t use an unnamed table')
+            raise Error('#870:can\'t use an unnamed table')
         if not self.fields:
-            raise Error('#942:can\'t create a table with no fields')
+            raise Error('#880:can\'t create a table with no fields')
         self._Class = collections.namedtuple( # prefix avoids name clashes
             f'UXF{self.name}', [field.name for field in self.fields])
 
 
     def __iadd__(self, value):
         if not self.name:
-            raise Error('#950:can\'t append to an unnamed table')
+            raise Error('#890:can\'t append to an unnamed table')
         if not self.fields:
-            raise Error('#952:can\'t append to a table with no fields')
+            raise Error('#900:can\'t append to a table with no fields')
         if isinstance(value, (list, List, tuple)):
             for v in value:
                 self.append(v)
@@ -952,7 +952,7 @@ class Table:
             return self._Class(*self.records[row])
         except TypeError as err:
             if 'missing' in str(err):
-                err = '#960:table\'s ttype has fewer fields than in a row'
+                err = '#910:table\'s ttype has fewer fields than in a row'
                 raise Error(err) from None
 
 
@@ -965,7 +965,7 @@ class Table:
         except TypeError as err:
             if 'missing' in str(err):
                 raise Error(
-                    '#970:table\'s ttype has fewer fields than in a row')
+                    '#920:table\'s ttype has fewer fields than in a row')
 
 
     def __len__(self):
