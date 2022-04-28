@@ -355,7 +355,7 @@ def _uxf_to_sqlite(config, tables):
 
 
 def _create_table(db, table, table_index):
-    table_name = uxf.canonicalize(table.name, f'T_{table_index}')
+    table_name = uxf.canonicalize(table.name)
     sql = ['CREATE TABLE IF NOT EXISTS ', table_name, ' (']
     types = ['TEXT'] * len(table.fieldnames)
     if table.records:
@@ -368,7 +368,7 @@ def _create_table(db, table, table_index):
                 types[i] = 'BLOB'
     sep = ''
     for i, name in enumerate(table.fieldnames):
-        field_name = uxf.canonicalize(name, f'F_{i + 1}')
+        field_name = uxf.canonicalize(name)
         sql += [sep, field_name, ' ', types[i]]
         sep = ', '
     sql += [');']

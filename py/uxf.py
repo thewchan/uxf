@@ -1514,8 +1514,9 @@ def canonicalize(name, is_table_name=True):
     else:
         cs.append(prefix)
     for c in name[1:]:
-        if c.isspace():
-            cs.append('_')
+        if c.isspace() or c in '/\\,;:.-':
+            if not cs or cs[-1] != '_':
+                cs.append('_')
         elif c == '_' or c.isalnum():
             cs.append(c)
     name = ''.join(cs)
