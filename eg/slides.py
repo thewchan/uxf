@@ -7,6 +7,7 @@ This reads slides.uxf and outputs slides/index.html and slides/N.html where
 N is a slide number.
 '''
 
+import base64
 import shutil
 import sys
 from xml.sax.saxutils import escape
@@ -72,7 +73,7 @@ def html_for_block(block):
         for value in block:
             parts += html_for_block(value)
         return parts
-    # Must be a Table
+    # ∴ must be a Table
     parts = []
     end = None
     if block.name in {'h1', 'h2'}:
@@ -81,9 +82,23 @@ def html_for_block(block):
     elif block.name == 'm':
         parts.append('<tt>')
         end = '</tt>'
+    elif block.name == 'p':
+        parts.append('<p>')
+        end = '</p>'
+    elif block.name == 'i':
+        parts.append('<i>')
+        end = '</i>'
     elif block.name == 'B':
         parts.append('<ul><li>')
         end = '</li></ul>'
+    elif block.name == 'img':
+        record = block[0]
+        data = base64.urlsafe_b64encode(record.image).decode('ascii')
+        parts.append(f'<img src="data:image/png;base64,{data}" />')
+        parts += html_for_block(record.content)
+        if end is not None:
+            parts.append(end)
+        return parts
     for record in block:
         parts += html_for_block(record.content)
     if end is not None:
