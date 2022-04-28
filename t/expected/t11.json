@@ -44,22 +44,22 @@
     },
     {
       "UXF^ttype": {
-        "name": "RGB",
+        "name": "rgb",
         "fields": {
-          "Red": "int",
-          "Green": "int",
-          "Blue": "int"
+          "red": "int",
+          "green": "int",
+          "blue": "int"
         }
       }
     },
     {
       "UXF^ttype": {
-        "name": "RGBA",
+        "name": "rgba",
         "fields": {
-          "Red": "int",
-          "Green": "int",
-          "Blue": "int",
-          "Alpha": "int"
+          "red": "int",
+          "green": "int",
+          "blue": "int",
+          "alpha": "int"
         }
       }
     }
@@ -170,12 +170,12 @@
           "red",
           {
             "UXF^table": {
-              "name": "RGB",
+              "name": "rgb",
               "comment": null,
               "fields": {
-                "Red": "int",
-                "Green": "int",
-                "Blue": "int"
+                "red": "int",
+                "green": "int",
+                "blue": "int"
               },
               "records": [
                 [
@@ -189,13 +189,13 @@
           "semi-transparent blue",
           {
             "UXF^table": {
-              "name": "RGBA",
+              "name": "rgba",
               "comment": null,
               "fields": {
-                "Red": "int",
-                "Green": "int",
-                "Blue": "int",
-                "Alpha": "int"
+                "red": "int",
+                "green": "int",
+                "blue": "int",
+                "alpha": "int"
               },
               "records": [
                 [

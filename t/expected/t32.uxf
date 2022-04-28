@@ -1,6 +1,6 @@
 uxf 1.0 MyApp 1.2.0 Config
-= Pos X:int Y:int
-= Size Width:int Height:int
+= pos x:int y:int
+= size width:int height:int
 { #<Notes on this configuration file format> str map
   <General> { #<Miscellaneous settings> str
     <shapename> <Hexagon>
@@ -12,12 +12,12 @@ uxf 1.0 MyApp 1.2.0 Config
     }
   }
   <Windows> { #<Window dimensions and scales>
-    <pos> (Pos
+    <pos> (pos
       615 252
       28 42
       57 98
     )
-    <size> (Size
+    <size> (size
       592 636
       140 81
       89 22

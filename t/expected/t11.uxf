@@ -3,8 +3,8 @@ uxf 1.0 TLM Config
 = Files Kind Filename
 = IPv4 A:int B:int C:int D:int
 = Playlists PID Title CID Selected
-= RGB Red:int Green:int Blue:int
-= RGBA Red:int Green:int Blue:int Alpha:int
+= rgb red:int green:int blue:int
+= rgba red:int green:int blue:int alpha:int
 {
   <General> {
     <saved> 2022-03-21
@@ -32,9 +32,9 @@ uxf 1.0 TLM Config
       127 0 0 1
     )
     <red>
-    (RGB 255 0 0)
+    (rgb 255 0 0)
     <semi-transparent blue>
-    (RGBA 0 0 255 80)
+    (rgba 0 0 255 80)
   ]
   <Magic> (:1F8B:)
   <Nested Map> {

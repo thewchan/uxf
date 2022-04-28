@@ -128,11 +128,12 @@ of a name optionally followed by a `:` and then a type (here only names are
 given).
 
 Both table and field names are user chosen and consist of 1-59 letters,
-digits, or underscores, starting with a letter or underscore. In addition,
-table names may not be the same as any built-in type name, so no table can
-be called `null`, `int`, `date`, `datetime`, `str`, `bytes`, `bool`, `real`,
-`list`, `map`, or `table`. If whitespace is wanted one convention is to use
-underscores in their place.
+digits, or underscores, starting with a letter or underscore. No table or
+field name may be the same as any built-in type name, so no table or field
+can be called `null`, `int`, `date`, `datetime`, `str`, `bytes`, `bool`,
+`real`, `list`, `map`, or `table`. (But `Date` and `DateTime` are fine,
+since names are case-sensitive.) If whitespace is wanted one convention is
+to use underscores in their place.
 
 Once we have a _ttype_ we can use it.
 
@@ -524,7 +525,7 @@ optional `map`, `list`, or `table`.
     DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
     BYTES        ::= '(:' (OWS [A-Fa-f0-9]{2})* OWS ':)'
-    IDENFIFIER	 ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscor
+    IDENFIFIER	 ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscore; may not be a built-in typename
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 

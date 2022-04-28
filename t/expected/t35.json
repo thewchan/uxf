@@ -5,9 +5,9 @@
         "name": "Categories",
         "fields": {
           "CID": "int",
-          "Title": "str",
-          "Selected": "bool",
-          "Date": "date"
+          "title": "str",
+          "selected": "bool",
+          "when": "date"
         }
       }
     },
@@ -16,10 +16,10 @@
         "name": "Playlists",
         "fields": {
           "PID": "int",
-          "Title": null,
-          "CID": "int",
-          "Selected": "bool",
-          "Timestamp": "datetime"
+          "title": null,
+          "cid": "int",
+          "selected": "bool",
+          "timestamp": "datetime"
         }
       }
     }
@@ -31,9 +31,9 @@
         "comment": null,
         "fields": {
           "CID": "int",
-          "Title": "str",
-          "Selected": "bool",
-          "Date": "date"
+          "title": "str",
+          "selected": "bool",
+          "when": "date"
         },
         "records": [
           [
@@ -101,10 +101,10 @@
         "comment": null,
         "fields": {
           "PID": "int",
-          "Title": null,
-          "CID": "int",
-          "Selected": "bool",
-          "Timestamp": "datetime"
+          "title": null,
+          "cid": "int",
+          "selected": "bool",
+          "timestamp": "datetime"
         },
         "records": [
           [

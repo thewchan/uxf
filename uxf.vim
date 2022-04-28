@@ -19,7 +19,7 @@ syn keyword uxfConst yes true no false
 syn match uxfNull /[?]/
 syn keyword uxfType bool int real date datetime str bytes list map table
 syn match uxfPunctuation /[][{}()=:]/
-syn match uxfIdentifier /\<\u\w*\>/ 
+syn match uxfIdentifier /\<\w\+\>/ 
 syn region uxfStr start="<" end=">"
 syn region uxfComment start="#<" end=">"
 syn match uxfBytes /(:[A-Fa-f0-9\s]\+:)/ contains=uxfIdentifier keepend

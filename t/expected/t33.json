@@ -5,11 +5,11 @@
       "UXF^ttype": {
         "name": "Geometry",
         "fields": {
-          "X": "int",
-          "Y": "int",
-          "Width": "int",
-          "Height": "int",
-          "Scale": "real"
+          "x": "int",
+          "y": "int",
+          "width": "int",
+          "height": "int",
+          "scale": "real"
         }
       }
     }
@@ -57,11 +57,11 @@
             "name": "Geometry",
             "comment": "Window dimensions and scales",
             "fields": {
-              "X": "int",
-              "Y": "int",
-              "Width": "int",
-              "Height": "int",
-              "Scale": "real"
+              "x": "int",
+              "y": "int",
+              "width": "int",
+              "height": "int",
+              "scale": "real"
             },
             "records": [
               [

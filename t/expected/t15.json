@@ -8,7 +8,7 @@
           "CID": null,
           "Title": null,
           "Selected": null,
-          "Date": null
+          "Date": "date"
         }
       }
     },
@@ -18,9 +18,9 @@
         "fields": {
           "PID": null,
           "Title": null,
-          "CID": null,
+          "Cid": null,
           "Selected": null,
-          "DateTime": null
+          "DateTime": "datetime"
         }
       }
     }
@@ -34,7 +34,7 @@
           "CID": null,
           "Title": null,
           "Selected": null,
-          "Date": null
+          "Date": "date"
         },
         "records": [
           [
@@ -103,9 +103,9 @@
         "fields": {
           "PID": null,
           "Title": null,
-          "CID": null,
+          "Cid": null,
           "Selected": null,
-          "DateTime": null
+          "DateTime": "datetime"
         },
         "records": [
           [

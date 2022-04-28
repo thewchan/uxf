@@ -3,19 +3,19 @@
   "UXF^ttypes": [
     {
       "UXF^ttype": {
-        "name": "Pos",
+        "name": "pos",
         "fields": {
-          "X": "int",
-          "Y": "int"
+          "x": "int",
+          "y": "int"
         }
       }
     },
     {
       "UXF^ttype": {
-        "name": "Size",
+        "name": "size",
         "fields": {
-          "Width": "int",
-          "Height": "int"
+          "width": "int",
+          "height": "int"
         }
       }
     }
@@ -66,11 +66,11 @@
             "map": {
               "pos": {
                 "UXF^table": {
-                  "name": "Pos",
+                  "name": "pos",
                   "comment": null,
                   "fields": {
-                    "X": "int",
-                    "Y": "int"
+                    "x": "int",
+                    "y": "int"
                   },
                   "records": [
                     [
@@ -90,11 +90,11 @@
               },
               "size": {
                 "UXF^table": {
-                  "name": "Size",
+                  "name": "size",
                   "comment": null,
                   "fields": {
-                    "Width": "int",
-                    "Height": "int"
+                    "width": "int",
+                    "height": "int"
                   },
                   "records": [
                     [

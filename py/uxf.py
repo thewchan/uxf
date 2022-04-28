@@ -121,14 +121,14 @@ UTF8 = 'utf-8'
 MAX_IDENTIFIER_LEN = 60
 MAX_LIST_IN_LINE = 10
 MAX_SHORT_LEN = 32
-_KEY_TYPES = {'int', 'date', 'datetime', 'str', 'bytes'}
-_VALUE_TYPES = _KEY_TYPES | {'bool', 'real'}
-_ANY_VALUE_TYPES = _VALUE_TYPES | {'list', 'map', 'table'}
-_BOOL_FALSE = {'no', 'false'}
-_BOOL_TRUE = {'yes', 'true'}
-_CONSTANTS = _BOOL_FALSE | _BOOL_TRUE
-_BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
-_TYPE_NAMES = _ANY_VALUE_TYPES | {'null'}
+_KEY_TYPES = frozenset({'int', 'date', 'datetime', 'str', 'bytes'})
+_VALUE_TYPES = frozenset(_KEY_TYPES | {'bool', 'real'})
+_ANY_VALUE_TYPES = frozenset(_VALUE_TYPES | {'list', 'map', 'table'})
+_BOOL_FALSE = frozenset({'no', 'false'})
+_BOOL_TRUE = frozenset({'yes', 'true'})
+_CONSTANTS = frozenset(_BOOL_FALSE | _BOOL_TRUE)
+_BAREWORDS = frozenset(_ANY_VALUE_TYPES | _CONSTANTS)
+TYPENAMES = frozenset(_ANY_VALUE_TYPES | {'null'})
 _MISSING = object()
 
 
@@ -1145,7 +1145,7 @@ class _Parser(_ErrorMixin):
                 if len(ttype) > 0:
                     vtype = token.value
                     ttype.set_vtype(-1, vtype)
-                    if vtype not in _TYPE_NAMES:
+                    if vtype not in TYPENAMES:
                         used.add(vtype)
                 else:
                     self.error(
@@ -1520,7 +1520,7 @@ def canonicalize(name, is_table_name=True):
         elif c == '_' or c.isalnum():
             cs.append(c)
     name = ''.join(cs)
-    if is_table_name and name in _TYPE_NAMES:
+    if is_table_name and name in TYPENAMES:
         name = prefix + name
     elif not name:
         name = prefix
