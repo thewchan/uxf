@@ -128,6 +128,7 @@ _BOOL_FALSE = {'no', 'false'}
 _BOOL_TRUE = {'yes', 'true'}
 _CONSTANTS = _BOOL_FALSE | _BOOL_TRUE
 _BAREWORDS = _ANY_VALUE_TYPES | _CONSTANTS
+_TYPE_NAMES = _ANY_VALUE_TYPES | {'null'}
 _MISSING = object()
 
 
@@ -505,7 +506,7 @@ class _Lexer(_ErrorMixin):
             self.add_token(_Kind.TYPE, match)
             return
         start = self.pos - 1
-        if self.text[start].isupper():
+        if self.text[start] == '_' or self.text[start].isalpha():
             identifier = self. match_identifier(start, 'identifier')
             self.add_token(_Kind.IDENTIFIER, identifier)
         else:
@@ -711,12 +712,12 @@ class Map(collections.UserDict):
 class _CheckNameMixin:
 
     def _check_name(self, name):
-        if not name[0].isupper():
-            raise Error(
-                f'#920:names must start with a capital letter, got {name}')
-        for x in name[1:]:
-            if not (x.isalnum() or x == '_'):
-                raise Error('#922:names may only contain letters, digits, '
+        if name[0].isdigit():
+            raise Error('#920:names must start with a letter or '
+                        f'underscore, got {name}')
+        for c in name[1:]:
+            if not (c == '_' or c.isalnum()):
+                raise Error('#920:names may only contain letters, digits, '
                             f'or underscores, got {name}')
 
 
@@ -1144,7 +1145,7 @@ class _Parser(_ErrorMixin):
                 if len(ttype) > 0:
                     vtype = token.value
                     ttype.set_vtype(-1, vtype)
-                    if vtype[0].isupper():
+                    if vtype not in _TYPE_NAMES:
                         used.add(vtype)
                 else:
                     self.error(
@@ -1502,26 +1503,31 @@ def naturalize(s):
                 return s
 
 
-def canonicalize(name, prefix='T_'):
-    '''Given a name and an optional prefix, returns a name that is a valid
-    table or field name. (See uxfconvert.py for uses.)'''
+def canonicalize(name, is_table_name=True):
+    '''Given a name, returns a name that is a valid table or field name.
+    is_table_name must be True (the default) for tables since table names
+    have additional constraints. (See uxfconvert.py for uses.)'''
+    prefix = 'T_' if is_table_name else 'F_'
     cs = []
-    for c in name:
-        if c.isalnum() or c == '_':
+    if name[0] == '_' or name[0].isalpha():
+        cs.append(name[0])
+    else:
+        cs.append(prefix)
+    for c in name[1:]:
+        if c.isspace():
+            cs.append('_')
+        elif c == '_' or c.isalnum():
             cs.append(c)
-        elif c.isspace():
-            if cs and cs[-1] != '_':
-                cs.append('_')
-    if cs and not cs[0].isupper() and cs[0].isalpha():
-        cs[0] = cs[0].upper()
-    s = ''.join(cs)
-    if prefix and not prefix[0].isupper() and prefix[0].isalpha():
-        prefix[0] = prefix[0].upper()
-    if not s or not s[0].isupper():
-        s = prefix + s
-    if not s or not s[0].isupper():
-        s = f'T{id(s)}'
-    return s[:MAX_IDENTIFIER_LEN]
+    name = ''.join(cs)
+    if is_table_name and name in _TYPE_NAMES:
+        name = prefix + name
+    elif not name:
+        name = prefix
+    if name == prefix:
+        name += str(canonicalize.count)
+        canonicalize.count += 1
+    return name[:MAX_IDENTIFIER_LEN]
+canonicalize.count = 1 # noqa: E305
 
 
 def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):

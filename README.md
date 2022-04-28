@@ -17,7 +17,7 @@ open source software.
 ## Datatypes
 
 Every `.uxf` file consists of a header line (starting `uxf 1.0`), then any
-_TType_ (table type) definitions, and then a single `map`, `list`, or
+_ttype_ (table type) definitions, and then a single `map`, `list`, or
 `table` in which all the values are stored. Since ``map``s, ``list``s, and
 ``table``s can be nested inside each other, the UXF format is extremely
 flexible.
@@ -39,7 +39,7 @@ UXF supports eleven datatypes.
 |`map`      |`{key1 value1 key2 value2 ... keyN valueN}`|A map with keys of any valid key type and values of any type.|
 |`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of any type.|
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of type _vtype_.|
-|`table`    |`(TType <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _TType_, or any value type where no type has been specified.|
+|`table`    |`(ttype <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _ttype_, or any value type where no type has been specified.|
 
 Map keys (i.e., _ktype_) may only be of types `int`, `date`, `datetime`,
 `str`, and `bytes`.
@@ -47,13 +47,13 @@ Map keys (i.e., _ktype_) may only be of types `int`, `date`, `datetime`,
 Map, list, and table values may be of _any_ type (including nested ``map``s,
 ``list``s, and ``table``s), unless restricted to a specific type. If
 restricted to a specific _vtype_, the _vtype_ may be any built-in type (as
-listed above, except `null`), or any user-defined _TType_, and the
+listed above, except `null`), or any user-defined _ttype_, and the
 corresponding value or values must be any valid value for the specified
 type, or `?` (null).
 
-A `table` starts with a _TType_. Next comes the table's values. The number
+A `table` starts with a _ttype_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
-_TType_.
+_ttype_.
 
 Maps, lists, and tables may begin with a comment, and may optionally by
 typed as indicated above. (See also the examples below and the BNF at the end).
@@ -121,22 +121,27 @@ The most _appropriate_ UXF equivalent is to use a UXF `table`:
       2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
     )
 
-When one or more tables are used each one's _TType_ (table type) must be
-defined at the start of the `.uxf` file. A _TType_ begins with an `=` sign
+When one or more tables are used each one's _ttype_ (table type) must be
+defined at the start of the `.uxf` file. A _ttype_ begins with an `=` sign
 followed by a table name, followed by one or more fields. A field consists
 of a name optionally followed by a `:` and then a type (here only names are
-given). Both table and field names are user chosen and must consist of an
-initial capital letter followed by 0-59 letters, digits, or underscores. (If
-whitespace is wanted one convention is to use underscores in their place.)
+given).
 
-Once we have a _TType_ we can use it.
+Both table and field names are user chosen and consist of 1-59 letters,
+digits, or underscores, starting with a letter or underscore. In addition,
+table names may not be the same as any built-in type name, so no table can
+be called `null`, `int`, `date`, `datetime`, `str`, `bytes`, `bool`, `real`,
+`list`, `map`, or `table`. If whitespace is wanted one convention is to use
+underscores in their place.
 
-Here, we've created a single table whose _TType_ is "PriceList". There's no
+Once we have a _ttype_ we can use it.
+
+Here, we've created a single table whose _ttype_ is "PriceList". There's no
 need to group rows into lines as we've done here (although doing so is
 common and easier for human readability), since the UXF processor knows how
 many values go into each row based on the number of field names. In this
 example, the UXF processor will treat every five values as a single record
-(row) since the _TType_ has five fields.
+(row) since the _ttype_ has five fields.
 
     uxf 1.0 Price List
     = PriceList Date:date Price:real Quantity:int ID:str Description:str
@@ -147,7 +152,7 @@ example, the UXF processor will treat every five values as a single record
     )
 
 Here we've added a custom file description in the header, and we've also
-added field types to the _TType_ definition. When types are specified, the
+added field types to the _ttype_ definition. When types are specified, the
 UXF processor is expected to be able to check that each value is of the
 correct type. Omit the type altogether (as in the earliler examples) to
 indicate _any_ valid table type.
@@ -232,15 +237,15 @@ For configuration data it is often convenient to use ``map``s with name
 keys and data values. In this case the overall data is a `map` which
 contains each configuration section. The values of each of the first two of
 the ``map``'s keys are themselves ``map``s. But for the third key's value
-we use a `table`. The table's _TType_ is defined at the start and consists
+we use a `table`. The table's _ttype_ is defined at the start and consists
 of two untyped fields.
 
 Of course, we can nest as deep as we like and mix ``map``s and ``list``s.
 For example, here's an alternative:
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Pos X:int Y:int
-    = Size Width:int Height:int
+    = pos x:int y:int
+    = size width:int height:int
     {
       <General> { #<Miscellaneous settings>
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> {
@@ -250,18 +255,18 @@ For example, here's an alternative:
         }
       }
       <Window1> { #<Window dimensions and scales> str
-        <pos> (Pos 615 252)
-        <size> (Size 592 636)
+        <pos> (pos 615 252)
+        <size> (size 592 636)
         <scale> 1.1
       }
       <Window2> {
-        <pos> (Pos 28 42)
-        <size> (Size 140 81)
+        <pos> (pos 28 42)
+        <size> (size 140 81)
         <scale> 1.0
       }
       <Window3> {
-        <pos> (Pos 57 98)
-        <size> (Size 89 22)
+        <pos> (pos 57 98)
+        <size> (size 89 22)
         <scale> 0.5
       }
     }
@@ -270,18 +275,18 @@ Here, we've laid out the _General_ and _Window_ maps more compactly. We've
 also moved the _Files_ into _General_ and changed the _Files_ from a `table`
 to a two-item `map` with the second item's value being a `list` of
 filenames. We've also changed the _x_, _y_ coordinates and the _width_ and
-_height_ into "Pos" and "Size" tables. Notice that for each of these tables
-we've defined their _TType_ to include both field names and types.
+_height_ into "pos" and "size" tables. Notice that for each of these tables
+we've defined their _ttype_ to include both field names and types.
 
 We've also added some example comments to two of the ``map``s. A comment is
 a `#` immediately followed by a `str`. A comment may only be placed at the
 start of a list before the optional _vtype_ or the first value, or at the
 start of a map before the optional _ktype_ or the first key, or at the start
-of a table before the _TType_ name.
+of a table before the _ttype_ name.
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Pos X:int Y:int
-    = Size Width:int Height:int
+    = pos x:int y:int
+    = size width:int height:int
     { #<Notes on this configuration file format> str map
       <General> { #<Miscellaneous settings> str
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
@@ -291,8 +296,8 @@ of a table before the _TType_ name.
         }
       }
       <Windows> { #<Window dimensions and scales>
-        <pos> (Pos 615 252 28 42 57 98)
-        <size> (Size 592 636 140 81 89 22)
+        <pos> (pos 615 252 28 42 57 98)
+        <size> (size 592 636 140 81 89 22)
         <scale> [1.1 1.0 0.5]
       }
     }
@@ -304,12 +309,12 @@ value types, or just the key type, or neither. We've also specified that the
 _recent_ files ``list``'s values must be ``str``s.
 
 Notice that instead of individual "Windows" entries we've just used one.
-Since "Pos" and "Size" are tables they can have as many rows as we like, in
+Since "pos" and "size" are tables they can have as many rows as we like, in
 this case three (since each row has two fields based on each table's
-_TType_).
+_ttype_).
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Geometry X:int Y:int Width:int Height:int Scale:real
+    = Geometry x:int y:int width:int height:int scale:real
     { #<Notes on this configuration file format> str map
       <General> { #<Miscellaneous settings> str
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
@@ -383,7 +388,7 @@ invoice has an empty description.
       )
     ]
 
-Here, we've added types to each table's _TType_.
+Here, we've added types to each table's _ttype_.
 
 What if we wanted to add some extra configuration data to the database? One
 solution would be to make the first item in the `list` a `map`, with the
@@ -471,7 +476,7 @@ applied when converting to UXF data:
 |`tuple`             | `list`     | `uxf.List` |
 |`collections.deque` | `list`     | `uxf.List` |
 
-For complex numbers you could create a _TType_ such as: `= Complex Real real
+For complex numbers you could create a _ttype_ such as: `= Complex Real real
 Imag real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 
@@ -499,7 +504,7 @@ optional `map`, `list`, or `table`.
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DATA         ::= COMMENT? TTYPE* (MAP | LIST | TABLE)
-    TTYPE        ::= '=' OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is table name
+    TTYPE        ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is table name
     FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
@@ -519,7 +524,7 @@ optional `map`, `list`, or `table`.
     DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
     BYTES        ::= '(:' (OWS [A-Fa-f0-9]{2})* OWS ':)'
-    IDENFIFIER	 ::= /\p{Lu}\w{0,59}/ # Must start with an uppercase letter
+    IDENFIFIER	 ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscor
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 
@@ -529,7 +534,7 @@ As the BNF shows, `map`, `list`, and `table` values may be of _any_ type
 including nested ``map``s, ``list``s, and ``table``s.
 
 For a `table`, after the optional comment, there must be an identifier which
-is the table's _TType_. This is followed by the table's values. There's no
+is the table's _ttype_. This is followed by the table's values. There's no
 need to distinguish between one row and the next (although it is common to
 start new rows on new lines) since the number of fields indicate how many
 values each row has.
