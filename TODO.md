@@ -1,5 +1,7 @@
 # TODOS
 
+- Add tests for Uxf.visit(function)
+
 - SQLite (see paper notes)
     - test uxf to sqlite: t2.uxf t4.uxf t15.uxf t22.uxf t24.uxf t35.uxf
     - sqlite\_to\_uxf

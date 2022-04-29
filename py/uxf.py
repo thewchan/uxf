@@ -192,6 +192,74 @@ class Uxf:
         self.data.typecheck(self.ttypes, fixtypes=fixtypes)
 
 
+    def visit(self, function):
+        '''Convenience method that visits every value in the Uxf object and
+        which calls function(ValueType, value) for every value encountered
+        and function(ValueType) for every begin and end of a list, map,
+        table, or row in a table, and before every map key and map value.
+        The function must accept one positional argument and one optional
+        positional argument.
+
+            import uxf
+            u = uxf.load('file.uxf')
+            u.visit(print)
+
+        See also the ValueType enum.
+        '''
+        self._visit(self, function)
+
+
+    def _visit(self, x, function):
+        if isinstance(x, Uxf):
+            self._visit(x.data, function)
+        elif isinstance(x, (list, List)):
+            function(ValueType.LIST_BEGIN, getattr(x, 'vtype', None))
+            for value in x:
+                self._visit(value, function)
+            function(ValueType.LIST_END)
+        elif isinstance(x, (dict, Map)):
+            ktype = getattr(x, 'ktype', None)
+            vtype = getattr(x, 'vtype', None)
+            data = None
+            if ktype is not None:
+                if vtype is not None:
+                    data = f'{ktype} {vtype}'
+                else:
+                    data = ktype
+            function(ValueType.MAP_BEGIN, data)
+            for key, value in x.items():
+                function(ValueType.MAP_KEY)
+                self._visit(key, function)
+                function(ValueType.MAP_VALUE)
+                self._visit(value, function)
+            function(ValueType.MAP_END)
+        elif isinstance(x, Table):
+            function(ValueType.TABLE_BEGIN, x.name)
+            for record in x:
+                function(ValueType.ROW_BEGIN)
+                for item in record:
+                    self._visit(item, function)
+                function(ValueType.ROW_END)
+            function(ValueType.TABLE_END)
+        elif not isinstance(x, TType):
+            function(ValueType.SCALAR, x)
+
+
+@enum.unique
+class ValueType(enum.Enum):
+    LIST_BEGIN = enum.auto()
+    LIST_END = enum.auto()
+    MAP_BEGIN = enum.auto()
+    MAP_KEY = enum.auto()
+    MAP_VALUE = enum.auto()
+    MAP_END = enum.auto()
+    TABLE_BEGIN = enum.auto()
+    TABLE_END = enum.auto()
+    ROW_BEGIN = enum.auto()
+    ROW_END = enum.auto()
+    SCALAR = enum.auto()
+
+
 def load(filename_or_filelike, *, check=False, fixtypes=False,
          warn_is_error=False):
     '''
