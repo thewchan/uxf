@@ -27,9 +27,11 @@
 
 - create misc/tlm2uxf.py
 
-- port biller .ini & .bdb to UXF
+- port biller .bdb to UXF
 
-- maybe port .tlm to UXF?
+- port tlm .ini to UXF
+
+- maybe port tlm .tlm to UXF?
 
 - code review
 
