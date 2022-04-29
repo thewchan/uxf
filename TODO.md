@@ -25,14 +25,6 @@
 - create tests t50.uxf ... one for every error or warning that uxf.py
   can produce to ensure they all work & are understandable.
 
-- create misc/tlm2uxf.py
-
-- port biller .bdb to UXF
-
-- port tlm .ini to UXF
-
-- maybe port tlm .tlm to UXF?
-
 - code review
 
 - release 1.0.0
@@ -41,14 +33,12 @@
     - for .js use Dart or TypeScript or similar that can output JS
     - uxf.rs uxf.cpp uxf.java uxf.rb ...
 
+- once uxf.rs is done, maybe port tlm .ini to UXF?
+
 - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 
 # IDEAS
 
-- port my python apps to use UXF (e.g., instead of ini, SQLite, & custom
-  formats), e.g., biller
-- port my Rust apps to use UXF (e.g., instead of ini, SQLite, & custom
-  formats), once I have a Rust UXF library, e.g., TLM
 - experiment with using uxf format to store various kinds of data,
   e.g., styled text, spreadsheet, graphics, etc.
 - for TType definitions in addition to or instead of a type allow ':'
