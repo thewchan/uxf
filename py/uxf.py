@@ -41,10 +41,9 @@ datetime.date or int or float if any of these can be parsed, otherwise
 returns the original string s. This is provided as a helper function (e.g.,
 it is used by uxfconvert.py).
 
-    canonicalize(name, prefix)
+    canonicalize(name)
 
-Given a name and an optional prefix, returns a name that is a valid table or
-field name.
+Given a name, returns a name that is a valid table or field name.
 
     is_scalar(x) -> bool
 
