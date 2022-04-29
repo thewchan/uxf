@@ -5,6 +5,9 @@
 '''
 This reads slides.uxf and outputs slides/index.html and slides/N.html where
 N is a slide number.
+
+This program is just an illustration of the flexibility of the UXF format.
+It also shows how even an empty table can be useful (e.g., the nl ttype).
 '''
 
 import base64
@@ -37,6 +40,10 @@ def main():
     slides = uxf_obj.data
     for index, slide in enumerate(slides, 1):
         titles.append(write_slide(index, slide, len(slides)))
+    index += 1
+    titles.append(write_uxf_source(index))
+    index += 1
+    titles.append(write_py_source(index))
     write_index(titles)
 
 
@@ -50,15 +57,11 @@ def write_slide(index, slide, last):
     parts += title
     for block in slide[1:]:
         parts += html_for_block(block)
-    if index > 1:
-        parts.append(f'<a href="{index - 1}.html">Prev</a>')
-    else:
-        parts.append('<a href="index.html">Prev</a>')
+    parts.append(f'<a href="{index - 1}.html">Prev</a>' if index > 1 else
+                 '<a href="index.html">Prev</a>')
     parts.append('&nbsp;<a href="index.html">Contents</a>&nbsp;')
-    if index != last:
-        parts.append(f'<a href="{index + 1}.html">Next</a>')
-    else:
-        parts.append('<font color="gray">Next</font>')
+    parts.append(f'<a href="{index + 1}.html">Next</a>' if index != last
+                 else '<font color="gray">Next</font>')
     parts.append('</body></html>')
     with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
         file.write('\n'.join(parts))
@@ -104,11 +107,41 @@ def html_for_block(block):
     elif block.name == 'pre':
         parts.append('<pre>')
         end = '</pre>'
+    elif block.name == 'url':
+        record = block[0]
+        parts.append(f'<a href="{record.link}">')
+        parts += html_for_block(record.content)
+        end = '</a>'
+        if end is not None:
+            parts.append(end)
+        return parts
     for record in block:
         parts += html_for_block(record.content)
     if end is not None:
         parts.append(end)
     return parts
+
+
+def write_uxf_source(index):
+    filename = 'slides.uxf'
+    with open(filename, 'rt', encoding='utf-8') as file:
+        text = file.read()
+    title = escape(filename)
+    with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
+        file.write(f'<html><title>{title}</title><body>\n<h1>{title}</h1>')
+        file.write(f'<pre>\n{escape(text)}\n</pre>')
+    return filename
+
+
+def write_py_source(index):
+    filename = 'slides.py'
+    with open(filename, 'rt', encoding='utf-8') as file:
+        text = file.read()
+    title = escape(filename)
+    with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
+        file.write(f'<html><title>{title}</title><body>\n<h1>{title}</h1>')
+        file.write(f'<pre>\n{escape(text)}\n</pre>')
+    return filename
 
 
 def write_index(titles):

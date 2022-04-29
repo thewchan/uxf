@@ -5,12 +5,13 @@ See slides.py for an example of converting this format to HTML.>
 = #<title> h1 content
 = #<subtitle> h2 content
 = #<bullet item> B content
-= #<monospace> m content
-= #<monospace lines> pre content
-= #<image> img content image:bytes
 = #<para> p content
+= #<image> img content image:bytes
+= #<monospace inline> m content
+= #<monospace block> pre content
 = #<italic> i content
-= #<newline> nl empty
+= url content link
+= #<newline with no content> nl empty
 (Slide
 
 (h1 <The Uniform eXchange Format>)
@@ -35,6 +36,8 @@ See slides.py for an example of converting this format to HTML.>
   (B <Collection Types>)
   (B <Scalar Types>)
   (B <Conclusion>)
+  (B (i <UXF>) <source code for these slides and> (m <.py>) <source code for
+  the program than converts them to> (m <.html>)<.>)
 ]
 
 (h1 <Motivation>)
@@ -44,10 +47,10 @@ See slides.py for an example of converting this format to HTML.>
   (B [(m <.json>) <has lots of punctuation, no date/time support and is verbose>])
   (B [(m <.sqlite>) <is binary so can't be hand edited>])
   (B [(m <.xml>) <is heavyweight and isn't nice to hand edit>])
-  (B [(i <UXF>) <can hold any number of tables>])
+  (B [(i <UXF>) <can hold any number of tables (and maps, and lists, all
+  nestable)>])
   (B [(i <UXF>) <is optionally typed>])
   (B [(i <UXF>) <supports date/times and binary data>])
-  (B [(i <UXF>) <nests maps, lists, and tables, to any depth>])
   (B [(i <UXF>) <is fairly lightweight and hand editable>])
 ]
 
@@ -57,7 +60,8 @@ See slides.py for an example of converting this format to HTML.>
   definitions, then a single list, map, or table containing the data. Since
   lists, maps, and tables can nest, this allows for any arbitrary data
   structure of any amount of data.>)
-  (m <uxf 1.0> <= #&lt;optional ttypes go here&gt; Point x y> (nl))
+  (m <uxf 1.0> (nl))
+  (m <= #&lt;optional ttypes go here&gt; Point x y> (nl))
   (m <[ #&lt;data goes here&gt;> (nl))
   (m <(Point 5 9)> (nl))
   (m <&lt;Some text&gt;> (nl))
@@ -67,34 +71,31 @@ See slides.py for an example of converting this format to HTML.>
   (nl)
 ]
 
-(h1 <Collection Types>)
-[
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-]
-
 (h1 <Scalar Types>)
 [
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
+  (B (i <UXF>) <supports 8 scalar types:>
+    (B (m <bool>) (m <int>) (m <real>))
+    (B (m <bytes>) (m <str>))
+    (B (m <date>) (m <datetime>))
+    (B (m <null>))
+  )
+]
+
+(h1 <Collection Types>)
+[
+  (B (i <UXF>) <supports 3 collection types:>
+    (B (m <list>))
+    (B (m <map>))
+    (B (m <table>))
+  )
 ]
 
 (h1 <Conclusion>)
 [
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
+  (p <These slides are purely to show an example of how flexible the>
+  (i <UXF>) <format is.>)
+  (p <For more about UXF, visit the> (url <UXF home page>
+  <https://github.com/mark-summerfield/uxf>) <.>)
 ]
 
 )
