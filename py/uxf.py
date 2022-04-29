@@ -34,6 +34,10 @@ dump() writes the data to the filename_or_filelike; dumps() writes the data
 into a string that's then returned. See the function docs for additional
 options.
 
+    visit(function, obj)
+
+# TODO docs
+
     naturalize(s) -> object
 
 This function takes a str and returns a bool or datetime.datetime or
@@ -208,48 +212,62 @@ class Uxf:
         '''
         if value is None:
             value = self
-        self._visit(function, value)
+        visit(function, value)
 
 
-    def _visit(self, function, x):
-        if x is None:
-            function(ValueType.NULL)
-        elif isinstance(x, Uxf):
-            info = UxfInfo(x.custom, x.comment, x.ttypes)
-            function(ValueType.UXF_BEGIN, info)
-            self._visit(function, x.data)
-            function(ValueType.UXF_END, info)
-        elif isinstance(x, (tuple, list, List)):
-            info = ListInfo(getattr(x, 'comment', None),
-                            getattr(x, 'vtype', None))
-            function(ValueType.LIST_BEGIN, info)
-            for value in x:
-                self._visit(function, value)
-            function(ValueType.LIST_END, info)
-        elif isinstance(x, (dict, Map)):
-            info = MapInfo(getattr(x, 'comment', None),
-                           getattr(x, 'ktype', None),
-                           getattr(x, 'vtype', None))
-            function(ValueType.MAP_BEGIN, info)
-            for key, value in x.items():
-                function(ValueType.MAP_KEY)
-                self._visit(function, key)
-                function(ValueType.MAP_VALUE)
-                self._visit(function, value)
-            function(ValueType.MAP_END, info)
-        elif isinstance(x, Table):
-            info = TableInfo(getattr(x, 'name', None),
-                             getattr(x, 'comment', None),
-                             getattr(x, 'vtype', None))
-            function(ValueType.TABLE_BEGIN, info)
-            for record in x:
-                function(ValueType.ROW_BEGIN)
-                for item in record:
-                    self._visit(function, item)
-                function(ValueType.ROW_END)
-            function(ValueType.TABLE_END, info)
-        elif not isinstance(x, TType):
-            function(ValueType.SCALAR, x)
+def visit(function, value):
+    # TODO docstring
+    if value is None:
+        function(ValueType.NULL)
+    elif isinstance(value, Uxf):
+        info = UxfInfo(value.custom, value.comment, value.ttypes)
+        function(ValueType.UXF_BEGIN, info)
+        visit(function, value.data)
+        function(ValueType.UXF_END, Tag(value.custom))
+    elif isinstance(value, (tuple, list, List)):
+        info = ListInfo(getattr(value, 'comment', None),
+                        getattr(value, 'vtype', None))
+        function(ValueType.LIST_BEGIN, info)
+        for element in value:
+            visit(function, element)
+        function(ValueType.LIST_END)
+    elif isinstance(value, (dict, Map)):
+        info = MapInfo(getattr(value, 'comment', None),
+                       getattr(value, 'ktype', None),
+                       getattr(value, 'vtype', None))
+        function(ValueType.MAP_BEGIN, info)
+        for key, element in value.items():
+            function(ValueType.MAP_KEY)
+            visit(function, key)
+            function(ValueType.MAP_VALUE)
+            visit(function, element)
+        function(ValueType.MAP_END)
+    elif isinstance(value, Table):
+        info = TableInfo(getattr(value, 'name', None),
+                         getattr(value, 'comment', None),
+                         getattr(value, 'vtype', None))
+        function(ValueType.TABLE_BEGIN, info)
+        for record in value:
+            function(ValueType.ROW_BEGIN)
+            for item in record:
+                visit(function, item)
+            function(ValueType.ROW_END)
+        function(ValueType.TABLE_END, Tag(info.name))
+    elif isinstance(value, bool):
+        function(ValueType.BOOL, value)
+    elif isinstance(value, int):
+        function(ValueType.INT, value)
+    elif isinstance(value, float):
+        function(ValueType.REAL, value)
+    elif isinstance(value, datetime.datetime):
+        function(ValueType.DATE_TIME, value)
+    elif isinstance(value, datetime.date):
+        function(ValueType.DATE, value)
+    elif isinstance(value, str):
+        function(ValueType.STR, value)
+    elif isinstance(value, (bytes, bytearray)):
+        function(ValueType.BYTES, value)
+    # else isinstance(value, TType): pass # ignore
 
 
 @enum.unique
@@ -266,7 +284,13 @@ class ValueType(enum.Enum):
     TABLE_END = enum.auto()
     ROW_BEGIN = enum.auto()
     ROW_END = enum.auto()
-    SCALAR = enum.auto()
+    BOOL = enum.auto()
+    INT = enum.auto()
+    REAL = enum.auto()
+    DATE = enum.auto()
+    DATE_TIME = enum.auto()
+    STR = enum.auto()
+    BYTES = enum.auto()
     NULL = enum.auto()
 
 
@@ -274,6 +298,7 @@ UxfInfo = collections.namedtuple('UxfInfo', 'custom comment ttypes')
 ListInfo = collections.namedtuple('ListInfo', 'comment vtype')
 MapInfo = collections.namedtuple('MapInfo', 'comment ktype vtype')
 TableInfo = collections.namedtuple('TableInfo', 'name comment ttype')
+Tag = collections.namedtuple('Tag', 'name')
 
 
 def load(filename_or_filelike, *, check=False, fixtypes=False,

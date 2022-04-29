@@ -11,7 +11,6 @@ It also shows how even an empty table can be useful (e.g., the nl ttype).
 '''
 
 import base64
-import functools
 import shutil
 import sys
 from xml.sax.saxutils import escape
@@ -40,7 +39,7 @@ def main():
     titles = []
     slides = uxf_obj.data
     for index, slide in enumerate(slides, 1):
-        titles.append(write_slide(index, uxf_obj, slide, len(slides)))
+        titles.append(write_slide(index, slide, len(slides)))
     index += 1
     titles.append(write_uxf_source(index))
     index += 1
@@ -48,53 +47,79 @@ def main():
     write_index(titles)
 
 
-def write_slide(index, uxf_obj, slide, last):
+def write_slide(index, slide, last):
+    parts = ['<html><title>']
+    doc_title = title = html_for_block(slide[0])
+    while len(doc_title) > 1:
+        doc_title = doc_title[1:-1]
+    parts += doc_title
+    parts.append('</title><body>')
+    parts += title
+    for block in slide[1:]:
+        parts += html_for_block(block)
+    parts.append(f'<a href="{index - 1}.html">Prev</a>' if index > 1 else
+                 '<a href="index.html">Prev</a>')
+    parts.append('&nbsp;<a href="index.html">Contents</a>&nbsp;')
+    parts.append(f'<a href="{index + 1}.html">Next</a>' if index != last
+                 else '<font color="gray">Next</font>')
+    parts.append('</body></html>')
     with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
-        file.write('<html><title>')
-        title = slide[0]
-        doc_title = title[0].content
-        file.write(f'{escape(doc_title)}</title><body>\n')
-        function = functools.partial(visitor, file=file)
-        uxf_obj.visit(function, slide)
-        file.write(f'<a href="{index - 1}.html">Prev</a>' if index > 1 else
-                   '<a href="index.html">Prev</a>')
-        file.write('&nbsp;<a href="index.html">Contents</a>&nbsp;')
-        file.write(f'<a href="{index + 1}.html">Next</a>' if index != last
-                   else '<font color="gray">Next</font>')
-        file.write('</body></html>')
-    return doc_title
+        file.write('\n'.join(parts))
+    return doc_title[0]
 
 
-def visitor(kind, value=None, *, file):
-    if kind is uxf.ValueType.TABLE_BEGIN:
-        name = value.name
-        if name == 'B':
-            file.write('<ul><li>')
-        elif name in {'h1', 'h2'}:
-            file.write(f'<{name}>')
-        elif name == 'i':
-            file.write('<i>')
-        elif name == 'm':
-            file.write('<tt>')
-        elif name == 'p':
-            file.write('<p>')
-    elif kind is uxf.ValueType.TABLE_END:
-        name = value.name
-        if name == 'B':
-            file.write('</li></ul>')
-        elif name in {'h1', 'h2'}:
-            file.write(f'</{name}>')
-        elif name == 'i':
-            file.write('</i>')
-        elif name == 'm':
-            file.write('</tt>')
-        elif value == 'p':
-            file.write('</p>\n')
-    elif kind is uxf.ValueType.SCALAR:
-        if value is not None:
-            file.write(escape(str(value)))
-    else:
-        print('visitor', kind, str(value)[:100]) # TODO delete
+def html_for_block(block):
+    if isinstance(block, str):
+        return [escape(block)]
+    if isinstance(block, uxf.List):
+        parts = []
+        for value in block:
+            parts += html_for_block(value)
+        return parts
+    # ∴ must be a Table
+    parts = []
+    end = None
+    if block.name == 'B':
+        parts.append('<ul><li>')
+        end = '</li></ul>'
+    elif block.name in {'h1', 'h2'}:
+        parts.append(f'<{block.name}>')
+        end = f'</{block.name}>'
+    elif block.name == 'i':
+        parts.append('<i>')
+        end = '</i>'
+    elif block.name == 'img':
+        record = block[0]
+        data = base64.urlsafe_b64encode(record.image).decode('ascii')
+        parts.append(f'<img src="data:image/png;base64,{data}" />')
+        parts += html_for_block(record.content)
+        if end is not None:
+            parts.append(end)
+        return parts
+    elif block.name == 'm':
+        parts.append('<tt>')
+        end = '</tt>'
+    elif block.name == 'nl':
+        parts.append('<br />')
+    elif block.name == 'p':
+        parts.append('<p>')
+        end = '</p>'
+    elif block.name == 'pre':
+        parts.append('<pre>')
+        end = '</pre>'
+    elif block.name == 'url':
+        record = block[0]
+        parts.append(f'<a href="{record.link}">')
+        parts += html_for_block(record.content)
+        end = '</a>'
+        if end is not None:
+            parts.append(end)
+        return parts
+    for record in block:
+        parts += html_for_block(record.content)
+    if end is not None:
+        parts.append(end)
+    return parts
 
 
 def write_uxf_source(index):
@@ -109,7 +134,7 @@ def write_uxf_source(index):
 
 
 def write_py_source(index):
-    filename = 'slides.py'
+    filename = 'slides2.py'
     with open(filename, 'rt', encoding='utf-8') as file:
         text = file.read()
     title = escape(filename)
