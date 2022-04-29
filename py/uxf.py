@@ -192,13 +192,13 @@ class Uxf:
         self.data.typecheck(self.ttypes, fixtypes=fixtypes)
 
 
-    def visit(self, function):
-        '''Convenience method that visits every value in the Uxf object and
-        which calls function(ValueType, value) for every value encountered
-        and function(ValueType) for every begin and end of a list, map,
-        table, or row in a table, and before every map key and map value.
-        The function must accept one positional argument and one optional
-        positional argument.
+    def visit(self, function, value=None):
+        '''Convenience method that visits every value in the Uxf object (or
+        the value if given) and which calls function(ValueType, value) for
+        every value encountered and function(ValueType) for every begin and
+        end of a Uxf, list, map, table, or row in a table, and before every
+        map key and map value. The function must accept one positional
+        argument and one optional positional argument.
 
             import uxf
             u = uxf.load('file.uxf')
@@ -206,47 +206,56 @@ class Uxf:
 
         See also the ValueType enum.
         '''
-        self._visit(self, function)
+        if value is None:
+            value = self
+        self._visit(function, value)
 
 
-    def _visit(self, x, function):
-        if isinstance(x, Uxf):
-            self._visit(x.data, function)
-        elif isinstance(x, (list, List)):
-            function(ValueType.LIST_BEGIN, getattr(x, 'vtype', None))
+    def _visit(self, function, x):
+        if x is None:
+            function(ValueType.NULL)
+        elif isinstance(x, Uxf):
+            info = UxfInfo(x.custom, x.comment, x.ttypes)
+            function(ValueType.UXF_BEGIN, info)
+            self._visit(function, x.data)
+            function(ValueType.UXF_END, info)
+        elif isinstance(x, (tuple, list, List)):
+            info = ListInfo(getattr(x, 'comment', None),
+                            getattr(x, 'vtype', None))
+            function(ValueType.LIST_BEGIN, info)
             for value in x:
-                self._visit(value, function)
-            function(ValueType.LIST_END)
+                self._visit(function, value)
+            function(ValueType.LIST_END, info)
         elif isinstance(x, (dict, Map)):
-            ktype = getattr(x, 'ktype', None)
-            vtype = getattr(x, 'vtype', None)
-            data = None
-            if ktype is not None:
-                if vtype is not None:
-                    data = f'{ktype} {vtype}'
-                else:
-                    data = ktype
-            function(ValueType.MAP_BEGIN, data)
+            info = MapInfo(getattr(x, 'comment', None),
+                           getattr(x, 'ktype', None),
+                           getattr(x, 'vtype', None))
+            function(ValueType.MAP_BEGIN, info)
             for key, value in x.items():
                 function(ValueType.MAP_KEY)
-                self._visit(key, function)
+                self._visit(function, key)
                 function(ValueType.MAP_VALUE)
-                self._visit(value, function)
-            function(ValueType.MAP_END)
+                self._visit(function, value)
+            function(ValueType.MAP_END, info)
         elif isinstance(x, Table):
-            function(ValueType.TABLE_BEGIN, x.name)
+            info = TableInfo(getattr(x, 'name', None),
+                             getattr(x, 'comment', None),
+                             getattr(x, 'vtype', None))
+            function(ValueType.TABLE_BEGIN, info)
             for record in x:
                 function(ValueType.ROW_BEGIN)
                 for item in record:
-                    self._visit(item, function)
+                    self._visit(function, item)
                 function(ValueType.ROW_END)
-            function(ValueType.TABLE_END)
+            function(ValueType.TABLE_END, info)
         elif not isinstance(x, TType):
             function(ValueType.SCALAR, x)
 
 
 @enum.unique
 class ValueType(enum.Enum):
+    UXF_BEGIN = enum.auto()
+    UXF_END = enum.auto()
     LIST_BEGIN = enum.auto()
     LIST_END = enum.auto()
     MAP_BEGIN = enum.auto()
@@ -258,6 +267,13 @@ class ValueType(enum.Enum):
     ROW_BEGIN = enum.auto()
     ROW_END = enum.auto()
     SCALAR = enum.auto()
+    NULL = enum.auto()
+
+
+UxfInfo = collections.namedtuple('UxfInfo', 'custom comment ttypes')
+ListInfo = collections.namedtuple('ListInfo', 'comment vtype')
+MapInfo = collections.namedtuple('MapInfo', 'comment ktype vtype')
+TableInfo = collections.namedtuple('TableInfo', 'name comment ttype')
 
 
 def load(filename_or_filelike, *, check=False, fixtypes=False,
