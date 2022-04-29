@@ -33,8 +33,6 @@
     - for .js use Dart or TypeScript or similar that can output JS
     - uxf.rs uxf.cpp uxf.java uxf.rb ...
 
-- once uxf.rs is done, maybe port tlm .ini to UXF?
-
 - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 
 # IDEAS

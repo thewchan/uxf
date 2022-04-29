@@ -35,6 +35,8 @@ def main():
                                number=number)
     total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose,
                                      number=number)
+    total, ok = test_uxf_equal(uxffiles, total, ok, verbose=verbose,
+                               number=number)
     total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
                                 verbose=verbose, number=number)
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
@@ -128,6 +130,91 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
             if verbose:
                 print(f'LOADS = {nws_uxf_text}\nDUMPS = {nws_new_uxf_text}')
     return total, ok
+
+
+def test_uxf_equal(uxffiles, total, ok, *, verbose, number):
+    for name in uxffiles:
+        total += 1
+        if total > number:
+            return total - 1, ok
+        try:
+            with open(name, 'rt', encoding='utf-8') as file:
+                uxf_text = file.read()
+        except UnicodeDecodeError:
+            with gzip.open(name, 'rt', encoding='utf-8') as file:
+                uxf_text = file.read()
+        try:
+            uxf_obj1 = uxf.loads(uxf_text)
+        except uxf.Error as err:
+            print(f'equal() 1 • {name} FAIL: {err}')
+        expected = f'expected/{name}'
+        try:
+            with open(expected, 'rt', encoding='utf-8') as file:
+                uxf_text = file.read()
+        except UnicodeDecodeError:
+            with gzip.open(name, 'rt', encoding='utf-8') as file:
+                uxf_text = file.read()
+        try:
+            uxf_obj2 = uxf.loads(uxf_text)
+        except uxf.Error as err:
+            print(f'equal() 2 • {expected} FAIL: {err}')
+        if equal(uxf_obj1, uxf_obj2):
+            ok += 1
+            if verbose:
+                print(f'equal() • {name} OK')
+            elif not ok % 10:
+                print('.', end='', flush=True)
+        else:
+            print(f'{name} • FAIL (equal())')
+    return total, ok
+
+
+def equal(a, b):
+    if isinstance(a, uxf.Uxf):
+        return (equal(a.data, b.data) and a.custom == b.custom and
+                a.comment == b.comment and equal(a.ttypes, b.ttypes))
+    if isinstance(a, uxf.List):
+        return (equal(a.data, b.data) and a.comment == b.comment and
+                a.vtype == b.vtype)
+    if isinstance(a, uxf.Map):
+        return (equal(a.data, b.data) and a.comment == b.comment and
+                a.ktype == b.ktype and a.vtype == b.vtype)
+    if isinstance(a, uxf.TType):
+        if a.name != b.name or a.comment != b.comment:
+            return False
+        if len(a.fields) != len(b.fields):
+            return False
+        for afield, bfield in zip(a.fields, b.fields):
+            if afield.name != bfield.name or afield.vtype != bfield.vtype:
+                return False
+        return True
+    if isinstance(a, uxf.Table):
+        if (not equal(a.ttype, b.ttype) or a.name != b.name or
+                a.comment != b.comment):
+            return False
+        for arec, brec in zip(iter(a), iter(b)):
+            if not equal(arec, brec):
+                return False
+        return True
+    if isinstance(a, (list, tuple)):
+        for atup, btup in zip(a, b):
+            if not equal(atup, btup):
+                return False
+        return True
+    if isinstance(a, dict):
+        for (akey, avalue), (bkey, bvalue) in zip(
+                sorted(a.items(), key=by_key),
+                sorted(b.items(), key=by_key)):
+            if akey != bkey:
+                return False
+            if not equal(avalue, bvalue):
+                return False
+        return True
+    return a == b
+
+
+def by_key(item):
+    return str(item[0])
 
 
 def normalize_uxf_text(text):
