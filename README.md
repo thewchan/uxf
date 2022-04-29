@@ -392,6 +392,35 @@ invoice has an empty description.
 
 Here, we've added types to each table's _ttype_.
 
+It is conventional in a database to have IDs and foreign keys. But these can
+often be avoided by using hierarchical data. For example:
+
+    uxf 1.0 MyApp Data
+    = Customers CID:int Company:str Address:str Contact:str Email:str
+    = Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool
+    Description:str Items:Items
+    = Items IID:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
+    [ #<There is a 1:M relationship between the Invoices and Items tables>
+        (Customers
+        50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
+        19 <Supersuppliers> ? <Jane Doe> <jane@super.com> 
+        )
+        (Invoices
+        152 50 2022-01-17 2022-02-17 no <COD> (Items
+            1839 2022-01-16 29.99 2 <Bales of hay> 
+            1840 2022-01-16 5.98 3 <Straps> 
+            )
+        153 19 2022-01-19 2022-02-19 yes <> (Items
+            1620 2022-01-19 11.5 1 <Washers (1-in)> 
+            )
+        )
+    ]
+
+Notice that Items no longer need an INUM to identify the Invoice they belong
+to because they are nested inside their Invoice. However, the relational
+approach has been retained for Customers since more than one Invoice could
+be for the same Customer.
+
 What if we wanted to add some extra configuration data to the database? One
 solution would be to make the first item in the `list` a `map`, with the
 remainder ``table``s, as now. Another solution would be to use a `map` for

@@ -6,9 +6,11 @@ See slides.py for an example of converting this format to HTML.>
 = #<subtitle> h2 content
 = #<bullet item> B content
 = #<monospace> m content
+= #<monospace lines> pre content
 = #<image> img content image:bytes
 = #<para> p content
 = #<italic> i content
+= #<newline> nl empty
 (Slide
 
 (h1 <The Uniform eXchange Format>)
@@ -40,6 +42,7 @@ See slides.py for an example of converting this format to HTML.>
   (B [(m <.csv>) <has only one table, &amp; isn't standardized or typed>])
   (B [(m <.ini>) <only nests 2-3 deep, &amp; isn't standardized or typed>])
   (B [(m <.json>) <has lots of punctuation, no date/time support and is verbose>])
+  (B [(m <.sqlite>) <is binary so can't be hand edited>])
   (B [(m <.xml>) <is heavyweight and isn't nice to hand edit>])
   (B [(i <UXF>) <can hold any number of tables>])
   (B [(i <UXF>) <is optionally typed>])
@@ -48,23 +51,20 @@ See slides.py for an example of converting this format to HTML.>
   (B [(i <UXF>) <is fairly lightweight and hand editable>])
 ]
 
-(h1 <Main Characteristics>)
-[
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-]
-
 (h1 <Overall Structure>)
 [
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
-  (B <>)
+  (p <A> (i <UXF>) <file consists of a header line, then optional table type
+  definitions, then a single list, map, or table containing the data. Since
+  lists, maps, and tables can nest, this allows for any arbitrary data
+  structure of any amount of data.>)
+  (m <uxf 1.0> <= #&lt;optional ttypes go here&gt; Point x y> (nl))
+  (m <[ #&lt;data goes here&gt;> (nl))
+  (m <(Point 5 9)> (nl))
+  (m <&lt;Some text&gt;> (nl))
+  (m <2022-04-29> (nl))
+  (m <9.8e6> (nl))
+  (m <]> (nl))
+  (nl)
 ]
 
 (h1 <Collection Types>)
