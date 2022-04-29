@@ -6,6 +6,7 @@ import contextlib
 import filecmp
 import gzip
 import importlib.util
+import math
 import os
 import re
 import subprocess
@@ -170,6 +171,9 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, number):
 
 
 def equal(a, b):
+    def by_key(item):
+        return str(item[0])
+
     if isinstance(a, uxf.Uxf):
         return (equal(a.data, b.data) and a.custom == b.custom and
                 a.comment == b.comment and equal(a.ttypes, b.ttypes))
@@ -210,11 +214,9 @@ def equal(a, b):
             if not equal(avalue, bvalue):
                 return False
         return True
+    if isinstance(a, float):
+        return math.isclose(a, b)
     return a == b
-
-
-def by_key(item):
-    return str(item[0])
 
 
 def normalize_uxf_text(text):

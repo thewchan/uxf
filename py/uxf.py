@@ -192,6 +192,43 @@ class Uxf:
         self.data.typecheck(self.ttypes, fixtypes=fixtypes)
 
 
+    def visit(self, x, function):
+        if isinstance(x, Uxf):
+            yield function(ValueType.UXF, x.custom)
+            yield self.visit(x.data, function)
+        elif isinstance(x, (list, List)):
+            yield function(ValueType.LIST, getattr(x, x.vtype, None))
+            for value in x:
+                yield self.visit(value, function)
+        elif isinstance(x, (dict, uxf.Map)):
+            ktype = getattr(x, x.ktype, None)
+            vtype = getattr(x, x.vtype, None)
+            data = ((ktype, vtype) if ktype is not None and
+                    vtype is not None else ktype if ktype is not None else
+                    None)
+            yield function(ValueType.LIST, data)
+            for item in x.items():
+                yield self.visit(item, function) # item is (key, value) pair
+        elif isinstance(x, uxf.Table):
+            yield function(ValueType.TABLE, getattr(x, x.name, None))
+            for record in x:
+                yield function(ValueType.Row)
+                for item in record:
+                    yield self.visit(item, function)
+        elif not isinstance(x, uxf.TType):
+            yield function(ValueType.SCALAR, x)
+
+
+@enum.unique
+class ValueType(enum.Enum):
+    UXF = enum.auto()
+    LIST = enum.auto()
+    MAP = enum.auto()
+    TABLE = enum.auto()
+    ROW = enum.auto()
+    SCALAR = enum.auto()
+
+
 def load(filename_or_filelike, *, check=False, fixtypes=False,
          warn_is_error=False):
     '''
