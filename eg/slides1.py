@@ -84,7 +84,7 @@ def visitor(kind, value=None, *, file, state):
         name = value.name
         if name == 'B':
             file.write('<ul><li>')
-        elif name in {'h1', 'h2'}:
+        elif name in {'h1', 'h2', 'p', 'pre'}:
             file.write(f'<{name}>')
         elif name == 'i':
             file.write(' <i>')
@@ -94,17 +94,13 @@ def visitor(kind, value=None, *, file, state):
             file.write(' <tt>')
         elif name == 'nl':
             pass
-        elif name == 'p':
-            file.write('<p>')
-        elif name == 'pre':
-            file.write('<pre>')
         elif name == 'url':
             state.link_title = ''
     elif kind is uxf.ValueType.TABLE_END:
         name = value.name
         if name == 'B':
             file.write('</li></ul>')
-        elif name in {'h1', 'h2'}:
+        elif name in {'h1', 'h2', 'p', 'pre'}:
             file.write(f'</{name}>\n')
         elif name == 'i':
             file.write('</i> ')
@@ -114,10 +110,6 @@ def visitor(kind, value=None, *, file, state):
             file.write('</tt> ')
         elif name == 'nl':
             file.write('<br />\n')
-        elif name == 'p':
-            file.write('</p>\n')
-        elif name == 'pre':
-            file.write('</pre>\n')
         elif name == 'url':
             state.link_title = '' # want link title
     elif kind is uxf.ValueType.BYTES:
