@@ -253,6 +253,8 @@ def _read_text(filename_or_filelike):
 
 class _ErrorMixin:
 
+    __slots__ = ()
+
     def warn(self, code, message):
         if self.warn_is_error:
             self.error(code, message)
@@ -711,6 +713,8 @@ class Map(collections.UserDict):
 
 
 class _CheckNameMixin:
+
+    __slots__ = ()
 
     def _check_name(self, name):
         if name[0].isdigit():
