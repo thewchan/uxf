@@ -101,6 +101,7 @@ import datetime
 import enum
 import gzip
 import io
+import pathlib
 import sys
 from xml.sax.saxutils import escape, unescape
 
@@ -201,8 +202,8 @@ def load(filename_or_filelike, *, check=False, fixtypes=False,
 
     If warn_is_error is True warnings raise Error exceptions.
     '''
-    filename = (filename_or_filelike
-                if isinstance(filename_or_filelike, str) else '-')
+    filename = (filename_or_filelike if isinstance(filename_or_filelike,
+                (str, pathlib.Path)) else '-')
     return _loads(_read_text(filename_or_filelike), check=check,
                   fixtypes=fixtypes, warn_is_error=warn_is_error,
                   filename=filename)
@@ -240,7 +241,7 @@ def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
 
 
 def _read_text(filename_or_filelike):
-    if not isinstance(filename_or_filelike, str):
+    if not isinstance(filename_or_filelike, (str, pathlib.Path)):
         return filename_or_filelike.read()
     try:
         with gzip.open(filename_or_filelike, 'rt', encoding=UTF8) as file:
@@ -1199,7 +1200,7 @@ def dump(filename_or_filelike, data, *, indent=2,
     '''
     pad = ' ' * indent
     close = False
-    if isinstance(filename_or_filelike, str):
+    if isinstance(filename_or_filelike, (str, pathlib.Path)):
         opener = (gzip.open if filename_or_filelike[-3:].upper().endswith(
                   '.GZ') else open)
         file = opener(filename_or_filelike, 'wt', encoding=UTF8)
