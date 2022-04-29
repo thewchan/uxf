@@ -27,6 +27,14 @@
 
 - create misc/tlm2uxf.py
 
+- port biller .ini & .bdb to UXF
+
+- maybe port .tlm to UXF?
+
+- code review
+
+- release 1.0.0
+
 - UXF libraries
     - for .js use Dart or TypeScript or similar that can output JS
     - uxf.rs uxf.cpp uxf.java uxf.rb ...
@@ -40,7 +48,7 @@
 - port my Rust apps to use UXF (e.g., instead of ini, SQLite, & custom
   formats), once I have a Rust UXF library, e.g., TLM
 - experiment with using uxf format to store various kinds of data,
-  e.g., slides, styled text, spreadsheet, graphics, etc.
+  e.g., styled text, spreadsheet, graphics, etc.
 - for TType definitions in addition to or instead of a type allow ':'
   'notnull'; then, if a null is encountered during parsing this should
   produce a warning (and in typecheck() an error?)?
