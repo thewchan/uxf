@@ -232,43 +232,13 @@ def visit(function, value):
     if value is None:
         function(ValueType.NULL)
     elif isinstance(value, Uxf):
-        info = UxfInfo(value.custom, value.comment, value.ttypes)
-        function(ValueType.UXF_BEGIN, info)
-        visit(function, value.data)
-        function(ValueType.UXF_END, Tag(info.custom))
+        _visit_uxf(function, value)
     elif isinstance(value, (tuple, list, List)):
-        info = ListInfo(getattr(value, 'comment', None),
-                        getattr(value, 'vtype', None))
-        function(ValueType.LIST_BEGIN, info)
-        for element in value:
-            visit(function, element)
-        function(ValueType.LIST_END)
+        _visit_list(function, value)
     elif isinstance(value, (dict, Map)):
-        info = MapInfo(getattr(value, 'comment', None),
-                       getattr(value, 'ktype', None),
-                       getattr(value, 'vtype', None))
-        function(ValueType.MAP_BEGIN, info)
-        for key, element in value.items():
-            function(ValueType.MAP_KEY)
-            visit(function, key)
-            function(ValueType.MAP_VALUE)
-            visit(function, element)
-        function(ValueType.MAP_END)
+        _visit_map(function, value)
     elif isinstance(value, Table):
-        info = TableInfo(getattr(value, 'name', None),
-                         getattr(value, 'comment', None),
-                         getattr(value, 'vtype', None))
-        function(ValueType.TABLE_BEGIN, info)
-        for record in value:
-            rtype = record.__class__.__name__
-            if rtype.startswith('UXF'):
-                rtype = rtype[3:]
-            tag = Tag(rtype)
-            function(ValueType.ROW_BEGIN, tag)
-            for item in record:
-                visit(function, item)
-            function(ValueType.ROW_END, tag)
-        function(ValueType.TABLE_END, Tag(info.name))
+        _visit_table(function, value)
     elif isinstance(value, bool):
         function(ValueType.BOOL, value)
     elif isinstance(value, int):
@@ -286,11 +256,49 @@ def visit(function, value):
     # else isinstance(value, TType): pass # ignore
 
 
-#def _visit_uxf(uxf_obj): # TODO
-#    info = UxfInfo(value.custom, value.comment, value.ttypes)
-#    function(ValueType.UXF_BEGIN, info)
-#    visit(function, value.data)
-#    function(ValueType.UXF_END, Tag(info.custom))
+def _visit_uxf(function, uxf_obj):
+    info = UxfInfo(uxf_obj.custom, uxf_obj.comment, uxf_obj.ttypes)
+    function(ValueType.UXF_BEGIN, info)
+    visit(function, uxf_obj.data)
+    function(ValueType.UXF_END, Tag(info.custom))
+
+
+def _visit_list(function, lst):
+    info = ListInfo(getattr(lst, 'comment', None),
+                    getattr(lst, 'vtype', None))
+    function(ValueType.LIST_BEGIN, info)
+    for element in lst:
+        visit(function, element)
+    function(ValueType.LIST_END)
+
+
+def _visit_map(function, d):
+    info = MapInfo(getattr(d, 'comment', None), getattr(d, 'ktype', None),
+                   getattr(d, 'vtype', None))
+    function(ValueType.MAP_BEGIN, info)
+    for key, element in d.items():
+        function(ValueType.MAP_KEY)
+        visit(function, key)
+        function(ValueType.MAP_VALUE)
+        visit(function, element)
+    function(ValueType.MAP_END)
+
+
+def _visit_table(function, table):
+    info = TableInfo(getattr(table, 'name', None),
+                     getattr(table, 'comment', None),
+                     getattr(table, 'vtype', None))
+    function(ValueType.TABLE_BEGIN, info)
+    for record in table:
+        rtype = record.__class__.__name__
+        if rtype.startswith('UXF'):
+            rtype = rtype[3:]
+        tag = Tag(rtype)
+        function(ValueType.ROW_BEGIN, tag)
+        for item in record:
+            visit(function, item)
+        function(ValueType.ROW_END, tag)
+    function(ValueType.TABLE_END, Tag(info.name))
 
 
 @enum.unique
