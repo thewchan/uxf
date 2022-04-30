@@ -9,6 +9,7 @@ import importlib.util
 import math
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -23,8 +24,12 @@ sys.modules[module_name] = uxf
 spec.loader.exec_module(uxf)
 
 
+UXF_EXE = '../py/uxf.py'
+UXFCONVERT_EXE = '../py/uxfconvert.py'
+
+
 def main():
-    uxf, uxfconvert, number, verbose = get_config()
+    max_total, verbose = get_config()
     cleanup()
     t = time.monotonic()
     uxffiles = sorted((name for name in os.listdir('.')
@@ -32,15 +37,17 @@ def main():
                            ('.uxf', '.uxf.gz'))),
                       key=by_number)
     print('.', end='', flush=True)
-    total, ok = test_uxf_files(uxf, uxffiles, verbose=verbose,
-                               number=number)
+    total, ok = test_uxf_files(uxffiles, verbose=verbose,
+                               max_total=max_total)
     total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose,
-                                     number=number)
+                                     max_total=max_total)
     total, ok = test_uxf_equal(uxffiles, total, ok, verbose=verbose,
-                               number=number)
-    total, ok = test_uxfconvert(uxfconvert, uxffiles, total, ok,
-                                verbose=verbose, number=number)
+                               max_total=max_total)
+    total, ok = test_uxfconvert(uxffiles, total, ok, verbose=verbose,
+                                max_total=max_total)
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
+    total, ok = test_slides(1, total, ok, verbose=verbose)
+    total, ok = test_slides(2, total, ok, verbose=verbose)
     if total < 128:
         print('\b' * total, end='', flush=True)
     if total == ok:
@@ -52,43 +59,29 @@ def main():
 
 
 def get_config():
-    uxf_default = '../py/uxf.py'
-    uxfconvert_default = '../py/uxfconvert.py'
-    uxf = uxfconvert = None
     verbose = False
-    number = 999999
+    max_total = 999999
     for arg in sys.argv[1:]:
         if arg in {'-h', '--help'}:
-            raise SystemExit(f'''\
-usage: regression.py [-v|--verbose] [uxf-exe] [uxfconvert-exe]
-uxf-exe default is {uxf_default}
-uxfconvert-exe default is {uxfconvert_default}''')
+            raise SystemExit('usage: regression.py [-v|--verbose] [max]')
         elif arg in {'-v', '--verbose'}:
             verbose = True
         elif arg.isdecimal():
-            number = int(arg)
-        elif uxf is None:
-            uxf = arg
-        elif uxfconvert is None:
-            uxfconvert = arg
-    if uxf is None:
-        uxf = uxf_default
-    if uxfconvert is None:
-        uxfconvert = uxfconvert_default
-    return uxf, uxfconvert, number, verbose
+            max_total = int(arg)
+    return max_total, verbose
 
 
-def test_uxf_files(uxf, uxffiles, *, verbose, number):
+def test_uxf_files(uxffiles, *, verbose, max_total):
     total = ok = 0
     for name in uxffiles:
         total += 1
-        if total > number:
+        if total > max_total:
             return total - 1, ok
         actual = f'actual/{name}'
         expected = f'expected/{name}'
         if expected.endswith('.gz'):
             expected = expected[:-3]
-        cmd = [uxf, name, actual]
+        cmd = [UXF_EXE, name, actual]
         reply = subprocess.call(cmd)
         cmd = ' '.join(cmd)
         if reply != 0:
@@ -100,10 +93,10 @@ def test_uxf_files(uxf, uxffiles, *, verbose, number):
     return total, ok
 
 
-def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
+def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
     for name in uxffiles:
         total += 1
-        if total > number:
+        if total > max_total:
             return total - 1, ok
         try:
             with open(name, 'rt', encoding='utf-8') as file:
@@ -133,10 +126,10 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, number):
     return total, ok
 
 
-def test_uxf_equal(uxffiles, total, ok, *, verbose, number):
+def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
     for name in uxffiles:
         total += 1
-        if total > number:
+        if total > max_total:
             return total - 1, ok
         try:
             with open(name, 'rt', encoding='utf-8') as file:
@@ -244,7 +237,7 @@ def normalize_uxf_text(text):
     return '\n'.join(textwrap.wrap(body, 40)).strip() # easier to compare
 
 
-def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose, number):
+def test_uxfconvert(uxffiles, total, ok, *, verbose, max_total):
     N, Y, NF, YR = (0, 1, 2, 3) # No, Yes, No with -f, Yes with -f
     files = [(name, name.replace('.uxf', '.json'), Y) for name in uxffiles]
     files += [('t1.uxf', 't1.csv', N), ('t2.uxf', 't2.csv', N),
@@ -253,11 +246,11 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose, number):
     # TODO add tests for sqlite and xml
     for infile, outfile, roundtrip in files:
         total += 1
-        if total > number:
+        if total > max_total:
             return total - 1, ok
         actual = f'actual/{outfile}'
-        cmd = ([uxfconvert, '-f', infile, actual] if roundtrip == NF else
-               [uxfconvert, infile, actual])
+        cmd = ([UXFCONVERT_EXE, '-f', infile, actual]
+               if roundtrip == NF else [UXFCONVERT_EXE, infile, actual])
         reply = subprocess.call(cmd)
         cmd = ' '.join(cmd)
         if reply != 0:
@@ -272,9 +265,9 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose, number):
                 if roundtrip in (Y, YR):
                     total += 1
                     new_actual = tempfile.gettempdir() + f'/{infile}'
-                    cmd = ([uxfconvert, '-f', expected, new_actual]
+                    cmd = ([UXFCONVERT_EXE, '-f', expected, new_actual]
                            if roundtrip == YR else
-                           [uxfconvert, expected, new_actual])
+                           [UXFCONVERT_EXE, expected, new_actual])
                     reply = subprocess.call(cmd)
                     cmd = ' '.join(cmd)
                     if reply != 0:
@@ -294,7 +287,7 @@ def test_uxfconvert(uxfconvert, uxffiles, total, ok, *, verbose, number):
     total += 1
     actual = 'actual/1-2-csv.uxf'
     infile = '1.csv 2.csv'
-    cmd = [uxfconvert, '-f', '1.csv', '2.csv', actual]
+    cmd = [UXFCONVERT_EXE, '-f', '1.csv', '2.csv', actual]
     reply = subprocess.call(cmd)
     cmd = ' '.join(cmd)
     if reply != 0:
@@ -318,6 +311,25 @@ def test_table_is_scalar(total, ok, *, verbose):
                 print(f'{filename} • (Table.is_scalar) OK')
         else:
             print(f'{filename} • FAIL (Table.is_scalar)')
+    return total, ok
+
+
+def test_slides(num, total, ok, *, verbose):
+    cmd = [f'../eg/slides{num}.py', '../eg/slides.sld',
+           f'actual/slides{num}']
+    total += 1
+    reply = subprocess.call(cmd)
+    cmd = ' '.join(cmd)
+    if reply != 0:
+        print(f'{cmd} • FAIL (execute slides)')
+    else:
+        ok += 1
+        for name in sorted(
+                name for name in os.listdir(f'actual/slides{num}')
+                if name.endswith('.html')):
+            total += 1
+            ok += compare(cmd, 'slides.sld', f'actual/slides{num}/{name}',
+                          f'expected/slides{num}/{name}', verbose=verbose)
     return total, ok
 
 
@@ -359,18 +371,19 @@ def compare(cmd, infile, actual, expected, *, verbose,
 
 def cleanup():
     if os.path.exists('actual'):
-        for name in os.listdir('actual'):
-            name = f'actual/{name}'
-            if os.path.isfile(name):
-                os.remove(name)
-    else:
+        shutil.rmtree('actual')
+    with contextlib.suppress(FileExistsError):
         os.mkdir('actual')
+    with contextlib.suppress(FileExistsError):
+        os.mkdir('actual/slides1')
+    with contextlib.suppress(FileExistsError):
+        os.mkdir('actual/slides2')
 
 
 def by_number(s):
-    match = re.match(r'(?P<name>\D+)(?P<number>\d+)', s)
+    match = re.match(r'(?P<name>\D+)(?P<max_total>\d+)', s)
     if match is not None:
-        return match['name'], int(match['number'])
+        return match['name'], int(match['max_total'])
     return s, 0
 
 

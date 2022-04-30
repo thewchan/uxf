@@ -7,7 +7,7 @@ t/regression.py
 
 eg/slides1.py
 eg/slides2.py
-eg/slides.uxf
+eg/slides.sld
 misc/epd2uxf.py
 misc/md2html.sh
 

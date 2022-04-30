@@ -11,43 +11,53 @@ It also shows how even an empty table can be useful (e.g., the nl ttype).
 '''
 
 import base64
+import os
 import shutil
 import sys
 from xml.sax.saxutils import escape
 
-INFILE = 'slides.uxf'
-OUTDIR = 'slides'
-
 try:
     import uxf
 except ImportError: # needed for development
-    import os
-    import importlib
+    path = os.path.abspath('.')
     os.chdir(os.path.dirname(__file__))
+    import importlib
     module_name = 'uxf'
     spec = importlib.util.spec_from_file_location(module_name,
                                                   '../py/uxf.py')
     uxf = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = uxf
     spec.loader.exec_module(uxf)
+    os.chdir(path)
 
 
 def main():
-    shutil.rmtree(OUTDIR, ignore_errors=True)
-    os.mkdir(OUTDIR)
-    uxf_obj = uxf.load(INFILE)
+    infile, outdir = get_args()
+    shutil.rmtree(outdir, ignore_errors=True)
+    os.mkdir(outdir)
+    uxf_obj = uxf.load(infile)
     titles = []
     slides = uxf_obj.data
     for index, slide in enumerate(slides, 1):
-        titles.append(write_slide(index, slide, len(slides)))
+        titles.append(write_slide(outdir, index, slide, len(slides)))
     index += 1
-    titles.append(write_uxf_source(index))
+    titles.append(write_uxf_source(outdir, index, infile))
     index += 1
-    titles.append(write_py_source(index))
-    write_index(titles)
+    titles.append(write_py_source(outdir, index))
+    write_index(outdir, titles)
 
 
-def write_slide(index, slide, last):
+def get_args():
+    infile = os.path.abspath('slides.sld')
+    outdir = os.path.abspath('slides')
+    if len(sys.argv) < 3 or sys.argv[1] in {'-h', '--help'}:
+        raise SystemExit('usage: slides2.py <infile.sld> <outdir>]')
+    infile = sys.argv[1]
+    outdir = sys.argv[2]
+    return infile, outdir
+
+
+def write_slide(outdir, index, slide, last):
     parts = ['<html><title>']
     doc_title = title = html_for_block(slide[0])
     while len(doc_title) > 1:
@@ -63,9 +73,9 @@ def write_slide(index, slide, last):
     parts.append(f'<a href="{index + 1}.html">Next</a>' if index != last
                  else '<font color="gray">Next</font>')
     parts.append('</body></html>')
-    with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
+    with open(f'{outdir}/{index}.html', 'wt', encoding='utf-8') as file:
         file.write('\n'.join(parts))
-    return doc_title[0]
+    return escape(doc_title[0])
 
 
 def html_for_block(block):
@@ -122,35 +132,32 @@ def html_for_block(block):
     return parts
 
 
-def write_uxf_source(index):
-    filename = 'slides.uxf'
-    with open(filename, 'rt', encoding='utf-8') as file:
+def write_uxf_source(outdir, index, infile):
+    with open(infile, 'rt', encoding='utf-8') as file:
         text = file.read()
-    title = escape(filename)
-    with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
+    title = escape(os.path.basename(infile))
+    with open(f'{outdir}/{index}.html', 'wt', encoding='utf-8') as file:
         file.write(f'<html><title>{title}</title><body>\n<h1>{title}</h1>')
         file.write(f'<pre>\n{escape(text)}\n</pre>')
-    return filename
+    return title
 
 
-def write_py_source(index):
-    filename = 'slides2.py'
-    with open(filename, 'rt', encoding='utf-8') as file:
+def write_py_source(outdir, index):
+    with open(__file__, 'rt', encoding='utf-8') as file:
         text = file.read()
-    title = escape(filename)
-    with open(f'{OUTDIR}/{index}.html', 'wt', encoding='utf-8') as file:
+    title = escape(os.path.basename(__file__))
+    with open(f'{outdir}/{index}.html', 'wt', encoding='utf-8') as file:
         file.write(f'<html><title>{title}</title><body>\n<h1>{title}</h1>')
         file.write(f'<pre>\n{escape(text)}\n</pre>')
-    return filename
+    return title
 
 
-def write_index(titles):
-    with open(f'{OUTDIR}/index.html', 'wt', encoding='utf-8') as file:
+def write_index(outdir, titles):
+    with open(f'{outdir}/index.html', 'wt', encoding='utf-8') as file:
         title = escape(titles[0])
         file.write(
             f'<html><title>{title}</title><body>\n<h1>{title}</h1><ol>')
         for i, title in enumerate(titles, 1):
-            title = escape(title)
             file.write(f'<li><a href="{i}.html">{title}</a></li>\n')
         file.write('</ol></body></html>')
 

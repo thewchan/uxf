@@ -34,9 +34,10 @@ dump() writes the data to the filename_or_filelike; dumps() writes the data
 into a string that's then returned. See the function docs for additional
 options.
 
-    visit(function, obj)
+    visit(function, data)
 
-# TODO docs
+The visit function calls the given function on every value in the given data
+(which can be a Uxf object or a single list, List, dict, Map, or Table).
 
     naturalize(s) -> object
 
@@ -197,12 +198,10 @@ class Uxf:
 
 
     def visit(self, function, value=None):
-        '''Convenience method that visits every value in the Uxf object (or
-        the value if given) and which calls function(ValueType, value) for
-        every value encountered and function(ValueType) for every begin and
-        end of a Uxf, list, map, table, or row in a table, and before every
-        map key and map value. The function must accept one positional
-        argument and one optional positional argument.
+        '''Convenience method that calls the given function for every value
+        in the Uxf object (or the list, List, dict, Map, or Table, value if
+        given). The method is called with one or two arguments, the first
+        being a ValueType and the second (where given) a value.
 
             import uxf
             u = uxf.load('file.uxf')
@@ -216,14 +215,27 @@ class Uxf:
 
 
 def visit(function, value):
-    # TODO docstring
+    '''Calls the given function for every every value in the Uxf object (or
+    the list, List, dict, Map, or Table, value if given). The function is
+    called with one or two arguments, the first being a ValueType and the
+    second (where given) a value.
+
+        import uxf
+        u = uxf.load('file.uxf')
+        uxf.visit(print, u)
+        # -or-
+        for value in u.data: # if u's data is a List or Table
+            uxf.visit(print, value)
+
+    See also the ValueType enum.
+    '''
     if value is None:
         function(ValueType.NULL)
     elif isinstance(value, Uxf):
         info = UxfInfo(value.custom, value.comment, value.ttypes)
         function(ValueType.UXF_BEGIN, info)
         visit(function, value.data)
-        function(ValueType.UXF_END, Tag(value.custom))
+        function(ValueType.UXF_END, Tag(info.custom))
     elif isinstance(value, (tuple, list, List)):
         info = ListInfo(getattr(value, 'comment', None),
                         getattr(value, 'vtype', None))
@@ -248,10 +260,14 @@ def visit(function, value):
                          getattr(value, 'vtype', None))
         function(ValueType.TABLE_BEGIN, info)
         for record in value:
-            function(ValueType.ROW_BEGIN)
+            rtype = record.__class__.__name__
+            if rtype.startswith('UXF'):
+                rtype = rtype[3:]
+            tag = Tag(rtype)
+            function(ValueType.ROW_BEGIN, tag)
             for item in record:
                 visit(function, item)
-            function(ValueType.ROW_END)
+            function(ValueType.ROW_END, tag)
         function(ValueType.TABLE_END, Tag(info.name))
     elif isinstance(value, bool):
         function(ValueType.BOOL, value)
@@ -268,6 +284,13 @@ def visit(function, value):
     elif isinstance(value, (bytes, bytearray)):
         function(ValueType.BYTES, value)
     # else isinstance(value, TType): pass # ignore
+
+
+#def _visit_uxf(uxf_obj): # TODO
+#    info = UxfInfo(value.custom, value.comment, value.ttypes)
+#    function(ValueType.UXF_BEGIN, info)
+#    visit(function, value.data)
+#    function(ValueType.UXF_END, Tag(info.custom))
 
 
 @enum.unique
