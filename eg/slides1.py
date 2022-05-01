@@ -53,16 +53,10 @@ def main():
 
 
 def get_args():
-    infile = os.path.abspath('slides.sld')
-    outdir = os.path.abspath('slides')
-    if len(sys.argv) == 2 and sys.argv[1] in {'-h', '--help'}:
-        raise SystemExit(f'''usage: slides1.py [infile.sld [outdir]]
-infile.sld default is {infile!r}
-outdir default is {outdir!r}''')
-    if len(sys.argv) > 1:
-        infile = sys.argv[1]
-    if len(sys.argv) > 2:
-        outdir = sys.argv[2]
+    if len(sys.argv) < 3 or sys.argv[1] in {'-h', '--help'}:
+        raise SystemExit('usage: slides1.py <infile.sld> <outdir>]')
+    infile = sys.argv[1]
+    outdir = sys.argv[2]
     return infile, outdir
 
 

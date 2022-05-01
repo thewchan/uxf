@@ -524,9 +524,10 @@ free to use their own. For example, `data.myapp` and `data.myapp.gz`.
 ## Vim Support
 
 If you use the vim editor, simple color syntax highlighting is available.
-Copy `uxf.vim` into your `$VIM/syntax/` folder and add this line (or
+Copy `uxf.vim` into your `$VIM/syntax/` folder and add these lines (or
 similar) to your `.vimrc` or `.gvimrc` file:
 
+    au BufRead,BufNewFile,BufEnter * if getline(1) =~ '^uxf ' | setlocal ft=uxf | endif
     au BufRead,BufNewFile,BufEnter *.uxf set ft=uxf|set expandtab|set tabstop=2|set softtabstop=2|set shiftwidth=2
 
 ## UXF Logo
