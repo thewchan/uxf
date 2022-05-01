@@ -18,11 +18,11 @@ or
 The uxf module's public API provides the following free functions and
 classes.
 
-    load(filename_or_filelike): -> uxf_obj
-    loads(uxf_text): -> uxf_obj
+    load(filename_or_filelike): -> uxd
+    loads(uxf_text): -> uxd
 
 These functions read UXF data from a file, file-like, or string.
-The returned uxf_obj is of type Uxf (see below).
+The returned uxd is of type Uxf (see below).
 See the function docs for additional options.
 
     dump(filename_or_filelike, data)
@@ -256,10 +256,10 @@ def visit(function, value):
     # else isinstance(value, TType): pass # ignore
 
 
-def _visit_uxf(function, uxf_obj):
-    info = UxfInfo(uxf_obj.custom, uxf_obj.comment, uxf_obj.ttypes)
+def _visit_uxf(function, uxd):
+    info = UxfInfo(uxd.custom, uxd.comment, uxd.ttypes)
     function(ValueType.UXF_BEGIN, info)
-    visit(function, uxf_obj.data)
+    visit(function, uxd.data)
     function(ValueType.UXF_END, Tag(info.custom))
 
 
@@ -368,10 +368,10 @@ def _loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False,
     data, comment, ttypes = _parse(
         tokens, text=uxf_text, warn_is_error=warn_is_error,
         filename=filename)
-    uxf_obj = Uxf(data, custom, ttypes=ttypes, comment=comment)
+    uxd = Uxf(data, custom, ttypes=ttypes, comment=comment)
     if check:
-        uxf_obj.typecheck(fixtypes=fixtypes)
-    return uxf_obj
+        uxd.typecheck(fixtypes=fixtypes)
+    return uxd
 
 
 def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
@@ -977,14 +977,17 @@ class Table:
         A Table may be created empty, e.g., Table(). However, if records is
         not None, then both the name and fields must be given.
 
-        records can be a flat list of values (which will be put into a list
+        .records can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fields) long), or a list of
-        lists in which case each list is _assumed_ to be len(fields)
-        long.
+        lists in which case each list is _assumed_ to be len(fields) i.e.,
+        len(ttype.fields), long
+        .RecordClass is a dynamically created namedtuple that is used when
+        accessing a single record via [] or when iterating a table's
+        records.
 
         comment is an optional str.
         '''
-        self._Class = None
+        self.RecordClass = None
         self.ttype = TType(name, fields)
         self.records = []
         self.comment = comment
@@ -995,7 +998,7 @@ class Table:
                 raise Error(
                     '#860:can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
-                if self._Class is None:
+                if self.RecordClass is None:
                     self._make_record_class()
                 self.records = list(records)
             else:
@@ -1026,7 +1029,7 @@ class Table:
         '''Use to append a value to the table. The value will be added to
         the last row if that isn't full, or as the first value in a new
         row'''
-        if self._Class is None:
+        if self.RecordClass is None:
             self._make_record_class()
         if not self.records or len(self.records[-1]) >= len(self.ttype):
             self.records.append([])
@@ -1073,8 +1076,9 @@ class Table:
             raise Error('#870:can\'t use an unnamed table')
         if not self.fields:
             raise Error('#880:can\'t create a table with no fields')
-        self._Class = collections.namedtuple( # prefix avoids name clashes
-            f'UXF{self.name}', [field.name for field in self.fields])
+        self.RecordClass = collections.namedtuple(
+            f'UXF{self.name}', # prefix avoids name clashes
+            [field.name for field in self.fields])
 
 
     def __iadd__(self, value):
@@ -1093,7 +1097,7 @@ class Table:
     def __getitem__(self, row):
         '''Return the row-th record as a namedtuple'''
         try:
-            return self._Class(*self.records[row])
+            return self.RecordClass(*self.records[row])
         except TypeError as err:
             if 'missing' in str(err):
                 err = '#910:table\'s ttype has fewer fields than in a row'
@@ -1101,11 +1105,11 @@ class Table:
 
 
     def __iter__(self):
-        if self._Class is None:
+        if self.RecordClass is None:
             self._make_record_class()
         try:
             for record in self.records:
-                yield self._Class(*record)
+                yield self.RecordClass(*record)
         except TypeError as err:
             if 'missing' in str(err):
                 raise Error(
@@ -1387,18 +1391,18 @@ def dumps(data, *, indent=2, one_way_conversion=False,
 
 class _Writer:
 
-    def __init__(self, file, uxf_obj, pad, one_way_conversion,
+    def __init__(self, file, uxd, pad, one_way_conversion,
                  use_true_false):
         self.file = file
         self.one_way_conversion = one_way_conversion
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
-        self.write_header(uxf_obj.custom)
-        if uxf_obj.comment is not None:
-            self.file.write(f'#<{escape(uxf_obj.comment)}>\n')
-        if uxf_obj.ttypes:
-            self.write_ttypes(uxf_obj.ttypes)
-        if not self.write_value(uxf_obj.data, pad=pad):
+        self.write_header(uxd.custom)
+        if uxd.comment is not None:
+            self.file.write(f'#<{escape(uxd.comment)}>\n')
+        if uxd.ttypes:
+            self.write_ttypes(uxd.ttypes)
+        if not self.write_value(uxd.data, pad=pad):
             self.file.write('\n')
 
 
@@ -1797,10 +1801,10 @@ Converting uxf to uxf will alphabetically order any ttypes.
         if (outfile is not None and os.path.abspath(infile) ==
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
-        uxf_obj = load(infile, warn_is_error=warn_is_error)
+        uxd = load(infile, warn_is_error=warn_is_error)
         if check:
-            uxf_obj.typecheck(fixtypes=fixtypes)
+            uxd.typecheck(fixtypes=fixtypes)
         outfile = sys.stdout if outfile is None else outfile
-        dump(outfile, uxf_obj, indent=indent)
+        dump(outfile, uxd, indent=indent)
     except (FileNotFoundError, Error) as err:
         print(f'Error:{err}')

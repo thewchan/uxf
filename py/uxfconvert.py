@@ -108,8 +108,8 @@ def _postprocess_other_args(parser, config):
 
 
 def uxf_to_csv(config):
-    uxf_obj = uxf.load(config.infiles[0])
-    data = uxf_obj.data
+    uxd = uxf.load(config.infiles[0])
+    data = uxd.data
     if isinstance(data, uxf.Table):
         with open(config.outfile, 'w') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
@@ -175,15 +175,15 @@ def multi_csv_to_uxf(config):
 
 
 def uxf_to_json(config):
-    uxf_obj = uxf.load(config.infiles[0])
+    uxd = uxf.load(config.infiles[0])
     d = {}
-    if uxf_obj.custom is not None:
-        d[JSON_CUSTOM] = uxf_obj.custom
-    if uxf_obj.comment is not None:
-        d[JSON_COMMENT] = uxf_obj.comment
-    if uxf_obj.ttypes:
-        d[JSON_TTYPES] = list(uxf_obj.ttypes.values())
-    d[JSON_DATA] = uxf_obj.data
+    if uxd.custom is not None:
+        d[JSON_CUSTOM] = uxd.custom
+    if uxd.comment is not None:
+        d[JSON_COMMENT] = uxd.comment
+    if uxd.ttypes:
+        d[JSON_TTYPES] = list(uxd.ttypes.values())
+    d[JSON_DATA] = uxd.data
     with open(config.outfile, 'wt', encoding=UTF8) as file:
         json.dump(d, file, cls=_JsonEncoder, indent=2)
 

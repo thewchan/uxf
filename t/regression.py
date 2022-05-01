@@ -106,11 +106,11 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
                 uxf_text = file.read()
         use_true_false = 'true' in uxf_text or 'false' in uxf_text
         try:
-            uxf_obj = uxf.loads(uxf_text)
+            uxd = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
-        new_uxf_text = uxf_obj.dumps(one_way_conversion=True,
-                                     use_true_false=use_true_false)
+        new_uxf_text = uxd.dumps(one_way_conversion=True,
+                                 use_true_false=use_true_false)
         nws_uxf_text = normalize_uxf_text(uxf_text)
         nws_new_uxf_text = normalize_uxf_text(new_uxf_text)
         if nws_uxf_text == nws_new_uxf_text:
@@ -138,7 +138,7 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxf_text = file.read()
         try:
-            uxf_obj1 = uxf.loads(uxf_text)
+            uxd1 = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'equal() 1 • {name} FAIL: {err}')
         expected = f'expected/{name}'
@@ -149,10 +149,10 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxf_text = file.read()
         try:
-            uxf_obj2 = uxf.loads(uxf_text)
+            uxd2 = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'equal() 2 • {expected} FAIL: {err}')
-        if equal(uxf_obj1, uxf_obj2):
+        if equal(uxd1, uxd2):
             ok += 1
             if verbose:
                 print(f'equal() • {name} OK')
@@ -304,8 +304,8 @@ def test_table_is_scalar(total, ok, *, verbose):
     for (filename, is_scalar) in (('t40.uxf', True), ('t41.uxf', False),
                                   ('t42.uxf', True), ('t43.uxf', False)):
         total += 1
-        uxf_obj = uxf.load(filename)
-        if is_scalar == uxf_obj.data.is_scalar:
+        uxd = uxf.load(filename)
+        if is_scalar == uxd.data.is_scalar:
             ok += 1
             if verbose:
                 print(f'{filename} • (Table.is_scalar) OK')
