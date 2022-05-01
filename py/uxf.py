@@ -147,7 +147,7 @@ class Uxf:
     .comment is an optional file-level comment
     '''
 
-    def __init__(self, data, custom='', *, ttypes=None, comment=None):
+    def __init__(self, data=None, *, custom='', ttypes=None, comment=None):
         '''data may be a list, List, dict, Map, or Table; if given ttypes
         must be a dict whose values are TTypes and whose corresponding keys
         are the TTypes' names; if given the comment is a file-level comment
@@ -368,7 +368,7 @@ def _loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False,
     data, comment, ttypes = _parse(
         tokens, text=uxf_text, warn_is_error=warn_is_error,
         filename=filename)
-    uxd = Uxf(data, custom, ttypes=ttypes, comment=comment)
+    uxd = Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
     if check:
         uxd.typecheck(fixtypes=fixtypes)
     return uxd

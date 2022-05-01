@@ -131,7 +131,7 @@ def uxf_to_csv(config):
 
 def csv_to_uxf(config):
     data, filename, ttypes = _read_csv_to_data(config)
-    uxf.dump(config.outfile, uxf.Uxf(data, filename, ttypes=ttypes),
+    uxf.dump(config.outfile, uxf.Uxf(data, custom=filename, ttypes=ttypes),
              one_way_conversion=True)
 
 
@@ -170,7 +170,7 @@ def multi_csv_to_uxf(config):
         if new_ttypes:
             ttypes.update(new_ttypes)
     uxf.dump(config.outfile,
-             uxf.Uxf(data, ' '.join(infiles), ttypes=ttypes),
+             uxf.Uxf(data, custom=' '.join(infiles), ttypes=ttypes),
              one_way_conversion=True)
 
 
@@ -266,7 +266,7 @@ def json_to_uxf(config):
         for ttype in ttype_list:
             ttypes[ttype.name] = ttype
     data = d.get(JSON_DATA)
-    uxf.dump(config.outfile, uxf.Uxf(data, custom, ttypes=ttypes,
+    uxf.dump(config.outfile, uxf.Uxf(data, custom=custom, ttypes=ttypes,
                                      comment=comment))
 
 
@@ -325,7 +325,7 @@ def ini_to_uxf(config):
             m = data[section] = uxf.Map()
             for key, value in d.items():
                 m[uxf.naturalize(key)] = uxf.naturalize(value)
-    uxf.dump(config.outfile, uxf.Uxf(data, filename),
+    uxf.dump(config.outfile, uxf.Uxf(data, custom=filename),
              one_way_conversion=True)
 
 
