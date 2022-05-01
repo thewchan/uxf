@@ -9,7 +9,7 @@ open source software.
 
 - [Datatypes](#datatypes)
 - [Examples](#examples)
-- [Libraries](#libraries) (e.g., Python)
+- [Libraries](#libraries) ([Python](py/README.md))
 - [BNF](#bnf)
 - [Vim Support](#vim-support)
 - [UXF Logo](#uxf-logo)
@@ -458,7 +458,7 @@ _Implementations in additional languages are planned._
 
 |**Library**|**Language**|**Notes**                    |
 |-----------|------------|-----------------------------|
-|uxf        | Python 3   | See the [Python uxf library](py/README.md).|
+|uxf        | Python 3   | See the [Python](py/README.md).|
 
 ## BNF
 
