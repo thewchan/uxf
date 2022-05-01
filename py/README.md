@@ -1,8 +1,8 @@
 # Python UXF Library
 
 For details of the Uniform eXchange Format (UXF) supported by this library,
-see the [UXF Overview](../README.md). ((PyPI link to UXF
-Overview)[https://github.com/mark-summerfield/uxf/blob/main/README.md].)
+see the [UXF Overview](../README.md). ([PyPI link to UXF
+Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
 
 The Python `uxf` library works out of the box with the standard library, and
 will use _dateutil_ if available.
