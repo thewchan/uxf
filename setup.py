@@ -5,7 +5,7 @@ import setuptools
 
 ROOT = pathlib.Path(__file__).parent
 
-README = (ROOT / 'README.md').read_text()
+README = (ROOT / 'py/README.md').read_text()
 INIT = (ROOT / 'py/uxf.py').read_text()
 match = re.search(r"__version__\s*=\s*'(?P<version>.*?)'", INIT)
 VERSION = match.group('version')

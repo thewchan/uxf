@@ -1,7 +1,8 @@
 TODO.md
+README.md
 py/uxf.py
 py/uxfconvert.py
-README.md
+py/README.md
 
 t/regression.py
 
