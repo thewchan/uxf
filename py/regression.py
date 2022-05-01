@@ -5,7 +5,6 @@
 import contextlib
 import filecmp
 import gzip
-import importlib.util
 import math
 import os
 import re
@@ -16,13 +15,12 @@ import tempfile
 import textwrap
 import time
 
-os.chdir(os.path.dirname(__file__))
-module_name = 'uxf'
-spec = importlib.util.spec_from_file_location(module_name, '../py/uxf.py')
-uxf = importlib.util.module_from_spec(spec)
-sys.modules[module_name] = uxf
-spec.loader.exec_module(uxf)
-
+try:
+    os.chdir(os.path.dirname(__file__)) # MUST come before import uxf
+    import uxf
+    os.chdir('../t')
+except ImportError:
+    pass # shouldn't happen
 
 UXF_EXE = '../py/uxf.py'
 UXFCONVERT_EXE = '../py/uxfconvert.py'
