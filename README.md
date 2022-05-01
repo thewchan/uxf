@@ -481,6 +481,7 @@ Most Python types convert losslessly to and from UXF types. In particular:
 |`datetime.datetime` | `datetime` |
 |`str`               | `str`      |
 |`bytes`             | `bytes`    |
+|`bytearray`         | `bytes`    |
 |`uxf.List`          | `list`     |
 |`uxf.Map`           | `map`      |
 |`uxf.Table`         | `table    `|
@@ -493,23 +494,12 @@ list)`, .comment` and `.vtype` attributes. Similarly a `uxf.Map` is a Python
 `uxf.Field` values (which each has a field name and type). In all cases a
 type of `None` signifies that any type valid for the context may be used.
 
-If `one_way_conversion` is `False` then any other Python type passed in
-the data passed to `write()` will produce an error.
-
-If `one_way_conversion` is `True` then the following conversions are
-applied when converting to UXF data:
-
-|**Python Type (in)**|**UXF type**|**Python Type (out)**|
-|--------------------|------------|---------------------|
-|`bytearray`         | `bytes`    | `bytes`    |
-|`set`               | `list`     | `uxf.List` |
-|`frozenset`         | `list`     | `uxf.List` |
-|`tuple`             | `list`     | `uxf.List` |
-|`collections.deque` | `list`     | `uxf.List` |
-
 For complex numbers you could create a _ttype_ such as: `= Complex Real real
 Imag real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
+
+For collection types such as `set`, `frozenset`, `tuple`, or
+`collections.deque`, it is probably easiest to convert to a `List`
 
 Using `uxf` as an executable (with `python3 -m uxf ...`) provides a means of
 doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress, or make
