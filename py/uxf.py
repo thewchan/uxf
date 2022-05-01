@@ -1349,6 +1349,7 @@ def dump(filename_or_filelike, data, *, indent=2,
     pad = ' ' * indent
     close = False
     if isinstance(filename_or_filelike, (str, pathlib.Path)):
+        filename_or_filelike = str(filename_or_filelike)
         opener = (gzip.open if filename_or_filelike[-3:].upper().endswith(
                   '.GZ') else open)
         file = opener(filename_or_filelike, 'wt', encoding=UTF8)
