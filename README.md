@@ -458,7 +458,7 @@ _Implementations in additional languages are planned._
 
 |**Library**|**Language**|**Notes**                    |
 |-----------|------------|-----------------------------|
-|uxf        | Python 3   | See the [Python](py/README.md).|
+|uxf        | Python 3   | See the [Python UXF library](py/README.md).|
 
 ## BNF
 
