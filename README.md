@@ -128,7 +128,7 @@ followed by a table name, followed by one or more fields. A field consists
 of a name optionally followed by a `:` and then a type (here only names are
 given).
 
-Both table and field names are user chosen and consist of 1-59 letters,
+Both table and field names are user chosen and consist of 1-60 letters,
 digits, or underscores, starting with a letter or underscore. No table or
 field name may be the same as any built-in type name, so no table or field
 can be called `null`, `int`, `date`, `datetime`, `str`, `bytes`, `bool`,
