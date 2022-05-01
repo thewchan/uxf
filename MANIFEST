@@ -1,21 +1,22 @@
 TODO.md
-README.md
+
 py/uxf.py
 py/uxfconvert.py
 py/README.md
+py/setup.py
+py/pypi.sh
 
 t/regression.py
 
+README.md
 eg/slides1.py
 eg/slides2.py
 eg/slides.sld
 misc/epd2uxf.py
 misc/md2html.sh
 
-setup.py
 uxf.vim
 
-pypi.sh
 st.sh
 
 # vim: syn=yaml

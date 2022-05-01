@@ -5,8 +5,8 @@ import setuptools
 
 ROOT = pathlib.Path(__file__).parent
 
-README = (ROOT / 'py/README.md').read_text()
-INIT = (ROOT / 'py/uxf.py').read_text()
+README = (ROOT / 'README.md').read_text()
+INIT = (ROOT / 'uxf.py').read_text()
 match = re.search(r"__version__\s*=\s*'(?P<version>.*?)'", INIT)
 VERSION = match.group('version')
 
@@ -31,6 +31,6 @@ a plain text human readable optionally typed storage format.',
         ],
     package_dir={'': 'py'},
     py_modules=['uxf'],
-    scripts=['py/uxfconvert.py'],
+    scripts=['uxfconvert.py'],
     python_requires='>=3.8',
     )

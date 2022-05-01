@@ -69,7 +69,7 @@ newlines.
 If you don't want to be committed to a particular UXF type, just use a `str`
 and do whatever conversion you want.
 
-### Terminolgy
+### Terminology
 
 - A `map` _key-value_ is collectively called an _item_.
 - A “single” valued type (`bool`, `int`, `str`, `bytes`, `date`,
