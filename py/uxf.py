@@ -185,16 +185,19 @@ class Uxf:
         self._data = data
 
 
-    def dump(self, filename_or_filelike, *, indent=2, use_true_false=False):
+    def dump(self, filename_or_filelike, *, indent=2, use_true_false=False,
+             warn_is_error=False):
         '''Convenience method that wraps the module-level dump() function'''
         dump(filename_or_filelike, self, indent=indent,
-             use_true_false=use_true_false)
+             use_true_false=use_true_false, warn_is_error=warn_is_error)
 
 
-    def dumps(self, *, indent=2, use_true_false=False):
+    def dumps(self, *, indent=2, use_true_false=False,
+              warn_is_error=False):
         '''Convenience method that wraps the module-level dumps()
         function'''
-        return dumps(self, indent=indent, use_true_false=use_true_false)
+        return dumps(self, indent=indent, use_true_false=use_true_false,
+                     warn_is_error=warn_is_error)
 
 
     def typecheck(self, fixtypes=False):
@@ -1345,7 +1348,8 @@ class _Parser(_ErrorMixin):
                     self.error(530, f'ttype uses undefined types: {diff}')
 
 
-def dump(filename_or_filelike, data, *, indent=2, use_true_false=False):
+def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
+         warn_is_error=False):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
@@ -1372,13 +1376,13 @@ def dump(filename_or_filelike, data, *, indent=2, use_true_false=False):
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer(file, data, pad, use_true_false)
+        _Writer(file, data, pad, use_true_false, warn_is_error)
     finally:
         if close:
             file.close()
 
 
-def dumps(data, *, indent=2, use_true_false=False):
+def dumps(data, *, indent=2, use_true_false=False, warn_is_error=False):
     '''
     data is a Uxf object, or a list, List, dict, Map, or Table that this
     function will write to a string in UXF format which will then be
@@ -1394,16 +1398,17 @@ def dumps(data, *, indent=2, use_true_false=False):
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer(string, data, pad, use_true_false)
+    _Writer(string, data, pad, use_true_false, warn_is_error)
     return string.getvalue()
 
 
 class _Writer:
 
-    def __init__(self, file, uxd, pad, use_true_false):
+    def __init__(self, file, uxd, pad, use_true_false, warn_is_error):
         self.file = file
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
+        self.warn_is_error = warn_is_error
         self.write_header(uxd.custom)
         if uxd.comment is not None:
             self.file.write(f'#<{escape(uxd.comment)}>\n')
@@ -1589,8 +1594,12 @@ class _Writer:
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            print('Warning:#720:ignoring unexpected item of type '
-                  f'{type(item)}: {item!r}', file=sys.stderr)
+            message = ('#720:ignoring unexpected item of type '
+                       f'{type(item)}: {item!r}; consider using '
+                       'uxf.add_converter()')
+            if self.warn_is_error:
+                raise Error(message)
+            print(f'Warning:{message}', file=sys.stderr)
         return False
 
 

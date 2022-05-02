@@ -2,6 +2,12 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+'''
+Tests and shows how to do one-way conversions of sets, frozensets, tuples,
+and deques into a Uxf object, and how to handle round-trippable custom data
+including enums, complex numbers, and a custom type.
+'''
+
 import collections
 import enum
 import sys
@@ -28,6 +34,7 @@ def main():
     d['align'] = (Align.LEFT, Align.CENTER, Align.JUSTIFY, Align.RIGHT)
     d['complex'] = (complex(-3.9), (8-7j), (1.3+.1j), # noqa: E226
                     complex(-1.2, -.3))
+    d['MyType'] = (MyType('one', 1, False), MyType('one & one', 2, True))
 
     uxf.AutoConvertSequences = True
     uxf.add_converter(NumKind, to_str=lambda k: f'%NumKind {k.name}',
@@ -40,6 +47,8 @@ def main():
                       from_str=complex_from_str)
     uxf.add_converter(Symbols, to_str=lambda s: s.name,
                       from_str=symbol_from_str)
+    uxf.add_converter(MyType, to_str=mytype_to_str,
+                      from_str=mytype_from_str)
 
     uxd1 = uxf.Uxf(d)
     uxt1 = uxd1.dumps()
@@ -151,6 +160,37 @@ def symbol_from_str(s):
         if symbol.name == s:
             return symbol, True
     return None, False
+
+
+class MyType:
+
+    def __init__(self, name: str, code: int, flag: bool):
+        self.name = name
+        self.code = code
+        self.flag = flag
+
+
+    def __repr__(self):
+        return (f'{self.__class__.__name__}({self.name!r}, {self.code!r}, '
+                f'{self.flag!r})')
+
+
+def mytype_to_str(m):
+    return f'@MyType {m.flag!r} {m.code!r} {m.name}'
+
+
+def mytype_from_str(s):
+    parts = s.split(None, 3)
+    if len(parts) == 4 and parts[0] == '@MyType': # NOTE Safe if we sanitize
+        flag = parts[1] == 'True'
+        try:
+            code = int(parts[2])
+        except ValueError:
+            return None, False
+        name = parts[3]
+        return MyType(name, code, flag), True
+    return None, False
+
 
 
 if __name__ == '__main__':

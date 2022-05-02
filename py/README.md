@@ -41,8 +41,8 @@ Imag real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 
 For custom types (e.g., enums; or as an alternative to using a _ttype_ for
-complex numbers), use `uxf.add_converter()`. See `test_converters.py` for
-examples.
+complex numbers, or for any other custom type), use `uxf.add_converter()`.
+See `test_converters.py` for examples.
 
 For collection types such as `set`, `frozenset`, `tuple`, or
 `collections.deque`, either manually convert to/from a `List`, or set
