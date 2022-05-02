@@ -39,6 +39,14 @@ options.
 The visit function calls the given function on every value in the given data
 (which can be a Uxf object or a single list, List, dict, Map, or Table).
 
+    add_converter(obj_type, to_str, from_str)
+
+This function can be used to register custom types and custom converters
+to/from strings. (See test_converter.py examples of use.)
+
+To have uxf automatically convert tuples, collections.deques, sets, and
+frozensets to Lists, set `uxf.AutoConvertSequences = True`.
+
     naturalize(s) -> object
 
 This function takes a str and returns a bool or datetime.datetime or
@@ -1563,8 +1571,13 @@ class _Writer:
     def write_scalar(self, item, indent=0, *, pad, is_map_value=False):
         if not is_map_value:
             self.file.write(pad * indent)
+        converters = _Converters.get(type(item))
         if item is None:
             self.file.write('?')
+        elif converters is not None and converters.to_str is not None:
+            # must come here because some enums type check as ints!
+            value = escape(converters.to_str(item))
+            self.file.write(f'<{value}>')
         elif isinstance(item, bool):
             self.file.write(self.yes if item else self.no)
         elif isinstance(item, (int, float)):
@@ -1576,13 +1589,8 @@ class _Writer:
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            converters = _Converters.get(type(item))
-            if converters is not None and converters.to_str is not None:
-                value = escape(converters.to_str(item))
-                self.file.write(f'<{value}>')
-            else:
-                print('Warning:#720:ignoring unexpected item of type '
-                      f'{type(item)}: {item!r}', file=sys.stderr)
+            print('Warning:#720:ignoring unexpected item of type '
+                  f'{type(item)}: {item!r}', file=sys.stderr)
         return False
 
 

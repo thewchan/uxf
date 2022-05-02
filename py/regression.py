@@ -332,7 +332,7 @@ def test_slides(num, total, ok, *, verbose):
 
 
 def test_pys(total, ok, *, verbose):
-    cmd = ['../py/test_converters.py']
+    cmd = ['../py/test_converters.py', '--quiet']
     total += 1
     reply = subprocess.call(cmd)
     cmd = ' '.join(cmd)
