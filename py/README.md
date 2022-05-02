@@ -41,7 +41,10 @@ Imag real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 
 For collection types such as `set`, `frozenset`, `tuple`, or
-`collections.deque`, it is probably easiest to convert to a ``List``.
+`collections.deque`, either manually convert to/from a `List`, or set
+`uxf.AutoConvertSequences = True`, in which case any of these will be
+automatically converted to a `List` when they are encountered. Of course,
+these are one way conversions.
 
 Using `uxf` as an executable (with `python3 -m uxf ...`) provides a means of
 doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress, or make

@@ -46,6 +46,7 @@ def main():
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
     total, ok = test_slides(1, total, ok, verbose=verbose)
     total, ok = test_slides(2, total, ok, verbose=verbose)
+    total, ok = test_pys(total, ok, verbose=verbose)
     if total < 128:
         print('\b' * total, end='', flush=True)
     if total == ok:
@@ -327,6 +328,20 @@ def test_slides(num, total, ok, *, verbose):
             total += 1
             ok += compare(cmd, 'slides.sld', f'actual/slides{num}/{name}',
                           f'expected/slides{num}/{name}', verbose=verbose)
+    return total, ok
+
+
+def test_pys(total, ok, *, verbose):
+    cmd = ['../py/test_converters.py']
+    total += 1
+    reply = subprocess.call(cmd)
+    cmd = ' '.join(cmd)
+    if reply != 0:
+        print(f'{cmd} • FAIL')
+    else:
+        ok += 1
+        if verbose:
+            print(f'{cmd} • OK')
     return total, ok
 
 

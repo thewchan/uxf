@@ -122,6 +122,8 @@ __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
 __version__ = '0.24.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
+AutoConvertSequences = False
+
 UTF8 = 'utf-8'
 MAX_IDENTIFIER_LEN = 60
 MAX_LIST_IN_LINE = 10
@@ -1173,6 +1175,8 @@ class _Parser(_ErrorMixin):
                 self._handle_identifier(i, token)
             elif kind is _Kind.TYPE:
                 self._handle_type(i, token)
+            elif kind is _Kind.STR:
+                self._handle_string(i, token)
             elif kind.is_scalar:
                 self.stack[-1].append(token.value)
             elif kind is _Kind.EOF:
@@ -1226,6 +1230,17 @@ class _Parser(_ErrorMixin):
         else:
             self.error(480, 'ktypes and vtypes are only allowed at the '
                        f'start of maps and lists, got {token}')
+
+
+    def _handle_string(self, i, token):
+        value = token.value
+        for converters in _Converters.values():
+            if converters.from_str is not None:
+                new_value, ok = converters.from_str(value)
+                if ok:
+                    value = new_value
+                    break
+        self.stack[-1].append(value)
 
 
     def _on_collection_start(self, token):
@@ -1412,8 +1427,12 @@ class _Writer:
 
     def write_value(self, item, indent=0, *, pad, is_map_value=False):
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
-            raise Error(f'#700:got {item} of type {type(item)}; '
-                        'try converting it to a List first?')
+            if AutoConvertSequences:
+                item = List(item)
+            else:
+                raise Error(f'#700:got {item} of type {type(item)}; '
+                            'try converting it to a List or '
+                            'uxf.AutoConvertSequences = True')
         if isinstance(item, (list, List)):
             return self.write_list(item, indent, pad=pad,
                                    is_map_value=is_map_value)
@@ -1557,8 +1576,13 @@ class _Writer:
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            print('Warning:#720:ignoring unexpected item of type '
-                  f'{type(item)}: {item!r}', file=sys.stderr)
+            converters = _Converters.get(type(item))
+            if converters is not None and converters.to_str is not None:
+                value = escape(converters.to_str(item))
+                self.file.write(f'<{value}>')
+            else:
+                print('Warning:#720:ignoring unexpected item of type '
+                      f'{type(item)}: {item!r}', file=sys.stderr)
         return False
 
 
@@ -1603,6 +1627,25 @@ def _are_short_len(*items):
 
 def _is_uxf_collection(value):
     return isinstance(value, (List, Map, Table))
+
+
+Converter = collections.namedtuple('Converter', ('to_str', 'from_str'))
+
+
+_Converters = {}
+
+
+def add_converter(obj_type, *, to_str=repr, from_str=None):
+    'Use this to register custom types and conversions to and from str\'s.'
+    if isinstance(obj_type, (bool, int, float, datetime.date,
+                             datetime.datetime, str, bytes, bytearray)):
+        raise Error(
+            '#808: can\'t override default conversions for standard types')
+    _Converters[obj_type] = Converter(to_str, from_str or obj_type)
+
+
+def delete_converter(obj_type):
+    del _Converters[obj_type]
 
 
 def naturalize(s):
