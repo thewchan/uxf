@@ -36,7 +36,7 @@ def main():
                       from_str=state_from_str)
     uxf.add_converter(Align, to_str=lambda a: f'%{a.name}%',
                       from_str=align_from_str)
-    uxf.add_converter(complex, to_str=lambda c: f'%{c}',
+    uxf.add_converter(complex, to_str=lambda c: f'©{c}',
                       from_str=complex_from_str)
     uxf.add_converter(Symbols, to_str=lambda s: s.name,
                       from_str=symbol_from_str)
@@ -79,7 +79,7 @@ def fail(message, verbose):
 
 
 def complex_from_str(s):
-    if s.startswith('%(') and s.endswith('j)'):
+    if s.startswith('©(') and s.endswith('j)'):
         try:
             return complex(s[1:]), True
         except ValueError:
