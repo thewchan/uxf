@@ -158,14 +158,15 @@ class Uxf:
     '''
 
     def __init__(self, data=None, *, custom='', ttypes=None, comment=None):
-        '''data may be a list, List, dict, Map, or Table; if given ttypes
-        must be a dict whose values are TTypes and whose corresponding keys
-        are the TTypes' names; if given the comment is a file-level comment
-        that follows the uxf header and precedes any TTypes and data'''
+        '''data may be a list, List, dict, Map, or Table and will default to
+        a List if not specified; if given ttypes must be a dict whose values
+        are TTypes and whose corresponding keys are the TTypes' names; if
+        given the comment is a file-level comment that follows the uxf
+        header and precedes any TTypes and data'''
         self.data = data
         self.custom = custom
         self.comment = comment
-        self.ttypes = ttypes
+        self.ttypes = ttypes if ttypes is not None else {}
 
 
     @property
@@ -175,7 +176,9 @@ class Uxf:
 
     @data.setter
     def data(self, data):
-        if isinstance(data, list):
+        if data is None:
+            data = List()
+        elif isinstance(data, list):
             data = List(data)
         elif isinstance(data, dict):
             data = Map(data)
@@ -880,7 +883,7 @@ class TType(_CheckNameMixin):
         '''The type of a Table
         .name holds the ttype's name (equivalent to a vtype or ktype name,
         but always starting with a captital letter)
-        .fields holds a list of fields of type Field
+        .fields holds a list of field names or of fields of type Field
         .comment holds an optional comment'''
         self.name = name
         self.fields = []

@@ -1,5 +1,6 @@
 {
   "UXF^custom": "EPD (SQLite full list of tables)",
+  "UXF^comment": "Suitable for SQLite conversion",
   "UXF^ttypes": [
     {
       "UXF^ttype": {

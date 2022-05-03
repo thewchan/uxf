@@ -1,4 +1,5 @@
 uxf 1.0 EPD (SQLite full list of tables)
+#<Suitable for SQLite conversion>
 = Categories CID Title Selected
 = Playlists PID Title CID Selected
 = Tracks TID Title Seconds Filename Selected PID

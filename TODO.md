@@ -1,16 +1,15 @@
 # TODOS
 
-- SQLite (see paper notes)
-    - test uxf to sqlite: t2.uxf t4.uxf t15.uxf t22.uxf t24.uxf t35.uxf
-    - sqlite\_to\_uxf
-    - test sqlite to uxf: t2.sqlite t4.sqlite t15.sqlite (should round trip)
+- SQLite 
+    - complete test\_sqlite.py
+    - add test\_sqlite.py to regression.py
 
 - XML (see paper notes)
     - uxf\_to\_xml: same tests as JSON for full round trip
     - xml\_to\_uxf: same tests as JSON for full round trip
 
 - make sure all test files have some nulls (`?`s) (for every typed value),
-  esp. t4, t24, t34
+  esp. t4, t5, t24, t34, t36
 
 - add typecheck tests
   - Add test t40.uxf that exercises all fixtypes in each of a

@@ -5,6 +5,7 @@ py/uxfconvert.py
 py/README.md
 py/regression.py
 py/test_converters.py
+py/test_sqlite.py
 py/setup.py
 py/pypi.sh
 

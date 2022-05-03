@@ -327,12 +327,12 @@ def ini_to_uxf(config):
 
 
 def uxf_to_sqlite(config):
-    data, _ = uxf.load(config.infiles[0])
-    if isinstance(data, uxf.Table):
-        _uxf_to_sqlite(config, [data])
-    elif (isinstance(data, (list, uxf.List)) and data and
-            all(isinstance(v, uxf.Table) for v in data)):
-        _uxf_to_sqlite(config, data)
+    uxd = uxf.load(config.infiles[0])
+    if isinstance(uxd.data, uxf.Table):
+        _uxf_to_sqlite(config, [uxd.data])
+    elif (isinstance(uxd.data, (list, uxf.List)) and uxd.data and
+            all(isinstance(v, uxf.Table) for v in uxd.data)):
+        _uxf_to_sqlite(config, uxd.data)
     else:
         raise SystemExit('can only convert a UXF containing a single table '
                          'or a single list of Tables to SQLite')
@@ -357,19 +357,21 @@ def _uxf_to_sqlite(config, tables):
 def _create_table(db, table, table_index):
     table_name = uxf.canonicalize(table.name)
     sql = ['CREATE TABLE IF NOT EXISTS ', table_name, ' (']
-    types = ['TEXT'] * len(table.fieldnames)
+    types = ['TEXT'] * len(table.fields)
     if table.records:
         for i, value in enumerate(table.records[0]):
             if isinstance(value, float):
                 types[i] = 'REAL'
-            elif isinstance(value, int) and not isinstance(value, bool):
+            elif isinstance(value, bool):
+                name = table.fields[i].name
+                types[i] = f"TEXT CHECK({name} IN ('TRUE', 'FALSE'))"
+            elif isinstance(value, int):
                 types[i] = 'INT'
             elif isinstance(value, (bytes, bytearray)):
                 types[i] = 'BLOB'
     sep = ''
-    for i, name in enumerate(table.fieldnames):
-        field_name = uxf.canonicalize(name)
-        sql += [sep, field_name, ' ', types[i]]
+    for i, field in enumerate(table.fields):
+        sql.append(f'{sep}[{field.name}] {types[i]}')
         sep = ', '
     sql += [');']
     cursor = db.cursor()
@@ -379,13 +381,42 @@ def _create_table(db, table, table_index):
 
 def _populate_table(db, table, table_name):
     sql = ['INSERT INTO ', table_name, ' VALUES (',
-           ', '.join('?' * len(table.fieldnames)), ');']
+           ', '.join('?' * len(table.fields)), ');']
     cursor = db.cursor()
     cursor.executemany(''.join(sql), table.records)
 
 
 def sqlite_to_uxf(config):
-    print('sqlite_to_uxf', config) # TODO
+    db = None
+    try:
+        db = sqlite3.connect(config.infiles[0])
+        uxd = uxf.Uxf([])
+        table_names = []
+        comments = []
+        cursor = db.cursor()
+        sql = ("SELECT tbl_name, sql FROM sqlite_master "
+               "WHERE type = 'table';")
+        for table_name, comment in cursor.execute(sql):
+            table_names.append(table_name)
+            comments.append(comment)
+        for table_name, comment in zip(table_names, comments):
+            fields = []
+            sql = 'SELECT name FROM pragma_table_info(?)'
+            for row in cursor.execute(sql, (table_name,)):
+                fields.append(row[0])
+            table = uxf.Table(name=table_name, fields=fields,
+                              comment=comment)
+            fields = [f'[{field}]' for field in fields]
+            sql = (f'SELECT {", ".join(fields)} FROM {table_name} '
+                   f'ORDER BY {fields[0]};')
+            for row in cursor.execute(sql):
+                table += row
+            uxd.ttypes[table.ttype.name] = table.ttype
+            uxd.data.append(table)
+        uxd.dump(config.outfile)
+    finally:
+        if db is not None:
+            db.close()
 
 
 def uxf_to_xml(config):

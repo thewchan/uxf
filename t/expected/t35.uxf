@@ -1,4 +1,5 @@
 uxf 1.0
+#<Suitable for SQLite conversion>
 = Categories CID:int title:str selected:bool when:date
 = Playlists PID:int title cid:int selected:bool timestamp:datetime
 [

@@ -1,4 +1,5 @@
 uxf 1.0 MyApp Data
+#<Suitable for SQLite conversion>
 = Customers CID Company Address Contact Email
 = Invoices INUM CID Raised_Date Due_Date Paid Description
 = Items IID INUM Delivery_Date Unit_Price Quantity Description

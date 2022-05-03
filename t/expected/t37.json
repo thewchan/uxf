@@ -1,5 +1,6 @@
 {
   "UXF^custom": "MyApp Data",
+  "UXF^comment": "Suitable for SQLite conversion",
   "UXF^ttypes": [
     {
       "UXF^ttype": {
