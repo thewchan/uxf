@@ -170,11 +170,6 @@ class MyType:
         self.flag = flag
 
 
-    def __repr__(self):
-        return (f'{self.__class__.__name__}({self.name!r}, {self.code!r}, '
-                f'{self.flag!r})')
-
-
 def mytype_to_str(m):
     return f'@MyType {m.flag!r} {m.code!r} {m.name}'
 
@@ -182,6 +177,8 @@ def mytype_to_str(m):
 def mytype_from_str(s):
     parts = s.split(None, 3)
     if len(parts) == 4 and parts[0] == '@MyType': # NOTE Safe if we sanitize
+        if parts[1] not in {'True', 'False'}:
+            return None, False
         flag = parts[1] == 'True'
         try:
             code = int(parts[2])
