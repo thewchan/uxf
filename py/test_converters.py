@@ -87,6 +87,7 @@ def fail(message, verbose):
     sys.exit(1)
 
 
+# to_str=lambda c: f'©{c}'
 def complex_from_str(s):
     if s.startswith('©(') and s.endswith('j)'):
         try:
@@ -96,33 +97,8 @@ def complex_from_str(s):
     return None, False
 
 
-def numkind_from_str(s):
-    parts = s.split(None, 1)
-    if len(parts) == 2 and parts[0] == '%NumKind':
-        kind = NumKind.from_name(parts[1])
-        if kind is not None:
-            return kind, True
-    return None, False
-
-
-def state_from_str(s):
-    parts = s.split(None, 1)
-    if len(parts) == 2 and parts[0] == '%State':
-        value = parts[1]
-        for state in State:
-            if state.value == value:
-                return state, True
-    return None, False
-
-
-def align_from_str(s):
-    if s.startswith('%') and s.endswith('%'):
-        value = s[1:-1]
-        for align in Align:
-            if align.name == value:
-                return align, True
-    return None, False
-
+# 4 different enums with 4 different approaches to from_str
+# (followed by a custom type and its own to_str and from_str)
 
 class NumKind(enum.Enum):
     ARABIC = 1
@@ -136,10 +112,31 @@ class NumKind(enum.Enum):
                 return kind
 
 
+# to_str=lambda k: f'%NumKind {k.name}'
+def numkind_from_str(s):
+    parts = s.split(None, 1)
+    if len(parts) == 2 and parts[0] == '%NumKind':
+        kind = NumKind.from_name(parts[1])
+        if kind is not None:
+            return kind, True
+    return None, False
+
+
 class State(enum.Enum):
     BEGIN = 'begin'
     MIDDLE = 'middle'
     END = 'end'
+
+
+# to_str=lambda s: f'%State {s.value}'
+def state_from_str(s):
+    parts = s.split(None, 1)
+    if len(parts) == 2 and parts[0] == '%State':
+        value = parts[1]
+        for state in State:
+            if state.value == value:
+                return state, True
+    return None, False
 
 
 class Align(enum.Enum):
@@ -149,12 +146,23 @@ class Align(enum.Enum):
     RIGHT = enum.auto()
 
 
+# to_str=lambda a: f'%{a.name}%'
+def align_from_str(s):
+    if s.startswith('%') and s.endswith('%'):
+        value = s[1:-1]
+        for align in Align:
+            if align.name == value:
+                return align, True
+    return None, False
+
+
 @enum.unique
 class Symbols(enum.IntEnum):
     DECIMAL = 0
     ROMAN = 1
 
 
+# to_str=lambda s: s.name
 def symbol_from_str(s):
     for symbol in Symbols:
         if symbol.name == s:
