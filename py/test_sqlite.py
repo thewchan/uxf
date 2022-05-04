@@ -34,7 +34,7 @@ def main():
     verbose = True
     if len(sys.argv) > 1 and sys.argv[1] in {'-q', '--quiet'}:
         verbose = False
-    for name in SUITABLE[:1]:
+    for name in SUITABLE:
         check(name, verbose)
 
 
@@ -44,11 +44,12 @@ def check(name, verbose):
                                                                 '.sqlite'))
     with contextlib.suppress(FileNotFoundError):
         os.remove(filename)
+    if isinstance(uxd1.data, uxf.Table):
+        uxd1.data = [uxd1.data]
     uxfconvert._uxf_to_sqlite(filename, uxd1.data)
     uxd2 = uxfconvert._sqlite_to_uxf(filename)
-    if not eq.eq(uxd1, uxd2, ignore_custom=True, ignore_comments=True):
-        uxd1.dump('/tmp/1')#TODO
-        uxd2.dump('/tmp/2')#TODO
+    if not eq.eq(uxd1, uxd2, ignore_custom=True, ignore_comments=True,
+                 ignore_types=True):
         if verbose:
             print(f'test_sqlite • {name} FAIL')
         sys.exit(1)

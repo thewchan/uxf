@@ -329,7 +329,7 @@ def ini_to_uxf(config):
 def uxf_to_sqlite(config):
     uxd = uxf.load(config.infiles[0])
     if isinstance(uxd.data, uxf.Table):
-        _uxf_to_sqlite(config, [uxd.data])
+        _uxf_to_sqlite(config.outfile, [uxd.data])
     elif (isinstance(uxd.data, (list, uxf.List)) and uxd.data and
             all(isinstance(v, uxf.Table) for v in uxd.data)):
         _uxf_to_sqlite(config.outfile, uxd.data)

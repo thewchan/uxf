@@ -46,8 +46,7 @@ def main():
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
     total, ok = test_slides(1, total, ok, verbose=verbose)
     total, ok = test_slides(2, total, ok, verbose=verbose)
-    for cmd in (['../py/test_converters.py', '--quiet'],
-                ['../py/test_sqlite.py', '--quiet']):
+    for cmd in (['../py/test_converters.py'], ['../py/test_sqlite.py']):
         total, ok = test_external(cmd, total, ok, verbose=verbose)
     if total < 128:
         print('\b' * total, end='', flush=True)
@@ -286,6 +285,8 @@ def test_slides(num, total, ok, *, verbose):
 
 def test_external(cmd, total, ok, *, verbose):
     total += 1
+    if not verbose:
+        cmd.append('--quiet')
     reply = subprocess.call(cmd)
     cmd = ' '.join(cmd)
     if reply != 0:
