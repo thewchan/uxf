@@ -1,9 +1,5 @@
 # TODOS
 
-- SQLite 
-    - complete test\_sqlite.py
-    - add test\_sqlite.py to regression.py
-
 - XML (see paper notes)
     - uxf\_to\_xml: same tests as JSON for full round trip
     - xml\_to\_uxf: same tests as JSON for full round trip
