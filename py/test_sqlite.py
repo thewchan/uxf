@@ -12,8 +12,10 @@ In practice you'd always create your own custom database-specific code and
 use the uxf module directly.
 '''
 
+import contextlib
 import os
 import sys
+import tempfile
 
 try:
     os.chdir(os.path.dirname(__file__)) # MUST come before import uxf
@@ -24,28 +26,36 @@ except ImportError:
     pass # shouldn't happen
 
 
-SUITABLE = ('t5.uxf', 't15.uxf', 't19.uxf', 't35.uxf', 't36.uxf', 't37.uxf')
+SUITABLE = ('t15.uxf', 't19.uxf', 't35.uxf', 't36.uxf', 't37.uxf', 't5.uxf')
 
 
 def main():
     verbose = True
     if len(sys.argv) > 1 and sys.argv[1] in {'-q', '--quiet'}:
         verbose = False
-    for name in SUITABLE:
-        check(name)
+    for name in SUITABLE[:1]:
+        check(name, verbose)
 
 
-def check(name):
+def check(name, verbose):
     uxd1 = uxf.load(name)
-    # 1. use uxfconvert to save as sqlite in temp
-    # 2. use uxfconvert to loads from sqlite in temp
-    # 3. compare uxt1 vs uxt2
-
-#    if uxt1 != uxt2:
-#        fail(f'test_sqlite • {name} FAIL', verbose)
-#    if verbose:
-#        print(uxt1, end='')
-#        print(f'test_sqlite • {name} OK')
+    filename = os.path.join(tempfile.gettempdir(), name.replace('.uxf',
+                                                                '.sqlite'))
+    with contextlib.suppress(FileNotFoundError):
+        os.remove(filename)
+    uxfconvert._uxf_to_sqlite(filename, uxd1.data)
+    uxd2 = uxfconvert._sqlite_to_uxf(filename)
+    if not uxf.equivalent(uxd1, uxd2, ignore_custom=True,
+                          ignore_comments=True):
+        uxd1.dump('/tmp/1')#TODO
+        uxd2.dump('/tmp/2')#TODO
+        if verbose:
+            print(f'test_sqlite • {name} FAIL')
+            sys.exit(1)
+    if verbose:
+        print(f'test_sqlite • {name} OK')
+    with contextlib.suppress(FileNotFoundError):
+        os.remove(filename)
 
 
 if __name__ == '__main__':

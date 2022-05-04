@@ -332,19 +332,19 @@ def uxf_to_sqlite(config):
         _uxf_to_sqlite(config, [uxd.data])
     elif (isinstance(uxd.data, (list, uxf.List)) and uxd.data and
             all(isinstance(v, uxf.Table) for v in uxd.data)):
-        _uxf_to_sqlite(config, uxd.data)
+        _uxf_to_sqlite(config.outfile, uxd.data)
     else:
         raise SystemExit('can only convert a UXF containing a single table '
                          'or a single list of Tables to SQLite')
 
 
-def _uxf_to_sqlite(config, tables):
+def _uxf_to_sqlite(filename, tables):
     sqlite3.register_adapter(bool, lambda b: 'TRUE' if b else 'FALSE')
     sqlite3.register_adapter(datetime.date, lambda d: d.isoformat())
     sqlite3.register_adapter(datetime.datetime, lambda d: d.isoformat())
     db = None
     try:
-        db = sqlite3.connect(config.outfile)
+        db = sqlite3.connect(filename)
         for table_index, table in enumerate(tables, 1):
             table_name = _create_table(db, table, table_index)
             _populate_table(db, table, table_name)
@@ -387,9 +387,14 @@ def _populate_table(db, table, table_name):
 
 
 def sqlite_to_uxf(config):
+    uxd = _sqlite_to_uxf(config.infiles[0])
+    uxd.dump(config.outfile)
+
+
+def _sqlite_to_uxf(infile):
     db = None
     try:
-        db = sqlite3.connect(config.infiles[0])
+        db = sqlite3.connect(infile)
         uxd = uxf.Uxf([])
         table_names = []
         comments = []
@@ -407,13 +412,13 @@ def sqlite_to_uxf(config):
             table = uxf.Table(name=table_name, fields=fields,
                               comment=comment)
             fields = [f'[{field}]' for field in fields]
-            sql = (f'SELECT {", ".join(fields)} FROM {table_name} '
-                   f'ORDER BY {fields[0]};')
+            sql = f'SELECT {", ".join(fields)} FROM {table_name};'
             for row in cursor.execute(sql):
-                table += row
+                table += [uxf.naturalize(value) if isinstance(value, str)
+                          else value for value in row]
             uxd.ttypes[table.ttype.name] = table.ttype
             uxd.data.append(table)
-        uxd.dump(config.outfile)
+        return uxd
     finally:
         if db is not None:
             db.close()

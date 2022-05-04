@@ -350,7 +350,7 @@ TableInfo = collections.namedtuple('TableInfo', 'name comment ttype')
 Tag = collections.namedtuple('Tag', 'name')
 
 
-def equivalent(a, b):
+def equivalent(a, b, *, ignore_comments=False, ignore_custom=False):
     '''This function is provided primarily for use in automated testing.
     Returns True if a and b are equivalent Uxf's, Tables, Lists, or Maps;
     otherwise returns False. This function compares all the values (and
@@ -362,25 +362,31 @@ def equivalent(a, b):
     def by_key(item):
         return str(item[0])
 
-    def equivalent_str(s, t):
+    def equivalent_custom(s, t):
         '''Returns True if s and t are both either empty or None or have the
         same nonempty text; otherwise False.'''
-        return (not bool(s) and not bool(t)) or s == t
+        return ignore_custom or ((not bool(s) and not bool(t)) or s == t)
+
+    def equivalent_comment(s, t):
+        '''Returns True if s and t are both either empty or None or have the
+        same nonempty text; otherwise False.'''
+        return ignore_comments or ((not bool(s) and not bool(t)) or s == t)
 
     if isinstance(a, Uxf):
         return (equivalent(a.data, b.data) and
-                equivalent_str(a.custom, b.custom) and
-                equivalent_str(a.comment, b.comment) and
+                equivalent_custom(a.custom, b.custom) and
+                equivalent_comment(a.comment, b.comment) and
                 equivalent(a.ttypes, b.ttypes))
     if isinstance(a, List):
         return (equivalent(a.data, b.data) and
-                equivalent_str(a.comment, b.comment) and a.vtype == b.vtype)
+                equivalent_comment(a.comment, b.comment) and
+                a.vtype == b.vtype)
     if isinstance(a, Map):
         return (equivalent(a.data, b.data) and
-                equivalent_str(a.comment, b.comment) and
+                equivalent_comment(a.comment, b.comment) and
                 a.ktype == b.ktype and a.vtype == b.vtype)
     if isinstance(a, TType):
-        if a.name != b.name or not equivalent_str(a.comment, b.comment):
+        if a.name != b.name or not equivalent_comment(a.comment, b.comment):
             return False
         if len(a.fields) != len(b.fields):
             return False
@@ -390,7 +396,7 @@ def equivalent(a, b):
         return True
     if isinstance(a, Table):
         if (not equivalent(a.ttype, b.ttype) or a.name != b.name or
-                not equivalent_str(a.comment, b.comment)):
+                not equivalent_comment(a.comment, b.comment)):
             return False
         for arec, brec in zip(iter(a), iter(b)):
             if not equivalent(arec, brec):
