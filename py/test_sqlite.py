@@ -51,7 +51,7 @@ def check(name, verbose):
         uxd2.dump('/tmp/2')#TODO
         if verbose:
             print(f'test_sqlite • {name} FAIL')
-            sys.exit(1)
+        sys.exit(1)
     if verbose:
         print(f'test_sqlite • {name} OK')
     with contextlib.suppress(FileNotFoundError):

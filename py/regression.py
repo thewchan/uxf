@@ -46,6 +46,7 @@ def main():
     total, ok = test_slides(1, total, ok, verbose=verbose)
     total, ok = test_slides(2, total, ok, verbose=verbose)
     total, ok = test_pys(total, ok, verbose=verbose)
+    total, ok = test_sqlite(total, ok, verbose=verbose)
     if total < 128:
         print('\b' * total, end='', flush=True)
     if total == ok:
@@ -283,6 +284,20 @@ def test_slides(num, total, ok, *, verbose):
 
 def test_pys(total, ok, *, verbose):
     cmd = ['../py/test_converters.py', '--quiet']
+    total += 1
+    reply = subprocess.call(cmd)
+    cmd = ' '.join(cmd)
+    if reply != 0:
+        print(f'{cmd} • FAIL')
+    else:
+        ok += 1
+        if verbose:
+            print(f'{cmd} • OK')
+    return total, ok
+
+
+def test_sqlite(total, ok, *, verbose):
+    cmd = ['../py/test_sqlite.py', '--quiet']
     total += 1
     reply = subprocess.call(cmd)
     cmd = ' '.join(cmd)
