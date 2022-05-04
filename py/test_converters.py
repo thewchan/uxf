@@ -58,9 +58,11 @@ def main():
     check_types(2, uxd2.data, verbose)
     if uxt1 != uxt2:
         fail('test_converters • loads()/dumps() FAIL', verbose)
+    if not uxf.equivalent(uxd1, uxd2):
+        fail('test_converters • equivalent() FAIL', verbose)
     if verbose:
         print(uxt1, end='')
-        print('test_converters • loads()/dumps() OK')
+        print('test_converters • equivalent() & loads()/dumps() OK')
 
 
 def check_types(which, d, verbose):
@@ -100,7 +102,18 @@ def complex_from_str(s):
 # 4 different enums with 4 different approaches to from_str
 # (followed by a custom type and its own to_str and from_str)
 
-class NumKind(enum.Enum):
+
+# This is needed to allow enums to be compared which is needed because we
+# want to compare Uxf's that contain sets of enums for equality .
+class OrderedEnum(enum.Enum):
+
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            return self.value < other.value
+        return NotImplemented
+
+
+class NumKind(OrderedEnum):
     ARABIC = 1
     ROMAN = 2
 
@@ -122,7 +135,7 @@ def numkind_from_str(s):
     return None, False
 
 
-class State(enum.Enum):
+class State(OrderedEnum):
     BEGIN = 'begin'
     MIDDLE = 'middle'
     END = 'end'
@@ -139,7 +152,7 @@ def state_from_str(s):
     return None, False
 
 
-class Align(enum.Enum):
+class Align(OrderedEnum):
     LEFT = enum.auto()
     CENTER = enum.auto()
     JUSTIFY = enum.auto()
@@ -157,7 +170,7 @@ def align_from_str(s):
 
 
 @enum.unique
-class Symbols(enum.IntEnum):
+class Symbols(OrderedEnum):
     DECIMAL = 0
     ROMAN = 1
 
@@ -176,6 +189,16 @@ class MyType:
         self.name = name
         self.code = code
         self.flag = flag
+
+
+    def __eq__(self, other): # needed if we want to compare Uxf objects
+        return (self.name == other.name and self.code == other.code and
+                self.flag == other.flag)
+
+
+    def __repr__(self):
+        return (f'{self.__class__.__name__}({self.name!r}, {self.code!r}, '
+                f'{self.flag!r})')
 
 
 def mytype_to_str(m):
