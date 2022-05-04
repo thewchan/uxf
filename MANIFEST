@@ -4,6 +4,7 @@ py/uxf.py
 py/uxfconvert.py
 py/README.md
 py/regression.py # TODO refactor test_sys & test_sqlite
+py/eq.py
 py/test_converters.py
 py/test_sqlite.py # TODO fix
 py/setup.py

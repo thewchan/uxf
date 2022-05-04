@@ -13,6 +13,7 @@ import enum
 import sys
 
 import uxf
+import eq
 
 
 def main():
@@ -58,11 +59,11 @@ def main():
     check_types(2, uxd2.data, verbose)
     if uxt1 != uxt2:
         fail('test_converters • loads()/dumps() FAIL', verbose)
-    if not uxf.equivalent(uxd1, uxd2):
-        fail('test_converters • equivalent() FAIL', verbose)
+    if not eq.eq(uxd1, uxd2):
+        fail('test_converters • eq() FAIL', verbose)
     if verbose:
         print(uxt1, end='')
-        print('test_converters • equivalent() & loads()/dumps() OK')
+        print('test_converters • eq() & loads()/dumps() OK')
 
 
 def check_types(which, d, verbose):

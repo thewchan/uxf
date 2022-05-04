@@ -63,12 +63,6 @@ Given a name, returns a name that is a valid table or field name.
 Returns True if x is None or a bool, int, float, datetime.date,
 datetime.datetime, str, bytes, or bytearray; otherwise returns False.
 
-    equivalent(a, b) -> bool
-
-Returns True if a and b are of type Uxf, List, Map, or Table and are
-equivalent. This is a potentially expensive deep equal with caveats mainly
-for use in automated testing.
-
     Error
 
 This class is used to propagate errors (and warnings if warn_is_error is
@@ -120,7 +114,6 @@ import datetime
 import enum
 import gzip
 import io
-import math
 import pathlib
 import sys
 from xml.sax.saxutils import escape, unescape
@@ -348,88 +341,6 @@ ListInfo = collections.namedtuple('ListInfo', 'comment vtype')
 MapInfo = collections.namedtuple('MapInfo', 'comment ktype vtype')
 TableInfo = collections.namedtuple('TableInfo', 'name comment ttype')
 Tag = collections.namedtuple('Tag', 'name')
-
-
-def equivalent(a, b, *, ignore_comments=False, ignore_custom=False):
-    '''This function is provided primarily for use in automated testing.
-    Returns True if a and b are equivalent Uxf's, Tables, Lists, or Maps;
-    otherwise returns False. This function compares all the values (and
-    comments) recursively, so is potentially expensive.
-    This function requires that values in sets are sortable.
-    Note also that if custom types are stored they will compare as != unless
-    they have an __eq__ method.
-    '''
-    def by_key(item):
-        return str(item[0])
-
-    def equivalent_custom(s, t):
-        '''Returns True if s and t are both either empty or None or have the
-        same nonempty text; otherwise False.'''
-        return ignore_custom or ((not bool(s) and not bool(t)) or s == t)
-
-    def equivalent_comment(s, t):
-        '''Returns True if s and t are both either empty or None or have the
-        same nonempty text; otherwise False.'''
-        return ignore_comments or ((not bool(s) and not bool(t)) or s == t)
-
-    if isinstance(a, Uxf):
-        return (equivalent(a.data, b.data) and
-                equivalent_custom(a.custom, b.custom) and
-                equivalent_comment(a.comment, b.comment) and
-                equivalent(a.ttypes, b.ttypes))
-    if isinstance(a, List):
-        return (equivalent(a.data, b.data) and
-                equivalent_comment(a.comment, b.comment) and
-                a.vtype == b.vtype)
-    if isinstance(a, Map):
-        return (equivalent(a.data, b.data) and
-                equivalent_comment(a.comment, b.comment) and
-                a.ktype == b.ktype and a.vtype == b.vtype)
-    if isinstance(a, TType):
-        if a.name != b.name or not equivalent_comment(a.comment, b.comment):
-            return False
-        if len(a.fields) != len(b.fields):
-            return False
-        for afield, bfield in zip(a.fields, b.fields):
-            if afield.name != bfield.name or afield.vtype != bfield.vtype:
-                return False
-        return True
-    if isinstance(a, Table):
-        if (not equivalent(a.ttype, b.ttype) or a.name != b.name or
-                not equivalent_comment(a.comment, b.comment)):
-            return False
-        for arec, brec in zip(iter(a), iter(b)):
-            if not equivalent(arec, brec):
-                return False
-        return True
-    if isinstance(a, (list, tuple, collections.deque)):
-        if len(a) != len(b):
-            return False
-        for avalue, bvalue in zip(a, b):
-            if not equivalent(avalue, bvalue):
-                return False
-        return True
-    if isinstance(a, (set, frozenset)):
-        if len(a) != len(b):
-            return False
-        for avalue, bvalue in zip(sorted(a), sorted(b)):
-            if not equivalent(avalue, bvalue):
-                return False
-        return True
-    if isinstance(a, dict):
-        if len(a) != len(b):
-            return False
-        for (akey, avalue), (bkey, bvalue) in zip(
-                sorted(a.items(), key=by_key),
-                sorted(b.items(), key=by_key)):
-            if akey != bkey:
-                return False
-            if not equivalent(avalue, bvalue):
-                return False
-        return True
-    if isinstance(a, float):
-        return math.isclose(a, b)
-    return a == b
 
 
 def load(filename_or_filelike, *, check=False, fixtypes=False,

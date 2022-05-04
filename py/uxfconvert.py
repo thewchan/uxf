@@ -395,7 +395,7 @@ def _sqlite_to_uxf(infile):
     db = None
     try:
         db = sqlite3.connect(infile)
-        uxd = uxf.Uxf([])
+        uxd = uxf.Uxf()
         table_names = []
         comments = []
         cursor = db.cursor()

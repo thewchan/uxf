@@ -17,6 +17,7 @@ import time
 try:
     os.chdir(os.path.dirname(__file__)) # MUST come before import uxf
     import uxf
+    import eq
     os.chdir('../t')
 except ImportError:
     pass # shouldn't happen
@@ -45,8 +46,9 @@ def main():
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
     total, ok = test_slides(1, total, ok, verbose=verbose)
     total, ok = test_slides(2, total, ok, verbose=verbose)
-    total, ok = test_pys(total, ok, verbose=verbose)
-    total, ok = test_sqlite(total, ok, verbose=verbose)
+    for cmd in (['../py/test_converters.py', '--quiet'],
+                ['../py/test_sqlite.py', '--quiet']):
+        total, ok = test_external(cmd, total, ok, verbose=verbose)
     if total < 128:
         print('\b' * total, end='', flush=True)
     if total == ok:
@@ -138,7 +140,7 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
         try:
             uxd1 = uxf.loads(uxf_text)
         except uxf.Error as err:
-            print(f'equivalent() 1 • {name} FAIL: {err}')
+            print(f'eq() 1 • {name} FAIL: {err}')
         expected = f'expected/{name}'
         try:
             with open(expected, 'rt', encoding='utf-8') as file:
@@ -149,15 +151,15 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
         try:
             uxd2 = uxf.loads(uxf_text)
         except uxf.Error as err:
-            print(f'equivalent() 2 • {expected} FAIL: {err}')
-        if uxf.equivalent(uxd1, uxd2):
+            print(f'eq() 2 • {expected} FAIL: {err}')
+        if eq.eq(uxd1, uxd2):
             ok += 1
             if verbose:
-                print(f'equivalent() • {name} OK')
+                print(f'eq() • {name} OK')
             elif not ok % 10:
                 print('.', end='', flush=True)
         else:
-            print(f'{name} • FAIL (equivalent())')
+            print(f'{name} • FAIL (eq())')
     return total, ok
 
 
@@ -282,22 +284,7 @@ def test_slides(num, total, ok, *, verbose):
     return total, ok
 
 
-def test_pys(total, ok, *, verbose):
-    cmd = ['../py/test_converters.py', '--quiet']
-    total += 1
-    reply = subprocess.call(cmd)
-    cmd = ' '.join(cmd)
-    if reply != 0:
-        print(f'{cmd} • FAIL')
-    else:
-        ok += 1
-        if verbose:
-            print(f'{cmd} • OK')
-    return total, ok
-
-
-def test_sqlite(total, ok, *, verbose):
-    cmd = ['../py/test_sqlite.py', '--quiet']
+def test_external(cmd, total, ok, *, verbose):
     total += 1
     reply = subprocess.call(cmd)
     cmd = ' '.join(cmd)

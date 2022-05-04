@@ -21,6 +21,7 @@ try:
     os.chdir(os.path.dirname(__file__)) # MUST come before import uxf
     import uxf
     import uxfconvert
+    import eq
     os.chdir('../t')
 except ImportError:
     pass # shouldn't happen
@@ -45,8 +46,7 @@ def check(name, verbose):
         os.remove(filename)
     uxfconvert._uxf_to_sqlite(filename, uxd1.data)
     uxd2 = uxfconvert._sqlite_to_uxf(filename)
-    if not uxf.equivalent(uxd1, uxd2, ignore_custom=True,
-                          ignore_comments=True):
+    if not eq.eq(uxd1, uxd2, ignore_custom=True, ignore_comments=True):
         uxd1.dump('/tmp/1')#TODO
         uxd2.dump('/tmp/2')#TODO
         if verbose:
