@@ -7,8 +7,8 @@ This reads slides.uxf and outputs slides/index.html and slides/N.html where
 N is a slide number.
 
 This program is just an illustration of the flexibility of the UXF format.
-It also shows how to use the uxf.visit() function and the use of empty
-tables (e.g., (nl)).
+It also shows how to use the visit example module's visit() function and the
+use of empty tables (e.g., (nl)).
 
 slides2.py is slightly shorter because it manually traverses UXF data; it is
 also more flexible and robust for this particular slides format.
@@ -21,19 +21,25 @@ import shutil
 import sys
 from xml.sax.saxutils import escape
 
-try:
-    import uxf
-except ImportError: # needed for development
+
+def import_module(module_name, location):
+    import importlib
     path = os.path.abspath('.')
     os.chdir(os.path.dirname(__file__))
-    import importlib
-    module_name = 'uxf'
-    spec = importlib.util.spec_from_file_location(module_name,
-                                                  '../py/uxf.py')
-    uxf = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = uxf
-    spec.loader.exec_module(uxf)
+    spec = importlib.util.spec_from_file_location(module_name, location)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
     os.chdir(path)
+    return module
+
+
+try:
+    import uxf
+    import visit
+except ImportError: # needed for development
+    uxf = import_module('uxf', '../py/uxf.py')
+    visit = import_module('visit', '../py/visit.py')
 
 
 def main():
@@ -67,7 +73,7 @@ def write_slide(outdir, index, slide, last):
         doc_title = title[0].content
         file.write(f'{escape(doc_title)}</title><body>\n')
         function = functools.partial(visitor, state=State(file))
-        uxf.visit(function, slide)
+        visit.visit(function, slide)
         file.write(f'<a href="{index - 1}.html">Prev</a>' if index > 1 else
                    '<a href="index.html">Prev</a>')
         file.write('&nbsp;<a href="index.html">Contents</a>&nbsp;')
@@ -86,7 +92,8 @@ class State:
 
 
 def visitor(kind, value=None, *, state):
-    if kind is uxf.ValueType.TABLE_BEGIN:
+    Kind = visit.ValueType
+    if kind is Kind.TABLE_BEGIN:
         name = value.name
         if name == 'B':
             state.file.write('<ul><li>')
@@ -102,7 +109,7 @@ def visitor(kind, value=None, *, state):
             pass
         elif name == 'url':
             state.link_title = ''
-    elif kind is uxf.ValueType.TABLE_END:
+    elif kind is Kind.TABLE_END:
         name = value.name
         if name == 'B':
             state.file.write('</li></ul>')
@@ -118,11 +125,11 @@ def visitor(kind, value=None, *, state):
             state.file.write('<br />\n')
         elif name == 'url':
             state.link_title = '' # want link title
-    elif kind is uxf.ValueType.BYTES:
+    elif kind is Kind.BYTES:
         if state.in_image:
             data = base64.urlsafe_b64encode(value).decode('ascii')
             state.file.write(f'<img src="data:image/png;base64,{data}" />')
-    elif kind is uxf.ValueType.STR:
+    elif kind is Kind.STR:
         if state.link_title == '': # empty means want link title
             state.link_title = escape(value)
         elif bool(state.link_title): # nonempty means have link title
@@ -130,11 +137,11 @@ def visitor(kind, value=None, *, state):
             state.link_title = None # None means not in url
         else:
             state.file.write(escape(value))
-    elif kind in {uxf.ValueType.BOOL, uxf.ValueType.INT, uxf.ValueType.REAL,
-                  uxf.ValueType.DATE, uxf.ValueType.DATE_TIME}:
+    elif kind in {Kind.BOOL, Kind.INT, Kind.REAL, Kind.DATE,
+                  Kind.DATE_TIME}:
         state.file.write(str(value))
-    elif kind in {uxf.ValueType.LIST_BEGIN, uxf.ValueType.LIST_END,
-                  uxf.ValueType.ROW_BEGIN, uxf.ValueType.ROW_END}:
+    elif kind in {Kind.LIST_BEGIN, Kind.LIST_END, Kind.ROW_BEGIN,
+                  Kind.ROW_END}:
         pass
     else:
         print(f'Unexpected value {value!r} of type {kind}')
