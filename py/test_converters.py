@@ -51,15 +51,15 @@ def main():
     uxf.add_converter(MyType, to_str=mytype_to_str,
                       from_str=mytype_from_str)
 
-    uxd1 = uxf.Uxf(d)
-    uxt1 = uxd1.dumps()
-    uxd2 = uxf.loads(uxt1)
-    uxt2 = uxd2.dumps()
-    check_types(1, uxd1.data, verbose)
-    check_types(2, uxd2.data, verbose)
+    uxo1 = uxf.Uxf(d)
+    uxt1 = uxo1.dumps()
+    uxo2 = uxf.loads(uxt1)
+    uxt2 = uxo2.dumps()
+    check_types(1, uxo1.data, verbose)
+    check_types(2, uxo2.data, verbose)
     if uxt1 != uxt2:
         fail('test_converters • loads()/dumps() FAIL', verbose)
-    if not eq.eq(uxd1, uxd2):
+    if not eq.eq(uxo1, uxo2):
         fail('test_converters • eq() FAIL', verbose)
     if verbose:
         print(uxt1, end='')

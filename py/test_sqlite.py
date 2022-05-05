@@ -39,16 +39,16 @@ def main():
 
 
 def check(name, verbose):
-    uxd1 = uxf.load(name)
+    uxo1 = uxf.load(name)
     filename = os.path.join(tempfile.gettempdir(), name.replace('.uxf',
                                                                 '.sqlite'))
     with contextlib.suppress(FileNotFoundError):
         os.remove(filename)
-    if isinstance(uxd1.data, uxf.Table):
-        uxd1.data = [uxd1.data]
-    uxfconvert._uxf_to_sqlite(filename, uxd1.data)
-    uxd2 = uxfconvert._sqlite_to_uxf(filename)
-    if not eq.eq(uxd1, uxd2, ignore_custom=True, ignore_comments=True,
+    if isinstance(uxo1.data, uxf.Table):
+        uxo1.data = [uxo1.data]
+    uxfconvert._uxf_to_sqlite(filename, uxo1.data)
+    uxo2 = uxfconvert._sqlite_to_uxf(filename)
+    if not eq.eq(uxo1, uxo2, ignore_custom=True, ignore_comments=True,
                  ignore_types=True):
         if verbose:
             print(f'test_sqlite • {name} FAIL')

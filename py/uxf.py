@@ -18,11 +18,11 @@ or
 The uxf module's public API provides the following free functions and
 classes.
 
-    load(filename_or_filelike): -> uxd
-    loads(uxf_text): -> uxd
+    load(filename_or_filelike): -> uxo
+    loads(uxf_text): -> uxo
 
 These functions read UXF data from a file, file-like, or string.
-The returned uxd is of type Uxf (see below).
+The returned uxo is of type Uxf (see below).
 See the function docs for additional options.
 
     dump(filename_or_filelike, data)
@@ -267,10 +267,10 @@ def visit(function, value):
     # else isinstance(value, TType): pass # ignore
 
 
-def _visit_uxf(function, uxd):
-    info = UxfInfo(uxd.custom, uxd.comment, uxd.ttypes)
+def _visit_uxf(function, uxo):
+    info = UxfInfo(uxo.custom, uxo.comment, uxo.ttypes)
     function(ValueType.UXF_BEGIN, info)
-    visit(function, uxd.data)
+    visit(function, uxo.data)
     function(ValueType.UXF_END, Tag(info.custom))
 
 
@@ -379,10 +379,10 @@ def _loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False,
     data, comment, ttypes = _parse(
         tokens, text=uxf_text, warn_is_error=warn_is_error,
         filename=filename)
-    uxd = Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
+    uxo = Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
     if check:
-        uxd.typecheck(fixtypes=fixtypes)
-    return uxd
+        uxo.typecheck(fixtypes=fixtypes)
+    return uxo
 
 
 def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
@@ -1407,17 +1407,17 @@ def dumps(data, *, indent=2, use_true_false=False, warn_is_error=False):
 
 class _Writer:
 
-    def __init__(self, file, uxd, pad, use_true_false, warn_is_error):
+    def __init__(self, file, uxo, pad, use_true_false, warn_is_error):
         self.file = file
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
         self.warn_is_error = warn_is_error
-        self.write_header(uxd.custom)
-        if uxd.comment is not None:
-            self.file.write(f'#<{escape(uxd.comment)}>\n')
-        if uxd.ttypes:
-            self.write_ttypes(uxd.ttypes)
-        if not self.write_value(uxd.data, pad=pad):
+        self.write_header(uxo.custom)
+        if uxo.comment is not None:
+            self.file.write(f'#<{escape(uxo.comment)}>\n')
+        if uxo.ttypes:
+            self.write_ttypes(uxo.ttypes)
+        if not self.write_value(uxo.data, pad=pad):
             self.file.write('\n')
 
 
@@ -1841,10 +1841,10 @@ Converting uxf to uxf will alphabetically order any ttypes.
         if (outfile is not None and os.path.abspath(infile) ==
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
-        uxd = load(infile, warn_is_error=warn_is_error)
+        uxo = load(infile, warn_is_error=warn_is_error)
         if check:
-            uxd.typecheck(fixtypes=fixtypes)
+            uxo.typecheck(fixtypes=fixtypes)
         outfile = sys.stdout if outfile is None else outfile
-        dump(outfile, uxd, indent=indent)
+        dump(outfile, uxo, indent=indent)
     except (FileNotFoundError, Error) as err:
         print(f'Error:{err}')

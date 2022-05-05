@@ -35,9 +35,9 @@ def main():
     infile, outdir = get_args()
     shutil.rmtree(outdir, ignore_errors=True)
     os.mkdir(outdir)
-    uxd = uxf.load(infile)
+    uxo = uxf.load(infile)
     titles = []
-    slides = uxd.data
+    slides = uxo.data
     for index, slide in enumerate(slides, 1):
         titles.append(write_slide(outdir, index, slide, len(slides)))
     index += 1

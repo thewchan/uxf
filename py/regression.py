@@ -106,10 +106,10 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
                 uxf_text = file.read()
         use_true_false = 'true' in uxf_text or 'false' in uxf_text
         try:
-            uxd = uxf.loads(uxf_text)
+            uxo = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
-        new_uxf_text = uxd.dumps(use_true_false=use_true_false)
+        new_uxf_text = uxo.dumps(use_true_false=use_true_false)
         nws_uxf_text = normalize_uxf_text(uxf_text)
         nws_new_uxf_text = normalize_uxf_text(new_uxf_text)
         if nws_uxf_text == nws_new_uxf_text:
@@ -137,7 +137,7 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxf_text = file.read()
         try:
-            uxd1 = uxf.loads(uxf_text)
+            uxo1 = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'eq() 1 • {name} FAIL: {err}')
         expected = f'expected/{name}'
@@ -148,10 +148,10 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxf_text = file.read()
         try:
-            uxd2 = uxf.loads(uxf_text)
+            uxo2 = uxf.loads(uxf_text)
         except uxf.Error as err:
             print(f'eq() 2 • {expected} FAIL: {err}')
-        if eq.eq(uxd1, uxd2):
+        if eq.eq(uxo1, uxo2):
             ok += 1
             if verbose:
                 print(f'eq() • {name} OK')
@@ -254,8 +254,8 @@ def test_table_is_scalar(total, ok, *, verbose):
     for (filename, is_scalar) in (('t40.uxf', True), ('t41.uxf', False),
                                   ('t42.uxf', True), ('t43.uxf', False)):
         total += 1
-        uxd = uxf.load(filename)
-        if is_scalar == uxd.data.is_scalar:
+        uxo = uxf.load(filename)
+        if is_scalar == uxo.data.is_scalar:
             ok += 1
             if verbose:
                 print(f'{filename} • (Table.is_scalar) OK')

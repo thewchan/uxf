@@ -108,8 +108,8 @@ def _postprocess_other_args(parser, config):
 
 
 def uxf_to_csv(config):
-    uxd = uxf.load(config.infiles[0])
-    data = uxd.data
+    uxo = uxf.load(config.infiles[0])
+    data = uxo.data
     if isinstance(data, uxf.Table):
         with open(config.outfile, 'w') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
@@ -173,15 +173,15 @@ def multi_csv_to_uxf(config):
 
 
 def uxf_to_json(config):
-    uxd = uxf.load(config.infiles[0])
+    uxo = uxf.load(config.infiles[0])
     d = {}
-    if uxd.custom is not None:
-        d[JSON_CUSTOM] = uxd.custom
-    if uxd.comment is not None:
-        d[JSON_COMMENT] = uxd.comment
-    if uxd.ttypes:
-        d[JSON_TTYPES] = list(uxd.ttypes.values())
-    d[JSON_DATA] = uxd.data
+    if uxo.custom is not None:
+        d[JSON_CUSTOM] = uxo.custom
+    if uxo.comment is not None:
+        d[JSON_COMMENT] = uxo.comment
+    if uxo.ttypes:
+        d[JSON_TTYPES] = list(uxo.ttypes.values())
+    d[JSON_DATA] = uxo.data
     with open(config.outfile, 'wt', encoding=UTF8) as file:
         json.dump(d, file, cls=_JsonEncoder, indent=2)
 
@@ -327,12 +327,12 @@ def ini_to_uxf(config):
 
 
 def uxf_to_sqlite(config):
-    uxd = uxf.load(config.infiles[0])
-    if isinstance(uxd.data, uxf.Table):
-        _uxf_to_sqlite(config.outfile, [uxd.data])
-    elif (isinstance(uxd.data, (list, uxf.List)) and uxd.data and
-            all(isinstance(v, uxf.Table) for v in uxd.data)):
-        _uxf_to_sqlite(config.outfile, uxd.data)
+    uxo = uxf.load(config.infiles[0])
+    if isinstance(uxo.data, uxf.Table):
+        _uxf_to_sqlite(config.outfile, [uxo.data])
+    elif (isinstance(uxo.data, (list, uxf.List)) and uxo.data and
+            all(isinstance(v, uxf.Table) for v in uxo.data)):
+        _uxf_to_sqlite(config.outfile, uxo.data)
     else:
         raise SystemExit('can only convert a UXF containing a single table '
                          'or a single list of Tables to SQLite')
@@ -387,15 +387,15 @@ def _populate_table(db, table, table_name):
 
 
 def sqlite_to_uxf(config):
-    uxd = _sqlite_to_uxf(config.infiles[0])
-    uxd.dump(config.outfile)
+    uxo = _sqlite_to_uxf(config.infiles[0])
+    uxo.dump(config.outfile)
 
 
 def _sqlite_to_uxf(infile):
     db = None
     try:
         db = sqlite3.connect(infile)
-        uxd = uxf.Uxf()
+        uxo = uxf.Uxf()
         table_names = []
         comments = []
         cursor = db.cursor()
@@ -416,9 +416,9 @@ def _sqlite_to_uxf(infile):
             for row in cursor.execute(sql):
                 table += [uxf.naturalize(value) if isinstance(value, str)
                           else value for value in row]
-            uxd.ttypes[table.ttype.name] = table.ttype
-            uxd.data.append(table)
-        return uxd
+            uxo.ttypes[table.ttype.name] = table.ttype
+            uxo.data.append(table)
+        return uxo
     finally:
         if db is not None:
             db.close()
