@@ -191,7 +191,7 @@ def test_uxfconvert(uxffiles, total, ok, *, verbose, max_total):
     N, Y, NF, YR = (0, 1, 2, 3) # No, Yes, No with -f, Yes with -f
     files = [(name, name.replace('.uxf', '.json'), Y) for name in uxffiles]
     # TODO change xml N to Y for round-trip tests
-    files = [(name, name.replace('.uxf', '.xml'), N) for name in uxffiles]
+    files += [(name, name.replace('.uxf', '.xml'), N) for name in uxffiles]
     files += [('t1.uxf', 't1.csv', N), ('t2.uxf', 't2.csv', N),
               ('0.csv', '0.uxf', N), ('1.csv', '1.uxf', NF),
               ('2.csv', '2.uxf', NF), ('ini.ini', 'ini.uxf', N)]
