@@ -1,0 +1,91 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="MyApp Data" comment="A hierarchical alternative to some foreign key IDs.
+We've kept Customers as-is because different invoices may be for the same
+customer.">
+  <ttypes>
+    <ttype name="Customers">
+      <field name="CID" vtype="int"/>
+      <field name="Company" vtype="str"/>
+      <field name="Address" vtype="str"/>
+      <field name="Contact" vtype="str"/>
+      <field name="Email" vtype="str"/>
+    </ttype>
+    <ttype name="Invoices">
+      <field name="INUM" vtype="int"/>
+      <field name="CID" vtype="int"/>
+      <field name="Raised_Date" vtype="date"/>
+      <field name="Due_Date" vtype="date"/>
+      <field name="Paid" vtype="bool"/>
+      <field name="Description" vtype="str"/>
+      <field name="Items" vtype="Items"/>
+    </ttype>
+    <ttype name="Items">
+      <field name="IID" vtype="int"/>
+      <field name="Delivery_Date" vtype="date"/>
+      <field name="Unit_Price" vtype="real"/>
+      <field name="Quantity" vtype="int"/>
+      <field name="Description" vtype="str"/>
+    </ttype>
+  </ttypes>
+  <list comment="There is a 1:M relationship between the Invoices and Items tables">
+    <table name="Customers">
+      <row>
+        <int v="50"/>
+        <str>Best People</str>
+        <str>123 Somewhere</str>
+        <str>John Doe</str>
+        <str>j@doe.com</str>
+      </row>
+      <row>
+        <int v="19"/>
+        <str>Supersuppliers</str>
+        <null/>
+        <str>Jane Doe</str>
+        <str>jane@super.com</str>
+      </row>
+    </table>
+    <table name="Invoices">
+      <row>
+        <int v="152"/>
+        <int v="50"/>
+        <date v="2022-01-17"/>
+        <date v="2022-02-17"/>
+        <no/>
+        <str>COD</str>
+        <table name="Items">
+          <row>
+            <int v="1839"/>
+            <date v="2022-01-16"/>
+            <real v="29.99"/>
+            <int v="2"/>
+            <str>Bales of hay</str>
+          </row>
+          <row>
+            <int v="1840"/>
+            <date v="2022-01-16"/>
+            <real v="5.98"/>
+            <int v="3"/>
+            <str>Straps</str>
+          </row>
+        </table>
+      </row>
+      <row>
+        <int v="153"/>
+        <int v="19"/>
+        <date v="2022-01-19"/>
+        <date v="2022-02-19"/>
+        <yes/>
+        <str></str>
+        <table name="Items">
+          <row>
+            <int v="1620"/>
+            <date v="2022-01-19"/>
+            <real v="11.5"/>
+            <int v="1"/>
+            <str>Washers (1-in)</str>
+          </row>
+        </table>
+      </row>
+    </table>
+  </list>
+</uxf>

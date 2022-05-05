@@ -1,0 +1,234 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="TLM Config" comment="This is a file-level comment.">
+  <ttypes>
+    <ttype name="Categories">
+      <field name="CID"/>
+      <field name="Title"/>
+      <field name="Selected"/>
+    </ttype>
+    <ttype name="Files">
+      <field name="Kind"/>
+      <field name="Filename"/>
+    </ttype>
+    <ttype name="IPv4">
+      <field name="A" vtype="int"/>
+      <field name="B" vtype="int"/>
+      <field name="C" vtype="int"/>
+      <field name="D" vtype="int"/>
+    </ttype>
+    <ttype name="IntPair">
+      <field name="First" vtype="int"/>
+      <field name="Second" vtype="int"/>
+    </ttype>
+    <ttype name="Playlists">
+      <field name="PID"/>
+      <field name="Title"/>
+      <field name="CID"/>
+      <field name="Selected"/>
+    </ttype>
+    <ttype name="RGB">
+      <field name="Red" vtype="int"/>
+      <field name="Green" vtype="int"/>
+      <field name="Blue" vtype="int"/>
+    </ttype>
+    <ttype name="RGBA">
+      <field name="Red" vtype="int"/>
+      <field name="Green" vtype="int"/>
+      <field name="Blue" vtype="int"/>
+      <field name="Alpha" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <map>
+    <key>
+      <str>General</str>
+    </key>
+    <value>
+      <map comment="Map comment #1">
+        <key>
+          <str>saved</str>
+        </key>
+        <value>
+          <date v="2022-03-21"/>
+        </value>
+        <key>
+          <str>autosave</str>
+        </key>
+        <value>
+          <yes/>
+        </value>
+        <key>
+          <str>historysize</str>
+        </key>
+        <value>
+          <int v="-35"/>
+        </value>
+        <key>
+          <str>volume</str>
+        </key>
+        <value>
+          <real v="0.7"/>
+        </value>
+        <key>
+          <str>files</str>
+        </key>
+        <value>
+          <table name="Files" comment="Table comment #2">
+            <row>
+              <str>current</str>
+              <str>/home/mark/app/rs/tlm/PlaylistsTest.tlm</str>
+            </row>
+            <row>
+              <str>recent1</str>
+              <str>/home/mark/app/rs/tlm/PlaylistsTest.tlm</str>
+            </row>
+            <row>
+              <str>recent2</str>
+              <str>/home/mark/data/playlists-all.tlm</str>
+            </row>
+          </table>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Window</str>
+    </key>
+    <value>
+      <map>
+        <key>
+          <str>x</str>
+        </key>
+        <value>
+          <int v="383"/>
+        </value>
+        <key>
+          <str>y</str>
+        </key>
+        <value>
+          <int v="124"/>
+        </value>
+        <key>
+          <str>width</str>
+        </key>
+        <value>
+          <int v="590"/>
+        </value>
+        <key>
+          <str>height</str>
+        </key>
+        <value>
+          <int v="536"/>
+        </value>
+        <key>
+          <str>scale</str>
+        </key>
+        <value>
+          <real v="1.1"/>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Magic</str>
+    </key>
+    <value>
+      <bytes>1F8B</bytes>
+    </value>
+    <key>
+      <str>Nested Map</str>
+    </key>
+    <value>
+      <map comment="Map comment #3">
+        <key>
+          <str>Classical</str>
+        </key>
+        <value>
+          <list comment="List comment #4">
+            <int v="5"/>
+            <yes/>
+          </list>
+        </value>
+        <key>
+          <str>Modern Instrumental</str>
+        </key>
+        <value>
+          <list comment="List comment #5">
+            <int v="4"/>
+            <no/>
+          </list>
+        </value>
+        <key>
+          <str>New Acquistions</str>
+        </key>
+        <value>
+          <list>
+            <int v="1"/>
+            <no/>
+          </list>
+        </value>
+        <key>
+          <str>Nested List of Lists</str>
+        </key>
+        <value>
+          <list comment="List comment #6">
+            <list comment="List comment #7">
+              <int v="5"/>
+              <str>Classical</str>
+              <yes/>
+            </list>
+            <list>
+              <int v="4"/>
+              <str>Modern Instrumental</str>
+              <no/>
+            </list>
+            <list>
+              <int v="1"/>
+              <str>New Acquistions</str>
+              <no/>
+            </list>
+          </list>
+        </value>
+        <key>
+          <str>Nested Table</str>
+        </key>
+        <value>
+          <table name="Categories" comment="Table comment #8">
+            <row>
+              <int v="5"/>
+              <str>Classical</str>
+              <yes/>
+            </row>
+            <row>
+              <int v="4"/>
+              <str>Modern Instrumental</str>
+              <no/>
+            </row>
+            <row>
+              <int v="1"/>
+              <str>New Acquistions</str>
+              <no/>
+            </row>
+            <row>
+              <int v="2"/>
+              <str>Pop</str>
+              <no/>
+            </row>
+            <row>
+              <int v="3"/>
+              <str>Punk</str>
+              <no/>
+            </row>
+            <row>
+              <int v="7"/>
+              <str>Uncategorized</str>
+              <no/>
+            </row>
+            <row>
+              <int v="6"/>
+              <str>Unpopular Pop</str>
+              <no/>
+            </row>
+          </table>
+        </value>
+      </map>
+    </value>
+  </map>
+</uxf>

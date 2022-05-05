@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="MyApp Data" comment="Suitable for SQLite conversion">
+  <ttypes>
+    <ttype name="Customers">
+      <field name="CID"/>
+      <field name="Company"/>
+      <field name="Address"/>
+      <field name="Contact"/>
+      <field name="Email"/>
+    </ttype>
+    <ttype name="Invoices">
+      <field name="INUM"/>
+      <field name="CID"/>
+      <field name="Raised_Date"/>
+      <field name="Due_Date"/>
+      <field name="Paid"/>
+      <field name="Description"/>
+    </ttype>
+    <ttype name="Items">
+      <field name="IID"/>
+      <field name="INUM"/>
+      <field name="Delivery_Date"/>
+      <field name="Unit_Price"/>
+      <field name="Quantity"/>
+      <field name="Description"/>
+    </ttype>
+  </ttypes>
+  <list comment="There is a 1:M relationship between the Invoices and Items tables">
+    <table name="Customers">
+      <row>
+        <int v="50"/>
+        <str>Best People</str>
+        <str>123 Somewhere</str>
+        <str>John Doe</str>
+        <str>j@doe.com</str>
+      </row>
+      <row>
+        <int v="19"/>
+        <str>Supersuppliers</str>
+        <null/>
+        <str>Jane Doe</str>
+        <str>jane@super.com</str>
+      </row>
+    </table>
+    <table name="Invoices">
+      <row>
+        <int v="152"/>
+        <int v="50"/>
+        <date v="2022-01-17"/>
+        <date v="2022-02-17"/>
+        <no/>
+        <str>COD</str>
+      </row>
+      <row>
+        <int v="153"/>
+        <int v="19"/>
+        <date v="2022-01-19"/>
+        <date v="2022-02-19"/>
+        <yes/>
+        <str></str>
+      </row>
+    </table>
+    <table name="Items">
+      <row>
+        <int v="1839"/>
+        <int v="152"/>
+        <date v="2022-01-16"/>
+        <real v="29.99"/>
+        <int v="2"/>
+        <str>Bales of hay</str>
+      </row>
+      <row>
+        <int v="1840"/>
+        <int v="152"/>
+        <date v="2022-01-16"/>
+        <real v="5.98"/>
+        <int v="3"/>
+        <str>Straps</str>
+      </row>
+      <row>
+        <int v="1620"/>
+        <int v="153"/>
+        <date v="2022-01-19"/>
+        <real v="11.5"/>
+        <int v="1"/>
+        <str>Washers (1-in)</str>
+      </row>
+    </table>
+  </list>
+</uxf>

@@ -1,0 +1,318 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="TLM Config">
+  <map ktype="str" vtype="map">
+    <key>
+      <str>Map Test #1</str>
+    </key>
+    <value>
+      <map comment="Map with different types of key">
+        <key>
+          <int v="5"/>
+        </key>
+        <value>
+          <int v="6"/>
+        </value>
+        <key>
+          <str>hello</str>
+        </key>
+        <value>
+          <date v="2021-02-01"/>
+        </value>
+        <key>
+          <date v="2001-01-31"/>
+        </key>
+        <value>
+          <str>world</str>
+        </value>
+        <key>
+          <datetime v="1965-04-27T16:05:00"/>
+        </key>
+        <value>
+          <str>UXF in ASCII bytes follows</str>
+        </value>
+        <key>
+          <bytes>757866</bytes>
+        </key>
+        <value>
+          <datetime v="1985-05-22T04:31:00"/>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Map Test #2</str>
+    </key>
+    <value>
+      <map ktype="int" comment="Map same type of non-str keys">
+        <key>
+          <int v="1"/>
+        </key>
+        <value>
+          <str>one</str>
+        </value>
+        <key>
+          <int v="2"/>
+        </key>
+        <value>
+          <int v="2"/>
+        </value>
+        <key>
+          <int v="3"/>
+        </key>
+        <value>
+          <real v="3.0"/>
+        </value>
+        <key>
+          <int v="4"/>
+        </key>
+        <value>
+          <bytes>0220</bytes>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Map Test #3</str>
+    </key>
+    <value>
+      <map ktype="int" vtype="date" comment="Map same type of non-str keys and values">
+        <key>
+          <int v="5"/>
+        </key>
+        <value>
+          <date v="2001-12-27"/>
+        </value>
+        <key>
+          <int v="4"/>
+        </key>
+        <value>
+          <date v="1973-10-18"/>
+        </value>
+        <key>
+          <int v="1"/>
+        </key>
+        <value>
+          <date v="2019-02-10"/>
+        </value>
+        <key>
+          <int v="2"/>
+        </key>
+        <value>
+          <date v="1983-04-07"/>
+        </value>
+        <key>
+          <int v="3"/>
+        </key>
+        <value>
+          <date v="1999-06-09"/>
+        </value>
+        <key>
+          <int v="7"/>
+        </key>
+        <value>
+          <date v="1992-02-24"/>
+        </value>
+        <key>
+          <int v="6"/>
+        </key>
+        <value>
+          <date v="2004-04-11"/>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Map Test #4</str>
+    </key>
+    <value>
+      <map>
+        <key>
+          <date v="2001-12-27"/>
+        </key>
+        <value>
+          <int v="5"/>
+        </value>
+        <key>
+          <date v="1973-10-18"/>
+        </key>
+        <value>
+          <int v="4"/>
+        </value>
+        <key>
+          <date v="2019-02-10"/>
+        </key>
+        <value>
+          <int v="1"/>
+        </value>
+        <key>
+          <date v="1983-04-07"/>
+        </key>
+        <value>
+          <int v="2"/>
+        </value>
+        <key>
+          <date v="1999-06-09"/>
+        </key>
+        <value>
+          <int v="3"/>
+        </value>
+        <key>
+          <date v="1992-02-24"/>
+        </key>
+        <value>
+          <int v="7"/>
+        </value>
+        <key>
+          <date v="2004-04-11"/>
+        </key>
+        <value>
+          <int v="6"/>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Map Test #5</str>
+    </key>
+    <value>
+      <map>
+        <key>
+          <date v="2001-12-27"/>
+        </key>
+        <value>
+          <int v="5"/>
+        </value>
+        <key>
+          <date v="1973-10-18"/>
+        </key>
+        <value>
+          <int v="4"/>
+        </value>
+        <key>
+          <date v="2019-02-10"/>
+        </key>
+        <value>
+          <int v="1"/>
+        </value>
+        <key>
+          <date v="1983-04-07"/>
+        </key>
+        <value>
+          <int v="2"/>
+        </value>
+        <key>
+          <date v="1999-06-09"/>
+        </key>
+        <value>
+          <int v="3"/>
+        </value>
+        <key>
+          <date v="1992-02-24"/>
+        </key>
+        <value>
+          <int v="7"/>
+        </value>
+        <key>
+          <date v="2004-04-11"/>
+        </key>
+        <value>
+          <int v="6"/>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Map Test #6</str>
+    </key>
+    <value>
+      <map ktype="date">
+        <key>
+          <date v="2001-12-27"/>
+        </key>
+        <value>
+          <int v="5"/>
+        </value>
+        <key>
+          <date v="1973-10-18"/>
+        </key>
+        <value>
+          <int v="4"/>
+        </value>
+        <key>
+          <date v="2019-02-10"/>
+        </key>
+        <value>
+          <int v="1"/>
+        </value>
+        <key>
+          <date v="1983-04-07"/>
+        </key>
+        <value>
+          <int v="2"/>
+        </value>
+        <key>
+          <date v="1999-06-09"/>
+        </key>
+        <value>
+          <int v="3"/>
+        </value>
+        <key>
+          <date v="1992-02-24"/>
+        </key>
+        <value>
+          <int v="7"/>
+        </value>
+        <key>
+          <date v="2004-04-11"/>
+        </key>
+        <value>
+          <int v="6"/>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Map Test #7</str>
+    </key>
+    <value>
+      <map ktype="date" vtype="int">
+        <key>
+          <date v="2001-12-27"/>
+        </key>
+        <value>
+          <int v="5"/>
+        </value>
+        <key>
+          <date v="1973-10-18"/>
+        </key>
+        <value>
+          <int v="4"/>
+        </value>
+        <key>
+          <date v="2019-02-10"/>
+        </key>
+        <value>
+          <int v="1"/>
+        </value>
+        <key>
+          <date v="1983-04-07"/>
+        </key>
+        <value>
+          <int v="2"/>
+        </value>
+        <key>
+          <date v="1999-06-09"/>
+        </key>
+        <value>
+          <int v="3"/>
+        </value>
+        <key>
+          <date v="1992-02-24"/>
+        </key>
+        <value>
+          <int v="7"/>
+        </value>
+        <key>
+          <date v="2004-04-11"/>
+        </key>
+        <value>
+          <int v="6"/>
+        </value>
+      </map>
+    </value>
+  </map>
+</uxf>

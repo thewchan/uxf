@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" comment="Suitable for SQLite conversion">
+  <ttypes>
+    <ttype name="PriceList">
+      <field name="Date"/>
+      <field name="Price"/>
+      <field name="Quantity"/>
+      <field name="ID"/>
+      <field name="Description"/>
+    </ttype>
+  </ttypes>
+  <table name="PriceList">
+    <row>
+      <date v="2022-09-21"/>
+      <real v="3.99"/>
+      <int v="2"/>
+      <str>CH1-A2</str>
+      <str>Chisels (pair), 1in &amp; 1¼in</str>
+    </row>
+    <row>
+      <date v="2022-10-02"/>
+      <real v="4.49"/>
+      <int v="1"/>
+      <str>HV2-K9</str>
+      <str>Hammer, 2lb</str>
+    </row>
+    <row>
+      <date v="2022-10-02"/>
+      <real v="10.0"/>
+      <int v="1"/>
+      <str>SX4-D1</str>
+      <str>Eversure Sealant, 13-floz</str>
+    </row>
+  </table>
+</uxf>

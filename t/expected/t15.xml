@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="Test (list of tables with dates and datetimes)" comment="Suitable for SQLite conversion">
+  <ttypes>
+    <ttype name="Categories">
+      <field name="CID"/>
+      <field name="Title"/>
+      <field name="Selected"/>
+      <field name="Date" vtype="date"/>
+    </ttype>
+    <ttype name="Playlists">
+      <field name="PID"/>
+      <field name="Title"/>
+      <field name="Cid"/>
+      <field name="Selected"/>
+      <field name="DateTime" vtype="datetime"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="Categories">
+      <row>
+        <int v="5"/>
+        <str>Classical</str>
+        <yes/>
+        <date v="2001-12-27"/>
+      </row>
+      <row>
+        <int v="4"/>
+        <str>Modern Instrumental</str>
+        <no/>
+        <date v="1973-10-18"/>
+      </row>
+      <row>
+        <int v="1"/>
+        <str>New Acquistions</str>
+        <no/>
+        <date v="2019-02-10"/>
+      </row>
+      <row>
+        <int v="2"/>
+        <str>Pop</str>
+        <no/>
+        <date v="1983-04-07"/>
+      </row>
+      <row>
+        <int v="3"/>
+        <str>Punk</str>
+        <no/>
+        <date v="1999-06-09"/>
+      </row>
+      <row>
+        <int v="7"/>
+        <str>Uncategorized</str>
+        <no/>
+        <date v="1992-02-24"/>
+      </row>
+      <row>
+        <int v="6"/>
+        <str>Unpopular Pop</str>
+        <no/>
+        <date v="2004-04-11"/>
+      </row>
+    </table>
+    <table name="Playlists">
+      <row>
+        <int v="4"/>
+        <str>ABBA</str>
+        <int v="2"/>
+        <no/>
+        <datetime v="1998-09-19T23:57:59"/>
+      </row>
+      <row>
+        <int v="38"/>
+        <str>Bach</str>
+        <int v="5"/>
+        <no/>
+        <datetime v="1982-07-12T23:57:12"/>
+      </row>
+      <row>
+        <int v="39"/>
+        <str>Bartok</str>
+        <int v="5"/>
+        <no/>
+        <datetime v="1983-04-13T23:46:31"/>
+      </row>
+      <row>
+        <int v="5"/>
+        <str>Beatles</str>
+        <int v="2"/>
+        <no/>
+        <datetime v="2022-04-11T23:48:01"/>
+      </row>
+      <row>
+        <int v="40"/>
+        <str>Beethoven</str>
+        <int v="5"/>
+        <no/>
+        <datetime v="1986-06-11T23:47:25"/>
+      </row>
+      <row>
+        <int v="6"/>
+        <str>Blondie</str>
+        <int v="2"/>
+        <no/>
+        <datetime v="1995-11-23T23:56:03"/>
+      </row>
+      <row>
+        <int v="52"/>
+        <str>Bob Marley</str>
+        <int v="6"/>
+        <yes/>
+        <datetime v="1981-02-27T23:56:53"/>
+      </row>
+      <row>
+        <int v="7"/>
+        <str>Bruce Springsteen</str>
+        <int v="2"/>
+        <no/>
+        <datetime v="1995-08-10T23:56:32"/>
+      </row>
+      <row>
+        <int v="41"/>
+        <str>Chopin</str>
+        <int v="5"/>
+        <yes/>
+        <datetime v="1973-11-23T23:53:54"/>
+      </row>
+      <row>
+        <int v="37"/>
+        <str>Classical</str>
+        <int v="5"/>
+        <no/>
+        <datetime v="1992-11-18T23:57:27"/>
+      </row>
+      <row>
+        <int v="8"/>
+        <str>David Bowie</str>
+        <int v="2"/>
+        <no/>
+        <datetime v="2008-09-01T23:59:46"/>
+      </row>
+    </table>
+  </list>
+</uxf>

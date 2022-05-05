@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="IP4">
+      <field name="A" vtype="int"/>
+      <field name="B" vtype="int"/>
+      <field name="C" vtype="int"/>
+      <field name="D" vtype="int"/>
+    </ttype>
+    <ttype name="IntPair">
+      <field name="First" vtype="int"/>
+      <field name="Second" vtype="int"/>
+    </ttype>
+    <ttype name="RGB">
+      <field name="Red" vtype="int"/>
+      <field name="Green" vtype="int"/>
+      <field name="Blue" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <list comment="Unused TTypes are dropped when converting from uxf to uxf;
+    to preserve them, just use them to make an empty table">
+    <table name="IntPair"/>
+    <table name="IP4">
+      <row>
+        <int v="168"/>
+        <int v="1"/>
+        <int v="4"/>
+        <int v="29"/>
+      </row>
+      <row>
+        <int v="192"/>
+        <int v="0"/>
+        <int v="18"/>
+        <int v="27"/>
+      </row>
+    </table>
+    <table name="RGB"/>
+  </list>
+</uxf>

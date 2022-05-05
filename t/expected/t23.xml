@@ -1,0 +1,110 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <list vtype="list">
+    <list vtype="list">
+      <list>
+        <int v="5"/>
+        <str>Classical</str>
+        <yes/>
+      </list>
+      <list>
+        <int v="4"/>
+        <str>Modern Instrumental</str>
+        <no/>
+      </list>
+      <list>
+        <int v="1"/>
+        <str>New Acquistions</str>
+        <no/>
+      </list>
+      <list>
+        <int v="2"/>
+        <str>Pop</str>
+        <no/>
+      </list>
+      <list>
+        <int v="3"/>
+        <str>Punk</str>
+        <no/>
+      </list>
+      <list>
+        <int v="7"/>
+        <str>Uncategorized</str>
+        <no/>
+      </list>
+      <list>
+        <int v="6"/>
+        <str>Unpopular Pop</str>
+        <no/>
+      </list>
+    </list>
+    <list vtype="list">
+      <list>
+        <int v="4"/>
+        <str>ABBA</str>
+        <int v="2"/>
+        <no/>
+      </list>
+      <list>
+        <int v="38"/>
+        <str>Bach</str>
+        <int v="5"/>
+        <no/>
+      </list>
+      <list>
+        <int v="39"/>
+        <str>Bartok</str>
+        <int v="5"/>
+        <no/>
+      </list>
+      <list>
+        <int v="5"/>
+        <str>Beatles</str>
+        <int v="2"/>
+        <no/>
+      </list>
+      <list>
+        <int v="40"/>
+        <str>Beethoven</str>
+        <int v="5"/>
+        <no/>
+      </list>
+      <list>
+        <int v="6"/>
+        <str>Blondie</str>
+        <int v="2"/>
+        <no/>
+      </list>
+      <list>
+        <int v="52"/>
+        <str>Bob Marley</str>
+        <int v="6"/>
+        <yes/>
+      </list>
+      <list>
+        <int v="7"/>
+        <str>Bruce Springsteen</str>
+        <int v="2"/>
+        <no/>
+      </list>
+      <list>
+        <int v="41"/>
+        <str>Chopin</str>
+        <int v="5"/>
+        <yes/>
+      </list>
+      <list>
+        <int v="37"/>
+        <str>Classical</str>
+        <int v="5"/>
+        <no/>
+      </list>
+      <list>
+        <int v="8"/>
+        <str>David Bowie</str>
+        <int v="2"/>
+        <no/>
+      </list>
+    </list>
+  </list>
+</uxf>

@@ -1,0 +1,160 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="Files">
+      <field name="Kind"/>
+      <field name="Filename"/>
+    </ttype>
+  </ttypes>
+  <map ktype="str">
+    <key>
+      <str>General</str>
+    </key>
+    <value>
+      <map ktype="str" comment="Map comment">
+        <key>
+          <str>saved</str>
+        </key>
+        <value>
+          <date v="2022-03-21"/>
+        </value>
+        <key>
+          <str>autosave</str>
+        </key>
+        <value>
+          <yes/>
+        </value>
+        <key>
+          <str>historysize</str>
+        </key>
+        <value>
+          <int v="-35"/>
+        </value>
+        <key>
+          <str>volume</str>
+        </key>
+        <value>
+          <real v="0.7"/>
+        </value>
+        <key>
+          <str>files</str>
+        </key>
+        <value>
+          <table name="Files" comment="Table comment">
+            <row>
+              <str>current</str>
+              <str>/home/mark/app/rs/tlm/PlaylistsTest.tlm</str>
+            </row>
+            <row>
+              <str>recent1</str>
+              <str>/home/mark/app/rs/tlm/PlaylistsTest.tlm</str>
+            </row>
+            <row>
+              <str>recent2</str>
+              <str>/home/mark/data/playlists-all.tlm</str>
+            </row>
+          </table>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Window</str>
+    </key>
+    <value>
+      <map ktype="str">
+        <key>
+          <str>x</str>
+        </key>
+        <value>
+          <int v="383"/>
+        </value>
+        <key>
+          <str>y</str>
+        </key>
+        <value>
+          <int v="124"/>
+        </value>
+        <key>
+          <str>width</str>
+        </key>
+        <value>
+          <int v="590"/>
+        </value>
+        <key>
+          <str>height</str>
+        </key>
+        <value>
+          <int v="536"/>
+        </value>
+        <key>
+          <str>scale</str>
+        </key>
+        <value>
+          <real v="1.1"/>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Magic</str>
+    </key>
+    <value>
+      <bytes>1F8B11FF0C</bytes>
+    </value>
+    <key>
+      <str>Nested Map</str>
+    </key>
+    <value>
+      <map ktype="str" vtype="list">
+        <key>
+          <str>Classical</str>
+        </key>
+        <value>
+          <list>
+            <int v="5"/>
+            <yes/>
+          </list>
+        </value>
+        <key>
+          <str>Modern Instrumental</str>
+        </key>
+        <value>
+          <list>
+            <int v="4"/>
+            <no/>
+          </list>
+        </value>
+        <key>
+          <str>New Acquistions</str>
+        </key>
+        <value>
+          <list>
+            <int v="1"/>
+            <no/>
+          </list>
+        </value>
+        <key>
+          <str>Nested List of Lists</str>
+        </key>
+        <value>
+          <list vtype="list" comment="List comment">
+            <list>
+              <int v="5"/>
+              <str>Classical &amp; &lt;Special&gt;</str>
+              <yes/>
+            </list>
+            <list>
+              <int v="4"/>
+              <str>Modern Instrumental</str>
+              <null/>
+            </list>
+            <list>
+              <int v="1"/>
+              <str>New Acquistions</str>
+              <no/>
+            </list>
+          </list>
+        </value>
+      </map>
+    </value>
+  </map>
+</uxf>

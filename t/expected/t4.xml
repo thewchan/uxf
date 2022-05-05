@@ -1,0 +1,129 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="EPD (list of tables)">
+  <ttypes>
+    <ttype name="Categories">
+      <field name="CID"/>
+      <field name="Title"/>
+      <field name="Selected"/>
+    </ttype>
+    <ttype name="Playlists">
+      <field name="PID"/>
+      <field name="Title"/>
+      <field name="CID"/>
+      <field name="Selected"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="Categories">
+      <row>
+        <int v="5"/>
+        <str>Classical</str>
+        <yes/>
+      </row>
+      <row>
+        <int v="4"/>
+        <str>Modern Instrumental</str>
+        <no/>
+      </row>
+      <row>
+        <int v="1"/>
+        <str>New Acquistions</str>
+        <no/>
+      </row>
+      <row>
+        <int v="2"/>
+        <str>Pop</str>
+        <no/>
+      </row>
+      <row>
+        <int v="3"/>
+        <str>Punk</str>
+        <no/>
+      </row>
+      <row>
+        <int v="7"/>
+        <str>Uncategorized</str>
+        <no/>
+      </row>
+      <row>
+        <int v="6"/>
+        <str>Unpopular Pop</str>
+        <no/>
+      </row>
+    </table>
+    <table name="Playlists">
+      <row>
+        <int v="4"/>
+        <str>ABBA</str>
+        <int v="2"/>
+        <no/>
+      </row>
+      <row>
+        <int v="38"/>
+        <str>Bach</str>
+        <int v="5"/>
+        <no/>
+      </row>
+      <row>
+        <int v="39"/>
+        <str>Bartok</str>
+        <int v="5"/>
+        <no/>
+      </row>
+      <row>
+        <int v="5"/>
+        <str>Beatles</str>
+        <int v="2"/>
+        <no/>
+      </row>
+      <row>
+        <int v="40"/>
+        <str>Beethoven</str>
+        <int v="5"/>
+        <no/>
+      </row>
+      <row>
+        <int v="6"/>
+        <str>Blondie</str>
+        <int v="2"/>
+        <no/>
+      </row>
+      <row>
+        <int v="52"/>
+        <str>Bob Marley</str>
+        <int v="6"/>
+        <yes/>
+      </row>
+      <row>
+        <int v="7"/>
+        <str>Bruce Springsteen</str>
+        <int v="2"/>
+        <no/>
+      </row>
+      <row>
+        <int v="41"/>
+        <str>Chopin</str>
+        <int v="5"/>
+        <yes/>
+      </row>
+      <row>
+        <int v="37"/>
+        <str>Classical</str>
+        <int v="5"/>
+        <no/>
+      </row>
+      <row>
+        <int v="8"/>
+        <str>David Bowie</str>
+        <int v="2"/>
+        <no/>
+      </row>
+      <row>
+        <int v="9"/>
+        <str>Dire Straits</str>
+        <int v="2"/>
+        <no/>
+      </row>
+    </table>
+  </list>
+</uxf>

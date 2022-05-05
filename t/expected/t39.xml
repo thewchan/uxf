@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="Pair">
+      <field name="First"/>
+      <field name="Second"/>
+    </ttype>
+    <ttype name="Triple">
+      <field name="First"/>
+      <field name="Second"/>
+      <field name="Third"/>
+    </ttype>
+  </ttypes>
+  <list comment="Nested tables">
+    <table name="Pair">
+      <row>
+        <table name="Pair">
+          <row>
+            <int v="17"/>
+            <int v="21"/>
+          </row>
+        </table>
+        <table name="Pair">
+          <row>
+            <int v="98"/>
+            <int v="65"/>
+          </row>
+        </table>
+      </row>
+    </table>
+    <table name="Triple">
+      <row>
+        <table name="Pair">
+          <row>
+            <str>a</str>
+            <str>b</str>
+          </row>
+        </table>
+        <table name="Triple">
+          <row>
+            <date v="2020-01-17"/>
+            <date v="2020-02-18"/>
+            <date v="2021-12-05"/>
+          </row>
+        </table>
+        <table name="Pair">
+          <row>
+            <null/>
+            <no/>
+          </row>
+        </table>
+      </row>
+      <row>
+        <int v="1"/>
+        <int v="2"/>
+        <int v="3"/>
+      </row>
+      <row>
+        <str>x</str>
+        <str>y</str>
+        <str>z</str>
+      </row>
+    </table>
+  </list>
+</uxf>

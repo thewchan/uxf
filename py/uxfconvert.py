@@ -3,6 +3,7 @@
 # License: GPLv3
 
 import argparse
+import collections
 import configparser
 import csv
 import datetime
@@ -434,13 +435,19 @@ def _uxf_to_xml(uxo, outfile):
     dom = xml.dom.minidom.getDOMImplementation()
     tree = dom.createDocument(None, 'uxf', None)
     root = tree.documentElement
-    _add_ttypes(tree, root, uxo.ttypes)
-    _add_value(tree, root, uxo.data)
+    root.setAttribute('version', str(uxf.VERSION))
+    if uxo.custom:
+        root.setAttribute('custom', uxo.custom)
+    if uxo.comment:
+        root.setAttribute('comment', uxo.comment)
+    if uxo.ttypes:
+        _xml_add_ttypes(tree, root, uxo.ttypes)
+    _xml_add_value(tree, root, uxo.data)
     with open(outfile, 'wt', encoding='utf-8') as file:
         file.write(tree.toprettyxml(indent='  '))
 
 
-def _add_ttypes(tree, root, ttypes):
+def _xml_add_ttypes(tree, root, ttypes):
     ttypes_element = tree.createElement('ttypes')
     for ttype in sorted(ttypes.values()):
         ttype_element = tree.createElement('ttype')
@@ -457,8 +464,95 @@ def _add_ttypes(tree, root, ttypes):
     root.appendChild(ttypes_element)
 
 
-def _add_value(tree, root, value):
-    pass # TODO
+def _xml_add_value(tree, root, value):
+    if (isinstance(value, tuple) and
+            value.__class__.__name__.startswith('UXF')):
+        _xml_add_list(tree, root, value, tag='row')
+    elif isinstance(value, (set, frozenset, tuple, collections.deque, list,
+                            uxf.List)):
+        _xml_add_list(tree, root, value)
+    elif isinstance(value, (dict, uxf.Map)):
+        _xml_add_map(tree, root, value)
+    elif isinstance(value, uxf.Table):
+        _xml_add_table(tree, root, value)
+    else:
+        _xml_add_scalar(tree, root, value)
+
+
+def _xml_add_list(tree, root, lst, *, tag='list'):
+    list_element = tree.createElement(tag)
+    vtype = getattr(lst, 'vtype', None)
+    if vtype is not None:
+        list_element.setAttribute('vtype', vtype)
+    comment = getattr(lst, 'comment', None)
+    if comment is not None:
+        list_element.setAttribute('comment', comment)
+    for value in lst:
+        _xml_add_value(tree, list_element, value)
+    root.appendChild(list_element)
+
+
+def _xml_add_map(tree, root, map):
+    map_element = tree.createElement('map')
+    ktype = getattr(map, 'ktype', None)
+    if ktype is not None:
+        map_element.setAttribute('ktype', ktype)
+    vtype = getattr(map, 'vtype', None)
+    if vtype is not None:
+        map_element.setAttribute('vtype', vtype)
+    comment = getattr(map, 'comment', None)
+    if comment is not None:
+        map_element.setAttribute('comment', comment)
+    for key, value in map.items():
+        key_element = tree.createElement('key')
+        _xml_add_value(tree, key_element, key)
+        map_element.appendChild(key_element)
+        value_element = tree.createElement('value')
+        _xml_add_value(tree, value_element, value)
+        map_element.appendChild(value_element)
+    root.appendChild(map_element)
+
+
+def _xml_add_table(tree, root, table):
+    table_element = tree.createElement('table')
+    table_element.setAttribute('name', table.name)
+    if table.comment is not None:
+        table_element.setAttribute('comment', table.comment)
+    for value in table:
+        _xml_add_value(tree, table_element, value)
+    root.appendChild(table_element)
+
+
+def _xml_add_scalar(tree, root, value):
+    element = None
+    if value is None:
+        element = tree.createElement('null')
+    elif isinstance(value, bool):
+        element = tree.createElement('yes' if value else 'no')
+    elif isinstance(value, int):
+        element = tree.createElement('int')
+        element.setAttribute('v', str(value))
+    elif isinstance(value, float):
+        element = tree.createElement('real')
+        element.setAttribute('v', str(value))
+    elif isinstance(value, datetime.datetime):
+        element = tree.createElement('datetime')
+        element.setAttribute('v', value.isoformat())
+    elif isinstance(value, datetime.date):
+        element = tree.createElement('date')
+        element.setAttribute('v', value.isoformat())
+    elif isinstance(value, str):
+        element = tree.createElement('str')
+        text_element = tree.createTextNode(value)
+        element.appendChild(text_element)
+    elif isinstance(value, (bytes, bytearray)):
+        element = tree.createElement('bytes')
+        text_element = tree.createTextNode(value.hex().upper())
+        element.appendChild(text_element)
+    if element is not None:
+        root.appendChild(element)
+    else:
+        raise SystemExit(f'invalid value type: {value} of {type(value)}')
 
 
 def xml_to_uxf(config):

@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="Price List">
+  <ttypes>
+    <ttype name="PriceList">
+      <field name="Date" vtype="date"/>
+      <field name="Price" vtype="real"/>
+      <field name="Quantity" vtype="int"/>
+      <field name="ID" vtype="str"/>
+      <field name="Description" vtype="str"/>
+    </ttype>
+  </ttypes>
+  <table name="PriceList">
+    <row>
+      <date v="2022-09-21"/>
+      <real v="3.99"/>
+      <int v="2"/>
+      <str>CH1-A2</str>
+      <str>Chisels (pair), 1in &amp; 1¼in</str>
+    </row>
+    <row>
+      <date v="2022-10-02"/>
+      <real v="4.49"/>
+      <int v="1"/>
+      <str>HV2-K9</str>
+      <str>Hammer, 2lb</str>
+    </row>
+    <row>
+      <date v="2022-10-02"/>
+      <real v="5.89"/>
+      <int v="1"/>
+      <str>SX4-D1</str>
+      <str>Eversure Sealant, 13-floz</str>
+    </row>
+  </table>
+</uxf>

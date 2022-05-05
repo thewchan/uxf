@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="EPD (simple list of lists)">
+  <list>
+    <list>
+      <int v="5"/>
+      <str>Classical</str>
+      <yes/>
+      <date v="1999-07-21"/>
+    </list>
+    <list>
+      <int v="4"/>
+      <str>Modern Instrumental</str>
+      <no/>
+      <date v="1976-11-30"/>
+    </list>
+    <list>
+      <int v="1"/>
+      <str>New Acquistions</str>
+      <no/>
+      <date v="1947-02-28"/>
+    </list>
+  </list>
+</uxf>

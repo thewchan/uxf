@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="EPD (simple table)">
+  <ttypes>
+    <ttype name="Categories">
+      <field name="CID"/>
+      <field name="Title"/>
+      <field name="Selected"/>
+      <field name="Date"/>
+    </ttype>
+  </ttypes>
+  <table name="Categories">
+    <row>
+      <int v="5"/>
+      <str>Classical &amp; &lt;Special&gt;</str>
+      <yes/>
+      <date v="1999-07-21"/>
+    </row>
+    <row>
+      <int v="4"/>
+      <str>Modern Instrumental</str>
+      <no/>
+      <date v="1976-11-30"/>
+    </row>
+    <row>
+      <int v="1"/>
+      <str>New Acquistions</str>
+      <no/>
+      <date v="1947-02-28"/>
+    </row>
+    <row>
+      <int v="2"/>
+      <str>Pop</str>
+      <no/>
+      <date v="1997-10-01"/>
+    </row>
+    <row>
+      <int v="3"/>
+      <str>Punk</str>
+      <no/>
+      <date v="2002-01-17"/>
+    </row>
+    <row>
+      <int v="7"/>
+      <str>Uncategorized</str>
+      <no/>
+      <date v="2020-02-02"/>
+    </row>
+    <row>
+      <int v="6"/>
+      <str>Unpopular Pop</str>
+      <no/>
+      <date v="2022-12-21"/>
+    </row>
+  </table>
+</uxf>

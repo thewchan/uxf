@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="Pair">
+      <field name="First" vtype="int"/>
+      <field name="Second" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <table name="Pair">
+    <row>
+      <int v="1"/>
+      <int v="2"/>
+    </row>
+    <row>
+      <int v="3"/>
+      <int v="4"/>
+    </row>
+    <row>
+      <int v="5"/>
+      <int v="6"/>
+    </row>
+    <row>
+      <int v="7"/>
+      <int v="8"/>
+    </row>
+    <row>
+      <int v="9"/>
+      <int v="10"/>
+    </row>
+  </table>
+</uxf>

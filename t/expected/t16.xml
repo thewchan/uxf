@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="One Column Table">
+  <ttypes>
+    <ttype name="Countries">
+      <field name="Name"/>
+    </ttype>
+  </ttypes>
+  <table name="Countries">
+    <row>
+      <str>Netherlands</str>
+    </row>
+    <row>
+      <str>Wales</str>
+    </row>
+    <row>
+      <str>Belgium</str>
+    </row>
+    <row>
+      <str>Australia</str>
+    </row>
+    <row>
+      <str>Japan</str>
+    </row>
+    <row>
+      <str>Ukraine</str>
+    </row>
+  </table>
+</uxf>

@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="TLM Config">
+  <ttypes>
+    <ttype name="IntPair">
+      <field name="First" vtype="int"/>
+      <field name="Second" vtype="int"/>
+    </ttype>
+    <ttype name="IntQuad">
+      <field name="First" vtype="IntPair"/>
+      <field name="Second" vtype="IntPair"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="IntPair">
+      <row>
+        <int v="1"/>
+        <int v="2"/>
+      </row>
+    </table>
+    <table name="IntQuad">
+      <row>
+        <table name="IntPair">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+          </row>
+        </table>
+        <table name="IntPair">
+          <row>
+            <int v="3"/>
+            <int v="4"/>
+          </row>
+        </table>
+      </row>
+    </table>
+    <table name="IntQuad">
+      <row>
+        <table name="IntPair">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+          </row>
+        </table>
+        <table name="IntPair">
+          <row>
+            <int v="3"/>
+            <int v="4"/>
+          </row>
+        </table>
+      </row>
+      <row>
+        <table name="IntPair">
+          <row>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+        <table name="IntPair">
+          <row>
+            <int v="7"/>
+            <int v="8"/>
+          </row>
+        </table>
+      </row>
+      <row>
+        <table name="IntPair">
+          <row>
+            <int v="9"/>
+            <int v="10"/>
+          </row>
+        </table>
+        <table name="IntPair">
+          <row>
+            <int v="11"/>
+            <int v="12"/>
+          </row>
+        </table>
+      </row>
+    </table>
+  </list>
+</uxf>

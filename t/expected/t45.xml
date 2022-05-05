@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="Pair">
+      <field name="First"/>
+      <field name="Second"/>
+    </ttype>
+    <ttype name="Quad">
+      <field name="First" vtype="Pair"/>
+      <field name="Second" vtype="Pair"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="Quad">
+      <row>
+        <table name="Pair">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+          </row>
+        </table>
+        <table name="Pair">
+          <row>
+            <int v="3"/>
+            <int v="4"/>
+          </row>
+        </table>
+      </row>
+    </table>
+    <table name="Quad">
+      <row>
+        <table name="Pair">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+          </row>
+        </table>
+        <table name="Pair">
+          <row>
+            <int v="3"/>
+            <int v="4"/>
+          </row>
+        </table>
+      </row>
+      <row>
+        <table name="Pair">
+          <row>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+        <table name="Pair">
+          <row>
+            <int v="7"/>
+            <int v="8"/>
+          </row>
+        </table>
+      </row>
+      <row>
+        <table name="Pair">
+          <row>
+            <int v="9"/>
+            <int v="10"/>
+          </row>
+        </table>
+        <table name="Pair">
+          <row>
+            <int v="11"/>
+            <int v="12"/>
+          </row>
+        </table>
+      </row>
+    </table>
+  </list>
+</uxf>

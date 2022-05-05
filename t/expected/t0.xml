@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="EPD (simple dict of lists)">
+  <map>
+    <key>
+      <str>Classical</str>
+    </key>
+    <value>
+      <list>
+        <int v="5"/>
+        <yes/>
+      </list>
+    </value>
+    <key>
+      <str>Modern Instrumental</str>
+    </key>
+    <value>
+      <list>
+        <int v="4"/>
+        <no/>
+      </list>
+    </value>
+    <key>
+      <str>New Acquistions</str>
+    </key>
+    <value>
+      <list>
+        <int v="1"/>
+        <no/>
+      </list>
+    </value>
+  </map>
+</uxf>

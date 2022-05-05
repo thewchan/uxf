@@ -1,0 +1,89 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="MyApp 1.2.0 Config">
+  <ttypes>
+    <ttype name="Geometry" comment="Window dimensions">
+      <field name="x" vtype="int"/>
+      <field name="y" vtype="int"/>
+      <field name="width" vtype="int"/>
+      <field name="height" vtype="int"/>
+      <field name="scale" vtype="real"/>
+    </ttype>
+  </ttypes>
+  <map ktype="str" vtype="map" comment="Notes on this configuration file format">
+    <key>
+      <str>General</str>
+    </key>
+    <value>
+      <map ktype="str" comment="Miscellaneous settings">
+        <key>
+          <str>shapename</str>
+        </key>
+        <value>
+          <str>Hexagon</str>
+        </value>
+        <key>
+          <str>zoom</str>
+        </key>
+        <value>
+          <int v="150"/>
+        </value>
+        <key>
+          <str>showtoolbar</str>
+        </key>
+        <value>
+          <no/>
+        </value>
+        <key>
+          <str>Files</str>
+        </key>
+        <value>
+          <map ktype="str">
+            <key>
+              <str>current</str>
+            </key>
+            <value>
+              <str>test1.uxf</str>
+            </value>
+            <key>
+              <str>recent</str>
+            </key>
+            <value>
+              <list vtype="str" comment="From most to least recent">
+                <str>/tmp/test2.uxf</str>
+                <str>C:\Users\mark\test3.uxf</str>
+              </list>
+            </value>
+          </map>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>Windows</str>
+    </key>
+    <value>
+      <table name="Geometry" comment="Window dimensions and scales">
+        <row>
+          <int v="615"/>
+          <int v="252"/>
+          <int v="592"/>
+          <int v="636"/>
+          <real v="1.1"/>
+        </row>
+        <row>
+          <int v="28"/>
+          <int v="42"/>
+          <int v="140"/>
+          <int v="81"/>
+          <real v="1.0"/>
+        </row>
+        <row>
+          <int v="57"/>
+          <int v="98"/>
+          <int v="89"/>
+          <int v="22"/>
+          <real v="0.5"/>
+        </row>
+      </table>
+    </value>
+  </map>
+</uxf>

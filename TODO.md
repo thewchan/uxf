@@ -1,8 +1,6 @@
 # TODOS
 
-- XML (see paper notes)
-    - uxf\_to\_xml: same tests as JSON for full round trip
-    - xml\_to\_uxf: same tests as JSON for full round trip
+- XML: xml\_to\_uxf: same tests as JSON for full round trip
 
 - make sure all test files have some nulls (`?`s) (for every typed value),
   esp. t4, t5, t24, t34, t36

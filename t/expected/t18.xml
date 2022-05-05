@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <list>
+    <list>
+      <str>Price List</str>
+      <str>Date</str>
+      <str>Price</str>
+      <str>Quantity</str>
+      <str>ID</str>
+      <str>Description</str>
+    </list>
+    <list>
+      <date v="2022-09-21"/>
+      <real v="3.99"/>
+      <int v="2"/>
+      <str>CH1-A2</str>
+      <str>Chisels (pair), 1in &amp; 1¼in</str>
+    </list>
+    <list>
+      <date v="2022-10-02"/>
+      <real v="4.49"/>
+      <int v="1"/>
+      <str>HV2-K9</str>
+      <str>Hammer, 2lb</str>
+    </list>
+    <list>
+      <date v="2022-10-02"/>
+      <real v="5.89"/>
+      <int v="1"/>
+      <str>SX4-D1</str>
+      <str>Eversure Sealant, 13-floz</str>
+    </list>
+  </list>
+</uxf>
