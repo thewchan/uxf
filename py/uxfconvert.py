@@ -12,6 +12,7 @@ import shutil
 import sqlite3
 import sys
 import textwrap
+import xml.dom.minidom
 
 import uxf
 
@@ -425,11 +426,48 @@ def _sqlite_to_uxf(infile):
 
 
 def uxf_to_xml(config):
-    print('uxf_to_xml', config) # TODO
+    uxo = uxf.load(config.infiles[0])
+    _uxf_to_xml(uxo, config.outfile)
+
+
+def _uxf_to_xml(uxo, outfile):
+    dom = xml.dom.minidom.getDOMImplementation()
+    tree = dom.createDocument(None, 'uxf', None)
+    root = tree.documentElement
+    _add_ttypes(tree, root, uxo.ttypes)
+    _add_value(tree, root, uxo.data)
+    with open(outfile, 'wt', encoding='utf-8') as file:
+        file.write(tree.toprettyxml(indent='  '))
+
+
+def _add_ttypes(tree, root, ttypes):
+    ttypes_element = tree.createElement('ttypes')
+    for ttype in sorted(ttypes.values()):
+        ttype_element = tree.createElement('ttype')
+        ttype_element.setAttribute('name', ttype.name)
+        if ttype.comment:
+            ttype_element.setAttribute('comment', ttype.comment)
+        for field in ttype.fields:
+            field_element = tree.createElement('field')
+            field_element.setAttribute('name', field.name)
+            if field.vtype is not None:
+                field_element.setAttribute('vtype', field.vtype)
+            ttype_element.appendChild(field_element)
+        ttypes_element.appendChild(ttype_element)
+    root.appendChild(ttypes_element)
+
+
+def _add_value(tree, root, value):
+    pass # TODO
 
 
 def xml_to_uxf(config):
-    print('xml_to_uxf', config) # TODO
+    uxo = _xml_to_uxf(config.infiles[0])
+    uxo.dump(config.outfile)
+
+
+def _xml_to_uxf(infile):
+    print('_xml_to_uxf', infile) # TODO
 
 
 BYTES = 'bytes'
