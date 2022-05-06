@@ -1,7 +1,6 @@
 # TODOS
 
-- create tests eN.uxf for every error and wN.uxf for every  warning that
-  uxf.py can produce to ensure they all work & are understandable.
+- complete py/t/test\_errors.py
 
 - add typecheck tests -or- move typecheck code into py/eg ?
   - Add test t56.uxf that exercises all fixtypes in each of a

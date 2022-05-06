@@ -153,11 +153,11 @@ class Uxf:
     '''
 
     def __init__(self, data=None, *, custom='', ttypes=None, comment=None):
-        '''data may be a list, List, dict, Map, or Table and will default to
-        a List if not specified; if given ttypes must be a dict whose values
-        are TTypes and whose corresponding keys are the TTypes' names; if
-        given the comment is a file-level comment that follows the uxf
-        header and precedes any TTypes and data'''
+        '''data may be a list, List, tuple, dict, Map, or Table and will
+        default to a List if not specified; if given ttypes must be a dict
+        whose values are TTypes and whose corresponding keys are the TTypes'
+        names; if given the comment is a file-level comment that follows the
+        uxf header and precedes any TTypes and data'''
         self.data = data
         self.custom = custom
         self.comment = comment
@@ -173,7 +173,7 @@ class Uxf:
     def data(self, data):
         if data is None:
             data = List()
-        elif isinstance(data, list):
+        elif isinstance(data, (list, tuple)):
             data = List(data)
         elif isinstance(data, dict):
             data = Map(data)
@@ -731,7 +731,7 @@ class _CheckNameMixin:
         if name[0].isdigit():
             raise Error('#150:names must start with a letter or '
                         f'underscore, got {name}')
-        for c in name[1:]:
+        for c in name:
             if not (c == '_' or c.isalnum()):
                 raise Error('#160:names may only contain letters, digits, '
                             f'or underscores, got {name}')

@@ -27,6 +27,7 @@ try:
     SLIDES_SLD = os.path.abspath('../eg/slides.sld')
     TEST_CONVERTERS = os.path.abspath('../t/test_converters.py')
     TEST_SQLITE = os.path.abspath('../t/test_sqlite.py')
+    TEST_ERRORS = os.path.abspath('../t/test_errors.py')
     os.chdir('../../testdata') # move to test data
 finally:
     pass
@@ -52,7 +53,7 @@ def main():
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
     total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
     total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
-    for cmd in ([TEST_CONVERTERS], [TEST_SQLITE]):
+    for cmd in ([TEST_CONVERTERS], [TEST_SQLITE], [TEST_ERRORS]):
         total, ok = test_external(cmd, total, ok, verbose=verbose)
     if total < 128:
         print('\b' * total, end='', flush=True)
