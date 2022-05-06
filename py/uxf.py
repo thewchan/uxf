@@ -178,7 +178,7 @@ class Uxf:
         elif isinstance(data, dict):
             data = Map(data)
         if not _is_uxf_collection(data):
-            raise Error('#800:Uxf data must be a list, List, dict, Map, or '
+            raise Error('#100:Uxf data must be a list, List, dict, Map, or '
                         f'Table, got {type(data)}')
         self._data = data
 
@@ -693,11 +693,11 @@ class Map(collections.UserDict, _ErrorMixin):
                 prefix = ('map keys may only be of type int, date, '
                           'datetime, str, or bytes, got ')
                 if isinstance(value, Table):
-                    raise Error(f'#810:{prefix}a Table ( … ), maybe bytes '
+                    raise Error(f'#120:{prefix}a Table ( … ), maybe bytes '
                                 '(: … :) was intended?')
                 else:
                     raise Error(
-                        f'#820:{prefix}{value!r} of type {type(value)}')
+                        f'#130:{prefix}{value!r} of type {type(value)}')
             self._pending_key = value
         else:
             self.data[self._pending_key] = value
@@ -729,11 +729,11 @@ class _CheckNameMixin:
 
     def _check_name(self, name):
         if name[0].isdigit():
-            raise Error('#830:names must start with a letter or '
+            raise Error('#150:names must start with a letter or '
                         f'underscore, got {name}')
         for c in name[1:]:
             if not (c == '_' or c.isalnum()):
-                raise Error('#840:names may only contain letters, digits, '
+                raise Error('#160:names may only contain letters, digits, '
                             f'or underscores, got {name}')
 
 
@@ -864,10 +864,10 @@ class Table(_ErrorMixin):
         self.comment = comment
         if records:
             if not name:
-                raise Error('#850:can\'t create an unnamed nonempty table')
+                raise Error('#180:can\'t create an unnamed nonempty table')
             if not self.ttype:
                 raise Error(
-                    '#860:can\'t create a nonempty table without fields')
+                    '#190:can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
                 if self.RecordClass is None:
                     self._make_record_class()
@@ -927,7 +927,7 @@ class Table(_ErrorMixin):
         for row in range(len(self.records)):
             columns = len(self.records[row])
             if columns != len(self.fields):
-                print(f'Typecheck:#800:expected {len(self.fields)} fields, '
+                print(f'Typecheck:#219:expected {len(self.fields)} fields, '
                       f'got {columns}')
             for column in range(columns):
                 if column < len(self.fields):
@@ -944,9 +944,9 @@ class Table(_ErrorMixin):
 
     def _make_record_class(self):
         if not self.name:
-            raise Error('#870:can\'t use an unnamed table')
+            raise Error('#240:can\'t use an unnamed table')
         if not self.fields:
-            raise Error('#880:can\'t create a table with no fields')
+            raise Error('#250:can\'t create a table with no fields')
         self.RecordClass = collections.namedtuple(
             f'UXF{self.name}', # prefix avoids name clashes
             [field.name for field in self.fields])
@@ -954,9 +954,9 @@ class Table(_ErrorMixin):
 
     def __iadd__(self, value):
         if not self.name:
-            raise Error('#890:can\'t append to an unnamed table')
+            raise Error('#270:can\'t append to an unnamed table')
         if not self.fields:
-            raise Error('#900:can\'t append to a table with no fields')
+            raise Error('#280:can\'t append to a table with no fields')
         if isinstance(value, (list, List, tuple)):
             for v in value:
                 self.append(v)
@@ -971,7 +971,7 @@ class Table(_ErrorMixin):
             return self.RecordClass(*self.records[row])
         except TypeError as err:
             if 'missing' in str(err):
-                err = '#910:table\'s ttype has fewer fields than in a row'
+                err = '#310:table\'s ttype has fewer fields than in a row'
                 raise Error(err) from None
 
 
@@ -984,7 +984,7 @@ class Table(_ErrorMixin):
         except TypeError as err:
             if 'missing' in str(err):
                 raise Error(
-                    '#920:table\'s ttype has fewer fields than in a row')
+                    '#330:table\'s ttype has fewer fields than in a row')
 
 
     def __len__(self):
@@ -1306,7 +1306,7 @@ class _Writer:
             if AutoConvertSequences:
                 item = List(item)
             else:
-                raise Error(f'#700:got {item} of type {type(item)}; '
+                raise Error(f'#350:got {item} of type {type(item)}; '
                             'try converting it to a List or '
                             'uxf.AutoConvertSequences = True')
         if isinstance(item, (list, List)):
@@ -1457,7 +1457,7 @@ class _Writer:
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            message = ('#720:ignoring unexpected item of type '
+            message = ('#371:ignoring unexpected item of type '
                        f'{type(item)}: {item!r}; consider using '
                        'uxf.add_converter()')
             if self.warn_is_error:
@@ -1520,7 +1520,7 @@ def add_converter(obj_type, *, to_str=repr, from_str=None):
     if isinstance(obj_type, (bool, int, float, datetime.date,
                              datetime.datetime, str, bytes, bytearray)):
         raise Error(
-            '#808: can\'t override default conversions for standard types')
+            '#390: can\'t override default conversions for standard types')
     _Converters[obj_type] = Converter(to_str, from_str or obj_type)
 
 
@@ -1610,7 +1610,7 @@ def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
     if isinstance(value, classes):
         return _Typecheck(value, False, True)
     atype = _TYPECHECK_ATYPES.get(type(value))
-    print(f'Typecheck:#810:expected a {vtype}, got {atype}')
+    print(f'Typecheck:#419:expected a {vtype}, got {atype}')
     return _Typecheck(value, False, False)
 
 
@@ -1619,13 +1619,13 @@ def _typecheck_table(value, vtype, ttypes, fixtypes):
         return _Typecheck(value, False, True) # any collection is ok
     if ttypes is None:
         print(
-            f'Typecheck:#820:got table of unknown type {value.ttype.name}')
+            f'Typecheck:#439:got table of unknown type {value.ttype.name}')
         return _Typecheck(value, False, False)
     ttype = ttypes.get(value.ttype.name)
     if vtype == ttype.name:
         return _Typecheck(value, False, True)
     else:
-        print(f'Typecheck:#822:expected a table of type {vtype}, got '
+        print(f'Typecheck:#459:expected a table of type {vtype}, got '
               f'{value.ttype.name}')
         return _Typecheck(value, False, False)
 
