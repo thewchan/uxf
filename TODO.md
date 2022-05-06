@@ -1,18 +1,10 @@
 # TODOS
 
-- complete py/t/test\_errors.py
+- get py/eg/typecheck.py working
 
 - add tests for py/eg/typecheck.py
 
-- add typecheck tests -or- move typecheck code into py/eg ?
-  - Add test t56.uxf that exercises all fixtypes in each of a
-    list, map, and table
-    (i.e., any→str, int↔float, str→bool|int|float|date|datetime|Pair|MyType)
-  - Add test t41.uxf ... one for every fixtype that cannot work
-  - Do 3 lots of tests covering built-in vtypes _and_ TTypes: for t40.uxf …:
-      * no check, no fixtypes
-      * check, no fixtypes
-      * check, fixtypes
+- complete py/t/test\_errors.py
 
 - code review
 
