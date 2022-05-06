@@ -173,10 +173,13 @@ class Uxf:
     def data(self, data):
         if data is None:
             data = List()
-        elif isinstance(data, (list, tuple)):
+        elif isinstance(data, list):
             data = List(data)
         elif isinstance(data, dict):
             data = Map(data)
+        elif (isinstance(data, (set, frozenset, tuple, collections.deque))
+                and AutoConvertSequences):
+            data = List()
         if not _is_uxf_collection(data):
             raise Error('#100:Uxf data must be a list, List, dict, Map, or '
                         f'Table, got {type(data)}')

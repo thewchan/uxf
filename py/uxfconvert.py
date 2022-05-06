@@ -21,6 +21,7 @@ import uxf
 
 
 def main():
+    uxf.AutoConvertSequences = True
     config = _get_config()
     try:
         config.convert(config)
