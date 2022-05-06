@@ -6,9 +6,9 @@ py/README.md
 py/setup.py
 py/pypi.sh
 py/t/regression.py
-py/t/eq.py
 py/t/test_converters.py
 py/t/test_sqlite.py
+py/t/eq.py
 py/eg/importer.py
 py/eg/visit.py
 py/eg/slides1.py

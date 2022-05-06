@@ -14,6 +14,8 @@ import sqlite3
 import sys
 import textwrap
 import xml.dom.minidom
+import xml.sax
+import xml.sax.handler
 
 import uxf
 
@@ -561,7 +563,109 @@ def xml_to_uxf(config):
 
 
 def _xml_to_uxf(infile):
-    print('_xml_to_uxf', infile) # TODO
+    handler = UxfSaxHandler()
+    parser = xml.sax.make_parser()
+    parser.setContentHandler(handler)
+    parser.parse(infile)
+    return handler.uxo
+
+
+class UxfSaxHandler(xml.sax.handler.ContentHandler):
+
+    def __init__(self):
+        super().__init__()
+        self.stack = None
+        self.ttype = None
+        self.instr = False
+        self.inbytes = False
+        self.string = ''
+        self.bytes = ''
+        self.uxo = uxf.Uxf()
+
+
+    def startElement(self, name, attributes):
+        d = {key: value for key, value in attributes.items()}
+        if name == 'uxf':
+            self.uxo.custom = d.get('custom', '')
+            self.uxo.comment = d.get('comment')
+        elif name == 'ttypes':
+            pass
+        elif name == 'ttype':
+            self.ttype = uxf.TType(d['name'], comment=d.get('comment'))
+        elif name == 'field':
+            self.ttype.append(d['name'], d.get('vtype'))
+        elif name == 'map':
+            container = uxf.Map()
+            container.comment = d.get('comment')
+            container.ktype = d.get('ktype')
+            container.vtype = d.get('vtype')
+            self.start_container(container)
+        elif name == 'list':
+            container = uxf.List()
+            container.comment = d.get('comment')
+            container.vtype = d.get('vtype')
+            self.start_container(container)
+        elif name == 'table':
+            container = uxf.Table(name=d['name'], comment=d.get('comment'))
+            container.ttype = self.uxo.ttypes[d['name']]
+            self.start_container(container)
+        elif name in {'key', 'value'}:
+            pass # container.append() doesn't need this distinction
+        elif name == 'str':
+            self.instr = True
+            self.string = ''
+        elif name == 'bytes':
+            self.inbytes = True
+            self.bytes = ''
+        elif name == 'int':
+            self.stack[-1].append(int(d['v']))
+        elif name == 'real':
+            self.stack[-1].append(float(d['v']))
+        elif name == 'date':
+            self.stack[-1].append(uxf.naturalize(d['v']))
+        elif name == 'datetime':
+            self.stack[-1].append(uxf.naturalize(d['v']))
+        elif name == 'null':
+            self.stack[-1].append(None)
+        elif name == 'yes':
+            self.stack[-1].append(True)
+        elif name == 'no':
+            self.stack[-1].append(False)
+
+
+    def endElement(self, name):
+        if name in {'uxf', 'ttypes', 'field', 'key', 'value', 'int', 'real',
+                    'date', 'datetime', 'null', 'yes', 'no'}:
+            pass
+        elif name == 'ttype':
+            self.uxo.ttypes[self.ttype.name] = self.ttype
+            self.ttype = None
+        elif name in {'map', 'list', 'table'}:
+            self.stack.pop()
+        elif name == 'str':
+            self.stack[-1].append(self.string)
+            self.string = ''
+            self.instr = False
+        elif name == 'bytes':
+            self.stack[-1].append(bytes.fromhex(self.bytes))
+            self.bytes = ''
+            self.inbytes = False
+
+
+    def characters(self, text):
+        if self.inbytes:
+            self.bytes += text
+        elif self.instr:
+            self.string += text
+
+
+    def start_container(self, container):
+        if self.stack is None:
+            self.uxo.data = container
+            self.stack = [container]
+        elif self.stack:
+            self.stack[-1].append(container)
+        self.stack.append(container)
 
 
 BYTES = 'bytes'
@@ -639,7 +743,8 @@ Converting from uxf to json and back (i.e., using uxfconvert.py's own json
 format) roundtrips with perfect fidelity.
 
 Converting from uxf to xml and back (i.e., using uxfconvert.py's own xml
-format) roundtrips with perfect fidelity.
+format) roundtrips, except that the xml parser normalises whitespace
+(essentially, replaces newlines with spaces).
 
 Support for uxf to uxf conversions is provided by the uxf.py module itself,
 which can be run directly or via python, e.g., `uxf.py infile.uxf

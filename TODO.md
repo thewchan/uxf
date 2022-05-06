@@ -1,6 +1,7 @@
 # TODOS
 
-- XML: xml\_to\_uxf: same tests as JSON for full round trip
+- create tests eN.uxf for every error and wN.uxf for every  warning that
+  uxf.py can produce to ensure they all work & are understandable.
 
 - add typecheck tests -or- move typecheck code into py/eg ?
   - Add test t56.uxf that exercises all fixtypes in each of a
@@ -11,9 +12,6 @@
       * no check, no fixtypes
       * check, no fixtypes
       * check, fixtypes
-
-- create tests eN.uxf for every error and wN.uxf for every  warning that
-  uxf.py can produce to ensure they all work & are understandable.
 
 - code review
 
