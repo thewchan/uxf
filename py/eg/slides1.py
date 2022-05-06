@@ -21,25 +21,13 @@ import shutil
 import sys
 from xml.sax.saxutils import escape
 
-
-def import_module(module_name, location):
-    import importlib
-    path = os.path.abspath('.')
-    os.chdir(os.path.dirname(__file__))
-    spec = importlib.util.spec_from_file_location(module_name, location)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-    os.chdir(path)
-    return module
-
+import visit
 
 try:
     import uxf
-    import visit
 except ImportError: # needed for development
-    uxf = import_module('uxf', '../py/uxf.py')
-    visit = import_module('visit', '../py/visit.py')
+    import importer
+    uxf = importer.import_module('uxf', '../uxf.py')
 
 
 def main():

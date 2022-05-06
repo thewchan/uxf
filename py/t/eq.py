@@ -6,7 +6,15 @@ import collections
 import math
 import pprint
 
-import uxf
+
+try:
+    import os
+    import sys
+    os.chdir(os.path.dirname(__file__)) # move to this file's dir
+    sys.path.append('..')
+    import uxf
+finally:
+    pass
 
 
 def eq(a, b, *, ignore_comments=False, ignore_custom=False,

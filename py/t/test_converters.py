@@ -12,8 +12,18 @@ import collections
 import enum
 import sys
 
-import uxf
-import eq
+
+try:
+    import os
+    os.chdir(os.path.dirname(__file__)) # move to this file's dir
+    sys.path.append('..')
+    import uxf
+    import eq
+    UXF_EXE = os.path.abspath('../uxf.py')
+    UXFCONVERT_EXE = os.path.abspath('../uxfconvert.py')
+    os.chdir('../../testdata') # move to test data
+finally:
+    pass
 
 
 def main():

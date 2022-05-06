@@ -17,14 +17,18 @@ import os
 import sys
 import tempfile
 
+
 try:
-    os.chdir(os.path.dirname(__file__)) # MUST come before import uxf
+    os.chdir(os.path.dirname(__file__)) # move to this file's dir
+    sys.path.append('..')
     import uxf
     import uxfconvert
     import eq
-    os.chdir('../t')
-except ImportError:
-    pass # shouldn't happen
+    UXF_EXE = os.path.abspath('../uxf.py')
+    UXFCONVERT_EXE = os.path.abspath('../uxfconvert.py')
+    os.chdir('../../testdata') # move to test data
+finally:
+    pass
 
 
 SUITABLE = ('t15.uxf', 't19.uxf', 't35.uxf', 't36.uxf', 't37.uxf', 't5.uxf')

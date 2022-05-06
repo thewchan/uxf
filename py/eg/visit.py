@@ -11,7 +11,11 @@ import collections
 import datetime
 import enum
 
-import uxf
+try:
+    import uxf
+except ImportError: # needed for development
+    import importer
+    uxf = importer.import_module('uxf', '../uxf.py')
 
 try:
     from dateutil.parser import isoparse

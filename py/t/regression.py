@@ -14,16 +14,22 @@ import tempfile
 import textwrap
 import time
 
+
 try:
-    os.chdir(os.path.dirname(__file__)) # MUST come before import uxf
+    os.chdir(os.path.dirname(__file__)) # move to this file's dir
+    sys.path.append('..')
     import uxf
     import eq
-    os.chdir('../t')
-except ImportError:
-    pass # shouldn't happen
-
-UXF_EXE = '../py/uxf.py'
-UXFCONVERT_EXE = '../py/uxfconvert.py'
+    UXF_EXE = os.path.abspath('../uxf.py')
+    UXFCONVERT_EXE = os.path.abspath('../uxfconvert.py')
+    SLIDES1 = os.path.abspath('../eg/slides1.py')
+    SLIDES2 = os.path.abspath('../eg/slides2.py')
+    SLIDES_SLD = os.path.abspath('../eg/slides.sld')
+    TEST_CONVERTERS = os.path.abspath('../t/test_converters.py')
+    TEST_SQLITE = os.path.abspath('../t/test_sqlite.py')
+    os.chdir('../../testdata') # move to test data
+finally:
+    pass
 
 
 def main():
@@ -44,9 +50,9 @@ def main():
     total, ok = test_uxfconvert(uxffiles, total, ok, verbose=verbose,
                                 max_total=max_total)
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
-    total, ok = test_slides(1, total, ok, verbose=verbose)
-    total, ok = test_slides(2, total, ok, verbose=verbose)
-    for cmd in (['../py/test_converters.py'], ['../py/test_sqlite.py']):
+    total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
+    total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
+    for cmd in ([TEST_CONVERTERS], [TEST_SQLITE]):
         total, ok = test_external(cmd, total, ok, verbose=verbose)
     if total < 128:
         print('\b' * total, end='', flush=True)
@@ -265,9 +271,9 @@ def test_table_is_scalar(total, ok, *, verbose):
     return total, ok
 
 
-def test_slides(num, total, ok, *, verbose):
-    cmd = [f'../eg/slides{num}.py', '../eg/slides.sld',
-           f'actual/slides{num}']
+def test_slides(slides_py, total, ok, *, verbose):
+    num = 1 if slides_py.endswith('1.py') else 2
+    cmd = [slides_py, SLIDES_SLD, f'actual/slides{num}']
     total += 1
     reply = subprocess.call(cmd)
     cmd = ' '.join(cmd)

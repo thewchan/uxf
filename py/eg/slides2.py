@@ -19,16 +19,8 @@ from xml.sax.saxutils import escape
 try:
     import uxf
 except ImportError: # needed for development
-    path = os.path.abspath('.')
-    os.chdir(os.path.dirname(__file__))
-    import importlib
-    module_name = 'uxf'
-    spec = importlib.util.spec_from_file_location(module_name,
-                                                  '../py/uxf.py')
-    uxf = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = uxf
-    spec.loader.exec_module(uxf)
-    os.chdir(path)
+    import importer
+    uxf = importer.import_module('uxf', '../uxf.py')
 
 
 def main():
