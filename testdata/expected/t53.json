@@ -1,0 +1,25 @@
+{
+  "UXF^custom": "My Custom Format",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pair",
+        "fields": {
+          "first": "real",
+          "second": "real"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^table": {
+      "name": "Pair",
+      "comment": null,
+      "fields": {
+        "first": "real",
+        "second": "real"
+      },
+      "records": []
+    }
+  }
+}

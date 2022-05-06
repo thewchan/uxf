@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" custom="My Custom Format" comment="Another file-level comment">
+  <ttypes>
+    <ttype name="Pair">
+      <field name="first"/>
+      <field name="second"/>
+    </ttype>
+  </ttypes>
+  <list/>
+</uxf>

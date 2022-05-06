@@ -1,0 +1,15 @@
+{
+  "UXF^comment": "File-level comment",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pair",
+        "fields": {
+          "first": "str",
+          "second": "str"
+        }
+      }
+    }
+  ],
+  "UXF^data": {}
+}

@@ -1,0 +1,24 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pair",
+        "fields": {
+          "first": "int",
+          "second": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^table": {
+      "name": "Pair",
+      "comment": null,
+      "fields": {
+        "first": "int",
+        "second": "int"
+      },
+      "records": []
+    }
+  }
+}

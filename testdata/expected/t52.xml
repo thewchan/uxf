@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="Pair">
+      <field name="first" vtype="int"/>
+      <field name="second" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <table name="Pair"/>
+</uxf>

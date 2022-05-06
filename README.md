@@ -82,6 +82,10 @@ and do whatever conversion you want.
 ### Minimal empty UXF
 
     uxf 1.0
+    []
+
+Every UXF file must contain a data collection even if it is merely an empty
+list (as here) an empty map (e.g., `{}`), or an empty table.
 
 ### CSV to UXF
 
@@ -465,7 +469,7 @@ _Implementations in additional languages are planned._
 A `.uxf` file consists of a mandatory header followed by a single
 optional `map`, `list`, or `table`.
 
-    UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA?
+    UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DATA         ::= COMMENT? TTYPE* (MAP | LIST | TABLE)
     TTYPE        ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is table name
@@ -491,6 +495,9 @@ optional `map`, `list`, or `table`.
     IDENFIFIER	 ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscore; may not be a built-in typename
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
+
+Note that a UXF file _must_ contain data, even if this is merely an empty
+list, empty map, or empty table.
 
 To indicate any type valid for the context, simply omit the type name.
 
