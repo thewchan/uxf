@@ -4,5 +4,5 @@ uxf 1.0
 [ #<Nested tables>
   (Pair (Pair 17 21) (Pair 98 65))
   (Triple (Pair <a> <b>) (Triple 2020-01-17 2020-02-18 2021-12-05) (Pair ? false)
-   1 2 3 <x> <y> <z>)
+   1 2 3 <x> <y> (Pair))
 ]

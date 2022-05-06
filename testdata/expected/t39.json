@@ -147,7 +147,17 @@
               [
                 "x",
                 "y",
-                "z"
+                {
+                  "UXF^table": {
+                    "name": "Pair",
+                    "comment": null,
+                    "fields": {
+                      "First": null,
+                      "Second": null
+                    },
+                    "records": []
+                  }
+                }
               ]
             ]
           }

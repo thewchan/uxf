@@ -84,8 +84,12 @@ and do whatever conversion you want.
     uxf 1.0
     []
 
-Every UXF file must contain a data collection even if it is merely an empty
-list (as here) an empty map (e.g., `{}`), or an empty table.
+Every UXF file starts with a header line. This may be followed by an
+optional file-level comment and by optional _ttype_ definitions. This is
+followed by the data which is held in a single overall collection. (This is
+no limitation since lists, maps, and tables can nest inside one another.)
+The data must be present even if it is merely an empty list (as here), an
+empty map (e.g., `{}`), or an empty table.
 
 ### CSV to UXF
 
@@ -162,6 +166,12 @@ added field types to the _ttype_ definition. When types are specified, the
 UXF processor is expected to be able to check that each value is of the
 correct type. Omit the type altogether (as in the earliler examples) to
 indicate _any_ valid table type.
+
+    uxf 1.0 Price List
+    = PriceList Date:date Price:real Quantity:int ID:str Description:str
+    (PriceList)
+
+Just for completeness, here's an example of an empty table.
 
 ### INI to UXF
 
@@ -449,12 +459,13 @@ As mentioned earlier, is possible to nest tables.
       (Triple
         (Pair <a> <b>) (Triple 2020-01-17 2020-02-18 2021-12-05) (Pair ? no)
         1 2 3
-        <x> <y> <z>
+        <x> <y> (Pair)
       )
     ]
 
 This rather abstract example gives a flavor of what's possible.
-Here we have a list of tables, with some tables nested inside others.
+Here we have a list of tables, with some tables nested inside others. For
+the last triple we have two ``str``s ("x” and "y”), and an _empty_ Pair.
 
 ## Libraries
 

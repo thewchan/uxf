@@ -58,7 +58,7 @@
       <row>
         <str>x</str>
         <str>y</str>
-        <str>z</str>
+        <table name="Pair"/>
       </row>
     </table>
   </list>
