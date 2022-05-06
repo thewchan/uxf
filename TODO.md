@@ -2,6 +2,8 @@
 
 - complete py/t/test\_errors.py
 
+- add tests for py/eg/typecheck.py
+
 - add typecheck tests -or- move typecheck code into py/eg ?
   - Add test t56.uxf that exercises all fixtypes in each of a
     list, map, and table

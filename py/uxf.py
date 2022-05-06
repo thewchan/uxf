@@ -201,13 +201,7 @@ class Uxf:
                      warn_is_error=warn_is_error)
 
 
-    def typecheck(self, fixtypes=False):
-        _typecheck(self.data, 'collection', ttypes=self.ttypes)
-        self.data.typecheck(self.ttypes, fixtypes=fixtypes)
-
-
-def load(filename_or_filelike, *, check=False, fixtypes=False,
-         warn_is_error=False):
+def load(filename_or_filelike, *, warn_is_error=False):
     '''
     Returns a Uxf object.
 
@@ -218,12 +212,11 @@ def load(filename_or_filelike, *, check=False, fixtypes=False,
     '''
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
-    return _loads(_read_text(filename_or_filelike), check=check,
-                  fixtypes=fixtypes, warn_is_error=warn_is_error,
-                  filename=filename)
+    return _loads(_read_text(filename_or_filelike),
+                  warn_is_error=warn_is_error, filename=filename)
 
 
-def loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False):
+def loads(uxf_text, *, warn_is_error=False):
     '''
     Returns a Uxf object.
 
@@ -231,21 +224,16 @@ def loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False):
 
     If warn_is_error is True warnings raise Error exceptions.
     '''
-    return _loads(uxf_text, check=check, fixtypes=fixtypes,
-                  warn_is_error=warn_is_error)
+    return _loads(uxf_text, warn_is_error=warn_is_error)
 
 
-def _loads(uxf_text, *, check=False, fixtypes=False, warn_is_error=False,
-           filename='-'):
+def _loads(uxf_text, *, warn_is_error=False, filename='-'):
     tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error,
                                      filename=filename)
     data, comment, ttypes = _parse(
         tokens, text=uxf_text, warn_is_error=warn_is_error,
         filename=filename)
-    uxo = Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
-    if check:
-        uxo.typecheck(fixtypes=fixtypes)
-    return uxo
+    return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
 
 
 def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
@@ -660,18 +648,6 @@ class List(collections.UserList, _ErrorMixin):
         self.vtype = None
 
 
-    def typecheck(self, ttypes, *, fixtypes=False):
-        for i in range(len(self.data)):
-            value = self.data[i]
-            check = _typecheck(value, self.vtype, ttypes=ttypes,
-                               fixtypes=fixtypes)
-            if check.fixed:
-                value = check.value
-                self.data[i] = value
-            if _is_uxf_collection(value):
-                value.typecheck(ttypes, fixtypes=fixtypes)
-
-
 class Map(collections.UserDict, _ErrorMixin):
 
     def __init__(self, *args, **kwargs):
@@ -705,25 +681,6 @@ class Map(collections.UserDict, _ErrorMixin):
         else:
             self.data[self._pending_key] = value
             self._pending_key = _MISSING
-
-
-    def typecheck(self, ttypes, *, fixtypes=False):
-        keys = list(self.keys())
-        for key in keys:
-            value = self[key]
-            check = _typecheck(key, self.ktype, ttypes=ttypes,
-                               fixtypes=fixtypes)
-            if check.fixed: # unlikely
-                del self[key]
-                key = check.value
-                self[key] = value
-            check = _typecheck(value, self.vtype, ttypes=ttypes,
-                               fixtypes=fixtypes)
-            if check.fixed:
-                value = check.value
-                self[key] = value
-            if _is_uxf_collection(value):
-                value.typecheck(ttypes, fixtypes=fixtypes)
 
 
 class _CheckNameMixin:
@@ -924,25 +881,6 @@ class Table(_ErrorMixin):
                 if not is_scalar(x):
                     return False
         return True
-
-
-    def typecheck(self, ttypes, *, fixtypes=False):
-        for row in range(len(self.records)):
-            columns = len(self.records[row])
-            if columns != len(self.fields):
-                print(f'Typecheck:#219:expected {len(self.fields)} fields, '
-                      f'got {columns}')
-            for column in range(columns):
-                if column < len(self.fields):
-                    field = self.field(column)
-                    value = self.records[row][column]
-                    check = _typecheck(value, field.vtype, ttypes=ttypes,
-                                       fixtypes=fixtypes)
-                    if check.fixed:
-                        value = check.value
-                        self.records[row][column] = value
-                    if _is_uxf_collection(value):
-                        value.typecheck(ttypes, fixtypes=fixtypes)
 
 
     def _make_record_class(self):
@@ -1591,76 +1529,15 @@ def canonicalize(name, is_table_name=True):
 canonicalize.count = 1 # noqa: E305
 
 
-def _typecheck(value, vtype, *, ttypes=None, fixtypes=False):
-    if value is None or not vtype: # null is always a valid value
-        return _Typecheck(value, False, True)
-    if isinstance(value, Table):
-        reply = _typecheck_table(value, vtype, ttypes, fixtypes)
-        if reply is not None:
-            return reply
-    classes = _TYPECHECK_CLASSES.get(vtype)
-    if (not isinstance(value, classes) and fixtypes and
-            vtype != 'collection'):
-        if isinstance(value, str) and vtype in {'bool', 'int', 'real',
-                                                'date', 'datetime'}:
-            new_value = naturalize(value)
-            return _Typecheck(new_value, isinstance(new_value, classes),
-                              True)
-        if isinstance(value, int) and vtype == 'real':
-            return _Typecheck(float(value), True, True)
-        if isinstance(value, float) and vtype == 'int':
-            return _Typecheck(int(value), True, True)
-    if isinstance(value, classes):
-        return _Typecheck(value, False, True)
-    atype = _TYPECHECK_ATYPES.get(type(value))
-    print(f'Typecheck:#419:expected a {vtype}, got {atype}')
-    return _Typecheck(value, False, False)
-
-
-def _typecheck_table(value, vtype, ttypes, fixtypes):
-    if vtype == 'collection':
-        return _Typecheck(value, False, True) # any collection is ok
-    if ttypes is None:
-        print(
-            f'Typecheck:#439:got table of unknown type {value.ttype.name}')
-        return _Typecheck(value, False, False)
-    ttype = ttypes.get(value.ttype.name)
-    if vtype == ttype.name:
-        return _Typecheck(value, False, True)
-    else:
-        print(f'Typecheck:#459:expected a table of type {vtype}, got '
-              f'{value.ttype.name}')
-        return _Typecheck(value, False, False)
-
-
-_Typecheck = collections.namedtuple('_Typecheck', 'value fixed ok')
-
-_TYPECHECK_CLASSES = dict(
-    collection=(List, Map, Table), bool=bool, bytes=(bytes, bytearray),
-    date=datetime.date, datetime=datetime.datetime, int=int, list=List,
-    map=Map, real=float, str=str, table=Table)
-_TYPECHECK_ATYPES = {
-    bool: 'bool', bytearray: 'bytes', bytes: 'bytes',
-    datetime.date: 'date', datetime.datetime: 'datetime', float: 'real',
-    int: 'int', List: 'list', Map: 'map', str: 'str', Table: 'table',
-    type(None): '?'}
-
-
 if __name__ == '__main__':
     import os
 
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py \
-[-c|--check] [-f|--fix-types] [-w|--warn-is-error] [-iN|--indent=N] \
+usage: uxf.py [-w|--warn-is-error] [-iN|--indent=N] \
 <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
-If check is set any given types are checked against the actual \
-values and warnings given if appropriate.
-If fixtypes is set mistyped values are correctly typed where possible \
-(e.g., int ↔ float, str → date, etc.). If fixtypes is set then check is \
-automatically set too.
 If warn-is-error is set warnings are treated as errors \
 (i.e., the program will terminate with the first error or warning message).
 If an outfile is specified and ends .gz it will be gzip-compressed.
@@ -1675,19 +1552,12 @@ To produce a compressed and compact .uxf file run: \
 
 Converting uxf to uxf will alphabetically order any ttypes.
 ''')
-    check = False
-    fixtypes = False
     warn_is_error = False
     indent = 2
     args = sys.argv[1:]
     infile = outfile = None
     for arg in args:
-        if arg in {'-c', '--check'}:
-            check = True
-        elif arg in {'-f', '--fix-types'}:
-            fixtypes = True
-            check = True
-        elif arg in {'-w', '--warn-is-error'}:
+        if arg in {'-w', '--warn-is-error'}:
             warn_is_error = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
@@ -1705,8 +1575,6 @@ Converting uxf to uxf will alphabetically order any ttypes.
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
         uxo = load(infile, warn_is_error=warn_is_error)
-        if check:
-            uxo.typecheck(fixtypes=fixtypes)
         outfile = sys.stdout if outfile is None else outfile
         dump(outfile, uxo, indent=indent)
     except (FileNotFoundError, Error) as err:
