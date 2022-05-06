@@ -68,9 +68,16 @@
               [
                 19,
                 "Supersuppliers",
-                null,
+                "The Square",
                 "Jane Doe",
                 "jane@super.com"
+              ],
+              [
+                null,
+                null,
+                null,
+                null,
+                null
               ]
             ]
           }
@@ -101,6 +108,14 @@
                 "COD"
               ],
               [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
+              [
                 153,
                 19,
                 {
@@ -128,6 +143,14 @@
               "Description": null
             },
             "records": [
+              [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
               [
                 1839,
                 152,

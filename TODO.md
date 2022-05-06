@@ -2,11 +2,8 @@
 
 - XML: xml\_to\_uxf: same tests as JSON for full round trip
 
-- make sure all test files have some nulls (`?`s) (for every typed value),
-  esp. t4, t5, t24, t34, t36
-
-- add typecheck tests
-  - Add test t40.uxf that exercises all fixtypes in each of a
+- add typecheck tests -or- move typecheck code into py/eg ?
+  - Add test t56.uxf that exercises all fixtypes in each of a
     list, map, and table
     (i.e., any→str, int↔float, str→bool|int|float|date|datetime|Pair|MyType)
   - Add test t41.uxf ... one for every fixtype that cannot work
@@ -15,8 +12,8 @@
       * check, no fixtypes
       * check, fixtypes
 
-- create tests t50.uxf ... one for every error or warning that uxf.py
-  can produce to ensure they all work & are understandable.
+- create tests eN.uxf for every error and wN.uxf for every  warning that
+  uxf.py can produce to ensure they all work & are understandable.
 
 - code review
 
@@ -32,6 +29,3 @@
 
 - experiment with using uxf format to store various kinds of data,
   e.g., styled text, spreadsheet, graphics, etc.
-- for TType definitions in addition to or instead of a type allow ':'
-  'notnull'; then, if a null is encountered during parsing this should
-  produce a warning (and in typecheck() an error?)?

@@ -49,9 +49,9 @@
         <no/>
       </row>
       <row>
-        <int v="7"/>
-        <str>Uncategorized</str>
-        <no/>
+        <null/>
+        <null/>
+        <null/>
       </row>
       <row>
         <int v="6"/>
@@ -253,10 +253,10 @@
         <no/>
       </row>
       <row>
-        <int v="35"/>
-        <str>Mike Oldfield</str>
-        <int v="4"/>
-        <no/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
       </row>
       <row>
         <int v="22"/>
@@ -10423,6 +10423,14 @@
         <str>/home/mark/music/Earth, Wind And Fire/02-Boogie Wonderland.ogg</str>
         <no/>
         <int v="55"/>
+      </row>
+      <row>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
       </row>
       <row>
         <int v="1262"/>

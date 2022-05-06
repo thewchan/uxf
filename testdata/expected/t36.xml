@@ -37,9 +37,16 @@
       <row>
         <int v="19"/>
         <str>Supersuppliers</str>
-        <null/>
+        <str>The Square</str>
         <str>Jane Doe</str>
         <str>jane@super.com</str>
+      </row>
+      <row>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
       </row>
     </table>
     <table name="Invoices">
@@ -52,6 +59,14 @@
         <str>COD</str>
       </row>
       <row>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+      </row>
+      <row>
         <int v="153"/>
         <int v="19"/>
         <date v="2022-01-19"/>
@@ -61,6 +76,14 @@
       </row>
     </table>
     <table name="Items">
+      <row>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
+      </row>
       <row>
         <int v="1839"/>
         <int v="152"/>

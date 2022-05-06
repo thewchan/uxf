@@ -10,7 +10,7 @@ uxf 1.0 EPD (SQLite full list of tables)
     1 <New Acquistions> no
     2 <Pop> no
     3 <Punk> no
-    7 <Uncategorized> no
+    ? ? ?
     6 <Unpopular Pop> no
   )
   (Playlists
@@ -46,7 +46,7 @@ uxf 1.0 EPD (SQLite full list of tables)
     2 <Lipstick> 1 yes
     21 <Madonna> 2 no
     45 <Mahler> 5 no
-    35 <Mike Oldfield> 4 no
+    ? ? ? ?
     22 <Morrissey> 2 no
     46 <Mozart> 5 no
     47 <Paganini> 5 no
@@ -1325,6 +1325,7 @@ uxf 1.0 EPD (SQLite full list of tables)
     1226 <Voyage to India> 389.0 </home/mark/music/Stevie_Wonder/CD1/03-Voyage_to_India.ogg> no 54
     1255 <After The Love Has Gone> 265.0 </home/mark/music/Earth, Wind And Fire/04-After The Love Has Gone.ogg> no 55
     1253 <Boogie Wonderland> 0.0 </home/mark/music/Earth, Wind And Fire/02-Boogie Wonderland.ogg> no 55
+    ? ? ? ? ? ?
     1262 <Can't Let Go> 209.0 </home/mark/music/Earth, Wind And Fire/11-Can't Let Go.ogg> no 55
     1256 <Fantasy> 0.0 </home/mark/music/Earth, Wind And Fire/05-Fantasy.ogg> no 55
     1264 <Got To Get You Into My Life> 251.0 </home/mark/music/Earth, Wind And Fire/13-Got To Get You Into My Life.ogg> no 55

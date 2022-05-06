@@ -74,9 +74,9 @@
             false
           ],
           [
-            7,
-            "Uncategorized",
-            false
+            null,
+            null,
+            null
           ],
           [
             6,
@@ -290,10 +290,10 @@
             false
           ],
           [
-            35,
-            "Mike Oldfield",
-            4,
-            false
+            null,
+            null,
+            null,
+            null
           ],
           [
             22,
@@ -10474,6 +10474,14 @@
             "/home/mark/music/Earth, Wind And Fire/02-Boogie Wonderland.ogg",
             false,
             55
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
           ],
           [
             1262,

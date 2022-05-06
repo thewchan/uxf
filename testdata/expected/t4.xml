@@ -41,6 +41,11 @@
         <no/>
       </row>
       <row>
+        <null/>
+        <null/>
+        <null/>
+      </row>
+      <row>
         <int v="7"/>
         <str>Uncategorized</str>
         <no/>
@@ -105,6 +110,12 @@
         <str>Chopin</str>
         <int v="5"/>
         <yes/>
+      </row>
+      <row>
+        <null/>
+        <null/>
+        <null/>
+        <null/>
       </row>
       <row>
         <int v="37"/>

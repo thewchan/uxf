@@ -51,6 +51,7 @@
               <list vtype="str" comment="From most to least recent">
                 <str>/tmp/test2.uxf</str>
                 <str>C:\Users\mark\test3.uxf</str>
+                <null/>
               </list>
             </value>
           </map>
@@ -82,6 +83,13 @@
           <int v="89"/>
           <int v="22"/>
           <real v="0.5"/>
+        </row>
+        <row>
+          <null/>
+          <null/>
+          <null/>
+          <null/>
+          <null/>
         </row>
       </table>
     </value>
