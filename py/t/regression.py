@@ -6,6 +6,7 @@ import contextlib
 import filecmp
 import gzip
 import os
+import random
 import re
 import shutil
 import subprocess
@@ -13,7 +14,6 @@ import sys
 import tempfile
 import textwrap
 import time
-
 
 try:
     os.chdir(os.path.dirname(__file__)) # move to this file's dir
@@ -101,25 +101,33 @@ def test_uxf_files(uxffiles, *, verbose, max_total):
 
 
 def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
+    temp_uxo = uxf.Uxf()
     for name in uxffiles:
         total += 1
         if total > max_total:
             return total - 1, ok
         try:
             with open(name, 'rt', encoding='utf-8') as file:
-                uxf_text = file.read()
+                uxt = file.read()
         except UnicodeDecodeError:
             with gzip.open(name, 'rt', encoding='utf-8') as file:
-                uxf_text = file.read()
-        use_true_false = 'true' in uxf_text or 'false' in uxf_text
+                uxt = file.read()
+        use_true_false = 'true' in uxt or 'false' in uxt
         try:
-            uxo = uxf.loads(uxf_text)
+            if random.choice((0, 1)):
+                uxo = uxf.loads(uxt)
+            else:
+                temp_uxo.loads(uxt)
+                uxo = temp_uxo
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
-        new_uxf_text = uxo.dumps(use_true_false=use_true_false)
-        nws_uxf_text = normalize_uxf_text(uxf_text)
-        nws_new_uxf_text = normalize_uxf_text(new_uxf_text)
-        if nws_uxf_text == nws_new_uxf_text:
+        if random.choice((0, 1)):
+            new_uxt = uxo.dumps(use_true_false=use_true_false)
+        else:
+            new_uxt = uxf.dumps(uxo, use_true_false=use_true_false)
+        nws_uxt = normalize_uxt(uxt)
+        nws_new_uxt = normalize_uxt(new_uxt)
+        if nws_uxt == nws_new_uxt:
             ok += 1
             if verbose:
                 print(f'loads()/dumps() • {name} OK')
@@ -128,7 +136,7 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
         else:
             print(f'{name} • FAIL (loads()/dumps())')
             if verbose:
-                print(f'LOADS = {nws_uxf_text}\nDUMPS = {nws_new_uxf_text}')
+                print(f'LOADS = {nws_uxt}\nDUMPS = {nws_new_uxt}')
     return total, ok
 
 
@@ -139,23 +147,23 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             return total - 1, ok
         try:
             with open(name, 'rt', encoding='utf-8') as file:
-                uxf_text = file.read()
+                uxt = file.read()
         except UnicodeDecodeError:
             with gzip.open(name, 'rt', encoding='utf-8') as file:
-                uxf_text = file.read()
+                uxt = file.read()
         try:
-            uxo1 = uxf.loads(uxf_text)
+            uxo1 = uxf.loads(uxt)
         except uxf.Error as err:
             print(f'eq() 1 • {name} FAIL: {err}')
         expected = f'expected/{name}'
         try:
             with open(expected, 'rt', encoding='utf-8') as file:
-                uxf_text = file.read()
+                uxt = file.read()
         except UnicodeDecodeError:
             with gzip.open(name, 'rt', encoding='utf-8') as file:
-                uxf_text = file.read()
+                uxt = file.read()
         try:
-            uxo2 = uxf.loads(uxf_text)
+            uxo2 = uxf.loads(uxt)
         except uxf.Error as err:
             print(f'eq() 2 • {expected} FAIL: {err}')
         if eq.eq(uxo1, uxo2):
@@ -169,7 +177,7 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
     return total, ok
 
 
-def normalize_uxf_text(text):
+def normalize_uxt(text):
     flags = re.DOTALL | re.MULTILINE
     i = text.find('\n') + 1 # ignore header
     body = text[i:]

@@ -19,14 +19,17 @@ The uxf module's public API provides the following free functions and
 classes.
 
     load(filename_or_filelike): -> uxo
-    loads(uxf_text): -> uxo
+    loads(uxt): -> uxo
 
 These functions read UXF data from a file, file-like, or string.
 The returned uxo is of type Uxf (see below).
 See the function docs for additional options.
 
+In the docs we use uxo to refer to a Uxf object and uxt to refer to a string
+containing a UXF file's text.
+
     dump(filename_or_filelike, data)
-    dumps(data) -> uxf_text
+    dumps(data) -> uxt
 
 These functions write UXF data to a file, file-like, or string.
 The data can be a Uxf object or a single list, List, dict, Map, or Table.
@@ -201,6 +204,31 @@ class Uxf:
                      warn_is_error=warn_is_error)
 
 
+    def load(self, filename_or_filelike, *, warn_is_error=False):
+        '''Convenience method that wraps the module-level load()
+        function'''
+        filename = (filename_or_filelike if isinstance(filename_or_filelike,
+                    (str, pathlib.Path)) else '-')
+        data, custom, ttypes, comment = _loads(
+            _read_text(filename_or_filelike),
+            warn_is_error=warn_is_error, filename=filename)
+        self.data = data
+        self.custom = custom
+        self.ttypes = ttypes
+        self.comment = comment
+
+
+    def loads(self, uxt, *, warn_is_error=False):
+        '''Convenience method that wraps the module-level loads()
+        function'''
+        data, custom, ttypes, comment = _loads(uxt,
+                                               warn_is_error=warn_is_error)
+        self.data = data
+        self.custom = custom
+        self.ttypes = ttypes
+        self.comment = comment
+
+
 def load(filename_or_filelike, *, warn_is_error=False):
     '''
     Returns a Uxf object.
@@ -212,34 +240,37 @@ def load(filename_or_filelike, *, warn_is_error=False):
     '''
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
-    return _loads(_read_text(filename_or_filelike),
-                  warn_is_error=warn_is_error, filename=filename)
-
-
-def loads(uxf_text, *, warn_is_error=False):
-    '''
-    Returns a Uxf object.
-
-    uxf_text must be a string of UXF data.
-
-    If warn_is_error is True warnings raise Error exceptions.
-    '''
-    return _loads(uxf_text, warn_is_error=warn_is_error)
-
-
-def _loads(uxf_text, *, warn_is_error=False, filename='-'):
-    tokens, custom, text = _tokenize(uxf_text, warn_is_error=warn_is_error,
-                                     filename=filename)
-    data, comment, ttypes = _parse(
-        tokens, text=uxf_text, warn_is_error=warn_is_error,
-        filename=filename)
+    data, custom, ttypes, comment = _loads(
+        _read_text(filename_or_filelike),
+        warn_is_error=warn_is_error, filename=filename)
     return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
 
 
-def _tokenize(uxf_text, *, warn_is_error=False, filename='-'):
+def loads(uxt, *, warn_is_error=False):
+    '''
+    Returns a Uxf object.
+
+    uxt must be a string of UXF data.
+
+    If warn_is_error is True warnings raise Error exceptions.
+    '''
+    data, custom, ttypes, comment = _loads(uxt, warn_is_error=warn_is_error)
+    return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
+
+
+def _loads(uxt, *, warn_is_error=False, filename='-'):
+    tokens, custom, text = _tokenize(uxt, warn_is_error=warn_is_error,
+                                     filename=filename)
+    data, comment, ttypes = _parse(
+        tokens, uxt=uxt, warn_is_error=warn_is_error,
+        filename=filename)
+    return data, custom, ttypes, comment
+
+
+def _tokenize(uxt, *, warn_is_error=False, filename='-'):
     lexer = _Lexer(warn_is_error=warn_is_error, filename=filename)
-    tokens = lexer.tokenize(uxf_text)
-    return tokens, lexer.custom, uxf_text
+    tokens = lexer.tokenize(uxt)
+    return tokens, lexer.custom, uxt
 
 
 def _read_text(filename_or_filelike):
@@ -943,9 +974,9 @@ class Table(_ErrorMixin):
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, *, text, warn_is_error=False, filename='-'):
+def _parse(tokens, *, uxt, warn_is_error=False, filename='-'):
     parser = _Parser(warn_is_error=warn_is_error, filename=filename)
-    data, comment = parser.parse(tokens, text)
+    data, comment = parser.parse(tokens, uxt)
     ttypes = parser.ttypes
     return data, comment, ttypes
 

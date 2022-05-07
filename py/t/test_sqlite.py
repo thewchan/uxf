@@ -50,8 +50,8 @@ def check(name, verbose):
         os.remove(filename)
     if isinstance(uxo1.data, uxf.Table):
         uxo1.data = [uxo1.data]
-    uxfconvert._uxf_to_sqlite(filename, uxo1.data)
-    uxo2 = uxfconvert._sqlite_to_uxf(filename)
+    uxfconvert._inner_uxf_to_sqlite(filename, uxo1.data)
+    uxo2 = uxfconvert._inner_sqlite_to_uxf(filename)
     if not eq.eq(uxo1, uxo2, ignore_custom=True, ignore_comments=True,
                  ignore_types=True):
         if verbose:

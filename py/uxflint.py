@@ -29,9 +29,9 @@ with the following fixes:
                                 os.path.abspath(outfile)):
         raise SystemExit(f'won\'t overwite {infile}')
     uxf.AutoConvertSequences = True
-    lexer = Lexer(infile)
+    lexer = _Lexer(infile)
     tokens = lexer.tokenize()
-    data, comment, ttypes = parse(tokens, filename=infile)
+    data, comment, ttypes = _parse(tokens, filename=infile)
     if outfile is not None:
         uxo = uxf.Uxf(data, custom=lexer.custom, ttypes=ttypes,
                       comment=comment)
@@ -41,14 +41,14 @@ with the following fixes:
             uxo.dump(outfile)
 
 
-def say(filename, lino, code, message, *, fail=False):
+def _say(filename, lino, code, message, *, fail=False):
     filename = os.path.basename(filename)
     print(f'uxflint.py:{filename}:{lino}:#{code}:{message}')
     if fail:
         sys.exit(1)
 
 
-class Lexer:
+class _Lexer:
 
     def __init__(self, filename):
         self.filename = filename
@@ -57,7 +57,7 @@ class Lexer:
 
 
     def say(self, code, message, *, fail=False):
-        say(self.filename, self.lino, code, message, fail=fail)
+        _say(self.filename, self.lino, code, message, fail=fail)
 
 
     def clear(self):
@@ -81,19 +81,21 @@ class Lexer:
     def scan_header(self):
         i = self.text.find('\n')
         if i == -1:
-            say(100, 'missing UXF file header or empty file', fail=True)
+            self.say(100, 'missing UXF file header or empty file',
+                     fail=True)
         self.pos = i
         parts = self.text[:i].split(None, 2)
         if len(parts) < 2:
-            say(110, 'invalid UXF file header', fail=True)
+            self.say(110, 'invalid UXF file header', fail=True)
         if parts[0] != 'uxf':
-            say(120, 'not a UXF file', fail=True)
+            self.say(120, 'not a UXF file', fail=True)
         try:
             version = float(parts[1])
             if version > uxf.VERSION:
-                say(131, f'version ({version}) > current ({uxf.VERSION})')
+                self.say(131,
+                         f'version ({version}) > current ({uxf.VERSION})')
         except ValueError:
-            say(141, 'failed to read UXF file version number')
+            self.say(141, 'failed to read UXF file version number')
         if len(parts) > 2:
             self.custom = parts[2]
 
@@ -364,10 +366,11 @@ class Lexer:
 
 
     def add_token(self, kind, value=None):
-        self.tokens.append(Token(kind, value, pos=self.pos, lino=self.lino))
+        self.tokens.append(_Token(kind, value, pos=self.pos,
+                                  lino=self.lino))
 
 
-class Token(uxf._Token):
+class _Token(uxf._Token):
 
     def __init__(self, kind, value=None, *, pos=-1, lino=0):
         super().__init__(kind, value, pos)
@@ -379,21 +382,21 @@ class Token(uxf._Token):
         return f'{self.lino}:{s}'
 
 
-def parse(tokens, filename):
-    parser = Parser(filename)
+def _parse(tokens, filename):
+    parser = _Parser(filename)
     data, comment = parser.parse(tokens)
     ttypes = parser.ttypes
     return data, comment, ttypes
 
 
-class Parser:
+class _Parser:
 
     def __init__(self, filename):
         self.filename = filename
 
 
     def say(self, code, message, *, fail=False):
-        say(self.filename, self.lino, code, message, fail=fail)
+        _say(self.filename, self.lino, code, message, fail=fail)
 
 
     def clear(self):
@@ -605,7 +608,7 @@ class Parser:
                 linos = [str(p[0]) for p in pairs]
                 self.lino = ','.join(linos)
                 diff = ', '.join([p[1] for p in pairs])
-                self.say(550, f'ttypes {diff} are unused')
+                self.say(542, f'ttypes {diff} are unused')
 
 
 if __name__ == '__main__':

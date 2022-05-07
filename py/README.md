@@ -54,13 +54,14 @@ Using `uxf` as an executable (with `python3 -m uxf ...`) provides a means of
 doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress, or make
 more human readable or more compact).
 
-Installed alongside `uxf.py` is `uxfconvert.py` which might prove useful to
-see how to use `uxf`. For example, `uxfconvert.py` can losslessly convert
-`.uxf` to `.json` or `.xml` and back. It can also do some simple conversions
-to and from `.csv`, to `.ini`, and to and from `.sqlite`, but these are
-really to illustrate use of the uxf APIs. And also see the `../t/*` test
-files and the `../eg` folder (for example, the `../eg/slides.uxf` and
-`../eg/slides.py` files).
+Installed alongside `uxf.py` is `uxflint.py` which can check a UXF file and
+apply fixes if an output file is specified, and `uxfconvert.py` which might
+prove useful to see how to use `uxf`. For example, `uxfconvert.py` can
+losslessly convert `.uxf` to `.json` or `.xml` and back. It can also do some
+simple conversions to and from `.csv`, to `.ini`, and to and from `.sqlite`,
+but these are really to illustrate use of the uxf APIs. And also see the
+`../t/*` test files and the `../eg` folder (for example, the
+`../eg/slides.uxf` and `../eg/slides.py` files).
 
 If you just want to create a small standalone `.pyz`, simply copy
 `py/uxf.py` as `uxf.py` into your project folder and inlude it in your
