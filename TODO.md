@@ -2,6 +2,7 @@
 
 - py/uxflint.py
   . check (& fix where poss):
+    / e.g., for every non-collection value, check the parent collection's ktype/vtype/or ttype field's vtype
     * ktype/vtype/ttype mismatches
     * int where real expected & v.v.
     * int where bool expected
