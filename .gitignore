@@ -45,4 +45,4 @@ zig-cache
 build/
 dist/
 py/uxf.egg-info/
-t/actual
+testdata/actual
