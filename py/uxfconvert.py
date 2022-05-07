@@ -38,14 +38,14 @@ import uxf
 
 def main():
     uxf.AutoConvertSequences = True
-    config = _get_config()
+    converter = _get_converter()
     try:
-        config.convert(config)
+        converter()
     except (IOError, uxf.Error) as err:
         print(f'uxfconvert:error:{err}', file=sys.stderr)
 
 
-def _get_config():
+def _get_converter():
     parser = argparse.ArgumentParser(usage=PREFIX + _get_usage())
     parser.add_argument('-i', '--indent', type=int, default=2,
                         help='default: 2, range 0-8')
@@ -56,8 +56,7 @@ def _get_config():
     parser.add_argument('file', nargs='+',
                         help='infile(s) and outfile as shown above')
     config = parser.parse_args()
-    _postprocess_args(parser, config)
-    return config
+    return _prepare_converter(parser, config)
 
 
 def _get_usage():
@@ -70,66 +69,62 @@ def _get_usage():
                        if para.strip())
 
 
-def _postprocess_args(parser, config):
+def _prepare_converter(parser, config):
     if not (0 <= config.indent <= 8):
         config.indent = 2 # sanitize rather than complain
     if len(config.file) < 2:
         parser.error('least two filenames are required')
     config.convert = None
     if len(config.file) > 2:
-        _postprocess_csv_args(parser, config)
+        converter = _get_mulit_csv_converter(parser, config)
     else:
-        _postprocess_other_args(parser, config)
-    if config.convert is None:
+        converter = _get_other_converter(parser, config)
+    if converter is None:
         parser.error('cannot perform the requested conversion')
-    del config.file
-    return config
+    return converter
 
 
-def _postprocess_csv_args(parser, config):
+def _get_mulit_csv_converter(parser, config):
     if not config.file[-1].upper().endswith((DOT_UXF, DOT_UXF_GZ)):
         parser.error('multiple infiles may only be converted to .uxf')
     for name in config.file[:-1]:
         if not name.upper().endswith(DOT_CSV):
             parser.error('multiple infiles may only be .csv files')
-    config.convert = _multi_csv_to_uxf
-    config.infiles = config.file[:-1]
-    config.outfile = config.file[-1]
+    return lambda: multi_csv_to_uxf(config.file[:-1], config.file[-1],
+                                    fieldnames=config.fieldnames)
 
 
-def _postprocess_other_args(parser, config):
-    config.infiles = [config.file[0]]
-    config.outfile = config.file[-1]
-    infile = config.infiles[0].upper()
-    outfile = config.outfile.upper()
-    if (infile.endswith((DOT_UXF, DOT_UXF_GZ)) and
-            outfile.endswith((DOT_UXF, DOT_UXF_GZ))):
-        parser.error('connot convert uxf to uxf, instead use: '
+def _get_other_converter(parser, config):
+    infile = config.file[0]
+    uinfile = infile.upper()
+    outfile = config.file[-1]
+    uoutfile = outfile.upper()
+    if (uinfile.endswith((DOT_UXF, DOT_UXF_GZ)) and
+            uoutfile.endswith((DOT_UXF, DOT_UXF_GZ))):
+        parser.error('cannot convert uxf to uxf, instead use: '
                      'python3 -m uxf infile.uxf outfile.uxf')
-    if outfile.endswith((DOT_UXF, DOT_UXF_GZ)):
-        if infile.endswith(DOT_CSV):
-            config.convert = _csv_to_uxf
-        elif infile.endswith(DOT_INI):
-            config.convert = _ini_to_uxf
-        elif infile.endswith((DOT_JSN, DOT_JSON)):
-            config.convert = _json_to_uxf
-        elif infile.endswith(DOT_SQLITE):
-            config.convert = _sqlite_to_uxf
-        elif infile.endswith(DOT_XML):
-            config.convert = _xml_to_uxf
-    elif infile.endswith((DOT_UXF, DOT_UXF_GZ)):
-        if outfile.endswith(DOT_CSV):
-            config.convert = _uxf_to_csv
-        elif outfile.endswith((DOT_JSN, DOT_JSON)):
-            config.convert = _uxf_to_json
-        elif outfile.endswith(DOT_SQLITE):
-            config.convert = _uxf_to_sqlite
-        elif outfile.endswith(DOT_XML):
-            config.convert = _uxf_to_xml
-
-
-def _uxf_to_csv(config):
-    uxf_to_csv(config.infiles[0], config.outfile)
+    if uoutfile.endswith((DOT_UXF, DOT_UXF_GZ)):
+        if uinfile.endswith(DOT_CSV):
+            return lambda: csv_to_uxf(infile, outfile,
+                                      fieldnames=config.fieldnames)
+        elif uinfile.endswith(DOT_INI):
+            return lambda: ini_to_uxf(infile, outfile)
+        elif uinfile.endswith((DOT_JSN, DOT_JSON)):
+            return lambda: json_to_uxf(infile, outfile)
+        elif uinfile.endswith(DOT_SQLITE):
+            return lambda: sqlite_to_uxf(infile, outfile)
+        elif uinfile.endswith(DOT_XML):
+            return lambda: xml_to_uxf(infile, outfile)
+    elif uinfile.endswith((DOT_UXF, DOT_UXF_GZ)):
+        if uoutfile.endswith(DOT_CSV):
+            return lambda: uxf_to_csv(infile, outfile)
+        elif uoutfile.endswith((DOT_JSN, DOT_JSON)):
+            return lambda: uxf_to_json(infile, outfile)
+        elif uoutfile.endswith(DOT_SQLITE):
+            return lambda: uxf_to_sqlite(infile, outfile)
+        elif uoutfile.endswith(DOT_XML):
+            return lambda: uxf_to_xml(infile, outfile)
+    parser.error(f'cannot convert {infile} to {outfile}')
 
 
 def uxf_to_csv(infile, outfile):
@@ -152,11 +147,6 @@ def uxf_to_csv(infile, outfile):
     else:
         raise SystemExit('can only convert a UXF containing a single table '
                          'or a single list of lists of scalars to csv')
-
-
-def _csv_to_uxf(config):
-    csv_to_uxf(config.infiles[0], config.outfile,
-               fieldnames=config.fieldnames)
 
 
 def csv_to_uxf(infile, outfile, *, fieldnames=False):
@@ -187,11 +177,6 @@ def _read_csv_to_data(infile, fieldnames):
     return data, infile, ttypes
 
 
-def _multi_csv_to_uxf(config):
-    multi_csv_to_uxf(config.infiles, config.outfile,
-                     fieldnames=config.fieldnames)
-
-
 def multi_csv_to_uxf(infiles, outfile, *, fieldnames=False):
     data = []
     ttypes = {}
@@ -202,10 +187,6 @@ def multi_csv_to_uxf(infiles, outfile, *, fieldnames=False):
             ttypes.update(new_ttypes)
     uxf.dump(outfile,
              uxf.Uxf(data, custom=' '.join(infiles), ttypes=ttypes))
-
-
-def _uxf_to_json(config):
-    uxf_to_json(config.infiles[0], config.outfile)
 
 
 def uxf_to_json(infile, outfile):
@@ -287,10 +268,6 @@ def _json_encode_map(obj):
     return {JSON_MAP: m}
 
 
-def _json_to_uxf(config):
-    json_to_uxf(config.infiles[0], config.outfile)
-
-
 def json_to_uxf(infile, outfile):
     with open(infile, 'rt', encoding=UTF8) as file:
         d = json.load(file, object_hook=_json_naturalize)
@@ -351,10 +328,6 @@ def _json_naturalize(d):
     return d
 
 
-def _ini_to_uxf(config):
-    ini_to_uxf(config.infiles[0], config.outfile)
-
-
 def ini_to_uxf(infile, outfile):
     ini = configparser.ConfigParser()
     ini.read(infile)
@@ -368,23 +341,19 @@ def ini_to_uxf(infile, outfile):
     uxf.dump(outfile, uxf.Uxf(data, custom=infile))
 
 
-def _uxf_to_sqlite(config):
-    uxf_to_sqlite(config.infiles[0], config.outfile)
-
-
 def uxf_to_sqlite(infile, outfile):
     uxo = uxf.load(infile)
     if isinstance(uxo.data, uxf.Table):
-        _inner_uxf_to_sqlite(outfile, [uxo.data])
+        _uxf_to_sqlite(outfile, [uxo.data])
     elif (isinstance(uxo.data, (list, uxf.List)) and uxo.data and
             all(isinstance(v, uxf.Table) for v in uxo.data)):
-        _inner_uxf_to_sqlite(outfile, uxo.data)
+        _uxf_to_sqlite(outfile, uxo.data)
     else:
         raise SystemExit('can only convert a UXF containing a single table '
                          'or a single list of Tables to SQLite')
 
 
-def _inner_uxf_to_sqlite(filename, tables):
+def _uxf_to_sqlite(filename, tables):
     sqlite3.register_adapter(bool, lambda b: 'TRUE' if b else 'FALSE')
     sqlite3.register_adapter(datetime.date, lambda d: d.isoformat())
     sqlite3.register_adapter(datetime.datetime, lambda d: d.isoformat())
@@ -432,16 +401,12 @@ def _populate_table(db, table, table_name):
     cursor.executemany(''.join(sql), table.records)
 
 
-def _sqlite_to_uxf(config):
-    sqlite_to_uxf(config.infiles[0], config.outfile)
-
-
 def sqlite_to_uxf(infile, outfile):
-    uxo = _inner_sqlite_to_uxf(infile)
+    uxo = _sqlite_to_uxf(infile)
     uxo.dump(outfile)
 
 
-def _inner_sqlite_to_uxf(infile):
+def _sqlite_to_uxf(infile):
     db = None
     try:
         db = sqlite3.connect(infile)
@@ -474,16 +439,12 @@ def _inner_sqlite_to_uxf(infile):
             db.close()
 
 
-def _uxf_to_xml(config):
-    uxf_to_xml(config.infiles[0], config.outfile)
-
-
 def uxf_to_xml(infile, outfile):
     uxo = uxf.load(infile)
-    _inner_uxf_to_xml(uxo, outfile)
+    _uxf_to_xml(uxo, outfile)
 
 
-def _inner_uxf_to_xml(uxo, outfile):
+def _uxf_to_xml(uxo, outfile):
     dom = xml.dom.minidom.getDOMImplementation()
     tree = dom.createDocument(None, 'uxf', None)
     root = tree.documentElement
@@ -607,16 +568,12 @@ def _xml_add_scalar(tree, root, value):
         raise SystemExit(f'invalid value type: {value} of {type(value)}')
 
 
-def _xml_to_uxf(config):
-    xml_to_uxf(config.infiles[0], config.outfile)
-
-
 def xml_to_uxf(infile, outfile):
-    uxo = _inner_xml_to_uxf(infile)
+    uxo = _xml_to_uxf(infile)
     uxo.dump(outfile)
 
 
-def _inner_xml_to_uxf(infile):
+def _xml_to_uxf(infile):
     handler = _UxfSaxHandler()
     parser = xml.sax.make_parser()
     parser.setContentHandler(handler)
