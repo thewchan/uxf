@@ -1,8 +1,13 @@
 # TODOS
 
-- get py/eg/typecheck.py working
-
-- add tests for py/eg/typecheck.py
+- py/uxflint.py
+  . check (& fix where poss):
+    * ktype/vtype/ttype mismatches
+    * int where real expected & v.v.
+    * int where bool expected
+    * str where bool/int/real/date/datetime expected
+  . create tests e.g., test\_lint.py
+  . delete py/eg/typecheck.py
 
 - complete py/t/test\_errors.py
 

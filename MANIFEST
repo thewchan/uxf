@@ -2,6 +2,7 @@ TODO.md
 
 py/uxf.py
 py/uxfconvert.py
+py/uxflint.py
 py/README.md
 py/setup.py
 py/pypi.sh
@@ -12,7 +13,7 @@ py/t/test_errors.py
 py/t/eq.py
 py/eg/importer.py
 py/eg/visit.py
-py/eg/typecheck.py # TODO
+py/eg/typecheck.py
 py/eg/slides1.py
 py/eg/slides2.py
 py/eg/slides.sld

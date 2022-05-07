@@ -1577,5 +1577,5 @@ Converting uxf to uxf will alphabetically order any ttypes.
         uxo = load(infile, warn_is_error=warn_is_error)
         outfile = sys.stdout if outfile is None else outfile
         dump(outfile, uxo, indent=indent)
-    except (FileNotFoundError, Error) as err:
-        print(f'Error:{err}')
+    except (IOError, Error) as err:
+        print(f'uxfconvert:error:{err}', file=sys.stderr)

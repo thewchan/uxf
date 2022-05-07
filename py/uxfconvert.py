@@ -25,8 +25,8 @@ def main():
     config = _get_config()
     try:
         config.convert(config)
-    except (FileNotFoundError, uxf.Error) as err:
-        print(err, file=sys.stderr)
+    except (IOError, uxf.Error) as err:
+        print(f'uxfconvert:error:{err}', file=sys.stderr)
 
 
 def _get_config():
