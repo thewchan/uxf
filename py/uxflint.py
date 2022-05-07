@@ -17,7 +17,12 @@ except ImportError:
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help'}:
-        raise SystemExit('usage: uxflint.py <infile> [outfile]')
+        raise SystemExit('''usage: uxflint.py <infile> [outfile]
+If an outfile is specified (or - for stdout) the infile is saved to it \
+with the following fixes:
+- the format is standardized (just like using uxf.py infile outfile)
+- unused ttypes are removed
+''') # TODO update for each fix that's applied
     infile = sys.argv[1]
     outfile = sys.argv[2] if len(sys.argv) > 2 else None
     if outfile is not None and (os.path.abspath(infile) ==
@@ -588,6 +593,8 @@ class Parser:
     def _check_unused_ttypes(self):
         diff = set(self.ttypes.keys()) - self.used_ttypes
         if diff:
+            for name in diff:
+                del self.ttypes[name]
             diff = sorted(diff)
             if len(diff) == 1:
                 self.lino = self.lino_for_ttype[diff[0]]
