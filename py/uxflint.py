@@ -57,7 +57,7 @@ class Lexer:
 
     def clear(self):
         self.pos = 0 # current
-        self.lino = 1
+        self.lino = 0
         self.custom = None
         self.in_ttype = False
         self.tokens = []
@@ -394,6 +394,7 @@ class Parser:
     def clear(self):
         self.stack = []
         self.ttypes = {}
+        self.lino_for_ttype = {}
         self.used_ttypes = set()
         self.pos = -1
         self.lino = 0
@@ -541,6 +542,7 @@ class Parser:
             if token.kind is uxf._Kind.TTYPE_BEGIN:
                 if ttype is not None and ttype.name is not None:
                     self.ttypes[ttype.name] = ttype
+                    self.lino_for_ttype[ttype.name] = self.lino
                 ttype = uxf.TType(None)
             elif token.kind is uxf._Kind.COMMENT:
                 ttype.comment = token.value
@@ -562,6 +564,8 @@ class Parser:
             elif token.kind is uxf._Kind.TTYPE_END:
                 if ttype is not None and bool(ttype):
                     self.ttypes[ttype.name] = ttype
+                    if ttype.name not in self.lino_for_ttype:
+                        self.lino_for_ttype[ttype.name] = self.lino
                 self.tokens = self.tokens[index + 1:]
             else:
                 break # no TTypes at all
@@ -586,9 +590,14 @@ class Parser:
         if diff:
             diff = sorted(diff)
             if len(diff) == 1:
+                self.lino = self.lino_for_ttype[diff[0]]
                 self.say(540, f'ttype {diff[0]!r} is unused')
             else:
-                diff = ', '.join(repr(t) for t in diff)
+                linos = [self.lino_for_ttype[ttype] for ttype in diff]
+                pairs = sorted(zip(linos, diff))
+                linos = [str(p[0]) for p in pairs]
+                self.lino = ','.join(linos)
+                diff = ', '.join([p[1] for p in pairs])
                 self.say(550, f'ttypes {diff} are unused')
 
 
