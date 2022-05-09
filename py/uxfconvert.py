@@ -556,7 +556,10 @@ def _xml_add_scalar(tree, root, value):
         element.setAttribute('v', value.isoformat())
     elif isinstance(value, str):
         element = tree.createElement('str')
-        text_element = tree.createTextNode(value)
+        if '\n' in value and ']]>' not in value:
+            text_element = tree.createCDATASection(value)
+        else:
+            text_element = tree.createTextNode(value)
         element.appendChild(text_element)
     elif isinstance(value, (bytes, bytearray)):
         element = tree.createElement('bytes')
@@ -754,8 +757,7 @@ Converting from uxf to json and back (i.e., using uxfconvert.py's own json
 format) roundtrips with perfect fidelity.
 
 Converting from uxf to xml and back (i.e., using uxfconvert.py's own xml
-format) roundtrips, except that the xml parser normalises whitespace
-(essentially, replaces newlines with spaces).
+format) roundtrips with perfect fidelity.
 
 Support for uxf to uxf conversions is provided by the uxf.py module itself,
 which can be run directly or via python, e.g., `uxf.py infile.uxf

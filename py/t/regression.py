@@ -42,6 +42,7 @@ def main():
                            ('.uxf', '.uxf.gz'))),
                       key=by_number)
     print('.', end='', flush=True)
+    total = ok = 0
     total, ok = test_uxf_files(uxffiles, verbose=verbose,
                                max_total=max_total)
     total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose,
@@ -55,7 +56,7 @@ def main():
     total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
     for cmd in ([TEST_CONVERTERS], [TEST_SQLITE], [TEST_ERRORS]):
         total, ok = test_external(cmd, total, ok, verbose=verbose)
-    if total < 128:
+    if total < 150:
         print('\b' * total, end='', flush=True)
     if total == ok:
         t = time.monotonic() - t
@@ -299,15 +300,18 @@ def test_slides(slides_py, total, ok, *, verbose):
 
 
 def test_external(cmd, total, ok, *, verbose):
-    total += 1
-    if not verbose:
-        cmd.append('--quiet')
-    reply = subprocess.call(cmd)
+    cmd.append('--regression')
+    reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
-    if reply != 0:
+    if reply.returncode != 0:
         print(f'{cmd} • FAIL')
     else:
-        ok += 1
+        parts = reply.stdout.split()
+        try:
+            total += int(parts[0].split('=')[1])
+            ok += int(parts[1].split('=')[1])
+        except (IndexError, ValueError):
+            print(f'failed to read total/ok from {cmd}')
         if verbose:
             print(f'{cmd} • OK')
     return total, ok

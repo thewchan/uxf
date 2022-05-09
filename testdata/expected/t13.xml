@@ -230,5 +230,13 @@
         </value>
       </map>
     </value>
+    <key>
+      <str>Key for a long string</str>
+    </key>
+    <value>
+      <str><![CDATA[This string occupies
+multiple lines which we want to be able to round-trip
+even in UXF ↔ XML conversions.]]></str>
+    </value>
   </map>
 </uxf>

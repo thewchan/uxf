@@ -37,4 +37,7 @@ uxf 1.0 TLM Config
             6 <Unpopular Pop> no
             )
     }
+    <Key for a long string> <This string occupies
+multiple lines which we want to be able to round-trip
+even in UXF ↔ XML conversions.>
 }

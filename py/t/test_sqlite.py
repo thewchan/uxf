@@ -35,14 +35,17 @@ SUITABLE = ('t15.uxf', 't19.uxf', 't35.uxf', 't36.uxf', 't37.uxf', 't5.uxf')
 
 
 def main():
-    verbose = True
-    if len(sys.argv) > 1 and sys.argv[1] in {'-q', '--quiet'}:
-        verbose = False
+    regression = False
+    if len(sys.argv) > 1 and sys.argv[1] in {'-r', '--regression'}:
+        regression = True
+    total = ok = 0
     for name in SUITABLE:
-        check(name, verbose)
+        total, ok = check(total, ok, name, regression)
+    if regression:
+        print(f'total={total} ok={ok}')
 
 
-def check(name, verbose):
+def check(total, ok, name, regression):
     uxo1 = uxf.load(name)
     filename = os.path.join(tempfile.gettempdir(), name.replace('.uxf',
                                                                 '.sqlite'))
@@ -52,15 +55,17 @@ def check(name, verbose):
         uxo1.data = [uxo1.data]
     uxfconvert._uxf_to_sqlite(filename, uxo1.data)
     uxo2 = uxfconvert._sqlite_to_uxf(filename)
-    if not eq.eq(uxo1, uxo2, ignore_custom=True, ignore_comments=True,
-                 ignore_types=True):
-        if verbose:
-            print(f'test_sqlite • {name} FAIL')
-        sys.exit(1)
-    if verbose:
-        print(f'test_sqlite • {name} OK')
+    total += 1
+    if eq.eq(uxo1, uxo2, ignore_custom=True, ignore_comments=True,
+             ignore_types=True):
+        ok += 1
+        if not regression:
+            print(f'test_sqlite • {name} OK')
+    else:
+        print(f'test_sqlite • {name} FAIL')
     with contextlib.suppress(FileNotFoundError):
         os.remove(filename)
+    return total, ok
 
 
 if __name__ == '__main__':

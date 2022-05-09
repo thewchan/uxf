@@ -27,9 +27,9 @@ finally:
 
 
 def main():
-    verbose = True
-    if len(sys.argv) > 1 and sys.argv[1] in {'-q', '--quiet'}:
-        verbose = False
+    regression = False
+    if len(sys.argv) > 1 and sys.argv[1] in {'-r', '--regression'}:
+        regression = True
 
     d = {}
     d['set'] = set((1, 2, 3))
@@ -65,39 +65,52 @@ def main():
     uxt1 = uxo1.dumps()
     uxo2 = uxf.loads(uxt1)
     uxt2 = uxo2.dumps()
-    check_types(1, uxo1.data, verbose)
-    check_types(2, uxo2.data, verbose)
-    if uxt1 != uxt2:
-        fail('test_converters • loads()/dumps() FAIL', verbose)
-    if not eq.eq(uxo1, uxo2):
-        fail('test_converters • eq() FAIL', verbose)
-    if verbose:
+    total = ok = 0
+    total, ok = check_types(total, ok, 1, uxo1.data, regression)
+    total, ok = check_types(total, ok, 2, uxo2.data, regression)
+    total += 1
+    if uxt1 == uxt2:
+        ok += 1
+    elif not regression:
+        print('test_converters • loads()/dumps() FAIL')
+    total += 1
+    if eq.eq(uxo1, uxo2):
+        ok += 1
+    elif not regression:
+        print('test_converters • eq() FAIL')
+    if not regression:
         print(uxt1, end='')
         print('test_converters • eq() & loads()/dumps() OK')
-
-
-def check_types(which, d, verbose):
-    check_all_types(which, NumKind, d['numkind'], verbose)
-    check_all_types(which, State, d['state'], verbose)
-    check_all_types(which, Align, d['align'], verbose)
-    check_all_types(which, Symbols, d['symbols'], verbose)
-    check_all_types(which, complex, d['complex'], verbose)
-
-
-def check_all_types(which, Class, seq, verbose):
-    for x in seq:
-        if not isinstance(x, Class):
-            fail(f'test_converters • #{which} {Class.__name__} types '
-                 'not preserved FAIL')
     else:
-        if verbose:
+        print(f'total={total} ok={ok}')
+
+
+def check_types(total, ok, which, d, regression):
+    total, ok = check_all_types(total, ok, which, NumKind, d['numkind'],
+                                regression)
+    total, ok = check_all_types(total, ok, which, State, d['state'],
+                                regression)
+    total, ok = check_all_types(total, ok, which, Align, d['align'],
+                                regression)
+    total, ok = check_all_types(total, ok, which, Symbols, d['symbols'],
+                                regression)
+    total, ok = check_all_types(total, ok, which, complex, d['complex'],
+                                regression)
+    return total, ok
+
+
+def check_all_types(total, ok, which, Class, seq, regression):
+    for x in seq:
+        total += 1
+        if isinstance(x, Class):
+            ok += 1
+        elif not regression:
+            print(f'test_converters • #{which} {Class.__name__} types '
+                  'not preserved FAIL')
+    else:
+        if not regression:
             print(f'test_converters • #{which} {Class.__name__} OK')
-
-
-def fail(message, verbose):
-    if verbose:
-        print(message)
-    sys.exit(1)
+    return total, ok
 
 
 # to_str=lambda c: f'©{c}'

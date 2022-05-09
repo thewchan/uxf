@@ -233,6 +233,7 @@
           }
         }
       }
-    }
+    },
+    "Key for a long string": "This string occupies\nmultiple lines which we want to be able to round-trip\neven in UXF \u2194 XML conversions."
   }
 }
