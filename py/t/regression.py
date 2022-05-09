@@ -22,6 +22,7 @@ try:
     import eq
     UXF_EXE = os.path.abspath('../uxf.py')
     UXFCONVERT_EXE = os.path.abspath('../uxfconvert.py')
+    UXFLINT_EXE = os.path.abspath('../uxflint.py')
     SLIDES1 = os.path.abspath('../eg/slides1.py')
     SLIDES2 = os.path.abspath('../eg/slides2.py')
     SLIDES_SLD = os.path.abspath('../eg/slides.sld')
@@ -91,7 +92,10 @@ def test_uxf_files(uxffiles, *, verbose, max_total):
         expected = f'expected/{name}'
         if expected.endswith('.gz'):
             expected = expected[:-3]
-        cmd = [UXF_EXE, name, actual]
+        if name.startswith('l'):
+            cmd = [UXFLINT_EXE, '--quiet', name, actual]
+        else:
+            cmd = [UXF_EXE, name, actual]
         reply = subprocess.call(cmd)
         cmd = ' '.join(cmd)
         if reply != 0:
@@ -145,6 +149,8 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
 
 def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
     for name in uxffiles:
+        if name.startswith('l'):
+            continue # skip linted files that may have changed
         total += 1
         if total > max_total:
             return total - 1, ok
@@ -213,6 +219,8 @@ def test_uxfconvert(uxffiles, total, ok, *, verbose, max_total):
               ('0.csv', '0.uxf', N), ('1.csv', '1.uxf', NF),
               ('2.csv', '2.uxf', NF), ('ini.ini', 'ini.uxf', N)]
     for infile, outfile, roundtrip in files:
+        if infile.startswith('l'):
+            continue # skip linted files that may have changed
         total += 1
         if total > max_total:
             return total - 1, ok

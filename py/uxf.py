@@ -1435,8 +1435,13 @@ class _Writer:
             self.file.write(f'<{value}>')
         elif isinstance(item, bool):
             self.file.write(self.yes if item else self.no)
-        elif isinstance(item, (int, float)):
+        elif isinstance(item, int):
             self.file.write(str(item))
+        elif isinstance(item, float):
+            text = str(item)
+            if '.' not in text:
+                text += '.0'
+            self.file.write(text)
         elif isinstance(item, (datetime.date, datetime.datetime)):
             self.file.write(item.isoformat())
         elif isinstance(item, str):

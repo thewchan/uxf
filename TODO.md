@@ -1,7 +1,5 @@
 # TODOS
 
-- t56.uxf - special handling
-
 - complete py/t/test\_errors.py
 
 - code review
