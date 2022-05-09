@@ -499,24 +499,30 @@ class _Parser:
 
     def _handle_str(self, i, token):
         value = token.value
-        vtype = self.typecheck(484, value)
+        vtype, message = self.typecheck(value)
         if value is not None and vtype is not None and vtype in {
                 'bool', 'int', 'real', 'date', 'datetime'}:
             new_value = uxf.naturalize(value)
             if new_value != value:
                 self.say(485, f'converted str {value!r} to {vtype}')
                 value = new_value
+            else:
+                self.say(484, message)
         self.stack[-1].append(value)
 
 
     def _handle_scalar(self, i, token):
         value = token.value
-        vtype = self.typecheck(488, value)
+        vtype, message = self.typecheck(value)
         if value is not None and vtype is not None:
             if vtype == 'real' and isinstance(value, int):
                 value = float(value)
+                self.say(487, 'converted int to real')
             elif vtype == 'int' and isinstance(value, float):
                 value = int(value)
+                self.say(489, 'converted real to int')
+            else:
+                self.say(488, message)
         self.stack[-1].append(value)
 
 
@@ -532,7 +538,9 @@ class _Parser:
             self.say(490,
                      f'expected to create map, list, or table, got {token}')
         if self.stack:
-            self.typecheck(492, value)
+            _, message = self.typecheck(value)
+            if message is not None:
+                self.say(492, message)
             self.stack[-1].append(value) # add the collection to the parent
         self.stack.append(value) # make the collection the current parent
 
@@ -638,7 +646,7 @@ class _Parser:
                 self.say(542, f'ttypes {diff} are unused')
 
 
-    def typecheck(self, code, value):
+    def typecheck(self, value):
         parent = self.stack[-1]
         if isinstance(parent, uxf.Map):
             vtype = parent.ktype if parent._next_is_key else parent.vtype
@@ -646,11 +654,16 @@ class _Parser:
             vtype = parent.vtype
         else: # must be a Table
             vtype = parent._next_vtype
-        if not (value is None or vtype is None or
-                isinstance(value, _TYPECHECK_CLASSES[vtype])):
-            self.say(code, f'expected {vtype}, got {type(value)} {value}')
-            return vtype
-        return None
+        if value is not None and vtype is not None:
+            if vtype in _BUILT_IN_NAMES:
+                if not isinstance(value, _TYPECHECK_CLASSES[vtype]):
+                    message = (f'expected {vtype}, got {type(value)} '
+                               f'{value}')
+                    return vtype, message
+            elif vtype not in self.ttypes:
+                message = f'expected {vtype}, got {type(value)} {value}'
+                return vtype, message
+        return None, None
 
 
 _TYPECHECK_CLASSES = dict(
@@ -658,6 +671,7 @@ _TYPECHECK_CLASSES = dict(
     bytes=(bytes, bytearray), date=datetime.date,
     datetime=datetime.datetime, int=int, list=uxf.List, map=uxf.Map,
     real=float, str=str, table=uxf.Table)
+_BUILT_IN_NAMES = tuple(_TYPECHECK_CLASSES.keys())
 
 
 if __name__ == '__main__':

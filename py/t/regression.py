@@ -28,6 +28,7 @@ try:
     TEST_CONVERTERS = os.path.abspath('../t/test_converters.py')
     TEST_SQLITE = os.path.abspath('../t/test_sqlite.py')
     TEST_ERRORS = os.path.abspath('../t/test_errors.py')
+    TEST_LINTS = os.path.abspath('../t/test_lints.py')
     os.chdir('../../testdata') # move to test data
 finally:
     pass
@@ -54,8 +55,9 @@ def main():
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
     total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
     total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
-    for cmd in ([TEST_CONVERTERS], [TEST_SQLITE], [TEST_ERRORS]):
-        total, ok = test_external(cmd, total, ok, verbose=verbose)
+    for cmd in (TEST_CONVERTERS, TEST_SQLITE, TEST_ERRORS, TEST_LINTS):
+        total, ok = test_external([cmd, '--regression'], total, ok,
+                                  verbose=verbose)
     if total < 150:
         print('\b' * total, end='', flush=True)
     if total == ok:
@@ -300,7 +302,6 @@ def test_slides(slides_py, total, ok, *, verbose):
 
 
 def test_external(cmd, total, ok, *, verbose):
-    cmd.append('--regression')
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0:

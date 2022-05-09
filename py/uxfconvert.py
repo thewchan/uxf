@@ -757,7 +757,8 @@ Converting from uxf to json and back (i.e., using uxfconvert.py's own json
 format) roundtrips with perfect fidelity.
 
 Converting from uxf to xml and back (i.e., using uxfconvert.py's own xml
-format) roundtrips with perfect fidelity.
+format) roundtrips with almost perfect fidelity (apart, sometimes from
+whitespace differences in strings).
 
 Support for uxf to uxf conversions is provided by the uxf.py module itself,
 which can be run directly or via python, e.g., `uxf.py infile.uxf
