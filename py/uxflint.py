@@ -436,9 +436,9 @@ class _Parser:
             elif kind is uxf._Kind.TYPE:
                 self._handle_type(i, token)
             elif kind is uxf._Kind.STR:
-                self.stack[-1].append(token.value)
+                self._handle_str(i, token)
             elif kind.is_scalar:
-                self.stack[-1].append(token.value)
+                self._handle_scalar(i, token)
             elif kind is uxf._Kind.EOF:
                 break
             else:
@@ -494,6 +494,18 @@ class _Parser:
                      f'start of maps and lists, got {token}')
 
 
+    def _handle_str(self, i, token):
+        if not self.typecheck(484, token.value):
+            pass # TODO try to convert (e.g., str ↔ real, etc.)
+        self.stack[-1].append(token.value)
+
+
+    def _handle_scalar(self, i, token):
+        if not self.typecheck(488, token.value):
+            pass # TODO try to convert (e.g., int ↔ real)
+        self.stack[-1].append(token.value)
+
+
     def _on_collection_start(self, token):
         kind = token.kind
         if kind is uxf._Kind.MAP_BEGIN:
@@ -506,6 +518,7 @@ class _Parser:
             self.say(490,
                      f'expected to create map, list, or table, got {token}')
         if self.stack:
+            self.typecheck(492, value)
             self.stack[-1].append(value) # add the collection to the parent
         self.stack.append(value) # make the collection the current parent
 
@@ -609,6 +622,28 @@ class _Parser:
                 self.lino = ','.join(linos)
                 diff = ', '.join([p[1] for p in pairs])
                 self.say(542, f'ttypes {diff} are unused')
+
+
+    def typecheck(self, code, value):
+        parent = self.stack[-1]
+        if isinstance(parent, uxf.Map):
+            vtype = parent.ktype if parent._next_is_key else parent.vtype
+        elif isinstance(parent, uxf.List):
+            vtype = parent.vtype
+        else: # must be a Table
+            vtype = parent._next_vtype
+        if not (value is None or vtype is None or
+                isinstance(value, _TYPECHECK_CLASSES[vtype])):
+            self.say(code, f'expected {vtype}, got {type(value)} {value}')
+            return False
+        return True
+
+
+_TYPECHECK_CLASSES = dict(
+    collection=(uxf.List, uxf.Map, uxf.Table), bool=bool,
+    bytes=(bytes, bytearray), date=datetime.date,
+    datetime=datetime.datetime, int=int, list=uxf.List, map=uxf.Map,
+    real=float, str=str, table=uxf.Table)
 
 
 if __name__ == '__main__':

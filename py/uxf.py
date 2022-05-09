@@ -714,6 +714,11 @@ class Map(collections.UserDict, _ErrorMixin):
             self._pending_key = _MISSING
 
 
+    @property
+    def _next_is_key(self):
+        return self._pending_key is _MISSING
+
+
 class _CheckNameMixin:
 
     __slots__ = ()
@@ -885,6 +890,16 @@ class Table(_ErrorMixin):
 
     def field(self, column):
         return self.ttype.fields[column]
+
+
+    @property
+    def _next_vtype(self):
+        if not self.records:
+            return self.ttype.fields[0].vtype
+        else:
+            if len(self.records[-1]) == len(self.fields):
+                return self.ttype.fields[0].vtype
+            return self.ttype.fields[len(self.records[-1])].vtype
 
 
     def append(self, value):
