@@ -13,7 +13,6 @@ py/t/test_errors.py
 py/t/eq.py
 py/eg/importer.py
 py/eg/visit.py
-py/eg/typecheck.py
 py/eg/slides1.py
 py/eg/slides2.py
 py/eg/slides.sld

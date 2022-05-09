@@ -22,7 +22,10 @@ If an outfile is specified (or - for stdout) the infile is saved to it \
 with the following fixes:
 - the format is standardized (just like using uxf.py infile outfile)
 - unused ttypes are removed
-''') # TODO update for each fix that's applied
+- strings are natualized (i.e., converted to bool, int, real, date, or
+  datetime where required and where possible)
+- ints are converted to reals and vice versa where required
+''')
     infile = sys.argv[1]
     outfile = sys.argv[2] if len(sys.argv) > 2 else None
     if outfile is not None and (os.path.abspath(infile) ==
@@ -495,15 +498,26 @@ class _Parser:
 
 
     def _handle_str(self, i, token):
-        if not self.typecheck(484, token.value):
-            pass # TODO try to convert (e.g., str ↔ real, etc.)
-        self.stack[-1].append(token.value)
+        value = token.value
+        vtype = self.typecheck(484, value)
+        if value is not None and vtype is not None and vtype in {
+                'bool', 'int', 'real', 'date', 'datetime'}:
+            new_value = uxf.naturalize(value)
+            if new_value != value:
+                self.say(485, f'converted str {value!r} to {vtype}')
+                value = new_value
+        self.stack[-1].append(value)
 
 
     def _handle_scalar(self, i, token):
-        if not self.typecheck(488, token.value):
-            pass # TODO try to convert (e.g., int ↔ real)
-        self.stack[-1].append(token.value)
+        value = token.value
+        vtype = self.typecheck(488, value)
+        if value is not None and vtype is not None:
+            if vtype == 'real' and isinstance(value, int):
+                value = float(value)
+            elif vtype == 'int' and isinstance(value, float):
+                value = int(value)
+        self.stack[-1].append(value)
 
 
     def _on_collection_start(self, token):
@@ -635,8 +649,8 @@ class _Parser:
         if not (value is None or vtype is None or
                 isinstance(value, _TYPECHECK_CLASSES[vtype])):
             self.say(code, f'expected {vtype}, got {type(value)} {value}')
-            return False
-        return True
+            return vtype
+        return None
 
 
 _TYPECHECK_CLASSES = dict(
