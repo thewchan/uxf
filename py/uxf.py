@@ -724,6 +724,8 @@ class _CheckNameMixin:
     __slots__ = ()
 
     def _check_name(self, name):
+        if not name:
+            raise Error('#298:table\'s must have nonempty names')
         if name[0].isdigit():
             raise Error('#300:names must start with a letter or '
                         f'underscore, got {name}')
@@ -1136,6 +1138,18 @@ class _Parser(_ErrorMixin):
         if not self.stack:
             self.error(510, f'unexpected {token} suggests unmatched map, '
                        'list, or table start/end pair')
+        parent = self.stack[-1]
+        if token.kind is _Kind.LIST_END:
+            Class = List
+            closer = ']'
+        elif token.kind is _Kind.MAP_END:
+            Class = Map
+            closer = '}'
+        elif token.kind is _Kind.TABLE_END:
+            Class = Table
+            closer = ')'
+        if not isinstance(parent, Class):
+            self.error(512, f'expected {closer!r}, got {token.value!r}')
         self.stack.pop()
 
 
@@ -1179,15 +1193,14 @@ class _Parser(_ErrorMixin):
                 else:
                     ttype.append(token.value)
             elif token.kind is _Kind.TYPE:
-                if len(ttype) > 0:
-                    vtype = token.value
-                    ttype.set_vtype(-1, vtype)
-                    if vtype not in TYPENAMES:
-                        used.add(vtype)
-                else:
+                if not ttype:
                     self.error(
                         520,
                         f'encountered type without field name: {token}')
+                vtype = token.value
+                ttype.set_vtype(-1, vtype)
+                if vtype not in TYPENAMES:
+                    used.add(vtype)
             elif token.kind is _Kind.TTYPE_END:
                 if ttype is not None and bool(ttype):
                     self.ttypes[ttype.name] = ttype
@@ -1521,8 +1534,8 @@ _Converters = {}
 
 def add_converter(obj_type, *, to_str=repr, from_str=None):
     'Use this to register custom types and conversions to and from str\'s.'
-    if isinstance(obj_type, (bool, int, float, datetime.date,
-                             datetime.datetime, str, bytes, bytearray)):
+    if obj_type in {bool, int, float, datetime.date, datetime.datetime,
+                    str, bytes, bytearray}:
         raise Error(
             '#570: can\'t override default conversions for standard types')
     _Converters[obj_type] = Converter(to_str, from_str or obj_type)

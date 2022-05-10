@@ -6,6 +6,24 @@ import collections
 import sys
 
 
+# TODO how to trigger 240?
+# TODO how to trigger 250?
+# TODO how to trigger 260?
+# TODO how to trigger 340?
+# TODO how to trigger 360?
+# TODO how to trigger 370?
+# TODO how to trigger 380?
+# TODO how to trigger 390?
+# TODO how to trigger 410?
+# TODO how to trigger 420?
+# TODO how to trigger 490?
+# TODO how to trigger 500?
+# TODO how to trigger 510?
+# TODO how to trigger 530?
+# TODO how to trigger 540?
+# TODO how to trigger 550?
+
+
 try:
     import os
     os.chdir(os.path.dirname(__file__)) # move to this file's dir
@@ -152,10 +170,6 @@ def main():
     except uxf.Error as err:
         ok += on_error(e, err, regression)
 
-    # TODO how to trigger 240?
-    # TODO how to trigger 250?
-    # TODO how to trigger 260?
-
     try:
         total += 1
         e = 270
@@ -233,7 +247,139 @@ def main():
     except uxf.Error as err:
         ok += on_error(e, err, regression)
 
-# TODO 340
+    try:
+        total += 1
+        e = 298
+        _ = uxf.Table(name='', records=(1, 2))
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 330
+        _ = uxf.Table(name='test', records=(1, 2))
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 350
+        t = uxf.Table(name='t1')
+        t.append(1)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 350
+        t = uxf.Table(name='t1', fields=('a', 'b'))
+        t.ttype.fields = None
+        t.append(1)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 400
+        uxf.loads('uxf 1.0\n(:AB:)', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 190
+        uxf.loads('uxf 1.0\n{1 2 #<3> 4}', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 430
+        uxf.loads('uxf 1.0\n{int p}', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 440
+        uxf.loads('uxf 1.0\n[q]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 450
+        uxf.loads('uxf 1.0\n(r)', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 460
+        uxf.loads('uxf 1.0\n{p}', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 470
+        uxf.loads('uxf 1.0\n[int real]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 480
+        uxf.loads('uxf 1.0\n{int real str}', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 512
+        uxo = uxf.loads('uxf 1.0\n[1 2 3}', warn_is_error=True)
+        print(uxo.dumps())
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 520
+        uxf.loads('uxf 1.0\nint', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 561
+        uxo = uxf.Uxf()
+        uxo.data = [3+2j] # noqa: E226
+        _ = uxo.dumps(warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 570
+        uxf.add_converter(str)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
 
     if not regression:
         result = 'OK' if total == ok else 'FAIL'

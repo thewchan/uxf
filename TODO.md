@@ -1,7 +1,5 @@
 # TODOS
 
-- complete py/t/test\_errors.py
-
 - code review
 
 - release 1.0.0
