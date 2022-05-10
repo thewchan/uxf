@@ -89,6 +89,14 @@ def main():
 
     try:
         total += 1
+        e = 170
+        uxf.loads('uxf 1.0\n[1 2 5_invalid]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
         e = 180
         uxf.loads('uxf 1.0\n[# 123]', warn_is_error=True)
         fail(f'test_errors • #{e} FAIL', regression)
@@ -103,56 +111,129 @@ def main():
     except uxf.Error as err:
         ok += on_error(e, err, regression)
 
-#    table = uxf.Table(name='Pair', fields=('first', 'second'))
-#
-#    uxo = uxf.Uxf({})
-#    uxo.data.append('key')
-#    uxo.data.append('value')
-#    try:
-#        total += 1
-#        e = 120
-#        uxo.data.append(table)
-#        fail(f'test_errors • #{e} FAIL', regression)
-#    except uxf.Error as err:
-#        ok += on_error(e, err, regression)
-#    try:
-#        total += 1
-#        e = 130
-#        uxo.data.append(3.8)
-#        fail(f'test_errors • #{e} FAIL', regression)
-#    except uxf.Error as err:
-#        ok += on_error(e, err, regression)
-#
-#    try:
-#        total += 1
-#        e = 150
-#        _ = uxf.Field('1st')
-#        fail(f'test_errors • #{e} FAIL', regression)
-#    except uxf.Error as err:
-#        ok += on_error(e, err, regression)
-#    try:
-#        total += 1
-#        e = 160
-#        _ = uxf.Field('$1st')
-#        fail(f'test_errors • #{e} FAIL', regression)
-#    except uxf.Error as err:
-#        ok += on_error(e, err, regression)
-#
-#    try:
-#        total += 1
-#        e = 180
-#        _ = uxf.Table(records=(1, 2))
-#        fail(f'test_errors • #{e} FAIL', regression)
-#    except uxf.Error as err:
-#        ok += on_error(e, err, regression)
-#
-#    try:
-#        total += 1
-#        e = 190
-#        _ = uxf.Table(name='test', records=(1, 2))
-#        fail(f'test_errors • #{e} FAIL', regression)
-#    except uxf.Error as err:
-#        ok += on_error(e, err, regression)
+    try:
+        total += 1
+        e = 200
+        uxf.loads('uxf 1.0\n[(:AB CD EF GH:)]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 210
+        uxf.loads('uxf 1.0\n[-7F]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 220
+        uxf.loads('uxf 1.0\n[7.8.9]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 220
+        uxf.loads('uxf 1.0\n[2020-02-20T20e20]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 231
+        uxf.loads('uxf 1.0\n[2020-02-20T20:20:20-07:31T]',
+                  warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    # TODO how to trigger 240?
+    # TODO how to trigger 250?
+    # TODO how to trigger 260?
+
+    try:
+        total += 1
+        e = 270
+        uxf.loads('uxf 1.0\n[(:AB 12:]', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 280
+        uxf.loads('uxf 1.0\n=p q\n{(p 1) 8}', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 290
+        uxf.loads('uxf 1.0\n{7.9 8}', warn_is_error=True)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    table = uxf.Table(name='Pair', fields=('first', 'second'))
+    uxo = uxf.Uxf({})
+    uxo.data.append('key')
+    uxo.data.append('value')
+
+    try:
+        total += 1
+        e = 280
+        uxo.data.append(table)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 290
+        uxo.data.append(3.8)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 300
+        _ = uxf.Field('1st')
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 310
+        _ = uxf.Field('$1st')
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 320
+        _ = uxf.Table(records=(1, 2))
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 330
+        _ = uxf.Table(name='test', records=(1, 2))
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += on_error(e, err, regression)
+
+# TODO 340
 
     if not regression:
         result = 'OK' if total == ok else 'FAIL'
