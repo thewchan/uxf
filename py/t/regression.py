@@ -322,7 +322,7 @@ def test_external(cmd, total, ok, *, verbose):
             total += int(parts[0].split('=')[1])
             ok += int(parts[1].split('=')[1])
         except (IndexError, ValueError):
-            print(f'failed to read total/ok from {cmd}')
+            print(f'failed to read total/ok from {cmd}, got {parts!r}')
         if verbose:
             print(f'{cmd} • OK')
     return total, ok

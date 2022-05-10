@@ -473,7 +473,7 @@ class _Parser:
             kind = token.kind
             collection_start = self._is_collection_start(kind)
             if data is None and not collection_start:
-                self.error(400,
+                self.error(270,
                            f'expected a map, list, or table, got {token}')
             if collection_start:
                 self._on_collection_start(token)
@@ -494,7 +494,7 @@ class _Parser:
             elif kind is _Kind.EOF:
                 break
             else:
-                self.error(410, f'unexpected token, got {token}')
+                self.error(280, f'unexpected token, got {token}')
         self._check_ttypes()
         return data, comment
 
@@ -513,17 +513,17 @@ class _Parser:
     def _report_ttypes(self, ttypes, what):
         diff = sorted(ttypes)
         if len(diff) == 1:
-            self.error(520, f'{what} type: {diff[0]!r}')
+            self.error(290, f'{what} type: {diff[0]!r}')
         else:
             diff = ', '.join(repr(t) for t in diff)
-            self.error(530, f'{what} types: {diff}')
+            self.error(300, f'{what} types: {diff}')
 
 
     def _handle_comment(self, i, token):
         parent = self.stack[-1]
         prev_token = self.tokens[i - 1]
         if not self._is_collection_start(prev_token.kind):
-            self.error(420, 'comments may only be put at the beginning '
+            self.error(310, 'comments may only be put at the beginning '
                        f'of a map, list, or table, not after {prev_token}')
         parent.comment = token.value
 
@@ -536,7 +536,7 @@ class _Parser:
                  self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
             vtype = self.ttypes.get(token.value)
             if vtype is None:
-                self.error(430, f'undefined map value table type, {token}')
+                self.error(320, f'undefined map value table type, {token}')
             else:
                 parent.vtype = vtype.name
                 self.used_ttypes.add(vtype.name)
@@ -545,7 +545,7 @@ class _Parser:
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
             vtype = self.ttypes.get(token.value)
             if vtype is None:
-                self.error(436, f'undefined list table type, {token}')
+                self.error(330, f'undefined list table type, {token}')
             else:
                 parent.vtype = vtype.name
                 self.used_ttypes.add(vtype.name)
@@ -554,12 +554,12 @@ class _Parser:
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
             ttype = self.ttypes.get(token.value)
             if ttype is None:
-                self.error(440, f'undefined table ttype, {token}',
+                self.error(340, f'undefined table ttype, {token}',
                            fail=True) # A table with not ttype is invalid
             parent.ttype = ttype
             self.used_ttypes.add(ttype.name)
         else: # should never happen
-            self.error(450, 'ttype name may only appear at the start of a '
+            self.error(350, 'ttype name may only appear at the start of a '
                        f'map (as the value type), list, or table, {token}')
 
 
@@ -567,7 +567,7 @@ class _Parser:
         parent = self.stack[-1]
         if isinstance(parent, uxf.List):
             if parent.vtype is not None:
-                self.error(460, 'can only have at most one vtype for a '
+                self.error(360, 'can only have at most one vtype for a '
                            f'list, got {token}')
             parent.vtype = token.value
         elif isinstance(parent, uxf.Map):
@@ -576,10 +576,10 @@ class _Parser:
             elif parent.vtype is None:
                 parent.vtype = token.value
             else:
-                self.error(470, 'can only have at most one ktype and one '
+                self.error(370, 'can only have at most one ktype and one '
                            f'vtype for a map, got {token}')
         else:
-            self.error(480, 'ktypes and vtypes are only allowed at the '
+            self.error(380, 'ktypes and vtypes are only allowed at the '
                        f'start of maps and lists, got {token}')
 
 
@@ -590,11 +590,11 @@ class _Parser:
                 'bool', 'int', 'real', 'date', 'datetime'}:
             new_value = uxf.naturalize(value)
             if new_value != value:
-                self.error(485, f'converted str {value!r} to {vtype}',
+                self.error(395, f'converted str {value!r} to {vtype}',
                            fixed=True)
                 value = new_value
             else:
-                self.error(484, message)
+                self.error(400, message)
         self.stack[-1].append(value)
 
 
@@ -604,12 +604,12 @@ class _Parser:
         if value is not None and vtype is not None:
             if vtype == 'real' and isinstance(value, int):
                 value = float(value)
-                self.error(487, 'converted int to real', fixed=True)
+                self.error(405, 'converted int to real', fixed=True)
             elif vtype == 'int' and isinstance(value, float):
                 value = int(value)
-                self.error(489, 'converted real to int', fixed=True)
+                self.error(415, 'converted real to int', fixed=True)
             else:
-                self.error(488, message)
+                self.error(420, message)
         self.stack[-1].append(value)
 
 
@@ -622,19 +622,19 @@ class _Parser:
         elif kind is _Kind.TABLE_BEGIN:
             value = uxf.Table()
         else:
-            self.error(490, f'expected to create map, list, or table, '
+            self.error(430, f'expected to create map, list, or table, '
                        f'got {token}')
         if self.stack:
             _, message = self.typecheck(value)
             if message is not None:
-                self.error(492, message)
+                self.error(440, message)
             self.stack[-1].append(value) # add the collection to the parent
         self.stack.append(value) # make the collection the current parent
 
 
     def _on_collection_end(self, token):
         if not self.stack:
-            self.error(500, f'unexpected {token} suggests unmatched map, '
+            self.error(450, f'unexpected {token} suggests unmatched map, '
                        'list, or table start/end pair')
         self.stack.pop()
 
@@ -681,7 +681,7 @@ class _Parser:
                     ttype.set_vtype(-1, vtype)
                 else:
                     self.error(
-                        510,
+                        460,
                         f'encountered type without field name: {token}')
             elif token.kind is _Kind.TTYPE_END:
                 if ttype is not None and bool(ttype):
