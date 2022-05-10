@@ -66,6 +66,9 @@ datetime.datetime, str, bytes, or bytearray; otherwise returns False.
 This class is used to propagate errors (and warnings if warn_is_error is
 True).
 
+(If this module produces an exception that isn't a uxf.Error or IOError
+subclass then it is probably a bug and should be reported.)
+
     Uxf
 
 This class has a .data attribute which holds a Map, List, or Table, a
@@ -667,7 +670,7 @@ class _Kind(enum.Enum):
                         _Kind.DATE, _Kind.DATE_TIME, _Kind.STR, _Kind.BYTES}
 
 
-class List(collections.UserList, _ErrorMixin):
+class List(collections.UserList):
 
     def __init__(self, *args, **kwargs):
         '''Takes same arguments as list.
@@ -679,7 +682,7 @@ class List(collections.UserList, _ErrorMixin):
         self.vtype = None
 
 
-class Map(collections.UserDict, _ErrorMixin):
+class Map(collections.UserDict):
 
     def __init__(self, *args, **kwargs):
         '''Takes same arguments as dict.
@@ -825,7 +828,7 @@ class Field(_CheckNameMixin):
         return f'{self.__class__.__name__}({self.name!r}, {self.vtype!r})'
 
 
-class Table(_ErrorMixin):
+class Table:
     '''Used to store a UXF table.
 
     A Table has a list of fields (name, optional type) and a records list

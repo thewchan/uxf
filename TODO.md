@@ -1,6 +1,6 @@
 # TODOS
 
-- code review
+- code review & improvement
 
 - release 1.0.0
 
