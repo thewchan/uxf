@@ -48,6 +48,8 @@ def check_good(name, regression):
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0 or reply.stdout or reply.stderr:
+        if reply.stdout.strip() == 'no errors found':
+            return 1
         if not regression:
             text = reply.stdout
             if text:
@@ -73,6 +75,8 @@ def check_bad(name, regression):
     actual = reply.stdout.strip()
     expected = _ERROR_FOR_FILENAME.get(name).strip()
     if expected is None:
+        if actual == 'no errors found':
+            return 1
         if not regression:
             print(f'{cmd} • (bad) FAIL expected nothing, got:\n{actual!r}')
         return 0
@@ -92,35 +96,124 @@ def by_number(s):
 
 
 _ERROR_FOR_FILENAME = {
-    't13.uxf': ('uxflint.py:t13.uxf:5,6,7,8,9:#542:ttypes Playlists, '
-                'IPv4, RGB, RGBA, IntPair are unused'),
-    't14.uxf': ('uxflint.py:t14.uxf:3,4,5,6,7,8:#542:ttypes Categories, '
-                'Playlists, IPv4, RGB, RGBA, IntPair are unused'),
-    't24.uxf': ("uxflint.py:t24.uxf:4:#492:expected list, got "
-                "<class 'uxf.Table'> Table None [] with 0 records "
-                "#None\nuxflint.py:t24.uxf:14:#492:expected list, "
-                "got <class 'uxf.Table'> Table None [] with 0 records "
-                "#None"),
-    't28.uxf': ('uxflint.py:t28.uxf:4,5,6,7,8:#542:ttypes Playlists, '
-                'IPv4, RGB, RGBA, IntPair are unused'),
-    't33.uxf': ("uxflint.py:t33.uxf:10:#492:expected map, got "
-                "<class 'uxf.Table'> Table None [] with 0 records #None"),
-    't54.uxf': ("uxflint.py:t54.uxf:3:#540:ttype 'Pair' is unused"),
-    't55.uxf': ("uxflint.py:t55.uxf:3:#540:ttype 'Pair' is unused"),
-    't56.uxf': '''
-uxflint.py:t56.uxf:8:#485:converted str '2' to int
-uxflint.py:t56.uxf:8:#485:converted str '1983-04-07' to date
-uxflint.py:t56.uxf:10:#489:converted real to int
-uxflint.py:t56.uxf:14:#484:expected real, got <class 'str'> wrong
-uxflint.py:t56.uxf:17:#487:converted int to real
-uxflint.py:t56.uxf:19:#485:converted str '6.7' to real
-uxflint.py:t56.uxf:20:#485:converted str '9' to real
-uxflint.py:t56.uxf:21:#487:converted int to real
-uxflint.py:t56.uxf:22:#487:converted int to real
-uxflint.py:t56.uxf:23:#487:converted int to real
-uxflint.py:t56.uxf:24:#487:converted int to real
-uxflint.py:t56.uxf:24:#485:converted str '2008-09-01T23:59:46' to datetime
-''',
+    't13.uxf': '''
+uxflint.py:t13.uxf:43:#530:unused types: 'IPv4', 'IntPair', 'Playlists', \
+'RGB', 'RGBA'
+could have found one error but could not fix it''',
+    't14.uxf': '''
+uxflint.py:t14.uxf:39:#530:unused types: 'Categories', 'IPv4', 'IntPair', \
+'Playlists', 'RGB', 'RGBA'
+could have found one error but could not fix it''',
+    't28.uxf': '''
+uxflint.py:t28.uxf:39:#530:unused types: 'IPv4', 'IntPair', 'Playlists', \
+'RGB', 'RGBA'
+could have found one error but could not fix it''',
+    't33.uxf': '''
+uxflint.py:t33.uxf:10:#492:expected map, got <class 'uxf.Table'> Table \
+None [] with 0 records #None
+could have found one error but could not fix it''',
+    't54.uxf': '''
+uxflint.py:t54.uxf:4:#520:unused type: 'Pair'
+could have found one error but could not fix it''',
+    't55.uxf': '''
+uxflint.py:t55.uxf:4:#520:unused type: 'Pair'
+could have found one error but could not fix it''',
+    't57.uxf': '''
+uxflint.py:t57.uxf:14:#484:expected real, got <class 'str'> wrong
+uxflint.py:t57.uxf:20:#487:converted int to real
+could have found 2 errors and fixed one of them''',
+    'l56.uxf': '''
+uxflint.py:l56.uxf:8:#485:converted str '2' to int
+uxflint.py:l56.uxf:8:#485:converted str '1983-04-07' to date
+uxflint.py:l56.uxf:10:#489:converted real to int
+uxflint.py:l56.uxf:14:#484:expected real, got <class 'str'> wrong
+uxflint.py:l56.uxf:17:#487:converted int to real
+uxflint.py:l56.uxf:19:#485:converted str '6.7' to real
+uxflint.py:l56.uxf:20:#485:converted str '9' to real
+uxflint.py:l56.uxf:21:#487:converted int to real
+uxflint.py:l56.uxf:22:#487:converted int to real
+uxflint.py:l56.uxf:23:#487:converted int to real
+uxflint.py:l56.uxf:24:#487:converted int to real
+uxflint.py:l56.uxf:24:#485:converted str '2008-09-01T23:59:46' to datetime
+could have found 12 errors and fixed 11 of them''',
+    'l58.uxf': '''
+uxflint.py:l58.uxf:13:#485:converted str 'yes' to bool
+uxflint.py:l58.uxf:13:#485:converted str 'no' to bool
+uxflint.py:l58.uxf:13:#485:converted str 't' to bool
+uxflint.py:l58.uxf:13:#485:converted str 'f' to bool
+uxflint.py:l58.uxf:13:#485:converted str 'true' to bool
+uxflint.py:l58.uxf:13:#485:converted str 'false' to bool
+uxflint.py:l58.uxf:13:#484:expected bool, got <class 'str'> duh
+uxflint.py:l58.uxf:14:#489:converted real to int
+uxflint.py:l58.uxf:14:#489:converted real to int
+uxflint.py:l58.uxf:14:#489:converted real to int
+uxflint.py:l58.uxf:14:#489:converted real to int
+uxflint.py:l58.uxf:14:#489:converted real to int
+uxflint.py:l58.uxf:15:#485:converted str '-1' to int
+uxflint.py:l58.uxf:15:#485:converted str '0' to int
+uxflint.py:l58.uxf:15:#485:converted str '1' to int
+uxflint.py:l58.uxf:16:#485:converted str '-0.1' to int
+uxflint.py:l58.uxf:16:#485:converted str '-1.0' to int
+uxflint.py:l58.uxf:16:#485:converted str '0.0' to int
+uxflint.py:l58.uxf:16:#485:converted str '0.1' to int
+uxflint.py:l58.uxf:16:#485:converted str '1.0' to int
+uxflint.py:l58.uxf:17:#484:expected int, got <class 'str'> one
+uxflint.py:l58.uxf:18:#487:converted int to real
+uxflint.py:l58.uxf:18:#487:converted int to real
+uxflint.py:l58.uxf:18:#487:converted int to real
+uxflint.py:l58.uxf:19:#485:converted str '-1' to real
+uxflint.py:l58.uxf:19:#485:converted str '0' to real
+uxflint.py:l58.uxf:19:#485:converted str '1' to real
+uxflint.py:l58.uxf:20:#485:converted str '-0.1' to real
+uxflint.py:l58.uxf:20:#485:converted str '-1.0' to real
+uxflint.py:l58.uxf:20:#485:converted str '0.0' to real
+uxflint.py:l58.uxf:20:#485:converted str '0.1' to real
+uxflint.py:l58.uxf:20:#485:converted str '1.0' to real
+uxflint.py:l58.uxf:21:#484:expected real, got <class 'str'> one
+uxflint.py:l58.uxf:23:#488:expected date, got <class 'int'> 1990
+uxflint.py:l58.uxf:23:#488:expected date, got <class 'float'> 1980.5
+uxflint.py:l58.uxf:23:#485:converted str '1906' to date
+uxflint.py:l58.uxf:23:#485:converted str '1907-05' to date
+uxflint.py:l58.uxf:23:#485:converted str '1909-08-18' to date
+uxflint.py:l58.uxf:25:#488:expected datetime, got <class 'int'> 1990
+uxflint.py:l58.uxf:25:#488:expected datetime, got <class 'float'> 1980.5
+uxflint.py:l58.uxf:25:#485:converted str '1906' to datetime
+uxflint.py:l58.uxf:25:#485:converted str '1907-05' to datetime
+uxflint.py:l58.uxf:25:#485:converted str '1909-08-18' to datetime
+uxflint.py:l58.uxf:26:#485:converted str '1911-11-13T04' to datetime
+uxflint.py:l58.uxf:26:#485:converted str '1913-12-01T05:19' to datetime
+uxflint.py:l58.uxf:29:#488:expected str, got <class 'int'> 3
+uxflint.py:l58.uxf:29:#488:expected str, got <class 'int'> 4
+uxflint.py:l58.uxf:29:#488:expected str, got <class 'float'> 5.6
+uxflint.py:l58.uxf:29:#488:expected str, got <class 'float'> -7.9
+uxflint.py:l58.uxf:29:#488:expected str, got <class 'int'> -8
+uxflint.py:l58.uxf:29:#488:expected str, got <class 'datetime.date'> \
+1990-01-11
+uxflint.py:l58.uxf:29:#488:expected str, got <class 'datetime.datetime'> \
+1995-03-15 22:30:00
+uxflint.py:l58.uxf:30:#488:expected str, got <class 'datetime.datetime'> \
+1998-10-17 20:18:45
+uxflint.py:l58.uxf:31:#488:expected str, got <class 'bytes'> b'UXF 1.0'
+uxflint.py:l58.uxf:32:#484:expected int, got <class 'str'> one
+uxflint.py:l58.uxf:32:#484:expected int, got <class 'str'> two
+uxflint.py:l58.uxf:34:#489:converted real to int
+uxflint.py:l58.uxf:34:#489:converted real to int
+uxflint.py:l58.uxf:34:#488:expected int, got <class 'datetime.date'> \
+1990-01-11
+uxflint.py:l58.uxf:35:#488:expected int, got <class 'datetime.datetime'> \
+1995-03-15 22:30:00
+uxflint.py:l58.uxf:35:#488:expected int, got <class 'datetime.datetime'> \
+1998-10-17 20:18:45
+uxflint.py:l58.uxf:36:#488:expected int, got <class 'bytes'> b'UXF 1.0'
+uxflint.py:l58.uxf:36:#492:expected int, got <class 'uxf.Table'> Table \
+None [] with 0 records #None
+uxflint.py:l58.uxf:36:#484:expected int, got <class 'str'> a
+uxflint.py:l58.uxf:36:#484:expected int, got <class 'str'> b
+uxflint.py:l58.uxf:38:#520:unused type: 'by'
+could have found 66 errors and fixed 40 of them''',
+    'l59.uxf': '''
+uxflint.py:l59.uxf:20:#530:unused types: 'one', 'three', 'two'
+could have found one error but could not fix it''',
     }
 
 

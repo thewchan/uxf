@@ -1058,10 +1058,22 @@ class _Parser(_ErrorMixin):
 
     def _handle_identifier(self, i, token):
         parent = self.stack[-1]
-        if not isinstance(parent, Table):
-            self.error(430, 'ttype name may only appear at the start of a '
-                       f'table, {token}')
-        if self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
+        if (self.tokens[i - 1].kind is _Kind.TYPE and
+            (self.tokens[i - 2].kind is _Kind.MAP_BEGIN or
+                (self.tokens[i - 2].kind is _Kind.COMMENT and
+                 self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
+            vtype = self.ttypes.get(token.value)
+            if vtype is None:
+                self.error(430, f'undefined map value table type, {token}')
+            parent.vtype = vtype.name
+        elif self.tokens[i - 1].kind is _Kind.LIST_BEGIN or (
+                self.tokens[i - 1].kind is _Kind.COMMENT and
+                self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
+            vtype = self.ttypes.get(token.value)
+            if vtype is None:
+                self.error(436, f'undefined list table type, {token}')
+            parent.vtype = vtype.name
+        elif self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
             ttype = self.ttypes.get(token.value)
@@ -1070,7 +1082,7 @@ class _Parser(_ErrorMixin):
             parent.ttype = ttype
         else: # should never happen
             self.error(450, 'ttype name may only appear at the start of a '
-                       f'table, {token}')
+                       f'map (as the value type), list, or table, {token}')
 
 
     def _handle_type(self, i, token):
@@ -1629,4 +1641,4 @@ Converting uxf to uxf will alphabetically order any ttypes.
         outfile = sys.stdout if outfile is None else outfile
         dump(outfile, uxo, indent=indent)
     except (IOError, Error) as err:
-        print(f'uxfconvert:error:{err}', file=sys.stderr)
+        print(f'uxf.py:error:{err}', file=sys.stderr)

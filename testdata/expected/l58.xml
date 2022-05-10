@@ -1,0 +1,288 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" comment="More linting test data">
+  <ttypes>
+    <ttype name="B">
+      <field name="b" vtype="bool"/>
+    </ttype>
+    <ttype name="D">
+      <field name="d" vtype="date"/>
+    </ttype>
+    <ttype name="I">
+      <field name="i" vtype="int"/>
+    </ttype>
+    <ttype name="R">
+      <field name="r" vtype="real"/>
+    </ttype>
+    <ttype name="S">
+      <field name="s" vtype="str"/>
+    </ttype>
+    <ttype name="T">
+      <field name="a" vtype="table"/>
+    </ttype>
+    <ttype name="by">
+      <field name="b" vtype="bytes"/>
+    </ttype>
+    <ttype name="dt">
+      <field name="dt" vtype="datetime"/>
+    </ttype>
+    <ttype name="p">
+      <field name="a" vtype="int"/>
+      <field name="b" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <list vtype="T">
+    <table name="B">
+      <row>
+        <yes/>
+      </row>
+      <row>
+        <no/>
+      </row>
+      <row>
+        <yes/>
+      </row>
+      <row>
+        <no/>
+      </row>
+      <row>
+        <yes/>
+      </row>
+      <row>
+        <no/>
+      </row>
+      <row>
+        <yes/>
+      </row>
+      <row>
+        <no/>
+      </row>
+      <row>
+        <str>duh</str>
+      </row>
+    </table>
+    <table name="I">
+      <row>
+        <int v="-1"/>
+      </row>
+      <row>
+        <int v="0"/>
+      </row>
+      <row>
+        <int v="1"/>
+      </row>
+      <row>
+        <int v="0"/>
+      </row>
+      <row>
+        <int v="-1"/>
+      </row>
+      <row>
+        <int v="0"/>
+      </row>
+      <row>
+        <int v="0"/>
+      </row>
+      <row>
+        <int v="1"/>
+      </row>
+      <row>
+        <int v="-1"/>
+      </row>
+      <row>
+        <int v="0"/>
+      </row>
+      <row>
+        <int v="1"/>
+      </row>
+      <row>
+        <real v="-0.1"/>
+      </row>
+      <row>
+        <real v="-1.0"/>
+      </row>
+      <row>
+        <real v="0.0"/>
+      </row>
+      <row>
+        <real v="0.1"/>
+      </row>
+      <row>
+        <real v="1.0"/>
+      </row>
+      <row>
+        <str>one</str>
+      </row>
+    </table>
+    <table name="R">
+      <row>
+        <real v="-1.0"/>
+      </row>
+      <row>
+        <real v="0.0"/>
+      </row>
+      <row>
+        <real v="1.0"/>
+      </row>
+      <row>
+        <real v="-0.1"/>
+      </row>
+      <row>
+        <real v="-1.0"/>
+      </row>
+      <row>
+        <real v="0.0"/>
+      </row>
+      <row>
+        <real v="0.1"/>
+      </row>
+      <row>
+        <real v="1.0"/>
+      </row>
+      <row>
+        <int v="-1"/>
+      </row>
+      <row>
+        <int v="0"/>
+      </row>
+      <row>
+        <int v="1"/>
+      </row>
+      <row>
+        <real v="-0.1"/>
+      </row>
+      <row>
+        <real v="-1.0"/>
+      </row>
+      <row>
+        <real v="0.0"/>
+      </row>
+      <row>
+        <real v="0.1"/>
+      </row>
+      <row>
+        <real v="1.0"/>
+      </row>
+      <row>
+        <str>one</str>
+      </row>
+    </table>
+    <table name="D">
+      <row>
+        <date v="1900-01-01"/>
+      </row>
+      <row>
+        <date v="1950-06-15"/>
+      </row>
+      <row>
+        <int v="1990"/>
+      </row>
+      <row>
+        <real v="1980.5"/>
+      </row>
+      <row>
+        <int v="1906"/>
+      </row>
+      <row>
+        <date v="1907-05-01"/>
+      </row>
+      <row>
+        <date v="1909-08-18"/>
+      </row>
+    </table>
+    <table name="dt">
+      <row>
+        <datetime v="1900-01-01T11:00:00"/>
+      </row>
+      <row>
+        <datetime v="1950-06-15T20:05:05"/>
+      </row>
+      <row>
+        <int v="1990"/>
+      </row>
+      <row>
+        <real v="1980.5"/>
+      </row>
+      <row>
+        <int v="1906"/>
+      </row>
+      <row>
+        <date v="1907-05-01"/>
+      </row>
+      <row>
+        <date v="1909-08-18"/>
+      </row>
+      <row>
+        <datetime v="1911-11-13T04:00:00"/>
+      </row>
+      <row>
+        <datetime v="1913-12-01T05:19:00"/>
+      </row>
+    </table>
+    <table name="S">
+      <row>
+        <str>one</str>
+      </row>
+      <row>
+        <str>two</str>
+      </row>
+      <row>
+        <int v="3"/>
+      </row>
+      <row>
+        <int v="4"/>
+      </row>
+      <row>
+        <real v="5.6"/>
+      </row>
+      <row>
+        <real v="-7.9"/>
+      </row>
+      <row>
+        <int v="-8"/>
+      </row>
+      <row>
+        <date v="1990-01-11"/>
+      </row>
+      <row>
+        <datetime v="1995-03-15T22:30:00"/>
+      </row>
+      <row>
+        <datetime v="1998-10-17T20:18:45"/>
+      </row>
+      <row>
+        <bytes>55584620312E30</bytes>
+      </row>
+    </table>
+    <table name="p">
+      <row>
+        <str>one</str>
+        <str>two</str>
+      </row>
+      <row>
+        <int v="3"/>
+        <int v="4"/>
+      </row>
+      <row>
+        <int v="5"/>
+        <int v="-7"/>
+      </row>
+      <row>
+        <int v="-8"/>
+        <date v="1990-01-11"/>
+      </row>
+      <row>
+        <datetime v="1995-03-15T22:30:00"/>
+        <datetime v="1998-10-17T20:18:45"/>
+      </row>
+      <row>
+        <bytes>55584620312E30</bytes>
+        <table name="p">
+          <row>
+            <str>a</str>
+            <str>b</str>
+          </row>
+        </table>
+      </row>
+    </table>
+  </list>
+</uxf>

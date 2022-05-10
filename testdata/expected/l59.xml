@@ -1,0 +1,122 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="one">
+      <field name="x"/>
+    </ttype>
+    <ttype name="p">
+      <field name="a" vtype="int"/>
+      <field name="b" vtype="int"/>
+    </ttype>
+    <ttype name="three">
+      <field name="x"/>
+      <field name="y"/>
+      <field name="z"/>
+    </ttype>
+    <ttype name="two">
+      <field name="x"/>
+      <field name="y"/>
+    </ttype>
+  </ttypes>
+  <map>
+    <key>
+      <str>x</str>
+    </key>
+    <value>
+      <map ktype="int" vtype="str">
+        <key>
+          <int v="1"/>
+        </key>
+        <value>
+          <str>one</str>
+        </value>
+        <key>
+          <int v="2"/>
+        </key>
+        <value>
+          <str>two</str>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>y</str>
+    </key>
+    <value>
+      <map ktype="int" vtype="p">
+        <key>
+          <int v="3"/>
+        </key>
+        <value>
+          <table name="p">
+            <row>
+              <int v="4"/>
+              <int v="5"/>
+            </row>
+          </table>
+        </value>
+        <key>
+          <int v="6"/>
+        </key>
+        <value>
+          <table name="p">
+            <row>
+              <int v="7"/>
+              <int v="8"/>
+            </row>
+          </table>
+        </value>
+        <key>
+          <int v="9"/>
+        </key>
+        <value>
+          <table name="p">
+            <row>
+              <int v="10"/>
+              <int v="11"/>
+            </row>
+          </table>
+        </value>
+      </map>
+    </value>
+    <key>
+      <str>z</str>
+    </key>
+    <value>
+      <map ktype="int" vtype="p" comment="map z">
+        <key>
+          <int v="3"/>
+        </key>
+        <value>
+          <table name="p">
+            <row>
+              <int v="4"/>
+              <int v="5"/>
+            </row>
+          </table>
+        </value>
+        <key>
+          <int v="6"/>
+        </key>
+        <value>
+          <table name="p">
+            <row>
+              <int v="7"/>
+              <int v="8"/>
+            </row>
+          </table>
+        </value>
+        <key>
+          <int v="9"/>
+        </key>
+        <value>
+          <table name="p">
+            <row>
+              <int v="10"/>
+              <int v="11"/>
+            </row>
+          </table>
+        </value>
+      </map>
+    </value>
+  </map>
+</uxf>

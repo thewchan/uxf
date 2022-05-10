@@ -1,0 +1,170 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "one",
+        "fields": {
+          "x": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "p",
+        "fields": {
+          "a": "int",
+          "b": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "three",
+        "fields": {
+          "x": null,
+          "y": null,
+          "z": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "two",
+        "fields": {
+          "x": null,
+          "y": null
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "x": {
+      "UXF^map": {
+        "comment": null,
+        "ktype": "int",
+        "vtype": "str",
+        "map": {
+          "1": "one",
+          "2": "two"
+        },
+        "itype": "uxf"
+      }
+    },
+    "y": {
+      "UXF^map": {
+        "comment": null,
+        "ktype": "int",
+        "vtype": "p",
+        "map": {
+          "3": {
+            "UXF^table": {
+              "name": "p",
+              "comment": null,
+              "fields": {
+                "a": "int",
+                "b": "int"
+              },
+              "records": [
+                [
+                  4,
+                  5
+                ]
+              ]
+            }
+          },
+          "6": {
+            "UXF^table": {
+              "name": "p",
+              "comment": null,
+              "fields": {
+                "a": "int",
+                "b": "int"
+              },
+              "records": [
+                [
+                  7,
+                  8
+                ]
+              ]
+            }
+          },
+          "9": {
+            "UXF^table": {
+              "name": "p",
+              "comment": null,
+              "fields": {
+                "a": "int",
+                "b": "int"
+              },
+              "records": [
+                [
+                  10,
+                  11
+                ]
+              ]
+            }
+          }
+        },
+        "itype": "uxf"
+      }
+    },
+    "z": {
+      "UXF^map": {
+        "comment": "map z",
+        "ktype": "int",
+        "vtype": "p",
+        "map": {
+          "3": {
+            "UXF^table": {
+              "name": "p",
+              "comment": null,
+              "fields": {
+                "a": "int",
+                "b": "int"
+              },
+              "records": [
+                [
+                  4,
+                  5
+                ]
+              ]
+            }
+          },
+          "6": {
+            "UXF^table": {
+              "name": "p",
+              "comment": null,
+              "fields": {
+                "a": "int",
+                "b": "int"
+              },
+              "records": [
+                [
+                  7,
+                  8
+                ]
+              ]
+            }
+          },
+          "9": {
+            "UXF^table": {
+              "name": "p",
+              "comment": null,
+              "fields": {
+                "a": "int",
+                "b": "int"
+              },
+              "records": [
+                [
+                  10,
+                  11
+                ]
+              ]
+            }
+          }
+        },
+        "itype": "uxf"
+      }
+    }
+  }
+}

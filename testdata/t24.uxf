@@ -1,7 +1,7 @@
 uxf 1.0
 = Playlists PID: int Title :str CID : int Selected
 = Categories CID : int Title Selected :bool
-[ list
+[table
   (Categories
     5 <Classical> yes
     4 <Modern Instrumental> no

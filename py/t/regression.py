@@ -110,6 +110,8 @@ def test_uxf_files(uxffiles, *, verbose, max_total):
 def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
     temp_uxo = uxf.Uxf()
     for name in uxffiles:
+        if name.startswith('l'):
+            continue # skip linted files that may have changed
         total += 1
         if total > max_total:
             return total - 1, ok

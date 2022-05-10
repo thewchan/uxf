@@ -1,0 +1,449 @@
+{
+  "UXF^comment": "More linting test data",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "B",
+        "fields": {
+          "b": "bool"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "D",
+        "fields": {
+          "d": "date"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "I",
+        "fields": {
+          "i": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "R",
+        "fields": {
+          "r": "real"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "S",
+        "fields": {
+          "s": "str"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "T",
+        "fields": {
+          "a": "table"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "by",
+        "fields": {
+          "b": "bytes"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "dt",
+        "fields": {
+          "dt": "datetime"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "p",
+        "fields": {
+          "a": "int",
+          "b": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^list": {
+      "comment": null,
+      "vtype": "T",
+      "list": [
+        {
+          "UXF^table": {
+            "name": "B",
+            "comment": null,
+            "fields": {
+              "b": "bool"
+            },
+            "records": [
+              [
+                true
+              ],
+              [
+                false
+              ],
+              [
+                true
+              ],
+              [
+                false
+              ],
+              [
+                true
+              ],
+              [
+                false
+              ],
+              [
+                true
+              ],
+              [
+                false
+              ],
+              [
+                "duh"
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "I",
+            "comment": null,
+            "fields": {
+              "i": "int"
+            },
+            "records": [
+              [
+                -1
+              ],
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                0
+              ],
+              [
+                -1
+              ],
+              [
+                0
+              ],
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                -1
+              ],
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                -0.1
+              ],
+              [
+                -1.0
+              ],
+              [
+                0.0
+              ],
+              [
+                0.1
+              ],
+              [
+                1.0
+              ],
+              [
+                "one"
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "R",
+            "comment": null,
+            "fields": {
+              "r": "real"
+            },
+            "records": [
+              [
+                -1.0
+              ],
+              [
+                0.0
+              ],
+              [
+                1.0
+              ],
+              [
+                -0.1
+              ],
+              [
+                -1.0
+              ],
+              [
+                0.0
+              ],
+              [
+                0.1
+              ],
+              [
+                1.0
+              ],
+              [
+                -1
+              ],
+              [
+                0
+              ],
+              [
+                1
+              ],
+              [
+                -0.1
+              ],
+              [
+                -1.0
+              ],
+              [
+                0.0
+              ],
+              [
+                0.1
+              ],
+              [
+                1.0
+              ],
+              [
+                "one"
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "D",
+            "comment": null,
+            "fields": {
+              "d": "date"
+            },
+            "records": [
+              [
+                {
+                  "UXF^date": "1900-01-01"
+                }
+              ],
+              [
+                {
+                  "UXF^date": "1950-06-15"
+                }
+              ],
+              [
+                1990
+              ],
+              [
+                1980.5
+              ],
+              [
+                1906
+              ],
+              [
+                {
+                  "UXF^date": "1907-05-01"
+                }
+              ],
+              [
+                {
+                  "UXF^date": "1909-08-18"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "dt",
+            "comment": null,
+            "fields": {
+              "dt": "datetime"
+            },
+            "records": [
+              [
+                {
+                  "UXF^datetime": "1900-01-01T11:00:00"
+                }
+              ],
+              [
+                {
+                  "UXF^datetime": "1950-06-15T20:05:05"
+                }
+              ],
+              [
+                1990
+              ],
+              [
+                1980.5
+              ],
+              [
+                1906
+              ],
+              [
+                {
+                  "UXF^date": "1907-05-01"
+                }
+              ],
+              [
+                {
+                  "UXF^date": "1909-08-18"
+                }
+              ],
+              [
+                {
+                  "UXF^datetime": "1911-11-13T04:00:00"
+                }
+              ],
+              [
+                {
+                  "UXF^datetime": "1913-12-01T05:19:00"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "S",
+            "comment": null,
+            "fields": {
+              "s": "str"
+            },
+            "records": [
+              [
+                "one"
+              ],
+              [
+                "two"
+              ],
+              [
+                3
+              ],
+              [
+                4
+              ],
+              [
+                5.6
+              ],
+              [
+                -7.9
+              ],
+              [
+                -8
+              ],
+              [
+                {
+                  "UXF^date": "1990-01-11"
+                }
+              ],
+              [
+                {
+                  "UXF^datetime": "1995-03-15T22:30:00"
+                }
+              ],
+              [
+                {
+                  "UXF^datetime": "1998-10-17T20:18:45"
+                }
+              ],
+              [
+                {
+                  "UXF^bytes": "55584620312E30"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "UXF^table": {
+            "name": "p",
+            "comment": null,
+            "fields": {
+              "a": "int",
+              "b": "int"
+            },
+            "records": [
+              [
+                "one",
+                "two"
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                5,
+                -7
+              ],
+              [
+                -8,
+                {
+                  "UXF^date": "1990-01-11"
+                }
+              ],
+              [
+                {
+                  "UXF^datetime": "1995-03-15T22:30:00"
+                },
+                {
+                  "UXF^datetime": "1998-10-17T20:18:45"
+                }
+              ],
+              [
+                {
+                  "UXF^bytes": "55584620312E30"
+                },
+                {
+                  "UXF^table": {
+                    "name": "p",
+                    "comment": null,
+                    "fields": {
+                      "a": "int",
+                      "b": "int"
+                    },
+                    "records": [
+                      [
+                        "a",
+                        "b"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

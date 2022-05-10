@@ -13,7 +13,7 @@
       <field name="Selected"/>
     </ttype>
   </ttypes>
-  <list vtype="list">
+  <list vtype="table">
     <table name="Categories">
       <row>
         <int v="5"/>
