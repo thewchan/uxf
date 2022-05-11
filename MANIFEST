@@ -1,7 +1,10 @@
 # TODO go through every uxf.py error code & try to make sure there's a
 # matching test in test_errors.py
 # TODO code review & improvement
-TODO.md
+# TODO release py 1.0.0
+# TODO UXF libraries:
+#   - for .js use Dart or TypeScript or similar that can output JS?
+#   - uxf.rs uxf.cpp uxf.java uxf.rb ... ?
 
 py/uxf.py
 py/uxfconvert.py
@@ -28,5 +31,11 @@ misc/md2html.sh
 uxf.vim
 
 st.sh
+
+# NOTE IDEAS:
+#   - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
+#   - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
+#   - experiment with using uxf format to store various kinds of data,
+#     e.g., styled text, spreadsheet, graphics, etc.
 
 # vim: syn=yaml
