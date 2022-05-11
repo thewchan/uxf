@@ -446,7 +446,7 @@ class _Lexer:
             c = self.text[self.pos]
             self.pos += 1
         convert = float if is_real else int
-        self.pos -= 1
+        self.pos -= 1 # wind back to terminating non-numeric char
         text = self.text[start:self.pos]
         try:
             value = convert(text)
@@ -459,7 +459,6 @@ class _Lexer:
     def read_positive_number_or_date(self, c):
         start = self.pos - 1
         is_real, is_datetime, hyphens = self.read_number_or_date_chars(c)
-        self.pos -= 1 # wind back to terminating non-numeric non-date char
         text = self.text[start:self.pos]
         convert, token = self.get_converter_and_token(is_real, is_datetime,
                                                       hyphens, text)
@@ -488,6 +487,7 @@ class _Lexer:
                 is_datetime = True
             c = self.text[self.pos]
             self.pos += 1
+        self.pos -= 1 # wind back to terminating non-numeric non-date char
         return is_real, is_datetime, hyphens
 
 
@@ -1160,7 +1160,7 @@ class _Parser:
                 value = float(value)
                 self.error(496, 'converted int to real')
             elif vtype == 'int' and isinstance(value, float):
-                value = int(value)
+                value = round(value)
                 self.error(498, 'converted real to int')
             else:
                 self.error(500, message)
