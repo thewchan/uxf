@@ -3,6 +3,7 @@
 # License: GPLv3
 
 import datetime
+import functools
 import os
 import sys
 from xml.sax.saxutils import unescape
@@ -16,6 +17,7 @@ except ImportError:
 
 
 _Kind = uxf._Kind
+_Token = uxf._Token
 
 
 def main():
@@ -45,10 +47,8 @@ with the following fixes:
     uxf.AutoConvertSequences = True
     lexer = _Lexer(infile, verbose=not quiet)
     tokens = lexer.tokenize()
-    data, comment, ttypes, errors, fixes = _parse(tokens, filename=infile,
-                                                  verbose=not quiet)
-    errors += lexer.errors
-    fixes += lexer.fixes
+    data, comment, ttypes = _parse(tokens, filename=infile,
+                                   verbose=not quiet)
     if outfile is not None:
         uxo = uxf.Uxf(data, custom=lexer.custom, ttypes=ttypes,
                       comment=comment)
@@ -57,30 +57,11 @@ with the following fixes:
         else:
             uxo.dump(outfile)
             if not quiet:
-                explained = explain(errors, fixes)
-                print(f'saved {outfile!r}: {explained}')
-    elif not quiet:
-        explained = explain(errors, fixes, 'could have ')
-        print(explained)
+                print(f'saved {outfile!r}')
 
 
-def explain(errors, fixes, prefix=''):
-    if fixes > errors:
-        raise SystemExit('internal error') # should never happen
-    if errors == 0:
-        return 'no errors found'
-    if errors == fixes == 1:
-        return f'{prefix}found and fixed one error'
-    if errors == 1:
-        fixes = 'and fixed it' if fixes == 1 else 'but could not fix it'
-        return f'{prefix}found one error {fixes}'
-    fixes = 'none' if fixes == 0 else 'one' if fixes == 1 else f'{fixes:,}'
-    return f'{prefix}found {errors:,} errors and fixed {fixes} of them'
-
-
-def _error(filename, lino, code, message, *, fail=False, verbose=True):
+def on_error(lino, code, message, *, filename, fail=False, verbose=True):
     if verbose:
-        filename = os.path.basename(filename)
         print(f'uxflint.py:{filename}:{lino}:#{code}:{message}')
     if fail:
         sys.exit(1)
@@ -88,21 +69,15 @@ def _error(filename, lino, code, message, *, fail=False, verbose=True):
 
 class _Lexer:
 
-    def __init__(self, filename, *, verbose=True):
-        self.filename = filename
-        self.verbose = verbose
-        self.errors = 0
-        self.fixes = 0
+    def __init__(self, filename, *, verbose=True, on_error=on_error):
+        self.on_error = functools.partial(
+            on_error, filename=os.path.basename(filename), verbose=verbose)
         with open(filename, 'rt', encoding='utf-8') as file:
             self.text = file.read()
 
 
-    def error(self, code, message, *, fail=False, fixed=False):
-        _error(self.filename, self.lino, code, message, fail=fail,
-               verbose=self.verbose)
-        self.errors += 1
-        if fixed:
-            self.fixes += 1
+    def error(self, code, message, *, fail=False):
+        self.on_error(self.lino, code, message, fail=fail)
 
 
     def clear(self):
@@ -126,21 +101,21 @@ class _Lexer:
     def scan_header(self):
         i = self.text.find('\n')
         if i == -1:
-            self.error(100, 'missing UXF file header or empty file',
+            self.error(110, 'missing UXF file header or empty file',
                        fail=True)
         self.pos = i
         parts = self.text[:i].split(None, 2)
         if len(parts) < 2:
-            self.error(110, 'invalid UXF file header', fail=True)
+            self.error(120, 'invalid UXF file header', fail=True)
         if parts[0] != 'uxf':
-            self.error(120, 'not a UXF file', fail=True)
+            self.error(130, 'not a UXF file', fail=True)
         try:
             version = float(parts[1])
             if version > uxf.VERSION:
-                self.error(131,
+                self.error(141,
                            f'version ({version}) > current ({uxf.VERSION})')
         except ValueError:
-            self.error(141, 'failed to read UXF file version number')
+            self.error(151, 'failed to read UXF file version number')
         if len(parts) > 2:
             self.custom = parts[2]
 
@@ -155,7 +130,7 @@ class _Lexer:
                     '>', error_text='unterminated comment string')
                 self.add_token(_Kind.COMMENT, unescape(value))
             else:
-                self.error(150, 'invalid comment syntax: expected \'<\', '
+                self.error(160, 'invalid comment syntax: expected \'<\', '
                            f'got {self.peek()}')
 
 
@@ -207,7 +182,7 @@ class _Lexer:
         elif c.isalpha():
             self.read_name()
         else:
-            self.error(160, f'invalid character encountered: {c!r}')
+            self.error(170, f'invalid character encountered: {c!r}')
 
 
     def check_in_ttype(self):
@@ -221,14 +196,14 @@ class _Lexer:
                 _Kind.LIST_BEGIN, _Kind.MAP_BEGIN,
                 _Kind.TABLE_BEGIN, _Kind.TTYPE_BEGIN}:
             if self.peek() != '<':
-                self.error(170, 'a str must follow the # comment '
+                self.error(180, 'a str must follow the # comment '
                            f'introducer, got {self.peek()!r}')
             self.pos += 1 # skip the leading <
             value = self.match_to('>',
                                   error_text='unterminated comment string')
             self.add_token(_Kind.COMMENT, unescape(value))
         else:
-            self.error(180, 'comments may only occur at the start of '
+            self.error(190, 'comments may only occur at the start of '
                        'TTypes, Maps, Lists, and Tables')
 
 
@@ -242,7 +217,7 @@ class _Lexer:
         try:
             self.add_token(_Kind.BYTES, bytes.fromhex(value))
         except ValueError as err:
-            self.error(190, f'expected bytes, got {value!r}: {err}')
+            self.error(200, f'expected bytes, got {value!r}: {err}')
 
 
     def read_negative_number(self, c):
@@ -254,13 +229,14 @@ class _Lexer:
             c = self.text[self.pos]
             self.pos += 1
         convert = float if is_real else int
+        self.pos -= 1
         text = self.text[start:self.pos]
         try:
             value = convert(text)
             self.add_token(_Kind.REAL if is_real else _Kind.INT,
                            -value)
         except ValueError as err:
-            self.error(200, f'invalid number: {text}: {err}')
+            self.error(210, f'invalid number: {text!r}: {err}')
 
 
     def read_positive_number_or_date(self, c):
@@ -279,7 +255,7 @@ class _Lexer:
             if is_datetime and len(text) > 19:
                 self.reread_datetime(text, convert)
             else:
-                self.error(210,
+                self.error(220,
                            f'invalid number or date/time: {text}: {err}')
 
 
@@ -326,10 +302,10 @@ class _Lexer:
         try:
             value = convert(text[:19])
             self.add_token(_Kind.DATE_TIME, value)
-            self.error(221, f'skipped timezone data, used {text[:19]!r}, '
-                       f'got {text!r}', fixed=True)
+            self.error(231, f'skipped timezone data, used {text[:19]!r}, '
+                       f'got {text!r}')
         except ValueError as err:
-            self.error(230, f'invalid datetime: {text}: {err}')
+            self.error(240, f'invalid datetime: {text}: {err}')
 
 
     def read_name(self):
@@ -350,7 +326,7 @@ class _Lexer:
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
-            self.error(240, f'expected const or identifier, got {text!r}')
+            self.error(250, f'expected const or identifier, got {text!r}')
 
 
     def read_field_vtype(self):
@@ -386,7 +362,7 @@ class _Lexer:
         if identifier:
             return identifier
         text = self.text[start:start + 10]
-        self.error(250, f'expected {what}, got {text}…')
+        self.error(260, f'expected {what}, got {text}…')
 
 
     def match_to(self, target, *, error_text):
@@ -397,7 +373,7 @@ class _Lexer:
                 self.lino += text.count('\n')
                 self.pos = i + len(target) # skip past target
                 return text
-        self.error(260, error_text)
+        self.error(270, error_text)
 
 
     def match_any_of(self, targets):
@@ -412,43 +388,24 @@ class _Lexer:
 
 
     def add_token(self, kind, value=None):
-        self.tokens.append(_Token(kind, value, pos=self.pos,
-                                  lino=self.lino))
-
-
-class _Token(uxf._Token):
-
-    def __init__(self, kind, value=None, *, pos=-1, lino=0):
-        super().__init__(kind, value, pos)
-        self.lino = lino
-
-
-    def __str__(self):
-        s = super().__str__()
-        return f'{self.lino}:{s}'
+        self.tokens.append(_Token(kind, value, lino=self.lino))
 
 
 def _parse(tokens, filename, *, verbose=True):
     parser = _Parser(filename, verbose=verbose)
     data, comment = parser.parse(tokens)
-    return data, comment, parser.ttypes, parser.errors, parser.fixes
+    return data, comment, parser.ttypes
 
 
 class _Parser:
 
-    def __init__(self, filename, *, verbose=True):
-        self.filename = filename
-        self.verbose = verbose
-        self.errors = 0
-        self.fixes = 0
+    def __init__(self, filename, *, verbose=True, on_error=on_error):
+        self.on_error = functools.partial(
+            on_error, filename=os.path.basename(filename), verbose=verbose)
 
 
-    def error(self, code, message, *, fail=False, fixed=False):
-        _error(self.filename, self.lino, code, message, fail=fail,
-               verbose=self.verbose)
-        self.errors += 1
-        if fixed:
-            self.fixes += 1
+    def error(self, code, message, *, fail=False):
+        self.on_error(self.lino, code, message, fail=fail)
 
 
     def clear(self):
@@ -473,7 +430,7 @@ class _Parser:
             kind = token.kind
             collection_start = self._is_collection_start(kind)
             if data is None and not collection_start:
-                self.error(270,
+                self.error(400,
                            f'expected a map, list, or table, got {token}')
             if collection_start:
                 self._on_collection_start(token)
@@ -494,10 +451,9 @@ class _Parser:
             elif kind is _Kind.EOF:
                 break
             else:
-                self.error(280, f'unexpected token, got {token}')
+                self.error(410, f'unexpected token, got {token}')
         self._check_ttypes()
         return data, comment
-
 
 
     def _check_ttypes(self):
@@ -513,17 +469,17 @@ class _Parser:
     def _report_ttypes(self, ttypes, what):
         diff = sorted(ttypes)
         if len(diff) == 1:
-            self.error(290, f'{what} type: {diff[0]!r}')
+            self.error(416, f'{what} type: {diff[0]!r}')
         else:
             diff = ', '.join(repr(t) for t in diff)
-            self.error(300, f'{what} types: {diff}')
+            self.error(418, f'{what} types: {diff}')
 
 
     def _handle_comment(self, i, token):
         parent = self.stack[-1]
         prev_token = self.tokens[i - 1]
         if not self._is_collection_start(prev_token.kind):
-            self.error(310, 'comments may only be put at the beginning '
+            self.error(420, 'comments may only be put at the beginning '
                        f'of a map, list, or table, not after {prev_token}')
         parent.comment = token.value
 
@@ -536,7 +492,7 @@ class _Parser:
                  self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
             vtype = self.ttypes.get(token.value)
             if vtype is None:
-                self.error(320, f'undefined map value table type, {token}')
+                self.error(430, f'undefined map value table type, {token}')
             else:
                 parent.vtype = vtype.name
                 self.used_ttypes.add(vtype.name)
@@ -545,7 +501,7 @@ class _Parser:
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
             vtype = self.ttypes.get(token.value)
             if vtype is None:
-                self.error(330, f'undefined list table type, {token}')
+                self.error(440, f'undefined list table type, {token}')
             else:
                 parent.vtype = vtype.name
                 self.used_ttypes.add(vtype.name)
@@ -554,12 +510,12 @@ class _Parser:
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
             ttype = self.ttypes.get(token.value)
             if ttype is None:
-                self.error(340, f'undefined table ttype, {token}',
+                self.error(450, f'undefined table ttype, {token}',
                            fail=True) # A table with not ttype is invalid
             parent.ttype = ttype
             self.used_ttypes.add(ttype.name)
         else: # should never happen
-            self.error(350, 'ttype name may only appear at the start of a '
+            self.error(360, 'ttype name may only appear at the start of a '
                        f'map (as the value type), list, or table, {token}')
 
 
@@ -567,7 +523,7 @@ class _Parser:
         parent = self.stack[-1]
         if isinstance(parent, uxf.List):
             if parent.vtype is not None:
-                self.error(360, 'can only have at most one vtype for a '
+                self.error(470, 'can only have at most one vtype for a '
                            f'list, got {token}')
             parent.vtype = token.value
         elif isinstance(parent, uxf.Map):
@@ -576,10 +532,10 @@ class _Parser:
             elif parent.vtype is None:
                 parent.vtype = token.value
             else:
-                self.error(370, 'can only have at most one ktype and one '
+                self.error(480, 'can only have at most one ktype and one '
                            f'vtype for a map, got {token}')
         else:
-            self.error(380, 'ktypes and vtypes are only allowed at the '
+            self.error(490, 'ktypes and vtypes are only allowed at the '
                        f'start of maps and lists, got {token}')
 
 
@@ -590,11 +546,10 @@ class _Parser:
                 'bool', 'int', 'real', 'date', 'datetime'}:
             new_value = uxf.naturalize(value)
             if new_value != value:
-                self.error(395, f'converted str {value!r} to {vtype}',
-                           fixed=True)
+                self.error(492, f'converted str {value!r} to {vtype}')
                 value = new_value
             else:
-                self.error(400, message)
+                self.error(494, message)
         self.stack[-1].append(value)
 
 
@@ -604,12 +559,12 @@ class _Parser:
         if value is not None and vtype is not None:
             if vtype == 'real' and isinstance(value, int):
                 value = float(value)
-                self.error(405, 'converted int to real', fixed=True)
+                self.error(496, 'converted int to real')
             elif vtype == 'int' and isinstance(value, float):
                 value = int(value)
-                self.error(415, 'converted real to int', fixed=True)
+                self.error(498, 'converted real to int')
             else:
-                self.error(420, message)
+                self.error(500, message)
         self.stack[-1].append(value)
 
 
@@ -622,20 +577,32 @@ class _Parser:
         elif kind is _Kind.TABLE_BEGIN:
             value = uxf.Table()
         else:
-            self.error(430, f'expected to create map, list, or table, '
+            self.error(504, f'expected to create map, list, or table, '
                        f'got {token}')
         if self.stack:
             _, message = self.typecheck(value)
             if message is not None:
-                self.error(440, message)
+                self.error(506, message)
             self.stack[-1].append(value) # add the collection to the parent
         self.stack.append(value) # make the collection the current parent
 
 
     def _on_collection_end(self, token):
         if not self.stack:
-            self.error(450, f'unexpected {token} suggests unmatched map, '
+            self.error(510, f'unexpected {token} suggests unmatched map, '
                        'list, or table start/end pair')
+        parent = self.stack[-1]
+        if token.kind is _Kind.LIST_END:
+            Class = uxf.List
+            closer = ']'
+        elif token.kind is _Kind.MAP_END:
+            Class = uxf.Map
+            closer = '}'
+        elif token.kind is _Kind.TABLE_END:
+            Class = uxf.Table
+            closer = ')'
+        if not isinstance(parent, Class):
+            self.error(512, f'expected {closer!r}, got {token!r}')
         self.stack.pop()
 
 
@@ -681,7 +648,7 @@ class _Parser:
                     ttype.set_vtype(-1, vtype)
                 else:
                     self.error(
-                        460,
+                        520,
                         f'encountered type without field name: {token}')
             elif token.kind is _Kind.TTYPE_END:
                 if ttype is not None and bool(ttype):

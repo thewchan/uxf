@@ -216,6 +216,8 @@ class MyType:
 
 
     def __eq__(self, other): # needed if we want to compare Uxf objects
+        if not isinstance(other, self.__class__):
+            return False
         return (self.name == other.name and self.code == other.code and
                 self.flag == other.flag)
 

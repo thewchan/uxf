@@ -2,7 +2,6 @@ TODO.md
 
 py/uxf.py
 py/uxfconvert.py
-py/uxflint.py
 py/README.md
 py/setup.py
 py/pypi.sh

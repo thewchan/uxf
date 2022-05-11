@@ -22,7 +22,6 @@ try:
     import eq
     UXF_EXE = os.path.abspath('../uxf.py')
     UXFCONVERT_EXE = os.path.abspath('../uxfconvert.py')
-    UXFLINT_EXE = os.path.abspath('../uxflint.py')
     SLIDES1 = os.path.abspath('../eg/slides1.py')
     SLIDES2 = os.path.abspath('../eg/slides2.py')
     SLIDES_SLD = os.path.abspath('../eg/slides.sld')
@@ -92,10 +91,7 @@ def test_uxf_files(uxffiles, *, verbose, max_total):
         expected = f'expected/{name}'
         if expected.endswith('.gz'):
             expected = expected[:-3]
-        if name.startswith('l'):
-            cmd = [UXFLINT_EXE, '--quiet', name, actual]
-        else:
-            cmd = [UXF_EXE, name, actual]
+        cmd = [UXF_EXE, name, actual]
         reply = subprocess.call(cmd)
         cmd = ' '.join(cmd)
         if reply != 0:
@@ -124,16 +120,18 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
         use_true_false = 'true' in uxt or 'false' in uxt
         try:
             if random.choice((0, 1)):
-                uxo = uxf.loads(uxt)
+                uxo = uxf.loads(uxt, verbose=verbose)
             else:
-                temp_uxo.loads(uxt)
+                temp_uxo.loads(uxt, verbose=verbose)
                 uxo = temp_uxo
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
         if random.choice((0, 1)):
-            new_uxt = uxo.dumps(use_true_false=use_true_false)
+            new_uxt = uxo.dumps(use_true_false=use_true_false,
+                                verbose=verbose)
         else:
-            new_uxt = uxf.dumps(uxo, use_true_false=use_true_false)
+            new_uxt = uxf.dumps(uxo, use_true_false=use_true_false,
+                                verbose=verbose)
         nws_uxt = normalize_uxt(uxt)
         nws_new_uxt = normalize_uxt(new_uxt)
         if nws_uxt == nws_new_uxt:
@@ -163,7 +161,7 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxt = file.read()
         try:
-            uxo1 = uxf.loads(uxt)
+            uxo1 = uxf.loads(uxt, verbose=verbose)
         except uxf.Error as err:
             print(f'eq() 1 • {name} FAIL: {err}')
         expected = f'expected/{name}'
@@ -174,7 +172,7 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxt = file.read()
         try:
-            uxo2 = uxf.loads(uxt)
+            uxo2 = uxf.loads(uxt, verbose=verbose)
         except uxf.Error as err:
             print(f'eq() 2 • {expected} FAIL: {err}')
         if eq.eq(uxo1, uxo2):
@@ -282,7 +280,7 @@ def test_table_is_scalar(total, ok, *, verbose):
     for (filename, is_scalar) in (('t40.uxf', True), ('t41.uxf', False),
                                   ('t42.uxf', True), ('t43.uxf', False)):
         total += 1
-        uxo = uxf.load(filename)
+        uxo = uxf.load(filename, verbose=verbose)
         if is_scalar == uxo.data.is_scalar:
             ok += 1
             if verbose:

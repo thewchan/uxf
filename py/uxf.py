@@ -37,13 +37,15 @@ dump() writes the data to the filename_or_filelike; dumps() writes the data
 into a string that's then returned. See the function docs for additional
 options.
 
+    on_error(...)
+
+This is the default error handler which you can replace by passing a new one
+to load(s) and dump(s).
+
     add_converter(obj_type, to_str, from_str)
 
 This function can be used to register custom types and custom converters
 to/from strings. (See test_converter.py examples of use.)
-
-To have uxf automatically convert tuples, collections.deques, sets, and
-frozensets to Lists, set `uxf.AutoConvertSequences = True`.
 
     naturalize(s) -> object
 
@@ -63,8 +65,7 @@ datetime.datetime, str, bytes, or bytearray; otherwise returns False.
 
     Error
 
-This class is used to propagate errors (and warnings if warn_is_error is
-True).
+This class is used to propagate errors.
 
 (If this module produces an exception that isn't a uxf.Error or IOError
 subclass then it is probably a bug and should be reported.)
@@ -113,8 +114,10 @@ module can read (and the UXF version that it writes).
 import collections
 import datetime
 import enum
+import functools
 import gzip
 import io
+import os
 import pathlib
 import sys
 from xml.sax.saxutils import escape, unescape
@@ -131,8 +134,6 @@ __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
 __version__ = '0.27.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
-AutoConvertSequences = False
-
 UTF8 = 'utf-8'
 MAX_IDENTIFIER_LEN = 60
 MAX_LIST_IN_LINE = 10
@@ -146,6 +147,14 @@ _CONSTANTS = frozenset(_BOOL_FALSE | _BOOL_TRUE)
 _BAREWORDS = frozenset(_ANY_VALUE_TYPES | _CONSTANTS)
 TYPENAMES = frozenset(_ANY_VALUE_TYPES | {'null'})
 _MISSING = object()
+
+
+def on_error(lino, code, message, *, filename, fail=False, verbose=True):
+    text = f'uxf.py:{filename}:{lino}:#{code}:{message}'
+    if fail:
+        raise Error(text)
+    if verbose:
+        print(text, file=sys.stderr)
 
 
 class Uxf:
@@ -183,8 +192,7 @@ class Uxf:
             data = List(data)
         elif isinstance(data, dict):
             data = Map(data)
-        elif (isinstance(data, (set, frozenset, tuple, collections.deque))
-                and AutoConvertSequences):
+        elif isinstance(data, (set, frozenset, tuple, collections.deque)):
             data = List()
         if not _is_uxf_collection(data):
             raise Error('#100:Uxf data must be a list, List, dict, Map, or '
@@ -193,85 +201,83 @@ class Uxf:
 
 
     def dump(self, filename_or_filelike, *, indent=2, use_true_false=False,
-             warn_is_error=False):
+             verbose=True, on_error=on_error):
         '''Convenience method that wraps the module-level dump() function'''
         dump(filename_or_filelike, self, indent=indent,
-             use_true_false=use_true_false, warn_is_error=warn_is_error)
+             use_true_false=use_true_false, verbose=verbose,
+             on_error=on_error)
 
 
-    def dumps(self, *, indent=2, use_true_false=False,
-              warn_is_error=False):
+    def dumps(self, *, indent=2, use_true_false=False, verbose=True,
+              on_error=on_error):
         '''Convenience method that wraps the module-level dumps()
         function'''
         return dumps(self, indent=indent, use_true_false=use_true_false,
-                     warn_is_error=warn_is_error)
+                     verbose=verbose, on_error=on_error)
 
 
-    def load(self, filename_or_filelike, *, warn_is_error=False):
+    def load(self, filename_or_filelike, *, verbose=True,
+             on_error=on_error):
         '''Convenience method that wraps the module-level load()
         function'''
         filename = (filename_or_filelike if isinstance(filename_or_filelike,
                     (str, pathlib.Path)) else '-')
         data, custom, ttypes, comment = _loads(
-            _read_text(filename_or_filelike),
-            warn_is_error=warn_is_error, filename=filename)
+            _read_text(filename_or_filelike), filename, verbose=verbose,
+            on_error=on_error)
         self.data = data
         self.custom = custom
         self.ttypes = ttypes
         self.comment = comment
 
 
-    def loads(self, uxt, *, warn_is_error=False):
+    def loads(self, uxt, filename='-', *, verbose=True, on_error=on_error):
         '''Convenience method that wraps the module-level loads()
         function'''
-        data, custom, ttypes, comment = _loads(uxt,
-                                               warn_is_error=warn_is_error)
+        data, custom, ttypes, comment = _loads(
+            uxt, filename, verbose=verbose, on_error=on_error)
         self.data = data
         self.custom = custom
         self.ttypes = ttypes
         self.comment = comment
 
 
-def load(filename_or_filelike, *, warn_is_error=False):
+def load(filename_or_filelike, *, verbose=True, on_error=on_error):
     '''
     Returns a Uxf object.
 
     filename_or_filelike is sys.stdin or a filename or an open readable file
     (text mode UTF-8 encoded, optionally gzipped).
-
-    If warn_is_error is True warnings raise Error exceptions.
     '''
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
     data, custom, ttypes, comment = _loads(
-        _read_text(filename_or_filelike),
-        warn_is_error=warn_is_error, filename=filename)
+        _read_text(filename_or_filelike), filename, verbose=verbose,
+        on_error=on_error)
     return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
 
 
-def loads(uxt, *, warn_is_error=False):
+def loads(uxt, filename='-', *, verbose=True, on_error=on_error):
     '''
     Returns a Uxf object.
 
     uxt must be a string of UXF data.
-
-    If warn_is_error is True warnings raise Error exceptions.
     '''
-    data, custom, ttypes, comment = _loads(uxt, warn_is_error=warn_is_error)
+    data, custom, ttypes, comment = _loads(uxt, filename, verbose=verbose,
+                                           on_error=on_error)
     return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
 
 
-def _loads(uxt, *, warn_is_error=False, filename='-'):
-    tokens, custom, text = _tokenize(uxt, warn_is_error=warn_is_error,
-                                     filename=filename)
-    data, comment, ttypes = _parse(
-        tokens, uxt=uxt, warn_is_error=warn_is_error,
-        filename=filename)
+def _loads(uxt, filename='-', *, verbose=True, on_error=on_error):
+    tokens, custom, text = _tokenize(uxt, filename, verbose=verbose,
+                                     on_error=on_error)
+    data, comment, ttypes = _parse(tokens, filename, verbose=verbose,
+                                   on_error=on_error)
     return data, custom, ttypes, comment
 
 
-def _tokenize(uxt, *, warn_is_error=False, filename='-'):
-    lexer = _Lexer(warn_is_error=warn_is_error, filename=filename)
+def _tokenize(uxt, filename='-', *, verbose=True, on_error=on_error):
+    lexer = _Lexer(filename, verbose=verbose, on_error=on_error)
     tokens = lexer.tokenize(uxt)
     return tokens, lexer.custom, uxt
 
@@ -287,39 +293,28 @@ def _read_text(filename_or_filelike):
             return file.read()
 
 
-class _ErrorMixin:
+class _Lexer:
 
-    __slots__ = ()
-
-    def warn(self, code, message):
-        if self.warn_is_error:
-            self.error(code, message)
-        lino = self.text.count('\n', 0, self.pos) + 1
-        print(f'Warning:#{code}:{self.filename}:{lino}: {message}')
+    def __init__(self, filename, *, verbose=True, on_error=on_error):
+        self.on_error = functools.partial(
+            on_error, filename=os.path.basename(filename), verbose=verbose)
 
 
-    def error(self, code, message):
-        lino = self.text.count('\n', 0, self.pos) + 1
-        raise Error(f'#{code}:{self.filename}:{lino}: {message}')
-
-
-class _Lexer(_ErrorMixin):
-
-    def __init__(self, *, warn_is_error=False, filename='-'):
-        self.warn_is_error = warn_is_error
-        self.filename = filename
+    def error(self, code, message, *, fail=False):
+        self.on_error(self.lino, code, message, fail=fail)
 
 
     def clear(self):
         self.pos = 0 # current
+        self.lino = 0
         self.custom = None
         self.in_ttype = False
         self.tokens = []
 
 
-    def tokenize(self, text):
+    def tokenize(self, uxt):
+        self.text = uxt
         self.clear()
-        self.text = text
         self.scan_header()
         self.maybe_read_comment()
         while not self.at_end():
@@ -331,19 +326,21 @@ class _Lexer(_ErrorMixin):
     def scan_header(self):
         i = self.text.find('\n')
         if i == -1:
-            self.error(110, 'missing UXF file header or empty file')
+            self.error(110, 'missing UXF file header or empty file',
+                       fail=True)
         self.pos = i
         parts = self.text[:i].split(None, 2)
         if len(parts) < 2:
-            self.error(120, 'invalid UXF file header')
+            self.error(120, 'invalid UXF file header', fail=True)
         if parts[0] != 'uxf':
-            self.error(130, 'not a UXF file')
+            self.error(130, 'not a UXF file', fail=True)
         try:
             version = float(parts[1])
             if version > VERSION:
-                self.warn(141, f'version ({version}) > current ({VERSION})')
+                self.error(141,
+                           f'version ({version}) > current ({VERSION})')
         except ValueError:
-            self.warn(151, 'failed to read UXF file version number')
+            self.error(151, 'failed to read UXF file version number')
         if len(parts) > 2:
             self.custom = parts[2]
 
@@ -368,8 +365,9 @@ class _Lexer(_ErrorMixin):
 
     def scan_next(self):
         c = self.getch()
-        if c.isspace():
-            pass # ignore insignificant whitespace
+        if c.isspace(): # ignore insignificant whitespace
+            if c == '\n':
+                self.lino += 1
         elif c == '(':
             if self.peek() == ':':
                 self.pos += 1
@@ -420,8 +418,8 @@ class _Lexer(_ErrorMixin):
 
     def read_comment(self):
         if self.tokens and self.tokens[-1].kind in {
-                _Kind.LIST_BEGIN, _Kind.MAP_BEGIN, _Kind.TABLE_BEGIN,
-                _Kind.TTYPE_BEGIN}:
+                _Kind.LIST_BEGIN, _Kind.MAP_BEGIN,
+                _Kind.TABLE_BEGIN, _Kind.TTYPE_BEGIN}:
             if self.peek() != '<':
                 self.error(180, 'a str must follow the # comment '
                            f'introducer, got {self.peek()!r}')
@@ -456,12 +454,14 @@ class _Lexer(_ErrorMixin):
             c = self.text[self.pos]
             self.pos += 1
         convert = float if is_real else int
+        self.pos -= 1
         text = self.text[start:self.pos]
         try:
             value = convert(text)
-            self.add_token(_Kind.REAL if is_real else _Kind.INT, -value)
+            self.add_token(_Kind.REAL if is_real else _Kind.INT,
+                           -value)
         except ValueError as err:
-            self.error(210, f'invalid number: {text}: {err}')
+            self.error(210, f'invalid number: {text!r}: {err}')
 
 
     def read_positive_number_or_date(self, c):
@@ -481,7 +481,7 @@ class _Lexer(_ErrorMixin):
                 self.reread_datetime(text, convert)
             else:
                 self.error(220,
-                           f'invalid number or date/time: {text}: {err}')
+                           f'invalid number or date/time: {text!r}: {err}')
 
 
     def read_number_or_date_chars(self, c):
@@ -527,10 +527,10 @@ class _Lexer(_ErrorMixin):
         try:
             value = convert(text[:19])
             self.add_token(_Kind.DATE_TIME, value)
-            self.warn(231, f'skipped timezone data, used {text[:19]!r}, '
-                      f'got {text!r}')
+            self.error(231, f'skipped timezone data, used {text[:19]!r}, '
+                       f'got {text!r}')
         except ValueError as err:
-            self.error(240, f'invalid datetime: {text}: {err}')
+            self.error(240, f'invalid datetime: {text!r}: {err}')
 
 
     def read_name(self):
@@ -566,6 +566,8 @@ class _Lexer(_ErrorMixin):
 
     def skip_ws(self):
         while self.pos < len(self.text) and self.text[self.pos].isspace():
+            if self.text[self.pos] == '\n':
+                self.lino += 1
             self.pos += 1
 
 
@@ -593,6 +595,7 @@ class _Lexer(_ErrorMixin):
             i = self.text.find(target, self.pos)
             if i > -1:
                 text = self.text[self.pos:i]
+                self.lino += text.count('\n')
                 self.pos = i + len(target) # skip past target
                 return text
         self.error(270, error_text)
@@ -610,7 +613,7 @@ class _Lexer(_ErrorMixin):
 
 
     def add_token(self, kind, value=None):
-        self.tokens.append(_Token(kind, value, self.pos))
+        self.tokens.append(_Token(kind, value, lino=self.lino))
 
 
 class Error(Exception):
@@ -619,17 +622,17 @@ class Error(Exception):
 
 class _Token:
 
-    def __init__(self, kind, value=None, pos=-1):
+    def __init__(self, kind, value=None, lino=0):
         self.kind = kind
         self.value = value # literal, i.e., correctly typed item
-        self.pos = pos
+        self.lino = lino
 
 
     def __str__(self):
         parts = [self.kind.name]
         if self.value is not None:
             parts.append(f'={self.value!r}')
-        return ''.join(parts)
+        return f'{self.lino}:{"".join(parts)}'
 
 
     def __repr__(self):
@@ -994,36 +997,43 @@ class Table:
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, *, uxt, warn_is_error=False, filename='-'):
-    parser = _Parser(warn_is_error=warn_is_error, filename=filename)
-    data, comment = parser.parse(tokens, uxt)
+def _parse(tokens, filename='-', *, verbose=True, on_error=on_error):
+    parser = _Parser(filename, verbose=verbose, on_error=on_error)
+    data, comment = parser.parse(tokens)
     ttypes = parser.ttypes
     return data, comment, ttypes
 
 
-class _Parser(_ErrorMixin):
+class _Parser:
 
-    def __init__(self, *, warn_is_error=False, filename='-'):
-        self.warn_is_error = warn_is_error
-        self.filename = filename
+    def __init__(self, filename, *, verbose=True, on_error=on_error):
+        self.on_error = functools.partial(
+            on_error, filename=os.path.basename(filename), verbose=verbose)
+
+
+    def error(self, code, message, *, fail=False):
+        self.on_error(self.lino, code, message, fail=fail)
 
 
     def clear(self):
         self.stack = []
         self.ttypes = {}
+        self.lino_for_ttype = {}
+        self.used_ttypes = set()
         self.pos = -1
+        self.lino = 0
 
 
-    def parse(self, tokens, text):
+    def parse(self, tokens):
         self.clear()
         if not tokens:
             return
         self.tokens = tokens
-        self.text = text
         data = None
         comment = self._parse_file_comment()
         self._parse_ttypes()
         for i, token in enumerate(self.tokens):
+            self.lino = token.lino
             kind = token.kind
             collection_start = self._is_collection_start(kind)
             if data is None and not collection_start:
@@ -1042,14 +1052,34 @@ class _Parser(_ErrorMixin):
             elif kind is _Kind.TYPE:
                 self._handle_type(i, token)
             elif kind is _Kind.STR:
-                self._handle_string(i, token)
+                self._handle_str(i, token)
             elif kind.is_scalar:
-                self.stack[-1].append(token.value)
+                self._handle_scalar(i, token)
             elif kind is _Kind.EOF:
                 break
             else:
                 self.error(410, f'unexpected token, got {token}')
+        self._check_ttypes()
         return data, comment
+
+
+    def _check_ttypes(self):
+        defined = set(self.ttypes.keys())
+        unused = defined - self.used_ttypes
+        if unused:
+            self._report_ttypes(unused, 'unused')
+        undefined = self.used_ttypes - defined
+        if undefined:
+            self._report_ttypes(undefined, 'undefined')
+
+
+    def _report_ttypes(self, ttypes, what):
+        diff = sorted(ttypes)
+        if len(diff) == 1:
+            self.error(416, f'{what} type: {diff[0]!r}')
+        else:
+            diff = ', '.join(repr(t) for t in diff)
+            self.error(418, f'{what} types: {diff}')
 
 
     def _handle_comment(self, i, token):
@@ -1070,23 +1100,29 @@ class _Parser(_ErrorMixin):
             vtype = self.ttypes.get(token.value)
             if vtype is None:
                 self.error(430, f'undefined map value table type, {token}')
-            parent.vtype = vtype.name
+            else:
+                parent.vtype = vtype.name
+                self.used_ttypes.add(vtype.name)
         elif self.tokens[i - 1].kind is _Kind.LIST_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
             vtype = self.ttypes.get(token.value)
             if vtype is None:
                 self.error(440, f'undefined list table type, {token}')
-            parent.vtype = vtype.name
+            else:
+                parent.vtype = vtype.name
+                self.used_ttypes.add(vtype.name)
         elif self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
             ttype = self.ttypes.get(token.value)
             if ttype is None:
-                self.error(450, f'undefined table ttype, {token}')
+                self.error(450, f'undefined table ttype, {token}',
+                           fail=True) # A table with not ttype is invalid
             parent.ttype = ttype
+            self.used_ttypes.add(ttype.name)
         else: # should never happen
-            self.error(460, 'ttype name may only appear at the start of a '
+            self.error(360, 'ttype name may only appear at the start of a '
                        f'map (as the value type), list, or table, {token}')
 
 
@@ -1110,14 +1146,32 @@ class _Parser(_ErrorMixin):
                        f'start of maps and lists, got {token}')
 
 
-    def _handle_string(self, i, token):
+    def _handle_str(self, i, token):
         value = token.value
-        for converters in _Converters.values():
-            if converters.from_str is not None:
-                new_value, ok = converters.from_str(value)
-                if ok:
-                    value = new_value
-                    break
+        vtype, message = self.typecheck(value)
+        if value is not None and vtype is not None and vtype in {
+                'bool', 'int', 'real', 'date', 'datetime'}:
+            new_value = naturalize(value)
+            if new_value != value:
+                self.error(492, f'converted str {value!r} to {vtype}')
+                value = new_value
+            else:
+                self.error(494, message)
+        self.stack[-1].append(value)
+
+
+    def _handle_scalar(self, i, token):
+        value = token.value
+        vtype, message = self.typecheck(value)
+        if value is not None and vtype is not None:
+            if vtype == 'real' and isinstance(value, int):
+                value = float(value)
+                self.error(496, 'converted int to real')
+            elif vtype == 'int' and isinstance(value, float):
+                value = int(value)
+                self.error(498, 'converted real to int')
+            else:
+                self.error(500, message)
         self.stack[-1].append(value)
 
 
@@ -1130,9 +1184,12 @@ class _Parser(_ErrorMixin):
         elif kind is _Kind.TABLE_BEGIN:
             value = Table()
         else:
-            self.error(
-                500, f'expected to create map, list, or table, got {token}')
+            self.error(504, f'expected to create map, list, or table, '
+                       f'got {token}')
         if self.stack:
+            _, message = self.typecheck(value)
+            if message is not None:
+                self.error(506, message)
             self.stack[-1].append(value) # add the collection to the parent
         self.stack.append(value) # make the collection the current parent
 
@@ -1169,6 +1226,7 @@ class _Parser(_ErrorMixin):
     def _parse_file_comment(self):
         if self.tokens:
             token = self.tokens[0]
+            self.lino = token.lino
             if token.kind is _Kind.COMMENT:
                 self.tokens = self.tokens[1:]
                 return token.value
@@ -1176,17 +1234,13 @@ class _Parser(_ErrorMixin):
 
 
     def _parse_ttypes(self):
-        used = self._read_ttypes()
-        self._check_used_ttypes(used)
-
-
-    def _read_ttypes(self):
-        used = set()
         ttype = None
         for index, token in enumerate(self.tokens):
+            self.lino = token.lino
             if token.kind is _Kind.TTYPE_BEGIN:
                 if ttype is not None and ttype.name is not None:
                     self.ttypes[ttype.name] = ttype
+                    self.lino_for_ttype[ttype.name] = self.lino
                 ttype = TType(None)
             elif token.kind is _Kind.COMMENT:
                 ttype.comment = token.value
@@ -1200,34 +1254,48 @@ class _Parser(_ErrorMixin):
                     self.error(
                         520,
                         f'encountered type without field name: {token}')
-                vtype = token.value
-                ttype.set_vtype(-1, vtype)
-                if vtype not in TYPENAMES:
-                    used.add(vtype)
+                else:
+                    vtype = token.value
+                    ttype.set_vtype(-1, vtype)
             elif token.kind is _Kind.TTYPE_END:
                 if ttype is not None and bool(ttype):
                     self.ttypes[ttype.name] = ttype
+                    if ttype.name not in self.lino_for_ttype:
+                        self.lino_for_ttype[ttype.name] = self.lino
                 self.tokens = self.tokens[index + 1:]
             else:
                 break # no TTypes at all
-        return used
 
 
-    def _check_used_ttypes(self, used):
-        if self.ttypes: # Check that all ttypes referred to are defined
-            diff = used - set(self.ttypes.keys())
-            if diff:
-                diff = sorted(diff)
-                if len(diff) == 1:
-                    self.error(530,
-                               f'ttype uses undefined type: {diff[0]!r}')
-                else:
-                    diff = ', '.join(repr(t) for t in diff)
-                    self.error(540, f'ttype uses undefined types: {diff}')
+    def typecheck(self, value):
+        parent = self.stack[-1]
+        if isinstance(parent, Map):
+            vtype = parent.ktype if parent._next_is_key else parent.vtype
+        elif isinstance(parent, List):
+            vtype = parent.vtype
+        else: # must be a Table
+            vtype = parent._next_vtype
+        if value is not None and vtype is not None:
+            if vtype in _BUILT_IN_NAMES:
+                if not isinstance(value, _TYPECHECK_CLASSES[vtype]):
+                    message = (f'expected {vtype}, got {type(value)} '
+                               f'{value}')
+                    return vtype, message
+            elif vtype not in self.ttypes:
+                message = f'expected {vtype}, got {type(value)} {value}'
+                return vtype, message
+        return None, None
+
+
+_TYPECHECK_CLASSES = dict(
+    collection=(List, Map, Table), bool=bool, bytes=(bytes, bytearray),
+    date=datetime.date, datetime=datetime.datetime, int=int, list=List,
+    map=Map, real=float, str=str, table=Table)
+_BUILT_IN_NAMES = tuple(_TYPECHECK_CLASSES.keys())
 
 
 def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
-         warn_is_error=False):
+         verbose=True, on_error=on_error):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
@@ -1254,13 +1322,14 @@ def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer(file, data, pad, use_true_false, warn_is_error)
+        _Writer(file, data, pad, use_true_false, verbose, on_error)
     finally:
         if close:
             file.close()
 
 
-def dumps(data, *, indent=2, use_true_false=False, warn_is_error=False):
+def dumps(data, *, indent=2, use_true_false=False, verbose=True,
+          on_error=on_error):
     '''
     data is a Uxf object, or a list, List, dict, Map, or Table that this
     function will write to a string in UXF format which will then be
@@ -1276,17 +1345,18 @@ def dumps(data, *, indent=2, use_true_false=False, warn_is_error=False):
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer(string, data, pad, use_true_false, warn_is_error)
+    _Writer(string, data, pad, use_true_false, verbose, on_error)
     return string.getvalue()
 
 
 class _Writer:
 
-    def __init__(self, file, uxo, pad, use_true_false, warn_is_error):
+    def __init__(self, file, uxo, pad, use_true_false, verbose, on_error):
         self.file = file
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
-        self.warn_is_error = warn_is_error
+        self.verbose = verbose
+        self.on_error = on_error
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
@@ -1294,6 +1364,10 @@ class _Writer:
             self.write_ttypes(uxo.ttypes)
         if not self.write_value(uxo.data, pad=pad):
             self.file.write('\n')
+
+
+    def error(self, code, message):
+        self.on_error(0, code, message)
 
 
     def write_header(self, custom):
@@ -1318,12 +1392,7 @@ class _Writer:
 
     def write_value(self, item, indent=0, *, pad, is_map_value=False):
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
-            if AutoConvertSequences:
-                item = List(item)
-            else:
-                raise Error(f'#550:got {item} of type {type(item)}; '
-                            'try converting it to a List or '
-                            'uxf.AutoConvertSequences = True')
+            item = List(item)
         if isinstance(item, (list, List)):
             return self.write_list(item, indent, pad=pad,
                                    is_map_value=is_map_value)
@@ -1477,12 +1546,9 @@ class _Writer:
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            message = ('#561:ignoring unexpected item of type '
+            self.error(561, 'ignoring unexpected item of type '
                        f'{type(item)}: {item!r}; consider using '
                        'uxf.add_converter()')
-            if self.warn_is_error:
-                raise Error(message)
-            print(f'Warning:{message}', file=sys.stderr)
         return False
 
 
@@ -1609,16 +1675,12 @@ canonicalize.count = 1 # noqa: E305
 
 
 if __name__ == '__main__':
-    import os
-
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py [-w|--warn-is-error] [-iN|--indent=N] \
+usage: uxf.py [-v|--verbose] [-iN|--indent=N] \
 <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
-If warn-is-error is set warnings are treated as errors \
-(i.e., the program will terminate with the first error or warning message).
 If an outfile is specified and ends .gz it will be gzip-compressed.
 Indent defaults to 2 and accepts a range of 0-8. \
 The default is silently used if an out of range value is given.
@@ -1631,13 +1693,13 @@ To produce a compressed and compact .uxf file run: \
 
 Converting uxf to uxf will alphabetically order any ttypes.
 ''')
-    warn_is_error = False
     indent = 2
     args = sys.argv[1:]
     infile = outfile = None
+    verbose = False
     for arg in args:
-        if arg in {'-w', '--warn-is-error'}:
-            warn_is_error = True
+        if arg in {'-v', '--verbose'}:
+            verbose = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
                 indent = int(arg[2:])
@@ -1653,8 +1715,8 @@ Converting uxf to uxf will alphabetically order any ttypes.
         if (outfile is not None and os.path.abspath(infile) ==
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
-        uxo = load(infile, warn_is_error=warn_is_error)
+        uxo = load(infile, verbose=verbose)
         outfile = sys.stdout if outfile is None else outfile
-        dump(outfile, uxo, indent=indent)
+        dump(outfile, uxo, indent=indent, verbose=verbose)
     except (IOError, Error) as err:
         print(f'uxf.py:error:{err}', file=sys.stderr)

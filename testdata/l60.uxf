@@ -1,0 +1,8 @@
+uxf 1.0
+=p x:int y:int
+{str p
+  <one> (#<ok> p 1 2 -3 4 5 6)
+  <two> (#<bad> p 7 -8 9.0 10.1)
+  <three> (#<worse> p 11 -12 <-1> <13>)
+  <four> (#<ok2> p -7 -6)
+}
