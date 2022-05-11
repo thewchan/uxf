@@ -1120,8 +1120,23 @@ class _Parser:
                            fail=True) # A table with not ttype is invalid
             parent.ttype = ttype
             self.used_ttypes.add(ttype.name)
+            vtype = getattr(parent, 'vtype', None) # map or list
+            if vtype is not None and vtype != ttype.name:
+                self.error(
+                    456, (f'expected table value of type {vtype}, '
+                          f'got value of type {ttype.name}'))
+            elif vtype is None and len(self.stack) > 1:
+                grand_parent = self.stack[-2]
+                vtype = getattr(grand_parent, 'vtype', None) # map or list
+                if vtype is None and isinstance(grand_parent, Table):
+                    vtype = grand_parent._next_vtype
+                if (vtype is not None and vtype != 'table' and vtype !=
+                        token.value):
+                    self.error(458,
+                               (f'expected table value of type {vtype}, '
+                                f'got value of type {token.value}'))
         else: # should never happen
-            self.error(360, 'ttype name may only appear at the start of a '
+            self.error(460, 'ttype name may only appear at the start of a '
                        f'map (as the value type), list, or table, {token}')
 
 

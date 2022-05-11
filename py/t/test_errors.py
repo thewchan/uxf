@@ -109,16 +109,16 @@ def main():
 
     try:
         total += 1
-        e = 200
-        uxf.loads('uxf 1.0\n[(:AB CD EF GH:)]', on_error=on_error)
+        e = 190
+        uxf.loads('uxf 1.0\n{1 2 #<3> 4}', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
     try:
         total += 1
-        e = 210
-        uxf.loads('uxf 1.0\n[-7F]', on_error=on_error)
+        e = 200
+        uxf.loads('uxf 1.0\n[(:AB CD EF GH:)]', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -164,14 +164,6 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
-    try:
-        total += 1
-        e = 290
-        uxf.loads('uxf 1.0\n{7.9 8}', on_error=on_error)
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
     table = uxf.Table(name='Pair', fields=('first', 'second'))
     uxo = uxf.Uxf({})
     uxo.data.append('key')
@@ -188,7 +180,23 @@ def main():
     try:
         total += 1
         e = 290
+        uxf.loads('uxf 1.0\n{7.9 8}', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 290
         uxo.data.append(3.8)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 298
+        _ = uxf.Table(name='', records=(1, 2))
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -227,14 +235,6 @@ def main():
 
     try:
         total += 1
-        e = 298
-        _ = uxf.Table(name='', records=(1, 2))
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
-    try:
-        total += 1
         e = 330
         _ = uxf.Table(name='test', records=(1, 2))
         fail(f'test_errors • #{e} FAIL', regression)
@@ -262,16 +262,24 @@ def main():
 
     try:
         total += 1
-        e = 400
-        uxf.loads('uxf 1.0\n(:AB:)', on_error=on_error)
+        e = 460
+        uxf.loads('uxf 1.0\n[-7F]', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
     try:
         total += 1
-        e = 190
-        uxf.loads('uxf 1.0\n{1 2 #<3> 4}', on_error=on_error)
+        e = 460
+        uxf.loads('uxf 1.0\n{p}', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 400
+        uxf.loads('uxf 1.0\n(:AB:)', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -302,8 +310,15 @@ def main():
 
     try:
         total += 1
-        e = 460
-        uxf.loads('uxf 1.0\n{p}', on_error=on_error)
+        e = 458
+        uxf.loads('''uxf 1.0
+=p x:int y:int
+=q a:real b:real
+{str p
+  <one> (#<ok> p 1 2 -3 4 5 6)
+  <four> (#<wrong> q 8.1 -9.3)
+  <five> (#<ok2> p -7 -6)
+}''', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -320,6 +335,39 @@ def main():
         total += 1
         e = 480
         uxf.loads('uxf 1.0\n{int real str}', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 492
+        uxf.loads('''uxf 1.0
+=p x:int y:int
+{str p <one> (#<ok> p 1 2 -3 4 5 6)
+<three> (#<worse> p 11 -12 <-1> <13>)''', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 498
+        uxf.loads('''uxf 1.0
+=p x:int y:int
+{str p <one> (#<ok> p 1 2 -3 4 5 6)
+<two> (#<bad> p 7 -8 9.0 10)}''', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 498
+        uxf.loads('''uxf 1.0
+=p x:int y:int
+{str p <one> (#<ok> p 1 2 -3 4 5 6)
+<two> (#<bad> p 7 -8 9.0 10)}''', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -359,38 +407,6 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
-    try:
-        total += 1
-        e = 571
-        uxf.loads('''uxf 1.0
-=p x:int y:int
-{str p
-  <one> (#<ok> p 1 2 -3 4 5 6)
-  <two> (#<bad> p 7 -8 9.0 10)
-  <three> (#<worse> p 11 -12 <-1> <13>)
-  <five> (#<ok> p -7 -6)
-}''')
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
-    try:
-        total += 1
-        e = 572
-        uxf.loads('''uxf 1.0
-=p x:int y:int
-=q a:real b:real
-{str p
-  <one> (#<ok> p 1 2 -3 4 5 6)
-  <two> (#<bad> p 7 -8 9.0 10)
-  <three> (#<worse> p 11 -12 <-1> <13>)
-  <four> (#<wrong> q 8.1 -9.3)
-  <five> (#<ok> p -7 -6)
-}''')
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
     if not regression:
         result = 'OK' if total == ok else 'FAIL'
         print(f'{ok}/{total} {result}')
@@ -402,7 +418,7 @@ def got_error(code, err, regression):
     err = str(err)
     code = f'#{code}:'
     if code not in err:
-        fail(f'test_errors • expected #{code} got, {err!r} FAIL',
+        fail(f'test_errors • expected {code} got, {err!r} FAIL',
              regression)
         return 0
     return 1

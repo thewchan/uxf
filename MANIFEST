@@ -1,3 +1,7 @@
+# TODO fix regression failure
+# TODO go through every uxf.py error code & try to make sure there's a
+# matching test in test_errors.py
+# TODO code review & improvement
 TODO.md
 
 py/uxf.py
@@ -8,7 +12,7 @@ py/pypi.sh
 py/t/regression.py
 py/t/test_converters.py
 py/t/test_sqlite.py
-py/t/test_errors.py # Go through all codes again
+py/t/test_errors.py
 py/t/test_lints.py
 py/t/eq.py
 py/eg/importer.py

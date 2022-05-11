@@ -90,7 +90,7 @@ def check_bad(name, regression):
         return 0
     if expected != actual:
         if not regression:
-            print(f'{cmd} • (bad) FAIL\nEXPECTED {expected[:60]!r}…, '
+            print(f'{cmd} • (bad) FAIL\nEXPECTED {expected[:60]!r}…,\n'
                   f'ACTUAL   {actual[:60]!r}…')
         return 0
     return 1
