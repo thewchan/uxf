@@ -303,8 +303,8 @@ of a table before the _ttype_ name.
     uxf 1.0 MyApp 1.2.0 Config
     = pos x:int y:int
     = size width:int height:int
-    { #<Notes on this configuration file format> str map
-      <General> { #<Miscellaneous settings> str
+    { #<We want str keys and map values> str map
+      <General> { #<We want str keys and any values> str
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
           <current> <test1.uxf>
           <recent> [ #<From most to least recent> str
