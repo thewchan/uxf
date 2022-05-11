@@ -1697,13 +1697,14 @@ canonicalize.count = 1 # noqa: E305
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py [-v|--verbose] [-iN|--indent=N] \
+usage: uxf.py [-l|--lint] [-iN|--indent=N] \
 <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
 If an outfile is specified and ends .gz it will be gzip-compressed.
 If outfile is - output will be to stdout.
-If you just want linting don't specify an outfile at all.
+If you just want linting either don't specify an outfile at all or \
+use -l or --lint. Lint errors and fixes go to stderr.
 
 Indent defaults to 2 and accepts a range of 0-8. \
 The default is silently used if an out of range value is given.
@@ -1719,10 +1720,10 @@ Converting uxf to uxf will alphabetically order any ttypes.
     indent = 2
     args = sys.argv[1:]
     infile = outfile = None
-    verbose = False
+    lint = None
     for arg in args:
-        if arg in {'-v', '--verbose'}:
-            verbose = True
+        if arg in {'-l', '--lint'}:
+            lint = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
                 indent = int(arg[2:])
@@ -1738,12 +1739,13 @@ Converting uxf to uxf will alphabetically order any ttypes.
         if (outfile is not None and os.path.abspath(infile) ==
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
-        on_error = functools.partial(on_error, verbose=verbose,
+        lint = lint or (lint is None and outfile is None)
+        on_error = functools.partial(on_error, verbose=lint,
                                      filename=infile)
         uxo = load(infile, on_error=on_error)
         do_dump = outfile is not None
         outfile = sys.stdout if outfile == '-' else outfile
-        on_error = functools.partial(on_error, verbose=verbose,
+        on_error = functools.partial(on_error, verbose=lint,
                                      filename=outfile)
         if do_dump:
             dump(outfile, uxo, indent=indent, on_error=on_error)

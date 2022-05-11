@@ -24,8 +24,6 @@ try:
     import uxf
     import uxfconvert
     import eq
-    UXF_EXE = os.path.abspath('../uxf.py')
-    UXFCONVERT_EXE = os.path.abspath('../uxfconvert.py')
     os.chdir('../../testdata') # move to test data
 finally:
     pass

@@ -10,7 +10,6 @@ try:
     os.chdir(os.path.dirname(__file__)) # move to this file's dir
     sys.path.append('..')
     import uxf
-    UXF_EXE = os.path.abspath('../uxf.py')
     os.chdir('../../testdata') # move to test data
 finally:
     pass

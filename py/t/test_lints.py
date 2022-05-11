@@ -48,7 +48,7 @@ def main():
 
 
 def check_good(name, regression):
-    cmd = [UXF_EXE, name, '-v']
+    cmd = [UXF_EXE, name, '--lint']
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0 or reply.stderr:
@@ -60,7 +60,7 @@ def check_good(name, regression):
 
 
 def check_bad(name, regression):
-    cmd = [UXF_EXE, name, '-v']
+    cmd = [UXF_EXE, name, '--lint']
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0:

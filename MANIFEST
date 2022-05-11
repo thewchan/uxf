@@ -34,8 +34,7 @@ st.sh
 
 # NOTE IDEAS:
 #   - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
-#   - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
-#   - experiment with using uxf format to store various kinds of data,
+#   - Experiment with using uxf format to store various kinds of data,
 #     e.g., styled text, spreadsheet, graphics, etc.
 
 # vim: syn=yaml
