@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="p">
+      <field name="x" vtype="int"/>
+      <field name="y" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <map ktype="str" vtype="p">
+    <key>
+      <str>one</str>
+    </key>
+    <value>
+      <table name="p" comment="ok">
+        <row>
+          <int v="1"/>
+          <int v="2"/>
+        </row>
+        <row>
+          <int v="-3"/>
+          <int v="4"/>
+        </row>
+        <row>
+          <int v="5"/>
+          <int v="6"/>
+        </row>
+      </table>
+    </value>
+    <key>
+      <str>two</str>
+    </key>
+    <value>
+      <table name="p" comment="bad">
+        <row>
+          <int v="7"/>
+          <int v="-8"/>
+        </row>
+        <row>
+          <int v="9"/>
+          <int v="10"/>
+        </row>
+      </table>
+    </value>
+    <key>
+      <str>three</str>
+    </key>
+    <value>
+      <table name="p" comment="worse">
+        <row>
+          <int v="11"/>
+          <int v="-12"/>
+        </row>
+        <row>
+          <int v="-1"/>
+          <int v="13"/>
+        </row>
+      </table>
+    </value>
+    <key>
+      <str>four</str>
+    </key>
+    <value>
+      <table name="p" comment="ok2">
+        <row>
+          <int v="-7"/>
+          <int v="-6"/>
+        </row>
+      </table>
+    </value>
+  </map>
+</uxf>

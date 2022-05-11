@@ -107,7 +107,7 @@
         <int v="52"/>
         <str>Bob Marley</str>
         <int v="6"/>
-        <int v="9"/>
+        <real v="9.0"/>
         <datetime v="1981-02-27T23:56:53"/>
       </row>
       <row>

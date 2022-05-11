@@ -196,7 +196,7 @@ class Uxf:
             data = List()
         if not _is_uxf_collection(data):
             raise Error('#100:Uxf data must be a list, List, dict, Map, or '
-                        f'Table, got {type(data)}')
+                        f'Table, got {data.__class__.__name__}')
         self._data = data
 
 
@@ -704,8 +704,8 @@ class Map(collections.UserDict):
                     raise Error(f'#280:{prefix}a Table ( … ), maybe bytes '
                                 '(: … :) was intended?')
                 else:
-                    raise Error(
-                        f'#290:{prefix}{value!r} of type {type(value)}')
+                    raise Error(f'#290:{prefix}{value.__class__.__name__} '
+                                f'{value!r}')
             self._pending_key = value
         else:
             self.data[self._pending_key] = value
@@ -979,8 +979,15 @@ class Table:
 
 
     def __str__(self):
-        return (f'Table {self.name!r} {self.fields!r} with '
-                f'{len(self.records)} records #{self.comment!r}')
+        parts = [f'name={self.name!r}']
+        if self.fields:
+            parts.append(f'fields={self.fields!r}')
+        else:
+            parts.append('(no fields)')
+        if self.comment:
+            parts.append(f'comment={self.comment!r}')
+        parts.append(f'({len(self.records)} records)')
+        return ' '.join(parts)
 
 
     def __repr__(self):
@@ -1140,12 +1147,19 @@ class _Parser:
 
     def _handle_str(self, i, token):
         value = token.value
+        for converter in _Converters.values():
+            if converter is not None and converter.from_str is not None:
+                v, ok = converter.from_str(value)
+                if ok:
+                    self.stack[-1].append(v)
+                    return
         vtype, message = self.typecheck(value)
         if value is not None and vtype is not None and vtype in {
                 'bool', 'int', 'real', 'date', 'datetime'}:
             new_value = naturalize(value)
             if new_value != value:
-                self.error(492, f'converted str {value!r} to {vtype}')
+                self.error(492,
+                           f'converted str {value!r} to {vtype} {value}')
                 value = new_value
             else:
                 self.error(494, message)
@@ -1157,11 +1171,13 @@ class _Parser:
         vtype, message = self.typecheck(value)
         if value is not None and vtype is not None:
             if vtype == 'real' and isinstance(value, int):
-                value = float(value)
-                self.error(496, 'converted int to real')
+                v = float(value)
+                self.error(496, f'converted int {value} to real {v}')
+                value = v
             elif vtype == 'int' and isinstance(value, float):
-                value = round(value)
-                self.error(498, 'converted real to int')
+                v = round(value)
+                self.error(498, f'converted real {value} to int {v}')
+                value = v
             else:
                 self.error(500, message)
         self.stack[-1].append(value)
@@ -1270,11 +1286,12 @@ class _Parser:
         if value is not None and vtype is not None:
             if vtype in _BUILT_IN_NAMES:
                 if not isinstance(value, _TYPECHECK_CLASSES[vtype]):
-                    message = (f'expected {vtype}, got {type(value)} '
-                               f'{value}')
+                    message = (f'expected {vtype}, got '
+                               f'{value.__class__.__name__} {value}')
                     return vtype, message
             elif vtype not in self.ttypes:
-                message = f'expected {vtype}, got {type(value)} {value}'
+                message = (f'expected {vtype}, got '
+                           f'{value.__class__.__name__} {value}')
                 return vtype, message
         return None, None
 
@@ -1536,9 +1553,10 @@ class _Writer:
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
         else:
-            self.error(561, 'ignoring unexpected item of type '
-                       f'{type(item)}: {item!r}; consider using '
-                       'uxf.add_converter()')
+            self.file.write(str(item))
+            self.error(561, 'wrote unexpected item of type '
+                       f'{item.__class__.__name__}: {item!r} as a str; '
+                       'consider using uxf.add_converter()')
         return False
 
 
@@ -1592,7 +1610,11 @@ _Converters = {}
 
 
 def add_converter(obj_type, *, to_str=repr, from_str=None):
-    'Use this to register custom types and conversions to and from str\'s.'
+    '''Use this to register custom types and conversions to and from str's.
+    to_str takes a value of obj_type and returns a str
+    from_str takes a value of str type and either returns (None, False) or
+    (value, True) where value is of type obj_type
+    '''
     if obj_type in {bool, int, float, datetime.date, datetime.datetime,
                     str, bytes, bytearray}:
         raise Error(
@@ -1672,6 +1694,9 @@ usage: uxf.py [-v|--verbose] [-iN|--indent=N] \
    or: python3 -m uxf ...same options as above...
 
 If an outfile is specified and ends .gz it will be gzip-compressed.
+If outfile is - output will be to stdout.
+If you just want linting don't specify an outfile at all.
+
 Indent defaults to 2 and accepts a range of 0-8. \
 The default is silently used if an out of range value is given.
 
@@ -1708,9 +1733,11 @@ Converting uxf to uxf will alphabetically order any ttypes.
         on_error = functools.partial(on_error, verbose=verbose,
                                      filename=infile)
         uxo = load(infile, on_error=on_error)
-        outfile = sys.stdout if outfile is None else outfile
+        do_dump = outfile is not None
+        outfile = sys.stdout if outfile == '-' else outfile
         on_error = functools.partial(on_error, verbose=verbose,
                                      filename=outfile)
-        dump(outfile, uxo, indent=indent, on_error=on_error)
+        if do_dump:
+            dump(outfile, uxo, indent=indent, on_error=on_error)
     except (IOError, Error) as err:
         print(f'uxf.py:error:{err}', file=sys.stderr)

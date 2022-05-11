@@ -47,7 +47,6 @@ def main():
                     complex(-1.2, -.3))
     d['MyType'] = (MyType('one', 1, False), MyType('one & one', 2, True))
 
-    uxf.AutoConvertSequences = True
     uxf.add_converter(NumKind, to_str=lambda k: f'%NumKind {k.name}',
                       from_str=numkind_from_str)
     uxf.add_converter(State, to_str=lambda s: f'%State {s.value}',
@@ -105,8 +104,8 @@ def check_all_types(total, ok, which, Class, seq, regression):
         if isinstance(x, Class):
             ok += 1
         elif not regression:
-            print(f'test_converters • #{which} {Class.__name__} types '
-                  'not preserved FAIL')
+            print(f'test_converters • #{which} expected {Class.__name__} '
+                  f'got {x.__class__.__name__} {x!r} FAIL')
     else:
         if not regression:
             print(f'test_converters • #{which} {Class.__name__} OK')

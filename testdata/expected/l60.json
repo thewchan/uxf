@@ -1,0 +1,102 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "p",
+        "fields": {
+          "x": "int",
+          "y": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^map": {
+      "comment": null,
+      "ktype": "str",
+      "vtype": "p",
+      "map": {
+        "one": {
+          "UXF^table": {
+            "name": "p",
+            "comment": "ok",
+            "fields": {
+              "x": "int",
+              "y": "int"
+            },
+            "records": [
+              [
+                1,
+                2
+              ],
+              [
+                -3,
+                4
+              ],
+              [
+                5,
+                6
+              ]
+            ]
+          }
+        },
+        "two": {
+          "UXF^table": {
+            "name": "p",
+            "comment": "bad",
+            "fields": {
+              "x": "int",
+              "y": "int"
+            },
+            "records": [
+              [
+                7,
+                -8
+              ],
+              [
+                9,
+                10
+              ]
+            ]
+          }
+        },
+        "three": {
+          "UXF^table": {
+            "name": "p",
+            "comment": "worse",
+            "fields": {
+              "x": "int",
+              "y": "int"
+            },
+            "records": [
+              [
+                11,
+                -12
+              ],
+              [
+                -1,
+                13
+              ]
+            ]
+          }
+        },
+        "four": {
+          "UXF^table": {
+            "name": "p",
+            "comment": "ok2",
+            "fields": {
+              "x": "int",
+              "y": "int"
+            },
+            "records": [
+              [
+                -7,
+                -6
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+}

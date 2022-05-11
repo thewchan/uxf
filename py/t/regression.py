@@ -57,16 +57,20 @@ def main():
     total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
     total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
     for cmd in (TEST_CONVERTERS, TEST_SQLITE, TEST_ERRORS, TEST_LINTS):
+        total += 1
+        diff = total - ok
         total, ok = test_external([cmd, '--regression'], total, ok,
                                   verbose=verbose)
+        if total - ok > diff:
+            print(f'{cmd} • FAIL')
     if total < 150:
         print('\b' * total, end='', flush=True)
+    t = time.monotonic() - t
     if total == ok:
-        t = time.monotonic() - t
         print(f'{ok}/{total} All OK ({t:.3f} sec)')
         cleanup()
     else:
-        print(f'{ok}/{total} FAIL')
+        print(f'{ok}/{total} FAIL ({t:.3f} sec)')
 
 
 def get_config():
@@ -298,10 +302,13 @@ def test_slides(slides_py, total, ok, *, verbose):
     num = 1 if slides_py.endswith('1.py') else 2
     cmd = [slides_py, SLIDES_SLD, f'actual/slides{num}']
     total += 1
-    reply = subprocess.call(cmd)
+    reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
-    if reply != 0:
+    stderr = reply.stderr.strip()
+    if reply.returncode != 0:
         print(f'{cmd} • FAIL (execute slides)')
+    elif stderr != "uxf.py:slides.sld:101:#416:unused type: 'pre'":
+        print(f'{cmd} • FAIL (wrong/missing lint): {stderr!r}')
     else:
         ok += 1
         for name in sorted(
@@ -317,6 +324,7 @@ def test_external(cmd, total, ok, *, verbose):
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0:
+        total += 1
         print(f'{cmd} • FAIL')
     else:
         parts = reply.stdout.split()

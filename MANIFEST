@@ -8,7 +8,7 @@ py/pypi.sh
 py/t/regression.py
 py/t/test_converters.py
 py/t/test_sqlite.py
-py/t/test_errors.py
+py/t/test_errors.py # Go through all codes again
 py/t/test_lints.py
 py/t/eq.py
 py/eg/importer.py
