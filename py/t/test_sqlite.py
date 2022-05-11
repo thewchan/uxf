@@ -13,10 +13,10 @@ use the uxf module directly.
 '''
 
 import contextlib
+import functools
 import os
 import sys
 import tempfile
-
 
 try:
     os.chdir(os.path.dirname(__file__)) # move to this file's dir
@@ -46,7 +46,8 @@ def main():
 
 
 def check(total, ok, name, regression):
-    uxo1 = uxf.load(name, verbose=not regression)
+    on_error = functools.partial(uxf.on_error, verbose=not regression)
+    uxo1 = uxf.load(name, on_error=on_error)
     filename = os.path.join(tempfile.gettempdir(), name.replace('.uxf',
                                                                 '.sqlite'))
     with contextlib.suppress(FileNotFoundError):

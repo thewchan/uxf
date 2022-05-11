@@ -23,6 +23,7 @@ import collections
 import configparser
 import csv
 import datetime
+import functools
 import json
 import pathlib
 import shutil
@@ -138,7 +139,8 @@ def _get_other_converter(parser, config):
 
 
 def uxf_to_csv(infile, outfile, *, verbose=True):
-    uxo = uxf.load(infile, verbose=verbose)
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
+    uxo = uxf.load(infile, on_error=on_error)
     data = uxo.data
     if isinstance(data, uxf.Table):
         with open(outfile, 'w') as file:
@@ -160,9 +162,10 @@ def uxf_to_csv(infile, outfile, *, verbose=True):
 
 
 def csv_to_uxf(infile, outfile, *, fieldnames=False, verbose=True):
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
     data, filename, ttypes = _read_csv_to_data(infile, fieldnames)
     uxf.dump(outfile, uxf.Uxf(data, custom=filename, ttypes=ttypes),
-             verbose=verbose)
+             on_error=on_error)
 
 
 def _read_csv_to_data(infile, fieldnames):
@@ -196,13 +199,15 @@ def multi_csv_to_uxf(infiles, outfile, *, fieldnames=False, verbose=True):
         data.append(datum)
         if new_ttypes:
             ttypes.update(new_ttypes)
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxf.dump(outfile,
              uxf.Uxf(data, custom=' '.join(infiles), ttypes=ttypes),
-             verbose=verbose)
+             on_error=on_error)
 
 
 def uxf_to_json(infile, outfile, *, verbose=True):
-    uxo = uxf.load(infile, verbose=verbose)
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
+    uxo = uxf.load(infile, on_error=on_error)
     d = {}
     if uxo.custom is not None:
         d[JSON_CUSTOM] = uxo.custom
@@ -292,8 +297,9 @@ def json_to_uxf(infile, outfile, *, verbose=True):
         for ttype in ttype_list:
             ttypes[ttype.name] = ttype
     data = d.get(JSON_DATA)
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxf.dump(outfile, uxf.Uxf(data, custom=custom, ttypes=ttypes,
-                              comment=comment), verbose=verbose)
+                              comment=comment), on_error=on_error)
 
 
 def _json_naturalize(d):
@@ -341,6 +347,7 @@ def _json_naturalize(d):
 
 
 def ini_to_uxf(infile, outfile, *, verbose=True):
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
     ini = configparser.ConfigParser()
     ini.read(infile)
     data = uxf.Map()
@@ -350,11 +357,12 @@ def ini_to_uxf(infile, outfile, *, verbose=True):
             m = data[section] = uxf.Map()
             for key, value in d.items():
                 m[uxf.naturalize(key)] = uxf.naturalize(value)
-    uxf.dump(outfile, uxf.Uxf(data, custom=infile), verbose=verbose)
+    uxf.dump(outfile, uxf.Uxf(data, custom=infile), on_error=on_error)
 
 
 def uxf_to_sqlite(infile, outfile, *, verbose=True):
-    uxo = uxf.load(infile, verbose=verbose)
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
+    uxo = uxf.load(infile, on_error=on_error)
     if isinstance(uxo.data, uxf.Table):
         _uxf_to_sqlite(outfile, [uxo.data])
     elif (isinstance(uxo.data, (list, uxf.List)) and uxo.data and
@@ -415,7 +423,8 @@ def _populate_table(db, table, table_name):
 
 def sqlite_to_uxf(infile, outfile, *, verbose=True):
     uxo = _sqlite_to_uxf(infile)
-    uxo.dump(outfile, verbose=verbose)
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
+    uxo.dump(outfile, on_error=on_error)
 
 
 def _sqlite_to_uxf(infile):
@@ -452,7 +461,8 @@ def _sqlite_to_uxf(infile):
 
 
 def uxf_to_xml(infile, outfile, *, verbose=True):
-    uxo = uxf.load(infile, verbose=verbose)
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
+    uxo = uxf.load(infile, on_error=on_error)
     _uxf_to_xml(uxo, outfile)
 
 
@@ -584,8 +594,9 @@ def _xml_add_scalar(tree, root, value):
 
 
 def xml_to_uxf(infile, outfile, *, verbose=True):
+    on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = _xml_to_uxf(infile)
-    uxo.dump(outfile, verbose=verbose)
+    uxo.dump(outfile, on_error=on_error)
 
 
 def _xml_to_uxf(infile):

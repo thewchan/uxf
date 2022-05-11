@@ -201,48 +201,44 @@ class Uxf:
 
 
     def dump(self, filename_or_filelike, *, indent=2, use_true_false=False,
-             verbose=True, on_error=on_error):
+             on_error=on_error):
         '''Convenience method that wraps the module-level dump() function'''
         dump(filename_or_filelike, self, indent=indent,
-             use_true_false=use_true_false, verbose=verbose,
-             on_error=on_error)
+             use_true_false=use_true_false, on_error=on_error)
 
 
-    def dumps(self, *, indent=2, use_true_false=False, verbose=True,
-              on_error=on_error):
+    def dumps(self, *, indent=2, use_true_false=False, on_error=on_error):
         '''Convenience method that wraps the module-level dumps()
         function'''
         return dumps(self, indent=indent, use_true_false=use_true_false,
-                     verbose=verbose, on_error=on_error)
+                     on_error=on_error)
 
 
-    def load(self, filename_or_filelike, *, verbose=True,
-             on_error=on_error):
+    def load(self, filename_or_filelike, *, on_error=on_error):
         '''Convenience method that wraps the module-level load()
         function'''
         filename = (filename_or_filelike if isinstance(filename_or_filelike,
                     (str, pathlib.Path)) else '-')
         data, custom, ttypes, comment = _loads(
-            _read_text(filename_or_filelike), filename, verbose=verbose,
-            on_error=on_error)
+            _read_text(filename_or_filelike), filename, on_error=on_error)
         self.data = data
         self.custom = custom
         self.ttypes = ttypes
         self.comment = comment
 
 
-    def loads(self, uxt, filename='-', *, verbose=True, on_error=on_error):
+    def loads(self, uxt, filename='-', *, on_error=on_error):
         '''Convenience method that wraps the module-level loads()
         function'''
-        data, custom, ttypes, comment = _loads(
-            uxt, filename, verbose=verbose, on_error=on_error)
+        data, custom, ttypes, comment = _loads(uxt, filename,
+                                               on_error=on_error)
         self.data = data
         self.custom = custom
         self.ttypes = ttypes
         self.comment = comment
 
 
-def load(filename_or_filelike, *, verbose=True, on_error=on_error):
+def load(filename_or_filelike, *, on_error=on_error):
     '''
     Returns a Uxf object.
 
@@ -252,32 +248,28 @@ def load(filename_or_filelike, *, verbose=True, on_error=on_error):
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
     data, custom, ttypes, comment = _loads(
-        _read_text(filename_or_filelike), filename, verbose=verbose,
-        on_error=on_error)
+        _read_text(filename_or_filelike), filename, on_error=on_error)
     return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
 
 
-def loads(uxt, filename='-', *, verbose=True, on_error=on_error):
+def loads(uxt, filename='-', *, on_error=on_error):
     '''
     Returns a Uxf object.
 
     uxt must be a string of UXF data.
     '''
-    data, custom, ttypes, comment = _loads(uxt, filename, verbose=verbose,
-                                           on_error=on_error)
+    data, custom, ttypes, comment = _loads(uxt, filename, on_error=on_error)
     return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
 
 
-def _loads(uxt, filename='-', *, verbose=True, on_error=on_error):
-    tokens, custom, text = _tokenize(uxt, filename, verbose=verbose,
-                                     on_error=on_error)
-    data, comment, ttypes = _parse(tokens, filename, verbose=verbose,
-                                   on_error=on_error)
+def _loads(uxt, filename='-', *, on_error=on_error):
+    tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
+    data, comment, ttypes = _parse(tokens, filename, on_error=on_error)
     return data, custom, ttypes, comment
 
 
-def _tokenize(uxt, filename='-', *, verbose=True, on_error=on_error):
-    lexer = _Lexer(filename, verbose=verbose, on_error=on_error)
+def _tokenize(uxt, filename='-', *, on_error=on_error):
+    lexer = _Lexer(filename, on_error=on_error)
     tokens = lexer.tokenize(uxt)
     return tokens, lexer.custom, uxt
 
@@ -295,9 +287,9 @@ def _read_text(filename_or_filelike):
 
 class _Lexer:
 
-    def __init__(self, filename, *, verbose=True, on_error=on_error):
+    def __init__(self, filename, *, on_error=on_error):
         self.on_error = functools.partial(
-            on_error, filename=os.path.basename(filename), verbose=verbose)
+            on_error, filename=os.path.basename(filename))
 
 
     def error(self, code, message, *, fail=False):
@@ -997,8 +989,8 @@ class Table:
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, filename='-', *, verbose=True, on_error=on_error):
-    parser = _Parser(filename, verbose=verbose, on_error=on_error)
+def _parse(tokens, filename='-', *, on_error=on_error):
+    parser = _Parser(filename, on_error=on_error)
     data, comment = parser.parse(tokens)
     ttypes = parser.ttypes
     return data, comment, ttypes
@@ -1006,9 +998,9 @@ def _parse(tokens, filename='-', *, verbose=True, on_error=on_error):
 
 class _Parser:
 
-    def __init__(self, filename, *, verbose=True, on_error=on_error):
+    def __init__(self, filename, *, on_error=on_error):
         self.on_error = functools.partial(
-            on_error, filename=os.path.basename(filename), verbose=verbose)
+            on_error, filename=os.path.basename(filename))
 
 
     def error(self, code, message, *, fail=False):
@@ -1295,7 +1287,7 @@ _BUILT_IN_NAMES = tuple(_TYPECHECK_CLASSES.keys())
 
 
 def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
-         verbose=True, on_error=on_error):
+         on_error=on_error):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
@@ -1322,14 +1314,13 @@ def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer(file, data, pad, use_true_false, verbose, on_error)
+        _Writer(file, data, pad, use_true_false, on_error)
     finally:
         if close:
             file.close()
 
 
-def dumps(data, *, indent=2, use_true_false=False, verbose=True,
-          on_error=on_error):
+def dumps(data, *, indent=2, use_true_false=False, on_error=on_error):
     '''
     data is a Uxf object, or a list, List, dict, Map, or Table that this
     function will write to a string in UXF format which will then be
@@ -1345,17 +1336,16 @@ def dumps(data, *, indent=2, use_true_false=False, verbose=True,
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer(string, data, pad, use_true_false, verbose, on_error)
+    _Writer(string, data, pad, use_true_false, on_error)
     return string.getvalue()
 
 
 class _Writer:
 
-    def __init__(self, file, uxo, pad, use_true_false, verbose, on_error):
+    def __init__(self, file, uxo, pad, use_true_false, on_error):
         self.file = file
         self.yes = 'true' if use_true_false else 'yes'
         self.no = 'false' if use_true_false else 'no'
-        self.verbose = verbose
         self.on_error = on_error
         self.write_header(uxo.custom)
         if uxo.comment is not None:
@@ -1715,8 +1705,12 @@ Converting uxf to uxf will alphabetically order any ttypes.
         if (outfile is not None and os.path.abspath(infile) ==
                 os.path.abspath(outfile)):
             raise Error('won\'t overwrite {outfile}')
-        uxo = load(infile, verbose=verbose)
+        on_error = functools.partial(on_error, verbose=verbose,
+                                     filename=infile)
+        uxo = load(infile, on_error=on_error)
         outfile = sys.stdout if outfile is None else outfile
-        dump(outfile, uxo, indent=indent, verbose=verbose)
+        on_error = functools.partial(on_error, verbose=verbose,
+                                     filename=outfile)
+        dump(outfile, uxo, indent=indent, on_error=on_error)
     except (IOError, Error) as err:
         print(f'uxf.py:error:{err}', file=sys.stderr)
