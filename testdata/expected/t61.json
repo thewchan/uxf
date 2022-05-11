@@ -1,0 +1,89 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "b",
+        "fields": {
+          "content": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "img",
+        "fields": {
+          "content": null,
+          "image": "bytes"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "p",
+        "fields": {
+          "content": null
+        }
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "UXF^table": {
+        "name": "p",
+        "comment": null,
+        "fields": {
+          "content": null
+        },
+        "records": [
+          [
+            "first para"
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "p",
+        "comment": null,
+        "fields": {
+          "content": null
+        },
+        "records": [
+          [
+            {
+              "UXF^table": {
+                "name": "img",
+                "comment": null,
+                "fields": {
+                  "content": null,
+                  "image": "bytes"
+                },
+                "records": [
+                  [
+                    {
+                      "UXF^table": {
+                        "name": "b",
+                        "comment": null,
+                        "fields": {
+                          "content": null
+                        },
+                        "records": [
+                          [
+                            "bold caption"
+                          ]
+                        ]
+                      }
+                    },
+                    {
+                      "UXF^bytes": "B445"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

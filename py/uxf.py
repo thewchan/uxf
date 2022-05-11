@@ -68,7 +68,7 @@ datetime.datetime, str, bytes, or bytearray; otherwise returns False.
 This class is used to propagate errors.
 
 (If this module produces an exception that isn't a uxf.Error or IOError
-subclass then it is probably a bug and should be reported.)
+subclass then it is probably a bug that should be reported.)
 
     Uxf
 
@@ -1117,24 +1117,17 @@ class _Parser:
             ttype = self.ttypes.get(token.value)
             if ttype is None:
                 self.error(450, f'undefined table ttype, {token}',
-                           fail=True) # A table with not ttype is invalid
+                           fail=True) # A table with no ttype is invalid
             parent.ttype = ttype
             self.used_ttypes.add(ttype.name)
-            vtype = getattr(parent, 'vtype', None) # map or list
-            if vtype is not None and vtype != ttype.name:
-                self.error(
-                    456, (f'expected table value of type {vtype}, '
-                          f'got value of type {ttype.name}'))
-            elif vtype is None and len(self.stack) > 1:
+            if len(self.stack) > 1:
                 grand_parent = self.stack[-2]
                 vtype = getattr(grand_parent, 'vtype', None) # map or list
-                if vtype is None and isinstance(grand_parent, Table):
-                    vtype = grand_parent._next_vtype
-                if (vtype is not None and vtype != 'table' and vtype !=
-                        token.value):
-                    self.error(458,
-                               (f'expected table value of type {vtype}, '
-                                f'got value of type {token.value}'))
+                if (vtype is not None and vtype != 'table' and
+                        vtype != ttype.name):
+                    self.error(
+                        456, (f'expected table value of type {vtype}, '
+                              f'got value of type {ttype.name}'))
         else: # should never happen
             self.error(460, 'ttype name may only appear at the start of a '
                        f'map (as the value type), list, or table, {token}')

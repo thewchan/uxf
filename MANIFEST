@@ -1,4 +1,3 @@
-# TODO fix regression failure
 # TODO go through every uxf.py error code & try to make sure there's a
 # matching test in test_errors.py
 # TODO code review & improvement
@@ -22,7 +21,6 @@ py/eg/slides2.py
 py/eg/slides.sld
 
 README.md
-
 
 misc/epd2uxf.py
 misc/md2html.sh

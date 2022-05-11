@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="b">
+      <field name="content"/>
+    </ttype>
+    <ttype name="img">
+      <field name="content"/>
+      <field name="image" vtype="bytes"/>
+    </ttype>
+    <ttype name="p">
+      <field name="content"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="p">
+      <row>
+        <str>first para</str>
+      </row>
+    </table>
+    <table name="p">
+      <row>
+        <table name="img">
+          <row>
+            <table name="b">
+              <row>
+                <str>bold caption</str>
+              </row>
+            </table>
+            <bytes>B445</bytes>
+          </row>
+        </table>
+      </row>
+    </table>
+  </list>
+</uxf>

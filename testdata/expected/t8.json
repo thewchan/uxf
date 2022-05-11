@@ -4,20 +4,20 @@
   "UXF^ttypes": [
     {
       "UXF^ttype": {
-        "name": "Files",
-        "fields": {
-          "Kind": null,
-          "Filename": null
-        }
-      }
-    },
-    {
-      "UXF^ttype": {
         "name": "Categories",
         "fields": {
           "CID": null,
           "Title": null,
           "Selected": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Files",
+        "fields": {
+          "Kind": null,
+          "Filename": null
         }
       }
     }

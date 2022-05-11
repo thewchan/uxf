@@ -213,8 +213,8 @@ def uxf_to_json(infile, outfile, *, verbose=True):
         d[JSON_CUSTOM] = uxo.custom
     if uxo.comment is not None:
         d[JSON_COMMENT] = uxo.comment
-    if uxo.ttypes:
-        d[JSON_TTYPES] = list(uxo.ttypes.values())
+    if uxo.ttypes: # sorted helps round-trip regression tests
+        d[JSON_TTYPES] = sorted(uxo.ttypes.values(), key=lambda t: t.name)
     d[JSON_DATA] = uxo.data
     with open(outfile, 'wt', encoding=UTF8) as file:
         json.dump(d, file, cls=_JsonEncoder, indent=2)

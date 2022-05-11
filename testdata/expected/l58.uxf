@@ -5,11 +5,10 @@ uxf 1.0
 = I i:int
 = R r:real
 = S s:str
-= T a:table
 = by b:bytes
 = dt dt:datetime
 = p a:int b:int
-[T
+[table
   (B
     yes
     no
@@ -100,4 +99,5 @@ uxf 1.0
     1995-03-15T22:30:00 1998-10-17T20:18:45
     (:55584620312E30:) (p <a> <b>)
   )
+  <should be a table>
 ]

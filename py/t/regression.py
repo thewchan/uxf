@@ -324,9 +324,10 @@ def test_external(cmd, total, ok, *, verbose):
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0:
-        total += 1
+        total += 1 # whole cmd failed
         print(f'{cmd} • FAIL')
     else:
+        total -= 1 # whole cmd succeeded
         parts = reply.stdout.split()
         try:
             total += int(parts[0].split('=')[1])

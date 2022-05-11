@@ -8,8 +8,7 @@ uxf 1.0
 =S s:str
 =by b:bytes
 =p a:int b:int
-=T a:table
-[T
+[table
 (B true false
   <yes> <no> <t> <f> <true> <false> <duh>)
 (I -1 0 1 -0.1 -1.0 0.0 0.1 1.0
@@ -36,4 +35,5 @@ uxf 1.0
   -8 1990-01-11
   1995-03-15T22:30 1998-10-17T20:18:45
   (:55 58 46 20 31 2E 30:) (p <a> <b>))
+<should be a table>
 ]

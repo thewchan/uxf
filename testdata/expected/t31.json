@@ -2,21 +2,21 @@
   "UXF^ttypes": [
     {
       "UXF^ttype": {
-        "name": "Playlists",
+        "name": "Categories",
         "fields": {
-          "PID": "int",
-          "Title": "str",
           "CID": "int",
+          "Title": "str",
           "Selected": "bool"
         }
       }
     },
     {
       "UXF^ttype": {
-        "name": "Categories",
+        "name": "Playlists",
         "fields": {
-          "CID": "int",
+          "PID": "int",
           "Title": "str",
+          "CID": "int",
           "Selected": "bool"
         }
       }

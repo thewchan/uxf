@@ -13,20 +13,20 @@
     },
     {
       "UXF^ttype": {
-        "name": "RGB",
+        "name": "IntPair",
         "fields": {
-          "Red": "int",
-          "Green": "int",
-          "Blue": "int"
+          "First": "int",
+          "Second": "int"
         }
       }
     },
     {
       "UXF^ttype": {
-        "name": "IntPair",
+        "name": "RGB",
         "fields": {
-          "First": "int",
-          "Second": "int"
+          "Red": "int",
+          "Green": "int",
+          "Blue": "int"
         }
       }
     }

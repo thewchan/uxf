@@ -3,15 +3,6 @@
   "UXF^ttypes": [
     {
       "UXF^ttype": {
-        "name": "Files",
-        "fields": {
-          "Kind": null,
-          "Filename": null
-        }
-      }
-    },
-    {
-      "UXF^ttype": {
         "name": "Categories",
         "fields": {
           "CID": null,
@@ -22,12 +13,10 @@
     },
     {
       "UXF^ttype": {
-        "name": "Playlists",
+        "name": "Files",
         "fields": {
-          "PID": null,
-          "Title": null,
-          "CID": null,
-          "Selected": null
+          "Kind": null,
+          "Filename": null
         }
       }
     },
@@ -39,6 +28,26 @@
           "B": "int",
           "C": "int",
           "D": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "IntPair",
+        "fields": {
+          "First": "int",
+          "Second": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Playlists",
+        "fields": {
+          "PID": null,
+          "Title": null,
+          "CID": null,
+          "Selected": null
         }
       }
     },
@@ -60,15 +69,6 @@
           "Green": "int",
           "Blue": "int",
           "Alpha": "int"
-        }
-      }
-    },
-    {
-      "UXF^ttype": {
-        "name": "IntPair",
-        "fields": {
-          "First": "int",
-          "Second": "int"
         }
       }
     }

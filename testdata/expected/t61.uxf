@@ -1,0 +1,8 @@
+uxf 1.0
+= b content
+= img content image:bytes
+= p content
+[
+  (p <first para>)
+  (p (img (b <bold caption>) (:B445:)))
+]
