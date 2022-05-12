@@ -15,6 +15,10 @@ or
 
     path/to/uxf.py -h
 
+The uxf module distinguishes between a ttype (the name of a user-defined
+table) and a TClass (the Python class which represents a user-defined
+table). A TClass has a .ttype attribute and a .fields attribute (see below).
+
 The uxf module's public API provides the following free functions and
 classes.
 
@@ -73,9 +77,10 @@ subclass then it is probably a bug that should be reported.)
     Uxf
 
 This class has a .data attribute which holds a Map, List, or Table, a
-.custom str holding a (possibly empty) custom string, and a .tclasses holding
-a (possibly empty) dict whose names are TClass table names and whose values
-are TClasses. It also has convenience dump() and dumps() methods.
+.custom str holding a (possibly empty) custom string, and a .tclasses
+holding a (possibly empty) dict whose names are TClass table names (ttypes)
+and whose values are TClasses. It also has convenience dump(), dumps(),
+load() and loads() methods.
 
     List
 
@@ -92,19 +97,22 @@ a special append() method.
 
 This class is used to store UXF Tables. A Table has a TClass (see below) and
 a records list which is a list of lists of scalars with each sublist having
-the same number of items as the number of fields. It also has .comment and
-.tclass attributes and a special append() method.
+the same number of items as the number of fields. It also has .comment,
+.ttype (a convenience for .tclass.ttype), and .tclass attributes, and a
+special append() method.
 
     TClass
 
-This class is used to store a Table's name and fields (see below).
+This class is used to store a Table's ttype (i.e., its name) and fields (see
+below).
 
     Field
 
 This class is used to store a Table's fields. The .name must start with a
 letter and be followed by 0-uxf.MAX_IDENTIFIER_LEN-1 letters, digits, or
-underscores..vtype must be one of these strs: 'bool', 'int', 'real', 'date',
-'datetime', 'str', 'bytes', or None (which means accept any valid type).
+underscores. A vtype must be one of these strs: 'bool', 'int', 'real',
+'date', 'datetime', 'str', 'bytes', or None (which means accept any valid
+type), or a ttype name.
 
 Note that the __version__ is the module version (i.e., the versio of this
 implementation), while the VERSION is the maximum UXF version that this
@@ -131,7 +139,7 @@ except ImportError:
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
            'naturalize', 'canonicalize', 'is_scalar', 'Uxf', 'List',
            'Map', 'Table', 'TClass', 'Field')
-__version__ = '0.28.0' # uxf module version
+__version__ = '0.29.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
@@ -162,17 +170,19 @@ class Uxf:
 
     .data is a List, Map, or Table of data
     .custom is an opional custom string used for customizing the file format
-    .tclasses is a dict where each key is a tclass name and each value is a
-    TClass object.
+    .tclasses is a dict where each key is a ttype (i.e., the .tclass.ttype
+    which is a TClass's name) and each value is a TClass object.
     .comment is an optional file-level comment
     '''
 
-    def __init__(self, data=None, *, custom='', tclasses=None, comment=None):
+    def __init__(self, data=None, *, custom='', tclasses=None,
+                 comment=None):
         '''data may be a list, List, tuple, dict, Map, or Table and will
         default to a List if not specified; if given tclasses must be a dict
         whose values are TClasses and whose corresponding keys are the
-        TClasses' names; if given the comment is a file-level comment that
-        follows the uxf header and precedes any TClasses and data'''
+        TClasses' ttypes (i.e., their names); if given the comment is a
+        file-level comment that follows the uxf header and precedes any
+        TClasses and data'''
         self.data = data
         self.custom = custom
         self.comment = comment
@@ -258,7 +268,8 @@ def loads(uxt, filename='-', *, on_error=on_error):
 
     uxt must be a string of UXF data.
     '''
-    data, custom, tclasses, comment = _loads(uxt, filename, on_error=on_error)
+    data, custom, tclasses, comment = _loads(uxt, filename,
+                                             on_error=on_error)
     return Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
 
 
@@ -421,7 +432,7 @@ class _Lexer:
             self.add_token(_Kind.COMMENT, unescape(value))
         else:
             self.error(190, 'comments may only occur at the start of '
-                       'TClasses, Maps, Lists, and Tables')
+                       'Lists, Maps, Tables, and TClasses')
 
 
     def read_string(self):
@@ -736,8 +747,8 @@ class TClass:
 
     def __init__(self, ttype, fields=None, *, comment=None):
         '''The type of a Table
-        .name holds the tclass's name (equivalent to a vtype or ktype name);
-        may not be the same as a built-in type name or constant
+        .ttype holds the tclass's name (equivalent to a vtype or ktype
+        name); it may not be the same as a built-in type name or constant
         .fields holds a list of field names or of fields of type Field
         .comment holds an optional comment'''
         self.ttype = ttype
@@ -877,11 +888,6 @@ class Table:
         return self.tclass.ttype
 
 
-    @ttype.setter
-    def ttype(self, ttype):
-        self.tclass.ttype = ttype
-
-
     @property
     def fields(self):
         return self.tclass.fields
@@ -896,7 +902,7 @@ class Table:
         if not self.records:
             return self.tclass.fields[0].vtype
         else:
-            if len(self.records[-1]) == len(self.fields):
+            if len(self.records[-1]) == len(self.tclass):
                 return self.tclass.fields[0].vtype
             return self.tclass.fields[len(self.records[-1])].vtype
 
@@ -957,7 +963,7 @@ class Table:
             return self.RecordClass(*self.records[row])
         except TypeError as err:
             if 'missing' in str(err):
-                err = '#380:table\'s tclass has fewer fields than in a row'
+                err = '#380:table\'s ttype has fewer fields than in a row'
                 raise Error(err) from None
 
 
@@ -970,7 +976,7 @@ class Table:
         except TypeError as err:
             if 'missing' in str(err):
                 raise Error(
-                    '#390:table\'s tclass has fewer fields than in a row')
+                    '#390:table\'s ttype has fewer fields than in a row')
 
 
     def __len__(self):
@@ -1266,8 +1272,9 @@ class _Parser:
                     tclass.append(token.value)
             elif token.kind is _Kind.TYPE:
                 if not tclass:
-                    self.error(520, 'cannot use a type name as a tclass '
-                               f'name, got {token}', fail=True)
+                    self.error(520, 'cannot use a built-in type name or '
+                               f'constant as a tclass name, got {token}',
+                               fail=True)
                 else:
                     vtype = token.value
                     tclass.set_vtype(-1, vtype)
@@ -1713,7 +1720,7 @@ simply `gunzip infile.uxf.gz`.
 To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 infile.uxf outfile.uxf.gz`
 
-Converting uxf to uxf will alphabetically order any tclasses.
+Converting uxf to uxf will alphabetically order any ttypes.
 ''')
     indent = 2
     args = sys.argv[1:]

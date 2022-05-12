@@ -36,7 +36,7 @@ list)`, .comment` and `.vtype` attributes. Similarly a `uxf.Map` is a Python
 `uxf.Field` values (which each has a field name and type). In all cases a
 type of `None` signifies that any type valid for the context may be used.
 
-For complex numbers you could create a _ttype_ such as: `= Complex Real real
+For complex numbers you could define a _ttype_ such as: `= Complex Real real
 Imag real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 

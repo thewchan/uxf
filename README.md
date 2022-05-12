@@ -76,6 +76,7 @@ and do whatever conversion you want.
   `datetime`), is called a _scalar_.
 - A `map`, `list`, or `table` which contains only scalar values is called a
   scalar `map`, scalar `list`, or scalar `table`, respectively.
+- A `ttype` is the name of a table's user-defined type.
 
 ## Examples
 
@@ -131,10 +132,10 @@ The most _appropriate_ UXF equivalent is to use a UXF `table`:
     )
 
 When one or more tables are used each one's _ttype_ (table type) must be
-defined at the start of the `.uxf` file. A _ttype_ begins with an `=` sign
-followed by a table name, followed by one or more fields. A field consists
-of a name optionally followed by a `:` and then a type (here only names are
-given).
+defined at the start of the `.uxf` file. A ttype definition begins with an
+`=` sign followed by the ttype (i.e., the table name), followed by one or
+more fields. A field consists of a name optionally followed by a `:` and
+then a type (here only names are given).
 
 Both table and field names are user chosen and consist of 1-60 letters,
 digits, or underscores, starting with a letter or underscore. No table or
@@ -144,7 +145,7 @@ can be called `null`, `int`, `date`, `datetime`, `str`, `bytes`, `bool`,
 since names are case-sensitive.) If whitespace is wanted one convention is
 to use underscores in their place.
 
-Once we have a _ttype_ we can use it.
+Once we have defined a _ttype_ we can use it.
 
 Here, we've created a single table whose _ttype_ is "PriceList". There's no
 need to group rows into lines as we've done here (although doing so is
@@ -384,7 +385,7 @@ invoice has an empty description.
 
     uxf 1.0 MyApp Data
     #<It is also possible to have one overall comment at the beginning,
-    after the uxf header and before any ttypes or the data.>
+    after the uxf header and before any ttype definitions or the data.>
     = Customers CID:int Company:str Address:str Contact:str Email:str
     = Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool Description:str
     = Items IID:int INUM:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
@@ -482,16 +483,16 @@ optional `map`, `list`, or `table`.
 
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA         ::= COMMENT? TTYPE* (MAP | LIST | TABLE)
-    TTYPE        ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is table name
-    FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is field name
+    DATA         ::= COMMENT? TTYPEDEF* (MAP | LIST | TABLE)
+    TTYPEDEF     ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is the ttype (i.e., the table name)
+    FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is the field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
     KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
     VALUETYPE    ::= KEYTYPE | 'bool' | 'real' | 'list' | 'map' | 'table' | IDENFIFIER # IDENFIFIER is table name
     LIST         ::= '[' COMMENT? LISTTYPE? OWS VALUE? (RWS VALUE)* OWS ']'
     LISTTYPE     ::= OWS VALUETYPE
-    TABLE        ::= '(' COMMENT? OWS IDENFIFIER (RWS VALUE)* ')' # IDENFIFIER is table name
+    TABLE        ::= '(' COMMENT? OWS IDENFIFIER (RWS VALUE)* ')' # IDENFIFIER is the ttype (i.e., the table name)
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
     VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
@@ -503,7 +504,7 @@ optional `map`, `list`, or `table`.
     DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
     BYTES        ::= '(:' (OWS [A-Fa-f0-9]{2})* OWS ':)'
-    IDENFIFIER	 ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscore; may not be a built-in typename
+    IDENFIFIER	 ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscore; may not be a built-in typename or constant
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 
