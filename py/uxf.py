@@ -727,6 +727,9 @@ class _CheckNameMixin:
         if name[0].isdigit():
             raise Error('#300:names must start with a letter or '
                         f'underscore, got {name}')
+        if name in TYPENAMES:
+            raise Error('#304:names cannot be the same as built-in type '
+                        'names or constants, got {name}')
         for c in name:
             if not (c == '_' or c.isalnum()):
                 raise Error('#310:names may only contain letters, digits, '
@@ -737,8 +740,8 @@ class TType(_CheckNameMixin):
 
     def __init__(self, name, fields=None, *, comment=None):
         '''The type of a Table
-        .name holds the ttype's name (equivalent to a vtype or ktype name,
-        but always starting with a captital letter)
+        .name holds the ttype's name (equivalent to a vtype or ktype name);
+        may not be the same as a built-in type name or constant
         .fields holds a list of field names or of fields of type Field
         .comment holds an optional comment'''
         self.name = name
@@ -801,8 +804,8 @@ class Field(_CheckNameMixin):
 
     def __init__(self, name, vtype=None):
         '''The type of one field in a Table
-        .name holds the field's name (equivalent to a vtype or ktype name,
-        but always starting with a captital letter)
+        .name holds the field's name (equivalent to a vtype or ktype name);
+        may not be the same as a built-in type name or constant
         .vtype holds a UXF type name ('int', 'real', …)'''
         self.name = name
         self.vtype = vtype
@@ -1267,9 +1270,8 @@ class _Parser:
                     ttype.append(token.value)
             elif token.kind is _Kind.TYPE:
                 if not ttype:
-                    self.error(
-                        520,
-                        f'encountered type without field name: {token}')
+                    self.error(520, 'cannot use a type name as a ttype '
+                               f'name, got {token}', fail=True)
                 else:
                     vtype = token.value
                     ttype.set_vtype(-1, vtype)

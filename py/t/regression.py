@@ -54,9 +54,13 @@ def main():
     total, ok = test_uxfconvert(uxffiles, total, ok, verbose=verbose,
                                 max_total=max_total)
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
-    total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
-    total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
+    if total < max_total:
+        total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
+    if total < max_total:
+        total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
     for cmd in (TEST_CONVERTERS, TEST_SQLITE, TEST_ERRORS, TEST_LINTS):
+        if total >= max_total:
+            break
         total += 1
         diff = total - ok
         total, ok = test_external([cmd, '--regression'], total, ok,
