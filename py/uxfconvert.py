@@ -163,23 +163,23 @@ def uxf_to_csv(infile, outfile, *, verbose=True):
 
 def csv_to_uxf(infile, outfile, *, fieldnames=False, verbose=True):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
-    data, filename, ttypes = _read_csv_to_data(infile, fieldnames)
-    uxf.dump(outfile, uxf.Uxf(data, custom=filename, ttypes=ttypes),
+    data, filename, tclasses = _read_csv_to_data(infile, fieldnames)
+    uxf.dump(outfile, uxf.Uxf(data, custom=filename, tclasses=tclasses),
              on_error=on_error)
 
 
 def _read_csv_to_data(infile, fieldnames):
-    ttypes = {}
+    tclasses = {}
     data = None
     with open(infile) as file:
         reader = csv.reader(file)
         for row in reader:
             if data is None:
                 if fieldnames:
-                    name = uxf.canonicalize(pathlib.Path(infile).stem)
-                    data = uxf.Table(name=name, fields=[uxf.Field(name)
+                    ttype = uxf.canonicalize(pathlib.Path(infile).stem)
+                    data = uxf.Table(ttype=ttype, fields=[uxf.Field(name)
                                      for name in row])
-                    ttypes[name] = data.ttype
+                    tclasses[ttype] = data.tclass
                     continue
                 else:
                     data = []
@@ -188,20 +188,20 @@ def _read_csv_to_data(infile, fieldnames):
                 data += row
             else:
                 data.append(row)
-    return data, infile, ttypes
+    return data, infile, tclasses
 
 
 def multi_csv_to_uxf(infiles, outfile, *, fieldnames=False, verbose=True):
     data = []
-    ttypes = {}
+    tclasses = {}
     for infile in infiles:
-        datum, _, new_ttypes = _read_csv_to_data(infile, fieldnames)
+        datum, _, new_tclasses = _read_csv_to_data(infile, fieldnames)
         data.append(datum)
-        if new_ttypes:
-            ttypes.update(new_ttypes)
+        if new_tclasses:
+            tclasses.update(new_tclasses)
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxf.dump(outfile,
-             uxf.Uxf(data, custom=' '.join(infiles), ttypes=ttypes),
+             uxf.Uxf(data, custom=' '.join(infiles), tclasses=tclasses),
              on_error=on_error)
 
 
@@ -213,8 +213,9 @@ def uxf_to_json(infile, outfile, *, verbose=True):
         d[JSON_CUSTOM] = uxo.custom
     if uxo.comment is not None:
         d[JSON_COMMENT] = uxo.comment
-    if uxo.ttypes: # sorted helps round-trip regression tests
-        d[JSON_TTYPES] = sorted(uxo.ttypes.values(), key=lambda t: t.name)
+    if uxo.tclasses: # sorted helps round-trip regression tests
+        d[JSON_TCLASSES] = sorted(uxo.tclasses.values(),
+                                  key=lambda t: t.ttype)
     d[JSON_DATA] = uxo.data
     with open(outfile, 'wt', encoding=UTF8) as file:
         json.dump(d, file, cls=_JsonEncoder, indent=2)
@@ -242,15 +243,15 @@ class _JsonEncoder(json.JSONEncoder):
             return obj
         if isinstance(obj, uxf.Table):
             return {JSON_TABLE: dict(
-                name=obj.name, comment=obj.comment,
+                name=obj.ttype, comment=obj.comment,
                 fields={field.name: field.vtype for field in obj.fields},
                 records=obj.records)}
-        if isinstance(obj, uxf.TType):
-            d = dict(name=obj.name, fields={field.name: field.vtype
-                                            for field in obj.fields})
+        if isinstance(obj, uxf.TClass):
+            d = dict(name=obj.ttype, fields={field.name: field.vtype
+                                             for field in obj.fields})
             if obj.comment is not None:
                 d[COMMENT] = obj.comment
-            return {JSON_TTYPE: d}
+            return {JSON_TCLASS: d}
         return json.JSONEncoder.default(self, obj)
 
 
@@ -290,15 +291,15 @@ def json_to_uxf(infile, outfile, *, verbose=True):
         d = json.load(file, object_hook=_json_naturalize)
     custom = d.get(JSON_CUSTOM)
     comment = d.get(JSON_COMMENT)
-    ttypes = None
-    ttype_list = d.get(JSON_TTYPES)
-    if ttype_list:
-        ttypes = {}
-        for ttype in ttype_list:
-            ttypes[ttype.name] = ttype
+    tclasses = None
+    tclass_list = d.get(JSON_TCLASSES)
+    if tclass_list:
+        tclasses = {}
+        for tclass in tclass_list:
+            tclasses[tclass.ttype] = tclass
     data = d.get(JSON_DATA)
     on_error = functools.partial(uxf.on_error, verbose=verbose)
-    uxf.dump(outfile, uxf.Uxf(data, custom=custom, ttypes=ttypes,
+    uxf.dump(outfile, uxf.Uxf(data, custom=custom, tclasses=tclasses,
                               comment=comment), on_error=on_error)
 
 
@@ -336,13 +337,13 @@ def _json_naturalize(d):
         jtable = d[JSON_TABLE]
         fields = [uxf.Field(name, vtype) for name, vtype in
                   jtable[FIELDS].items()]
-        return uxf.Table(name=jtable[NAME], comment=jtable[COMMENT],
+        return uxf.Table(ttype=jtable[NAME], comment=jtable[COMMENT],
                          fields=fields, records=jtable[RECORDS])
-    if JSON_TTYPE in d:
+    if JSON_TCLASS in d:
         fields = [uxf.Field(name, vtype) for name, vtype in
-                  d[JSON_TTYPE][FIELDS].items()]
-        return uxf.TType(d[JSON_TTYPE][NAME], fields,
-                         comment=d[JSON_TTYPE].get(COMMENT))
+                  d[JSON_TCLASS][FIELDS].items()]
+        return uxf.TClass(d[JSON_TCLASS][NAME], fields,
+                          comment=d[JSON_TCLASS].get(COMMENT))
     return d
 
 
@@ -381,8 +382,8 @@ def _uxf_to_sqlite(filename, tables):
     try:
         db = sqlite3.connect(filename)
         for table_index, table in enumerate(tables, 1):
-            table_name = _create_table(db, table, table_index)
-            _populate_table(db, table, table_name)
+            ttype = _create_table(db, table, table_index)
+            _populate_table(db, table, ttype)
     finally:
         if db is not None:
             db.commit()
@@ -390,8 +391,8 @@ def _uxf_to_sqlite(filename, tables):
 
 
 def _create_table(db, table, table_index):
-    table_name = uxf.canonicalize(table.name)
-    sql = ['CREATE TABLE IF NOT EXISTS ', table_name, ' (']
+    ttype = uxf.canonicalize(table.ttype)
+    sql = ['CREATE TABLE IF NOT EXISTS ', ttype, ' (']
     types = ['TEXT'] * len(table.fields)
     if table.records:
         for i, value in enumerate(table.records[0]):
@@ -411,11 +412,11 @@ def _create_table(db, table, table_index):
     sql += [');']
     cursor = db.cursor()
     cursor.execute(''.join(sql))
-    return table_name
+    return ttype
 
 
-def _populate_table(db, table, table_name):
-    sql = ['INSERT INTO ', table_name, ' VALUES (',
+def _populate_table(db, table, ttype):
+    sql = ['INSERT INTO ', ttype, ' VALUES (',
            ', '.join('?' * len(table.fields)), ');']
     cursor = db.cursor()
     cursor.executemany(''.join(sql), table.records)
@@ -432,27 +433,26 @@ def _sqlite_to_uxf(infile):
     try:
         db = sqlite3.connect(infile)
         uxo = uxf.Uxf()
-        table_names = []
+        ttypes = []
         comments = []
         cursor = db.cursor()
         sql = ("SELECT tbl_name, sql FROM sqlite_master "
                "WHERE type = 'table';")
-        for table_name, comment in cursor.execute(sql):
-            table_names.append(table_name)
+        for ttype, comment in cursor.execute(sql):
+            ttypes.append(ttype)
             comments.append(comment)
-        for table_name, comment in zip(table_names, comments):
+        for ttype, comment in zip(ttypes, comments):
             fields = []
             sql = 'SELECT name FROM pragma_table_info(?)'
-            for row in cursor.execute(sql, (table_name,)):
+            for row in cursor.execute(sql, (ttype,)):
                 fields.append(row[0])
-            table = uxf.Table(name=table_name, fields=fields,
-                              comment=comment)
+            table = uxf.Table(ttype=ttype, fields=fields, comment=comment)
             fields = [f'[{field}]' for field in fields]
-            sql = f'SELECT {", ".join(fields)} FROM {table_name};'
+            sql = f'SELECT {", ".join(fields)} FROM {ttype};'
             for row in cursor.execute(sql):
                 table += [uxf.naturalize(value) if isinstance(value, str)
                           else value for value in row]
-            uxo.ttypes[table.ttype.name] = table.ttype
+            uxo.tclasses[table.ttype] = table.tclass
             uxo.data.append(table)
         return uxo
     finally:
@@ -475,28 +475,28 @@ def _uxf_to_xml(uxo, outfile):
         root.setAttribute('custom', uxo.custom)
     if uxo.comment:
         root.setAttribute('comment', uxo.comment)
-    if uxo.ttypes:
-        _xml_add_ttypes(tree, root, uxo.ttypes)
+    if uxo.tclasses:
+        _xml_add_tclasses(tree, root, uxo.tclasses)
     _xml_add_value(tree, root, uxo.data)
     with open(outfile, 'wt', encoding='utf-8') as file:
         file.write(tree.toprettyxml(indent='  '))
 
 
-def _xml_add_ttypes(tree, root, ttypes):
-    ttypes_element = tree.createElement('ttypes')
-    for ttype in sorted(ttypes.values()):
-        ttype_element = tree.createElement('ttype')
-        ttype_element.setAttribute('name', ttype.name)
-        if ttype.comment:
-            ttype_element.setAttribute('comment', ttype.comment)
-        for field in ttype.fields:
+def _xml_add_tclasses(tree, root, tclasses):
+    tclasses_element = tree.createElement('ttypes')
+    for tclass in sorted(tclasses.values()):
+        tclass_element = tree.createElement('ttype')
+        tclass_element.setAttribute('name', tclass.ttype)
+        if tclass.comment:
+            tclass_element.setAttribute('comment', tclass.comment)
+        for field in tclass.fields:
             field_element = tree.createElement('field')
             field_element.setAttribute('name', field.name)
             if field.vtype is not None:
                 field_element.setAttribute('vtype', field.vtype)
-            ttype_element.appendChild(field_element)
-        ttypes_element.appendChild(ttype_element)
-    root.appendChild(ttypes_element)
+            tclass_element.appendChild(field_element)
+        tclasses_element.appendChild(tclass_element)
+    root.appendChild(tclasses_element)
 
 
 def _xml_add_value(tree, root, value):
@@ -550,7 +550,7 @@ def _xml_add_map(tree, root, map):
 
 def _xml_add_table(tree, root, table):
     table_element = tree.createElement('table')
-    table_element.setAttribute('name', table.name)
+    table_element.setAttribute('name', table.ttype)
     if table.comment is not None:
         table_element.setAttribute('comment', table.comment)
     for value in table:
@@ -612,7 +612,7 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
     def __init__(self):
         super().__init__()
         self.stack = None
-        self.ttype = None
+        self.tclass = None
         self.instr = False
         self.inbytes = False
         self.string = ''
@@ -628,9 +628,9 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
         elif name == 'ttypes':
             pass
         elif name == 'ttype':
-            self.ttype = uxf.TType(d['name'], comment=d.get('comment'))
+            self.tclass = uxf.TClass(d['name'], comment=d.get('comment'))
         elif name == 'field':
-            self.ttype.append(d['name'], d.get('vtype'))
+            self.tclass.append(d['name'], d.get('vtype'))
         elif name == 'map':
             container = uxf.Map()
             container.comment = d.get('comment')
@@ -643,8 +643,8 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
             container.vtype = d.get('vtype')
             self.start_container(container)
         elif name == 'table':
-            container = uxf.Table(name=d['name'], comment=d.get('comment'))
-            container.ttype = self.uxo.ttypes[d['name']]
+            container = uxf.Table(ttype=d['name'], comment=d.get('comment'))
+            container.tclass = self.uxo.tclasses[d['name']]
             self.start_container(container)
         elif name in {'key', 'value'}:
             pass # container.append() doesn't need this distinction
@@ -675,8 +675,8 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
                     'date', 'datetime', 'null', 'yes', 'no'}:
             pass
         elif name == 'ttype':
-            self.uxo.ttypes[self.ttype.name] = self.ttype
-            self.ttype = None
+            self.uxo.tclasses[self.tclass.ttype] = self.tclass
+            self.tclass = None
         elif name in {'map', 'list', 'table'}:
             self.stack.pop()
         elif name == 'str':
@@ -720,8 +720,8 @@ ITYPE = 'itype'
 ITYPES = 'itypes'
 JSON_CUSTOM = 'UXF^custom'
 JSON_COMMENT = 'UXF^comment'
-JSON_TTYPES = 'UXF^ttypes'
-JSON_TTYPE = 'UXF^ttype'
+JSON_TCLASSES = 'UXF^ttypes'
+JSON_TCLASS = 'UXF^ttype'
 JSON_DATA = 'UXF^data'
 JSON_BYTES = 'UXF^bytes'
 JSON_DATE = 'UXF^date'

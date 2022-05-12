@@ -215,8 +215,8 @@ def normalize_uxt(text):
     match = re.match(r'(^=[^[({]+$)*', body, flags=flags)
     if match is not None:
         body = body[match.end():]
-        ttypes = sorted(match.group().splitlines())
-        body = '\n'.join(ttypes) + '\n' + body
+        tclasses = sorted(match.group().splitlines())
+        body = '\n'.join(tclasses) + '\n' + body
     body = comment + body
     body = ''.join(body.split()) # eliminate whitespace
     return '\n'.join(textwrap.wrap(body, 40)).strip() # easier to compare

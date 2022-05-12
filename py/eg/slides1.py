@@ -82,36 +82,36 @@ class State:
 def visitor(kind, value=None, *, state):
     Kind = visit.ValueType
     if kind is Kind.TABLE_BEGIN:
-        name = value.name
-        if name == 'B':
+        ttype = value.ttype
+        if ttype == 'B':
             state.file.write('<ul><li>')
-        elif name in {'h1', 'h2', 'p', 'pre'}:
-            state.file.write(f'<{name}>')
-        elif name == 'i':
+        elif ttype in {'h1', 'h2', 'p', 'pre'}:
+            state.file.write(f'<{ttype}>')
+        elif ttype == 'i':
             state.file.write(' <i>')
-        elif name == 'img':
+        elif ttype == 'img':
             state.in_image = True
-        elif name == 'm':
+        elif ttype == 'm':
             state.file.write(' <tt>')
-        elif name == 'nl':
+        elif ttype == 'nl':
             pass
-        elif name == 'url':
+        elif ttype == 'url':
             state.link_title = ''
     elif kind is Kind.TABLE_END:
-        name = value.name
-        if name == 'B':
+        ttype = value.name
+        if ttype == 'B':
             state.file.write('</li></ul>')
-        elif name in {'h1', 'h2', 'p', 'pre'}:
-            state.file.write(f'</{name}>\n')
-        elif name == 'i':
+        elif ttype in {'h1', 'h2', 'p', 'pre'}:
+            state.file.write(f'</{ttype}>\n')
+        elif ttype == 'i':
             state.file.write('</i> ')
-        elif name == 'img':
+        elif ttype == 'img':
             state.in_image = False
-        elif name == 'm':
+        elif ttype == 'm':
             state.file.write('</tt> ')
-        elif name == 'nl':
+        elif ttype == 'nl':
             state.file.write('<br />\n')
-        elif name == 'url':
+        elif ttype == 'url':
             state.link_title = '' # want link title
     elif kind is Kind.BYTES:
         if state.in_image:

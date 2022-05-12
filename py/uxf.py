@@ -73,9 +73,9 @@ subclass then it is probably a bug that should be reported.)
     Uxf
 
 This class has a .data attribute which holds a Map, List, or Table, a
-.custom str holding a (possibly empty) custom string, and a .ttypes holding
-a (possibly empty) dict whose names are TType table names and whose values
-are TTypes. It also has convenience dump() and dumps() methods.
+.custom str holding a (possibly empty) custom string, and a .tclasses holding
+a (possibly empty) dict whose names are TClass table names and whose values
+are TClasses. It also has convenience dump() and dumps() methods.
 
     List
 
@@ -90,12 +90,12 @@ a special append() method.
 
     Table
 
-This class is used to store UXF Tables. A Table has a TType (see below) and
+This class is used to store UXF Tables. A Table has a TClass (see below) and
 a records list which is a list of lists of scalars with each sublist having
 the same number of items as the number of fields. It also has .comment and
-.ttype attributes and a special append() method.
+.tclass attributes and a special append() method.
 
-    TType
+    TClass
 
 This class is used to store a Table's name and fields (see below).
 
@@ -130,7 +130,7 @@ except ImportError:
 
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
            'naturalize', 'canonicalize', 'is_scalar', 'Uxf', 'List',
-           'Map', 'Table', 'TType', 'Field')
+           'Map', 'Table', 'TClass', 'Field')
 __version__ = '0.28.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
@@ -145,7 +145,7 @@ _BOOL_FALSE = frozenset({'no', 'false'})
 _BOOL_TRUE = frozenset({'yes', 'true'})
 _CONSTANTS = frozenset(_BOOL_FALSE | _BOOL_TRUE)
 _BAREWORDS = frozenset(_ANY_VALUE_TYPES | _CONSTANTS)
-TYPENAMES = frozenset(_ANY_VALUE_TYPES | {'null'})
+RESERVED_WORDS = frozenset(_ANY_VALUE_TYPES | {'null'} | _CONSTANTS)
 _MISSING = object()
 
 
@@ -162,21 +162,21 @@ class Uxf:
 
     .data is a List, Map, or Table of data
     .custom is an opional custom string used for customizing the file format
-    .ttypes is a dict where each key is a ttype name and each value is a
-    TType object.
+    .tclasses is a dict where each key is a tclass name and each value is a
+    TClass object.
     .comment is an optional file-level comment
     '''
 
-    def __init__(self, data=None, *, custom='', ttypes=None, comment=None):
+    def __init__(self, data=None, *, custom='', tclasses=None, comment=None):
         '''data may be a list, List, tuple, dict, Map, or Table and will
-        default to a List if not specified; if given ttypes must be a dict
-        whose values are TTypes and whose corresponding keys are the TTypes'
-        names; if given the comment is a file-level comment that follows the
-        uxf header and precedes any TTypes and data'''
+        default to a List if not specified; if given tclasses must be a dict
+        whose values are TClasses and whose corresponding keys are the
+        TClasses' names; if given the comment is a file-level comment that
+        follows the uxf header and precedes any TClasses and data'''
         self.data = data
         self.custom = custom
         self.comment = comment
-        self.ttypes = ttypes if ttypes is not None else {}
+        self.tclasses = tclasses if tclasses is not None else {}
 
 
     @property
@@ -219,22 +219,22 @@ class Uxf:
         function'''
         filename = (filename_or_filelike if isinstance(filename_or_filelike,
                     (str, pathlib.Path)) else '-')
-        data, custom, ttypes, comment = _loads(
+        data, custom, tclasses, comment = _loads(
             _read_text(filename_or_filelike), filename, on_error=on_error)
         self.data = data
         self.custom = custom
-        self.ttypes = ttypes
+        self.tclasses = tclasses
         self.comment = comment
 
 
     def loads(self, uxt, filename='-', *, on_error=on_error):
         '''Convenience method that wraps the module-level loads()
         function'''
-        data, custom, ttypes, comment = _loads(uxt, filename,
-                                               on_error=on_error)
+        data, custom, tclasses, comment = _loads(uxt, filename,
+                                                 on_error=on_error)
         self.data = data
         self.custom = custom
-        self.ttypes = ttypes
+        self.tclasses = tclasses
         self.comment = comment
 
 
@@ -247,9 +247,9 @@ def load(filename_or_filelike, *, on_error=on_error):
     '''
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
-    data, custom, ttypes, comment = _loads(
+    data, custom, tclasses, comment = _loads(
         _read_text(filename_or_filelike), filename, on_error=on_error)
-    return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
+    return Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
 
 
 def loads(uxt, filename='-', *, on_error=on_error):
@@ -258,14 +258,14 @@ def loads(uxt, filename='-', *, on_error=on_error):
 
     uxt must be a string of UXF data.
     '''
-    data, custom, ttypes, comment = _loads(uxt, filename, on_error=on_error)
-    return Uxf(data, custom=custom, ttypes=ttypes, comment=comment)
+    data, custom, tclasses, comment = _loads(uxt, filename, on_error=on_error)
+    return Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
 
 
 def _loads(uxt, filename='-', *, on_error=on_error):
     tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
-    data, comment, ttypes = _parse(tokens, filename, on_error=on_error)
-    return data, custom, ttypes, comment
+    data, comment, tclasses = _parse(tokens, filename, on_error=on_error)
+    return data, custom, tclasses, comment
 
 
 def _tokenize(uxt, filename='-', *, on_error=on_error):
@@ -300,7 +300,7 @@ class _Lexer:
         self.pos = 0 # current
         self.lino = 0
         self.custom = None
-        self.in_ttype = False
+        self.in_tclass = False
         self.tokens = []
 
 
@@ -365,23 +365,23 @@ class _Lexer:
                 self.pos += 1
                 self.read_bytes()
             else:
-                self.check_in_ttype()
+                self.check_in_tclass()
                 self.add_token(_Kind.TABLE_BEGIN)
         elif c == ')':
             self.add_token(_Kind.TABLE_END)
         elif c == '[':
-            self.check_in_ttype()
+            self.check_in_tclass()
             self.add_token(_Kind.LIST_BEGIN)
         elif c == '=':
-            self.add_token(_Kind.TTYPE_BEGIN)
-            self.in_ttype = True
+            self.add_token(_Kind.TCLASS_BEGIN)
+            self.in_tclass = True
         elif c == ']':
             self.add_token(_Kind.LIST_END)
         elif c == '{':
-            self.check_in_ttype()
+            self.check_in_tclass()
             self.add_token(_Kind.MAP_BEGIN)
         elif c == '}':
-            self.in_ttype = False
+            self.in_tclass = False
             self.add_token(_Kind.MAP_END)
         elif c == '?':
             self.add_token(_Kind.NULL)
@@ -402,16 +402,16 @@ class _Lexer:
             self.error(170, f'invalid character encountered: {c!r}')
 
 
-    def check_in_ttype(self):
-        if self.in_ttype:
-            self.in_ttype = False
-            self.add_token(_Kind.TTYPE_END)
+    def check_in_tclass(self):
+        if self.in_tclass:
+            self.in_tclass = False
+            self.add_token(_Kind.TCLASS_END)
 
 
     def read_comment(self):
         if self.tokens and self.tokens[-1].kind in {
                 _Kind.LIST_BEGIN, _Kind.MAP_BEGIN,
-                _Kind.TABLE_BEGIN, _Kind.TTYPE_BEGIN}:
+                _Kind.TABLE_BEGIN, _Kind.TCLASS_BEGIN}:
             if self.peek() != '<':
                 self.error(180, 'a str must follow the # comment '
                            f'introducer, got {self.peek()!r}')
@@ -421,7 +421,7 @@ class _Lexer:
             self.add_token(_Kind.COMMENT, unescape(value))
         else:
             self.error(190, 'comments may only occur at the start of '
-                       'TTypes, Maps, Lists, and Tables')
+                       'TClasses, Maps, Lists, and Tables')
 
 
     def read_string(self):
@@ -637,8 +637,8 @@ class _Token:
 
 @enum.unique
 class _Kind(enum.Enum):
-    TTYPE_BEGIN = enum.auto()
-    TTYPE_END = enum.auto()
+    TCLASS_BEGIN = enum.auto()
+    TCLASS_END = enum.auto()
     TABLE_BEGIN = enum.auto()
     TABLE_END = enum.auto()
     LIST_BEGIN = enum.auto()
@@ -717,34 +717,30 @@ class Map(collections.UserDict):
         return self._pending_key is _MISSING
 
 
-class _CheckNameMixin:
-
-    __slots__ = ()
-
-    def _check_name(self, name):
-        if not name:
-            raise Error('#298:table\'s must have nonempty names')
-        if name[0].isdigit():
-            raise Error('#300:names must start with a letter or '
-                        f'underscore, got {name}')
-        if name in TYPENAMES:
-            raise Error('#304:names cannot be the same as built-in type '
-                        'names or constants, got {name}')
-        for c in name:
-            if not (c == '_' or c.isalnum()):
-                raise Error('#310:names may only contain letters, digits, '
-                            f'or underscores, got {name}')
+def _check_name(name):
+    if not name:
+        raise Error('#298:fields and tables must have nonempty names')
+    if name[0].isdigit():
+        raise Error('#300:names must start with a letter or '
+                    f'underscore, got {name}')
+    if name in RESERVED_WORDS:
+        raise Error('#304:names cannot be the same as built-in type '
+                    'names or constants, got {name}')
+    for c in name:
+        if not (c == '_' or c.isalnum()):
+            raise Error('#310:names may only contain letters, digits, '
+                        f'or underscores, got {name}')
 
 
-class TType(_CheckNameMixin):
+class TClass:
 
-    def __init__(self, name, fields=None, *, comment=None):
+    def __init__(self, ttype, fields=None, *, comment=None):
         '''The type of a Table
-        .name holds the ttype's name (equivalent to a vtype or ktype name);
+        .name holds the tclass's name (equivalent to a vtype or ktype name);
         may not be the same as a built-in type name or constant
         .fields holds a list of field names or of fields of type Field
         .comment holds an optional comment'''
-        self.name = name
+        self.ttype = ttype
         self.fields = []
         self.comment = comment
         if fields is not None:
@@ -756,15 +752,15 @@ class TType(_CheckNameMixin):
 
 
     @property
-    def name(self):
-        return self._name
+    def ttype(self):
+        return self._ttype
 
 
-    @name.setter
-    def name(self, name):
-        if name is not None:
-            self._check_name(name)
-        self._name = name
+    @ttype.setter
+    def ttype(self, ttype):
+        if ttype is not None:
+            _check_name(ttype)
+        self._ttype = ttype
 
 
     def append(self, name_or_field, vtype=None):
@@ -779,15 +775,15 @@ class TType(_CheckNameMixin):
 
 
     def __bool__(self):
-        return bool(self.name) and bool(self.fields)
+        return bool(self.ttype) and bool(self.fields)
 
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self.ttype)
 
 
     def __lt__(self, other):
-        return self.name < other.name
+        return self.ttype < other.ttype
 
 
     def __len__(self):
@@ -796,11 +792,11 @@ class TType(_CheckNameMixin):
 
     def __repr__(self):
         fields = ', '.join(repr(field) for field in self.fields)
-        return (f'{self.__class__.__name__}({self.name!r}, {fields}, '
+        return (f'{self.__class__.__name__}({self.ttype!r}, {fields}, '
                 f'comment={self.comment!r})')
 
 
-class Field(_CheckNameMixin):
+class Field:
 
     def __init__(self, name, vtype=None):
         '''The type of one field in a Table
@@ -818,7 +814,7 @@ class Field(_CheckNameMixin):
 
     @name.setter
     def name(self, name):
-        self._check_name(name)
+        _check_name(name)
         self._name = name
 
 
@@ -841,16 +837,16 @@ class Table:
     When a Table is iterated each row is returned as a namedtuple.
     '''
 
-    def __init__(self, *, name=None, fields=None, records=None,
+    def __init__(self, *, ttype=None, fields=None, records=None,
                  comment=None):
         '''
         A Table may be created empty, e.g., Table(). However, if records is
-        not None, then both the name and fields must be given.
+        not None, then both the ttype and fields must be given.
 
         .records can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fields) long), or a list of
         lists in which case each list is _assumed_ to be len(fields) i.e.,
-        len(ttype.fields), long
+        len(tclass.fields), long
         .RecordClass is a dynamically created namedtuple that is used when
         accessing a single record via [] or when iterating a table's
         records.
@@ -858,13 +854,13 @@ class Table:
         comment is an optional str.
         '''
         self.RecordClass = None
-        self.ttype = TType(name, fields)
+        self.tclass = TClass(ttype, fields)
         self.records = []
         self.comment = comment
         if records:
-            if not name:
+            if not ttype:
                 raise Error('#320:can\'t create an unnamed nonempty table')
-            if not self.ttype:
+            if not self.tclass:
                 raise Error(
                     '#330:can\'t create a nonempty table without fields')
             if isinstance(records, (list, List)):
@@ -877,32 +873,32 @@ class Table:
 
 
     @property
-    def name(self):
-        return self.ttype.name
+    def ttype(self):
+        return self.tclass.ttype
 
 
-    @name.setter
-    def name(self, name):
-        self.ttype.name = name
+    @ttype.setter
+    def ttype(self, ttype):
+        self.tclass.ttype = ttype
 
 
     @property
     def fields(self):
-        return self.ttype.fields
+        return self.tclass.fields
 
 
     def field(self, column):
-        return self.ttype.fields[column]
+        return self.tclass.fields[column]
 
 
     @property
     def _next_vtype(self):
         if not self.records:
-            return self.ttype.fields[0].vtype
+            return self.tclass.fields[0].vtype
         else:
             if len(self.records[-1]) == len(self.fields):
-                return self.ttype.fields[0].vtype
-            return self.ttype.fields[len(self.records[-1])].vtype
+                return self.tclass.fields[0].vtype
+            return self.tclass.fields[len(self.records[-1])].vtype
 
 
     def append(self, value):
@@ -911,7 +907,7 @@ class Table:
         row'''
         if self.RecordClass is None:
             self._make_record_class()
-        if not self.records or len(self.records[-1]) >= len(self.ttype):
+        if not self.records or len(self.records[-1]) >= len(self.tclass):
             self.records.append([])
         self.records[-1].append(value)
 
@@ -933,17 +929,17 @@ class Table:
 
 
     def _make_record_class(self):
-        if not self.name:
+        if not self.ttype:
             raise Error('#340:can\'t use an unnamed table')
         if not self.fields:
             raise Error('#350:can\'t create a table with no fields')
         self.RecordClass = collections.namedtuple(
-            f'UXF{self.name}', # prefix avoids name clashes
+            f'UXF{self.ttype}', # prefix avoids name clashes
             [field.name for field in self.fields])
 
 
     def __iadd__(self, value):
-        if not self.name:
+        if not self.ttype:
             raise Error('#360:can\'t append to an unnamed table')
         if not self.fields:
             raise Error('#370:can\'t append to a table with no fields')
@@ -961,7 +957,7 @@ class Table:
             return self.RecordClass(*self.records[row])
         except TypeError as err:
             if 'missing' in str(err):
-                err = '#380:table\'s ttype has fewer fields than in a row'
+                err = '#380:table\'s tclass has fewer fields than in a row'
                 raise Error(err) from None
 
 
@@ -974,7 +970,7 @@ class Table:
         except TypeError as err:
             if 'missing' in str(err):
                 raise Error(
-                    '#390:table\'s ttype has fewer fields than in a row')
+                    '#390:table\'s tclass has fewer fields than in a row')
 
 
     def __len__(self):
@@ -982,7 +978,7 @@ class Table:
 
 
     def __str__(self):
-        parts = [f'name={self.name!r}']
+        parts = [f'ttype={self.ttype!r}']
         if self.fields:
             parts.append(f'fields={self.fields!r}')
         else:
@@ -994,7 +990,7 @@ class Table:
 
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}(name={self.name!r}, '
+        return (f'{self.__class__.__name__}(ttype={self.ttype!r}, '
                 f'fields={self.fields!r}, '
                 f'records={self.records!r}, comment={self.comment!r})')
 
@@ -1002,8 +998,8 @@ class Table:
 def _parse(tokens, filename='-', *, on_error=on_error):
     parser = _Parser(filename, on_error=on_error)
     data, comment = parser.parse(tokens)
-    ttypes = parser.ttypes
-    return data, comment, ttypes
+    tclasses = parser.tclasses
+    return data, comment, tclasses
 
 
 class _Parser:
@@ -1019,9 +1015,9 @@ class _Parser:
 
     def clear(self):
         self.stack = []
-        self.ttypes = {}
-        self.lino_for_ttype = {}
-        self.used_ttypes = set()
+        self.tclasses = {}
+        self.lino_for_tclass = {}
+        self.used_tclasses = set()
         self.pos = -1
         self.lino = 0
 
@@ -1033,7 +1029,7 @@ class _Parser:
         self.tokens = tokens
         data = None
         comment = self._parse_file_comment()
-        self._parse_ttypes()
+        self._parse_tclasses()
         for i, token in enumerate(self.tokens):
             self.lino = token.lino
             kind = token.kind
@@ -1061,22 +1057,22 @@ class _Parser:
                 break
             else:
                 self.error(410, f'unexpected token, got {token}')
-        self._check_ttypes()
+        self._check_tclasses()
         return data, comment
 
 
-    def _check_ttypes(self):
-        defined = set(self.ttypes.keys())
-        unused = defined - self.used_ttypes
+    def _check_tclasses(self):
+        defined = set(self.tclasses.keys())
+        unused = defined - self.used_tclasses
         if unused:
-            self._report_ttypes(unused, 'unused')
-        undefined = self.used_ttypes - defined
+            self._report_tclasses(unused, 'unused')
+        undefined = self.used_tclasses - defined
         if undefined:
-            self._report_ttypes(undefined, 'undefined')
+            self._report_tclasses(undefined, 'undefined')
 
 
-    def _report_ttypes(self, ttypes, what):
-        diff = sorted(ttypes)
+    def _report_tclasses(self, tclasses, what):
+        diff = sorted(tclasses)
         if len(diff) == 1:
             self.error(416, f'{what} type: {diff[0]!r}')
         else:
@@ -1099,40 +1095,40 @@ class _Parser:
             (self.tokens[i - 2].kind is _Kind.MAP_BEGIN or
                 (self.tokens[i - 2].kind is _Kind.COMMENT and
                  self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
-            vtype = self.ttypes.get(token.value)
-            if vtype is None:
+            tclass = self.tclasses.get(token.value)
+            if tclass is None:
                 self.error(430, f'undefined map value table type, {token}')
             else:
-                parent.vtype = vtype.name
-                self.used_ttypes.add(vtype.name)
+                parent.vtype = tclass.ttype
+                self.used_tclasses.add(tclass.ttype)
         elif self.tokens[i - 1].kind is _Kind.LIST_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
-            vtype = self.ttypes.get(token.value)
+            vtype = self.tclasses.get(token.value)
             if vtype is None:
                 self.error(440, f'undefined list table type, {token}')
             else:
                 parent.vtype = vtype.name
-                self.used_ttypes.add(vtype.name)
+                self.used_tclasses.add(vtype.name)
         elif self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
-            ttype = self.ttypes.get(token.value)
-            if ttype is None:
-                self.error(450, f'undefined table ttype, {token}',
-                           fail=True) # A table with no ttype is invalid
-            parent.ttype = ttype
-            self.used_ttypes.add(ttype.name)
+            tclass = self.tclasses.get(token.value)
+            if tclass is None:
+                self.error(450, f'undefined table tclass, {token}',
+                           fail=True) # A table with no tclass is invalid
+            parent.tclass = tclass
+            self.used_tclasses.add(tclass.ttype)
             if len(self.stack) > 1:
                 grand_parent = self.stack[-2]
                 vtype = getattr(grand_parent, 'vtype', None) # map or list
                 if (vtype is not None and vtype != 'table' and
-                        vtype != ttype.name):
+                        vtype != tclass.ttype):
                     self.error(
                         456, (f'expected table value of type {vtype}, '
-                              f'got value of type {ttype.name}'))
+                              f'got value of type {tclass.ttype}'))
         else: # should never happen
-            self.error(460, 'ttype name may only appear at the start of a '
+            self.error(460, 'ttypes may only appear at the start of a '
                        f'map (as the value type), list, or table, {token}')
 
 
@@ -1252,37 +1248,37 @@ class _Parser:
         return None
 
 
-    def _parse_ttypes(self):
-        ttype = None
+    def _parse_tclasses(self):
+        tclass = None
         for index, token in enumerate(self.tokens):
             self.lino = token.lino
-            if token.kind is _Kind.TTYPE_BEGIN:
-                if ttype is not None and ttype.name is not None:
-                    self.ttypes[ttype.name] = ttype
-                    self.lino_for_ttype[ttype.name] = self.lino
-                ttype = TType(None)
+            if token.kind is _Kind.TCLASS_BEGIN:
+                if tclass is not None and tclass.ttype is not None:
+                    self.tclasses[tclass.ttype] = tclass
+                    self.lino_for_tclass[tclass.ttype] = self.lino
+                tclass = TClass(None)
             elif token.kind is _Kind.COMMENT:
-                ttype.comment = token.value
+                tclass.comment = token.value
             elif token.kind is _Kind.IDENTIFIER:
-                if ttype.name is None:
-                    ttype.name = token.value
+                if tclass.ttype is None:
+                    tclass.ttype = token.value
                 else:
-                    ttype.append(token.value)
+                    tclass.append(token.value)
             elif token.kind is _Kind.TYPE:
-                if not ttype:
-                    self.error(520, 'cannot use a type name as a ttype '
+                if not tclass:
+                    self.error(520, 'cannot use a type name as a tclass '
                                f'name, got {token}', fail=True)
                 else:
                     vtype = token.value
-                    ttype.set_vtype(-1, vtype)
-            elif token.kind is _Kind.TTYPE_END:
-                if ttype is not None and bool(ttype):
-                    self.ttypes[ttype.name] = ttype
-                    if ttype.name not in self.lino_for_ttype:
-                        self.lino_for_ttype[ttype.name] = self.lino
+                    tclass.set_vtype(-1, vtype)
+            elif token.kind is _Kind.TCLASS_END:
+                if tclass is not None and bool(tclass):
+                    self.tclasses[tclass.ttype] = tclass
+                    if tclass.ttype not in self.lino_for_tclass:
+                        self.lino_for_tclass[tclass.ttype] = self.lino
                 self.tokens = self.tokens[index + 1:]
             else:
-                break # no TTypes at all
+                break # no TClasses at all
 
 
     def typecheck(self, value):
@@ -1299,7 +1295,7 @@ class _Parser:
                     message = (f'expected {vtype}, got '
                                f'{value.__class__.__name__} {value}')
                     return vtype, message
-            elif vtype not in self.ttypes:
+            elif vtype not in self.tclasses:
                 message = (f'expected {vtype}, got '
                            f'{value.__class__.__name__} {value}')
                 return vtype, message
@@ -1377,8 +1373,8 @@ class _Writer:
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
-        if uxo.ttypes:
-            self.write_ttypes(uxo.ttypes)
+        if uxo.tclasses:
+            self.write_tclasses(uxo.tclasses)
         if not self.write_value(uxo.data, pad=pad):
             self.file.write('\n')
 
@@ -1394,13 +1390,13 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_ttypes(self, ttypes):
-        for ttype in sorted(ttypes.values()):
+    def write_tclasses(self, tclasses):
+        for tclass in sorted(tclasses.values()):
             self.file.write('=')
-            if ttype.comment:
-                self.file.write(f' #<{escape(ttype.comment)}>')
-            self.file.write(f' {ttype.name}')
-            for field in ttype.fields:
+            if tclass.comment:
+                self.file.write(f' #<{escape(tclass.comment)}>')
+            self.file.write(f' {tclass.ttype}')
+            for field in tclass.fields:
                 self.file.write(f' {field.name}')
                 if field.vtype is not None:
                     self.file.write(f':{field.vtype}')
@@ -1574,7 +1570,7 @@ class _Writer:
         comment = getattr(item, 'comment', None)
         ktype = getattr(item, 'ktype', None)
         vtype = getattr(item, 'vtype', None)
-        ttype = getattr(item, 'ttype', None)
+        tclass = getattr(item, 'tclass', None)
         parts = []
         if comment is not None:
             parts.append(f' #<{escape(comment)}>')
@@ -1582,8 +1578,8 @@ class _Writer:
             parts.append(ktype)
         if vtype is not None:
             parts.append(vtype)
-        if ttype is not None:
-            parts.append(ttype.name)
+        if tclass is not None:
+            parts.append(tclass.ttype)
         return ' '.join(parts) if parts else ''
 
 
@@ -1685,7 +1681,7 @@ def canonicalize(name, is_table_name=True):
         elif c == '_' or c.isalnum():
             cs.append(c)
     name = ''.join(cs)
-    if is_table_name and name in TYPENAMES:
+    if is_table_name and name in RESERVED_WORDS:
         name = prefix + name
     elif not name:
         name = prefix
@@ -1717,7 +1713,7 @@ simply `gunzip infile.uxf.gz`.
 To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 infile.uxf outfile.uxf.gz`
 
-Converting uxf to uxf will alphabetically order any ttypes.
+Converting uxf to uxf will alphabetically order any tclasses.
 ''')
     indent = 2
     args = sys.argv[1:]

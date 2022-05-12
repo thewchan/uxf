@@ -53,9 +53,9 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             if debug:
                 _fail('Uxf.comment', a.comment, b.comment)
             return False
-        if not ignore_types and not eq(a.ttypes, b.ttypes, **kwargs):
+        if not ignore_types and not eq(a.tclasses, b.tclasses, **kwargs):
             if debug:
-                _fail('Uxf.ttypes', a.ttypes, b.ttypes)
+                _fail('Uxf.tclasses', a.tclasses, b.tclasses)
             return False
         if not eq(a.data, b.data, **kwargs):
             if debug:
@@ -95,27 +95,27 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                 _fail('Map.data', a.data, b.data)
             return False
         return True
-    if isinstance(a, uxf.TType):
+    if isinstance(a, uxf.TClass):
         if not ignore_comments and not eq_comment(a.comment, b.comment):
             if debug:
-                _fail('TType.comment', a.comment, b.comment)
+                _fail('TClass.comment', a.comment, b.comment)
             return False
-        if a.name != b.name:
+        if a.ttype != b.ttype:
             if debug:
-                _fail('TType.name', a.name, b.name)
+                _fail('TClass.ttype', a.ttype, b.ttype)
             return False
         if len(a.fields) != len(b.fields):
             if debug:
-                _fail('TType.fields (len)', a.fields, b.fields)
+                _fail('TClass.fields (len)', a.fields, b.fields)
             return False
         for afield, bfield in zip(a.fields, b.fields):
             if afield.name != bfield.name:
                 if debug:
-                    _fail('TType.fields (name)', afield, bfield)
+                    _fail('TClass.fields (name)', afield, bfield)
                 return False
             if not ignore_types and afield.vtype != bfield.vtype:
                 if debug:
-                    _fail('TType.fields (vtype)', afield, bfield)
+                    _fail('TClass.fields (vtype)', afield, bfield)
                 return False
         return True
     if isinstance(a, uxf.Table):
@@ -123,13 +123,13 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             if debug:
                 _fail('Table.comment', a.comment, b.comment)
             return False
-        if a.name != b.name:
-            if debug:
-                _fail('Table.name', a.name, b.name)
-            return False
-        if not ignore_types and not eq(a.ttype, b.ttype, **kwargs):
+        if a.ttype != b.ttype:
             if debug:
                 _fail('Table.ttype', a.ttype, b.ttype)
+            return False
+        if not ignore_types and not eq(a.tclass, b.tclass, **kwargs):
+            if debug:
+                _fail('Table.tclass', a.tclass, b.tclass)
             return False
         for i, (arec, brec) in enumerate(zip(iter(a), iter(b))):
             if not eq(arec, brec, **kwargs):
@@ -212,7 +212,7 @@ def _pprint(x):
 
 
 def _print_table(t):
-    print('name', t.name)
+    print('name', t.ttype)
     print('comment', t.comment)
     print('fields:')
     pprint.pprint(t.fields)

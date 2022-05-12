@@ -78,11 +78,11 @@ def visit(function, value):
         function(ValueType.STR, value)
     elif isinstance(value, (bytes, bytearray)):
         function(ValueType.BYTES, value)
-    # else isinstance(value, TType): pass # ignore
+    # else isinstance(value, TClass): pass # ignore
 
 
 def _visit_uxf(function, uxo):
-    info = UxfInfo(uxo.custom, uxo.comment, uxo.ttypes)
+    info = UxfInfo(uxo.custom, uxo.comment, uxo.tclasses)
     function(ValueType.UXF_BEGIN, info)
     visit(function, uxo.data)
     function(ValueType.UXF_END, Tag(info.custom))
@@ -110,9 +110,9 @@ def _visit_map(function, d):
 
 
 def _visit_table(function, table):
-    info = TableInfo(getattr(table, 'name', None),
-                     getattr(table, 'comment', None),
-                     getattr(table, 'vtype', None))
+    info = TableInfo(getattr(table, 'comment', None),
+                     getattr(table, 'ttype', None),
+                     getattr(table, 'tclass', None))
     function(ValueType.TABLE_BEGIN, info)
     for record in table:
         rtype = record.__class__.__name__
@@ -123,7 +123,7 @@ def _visit_table(function, table):
         for item in record:
             visit(function, item)
         function(ValueType.ROW_END, tag)
-    function(ValueType.TABLE_END, Tag(info.name))
+    function(ValueType.TABLE_END, Tag(info.ttype))
 
 
 @enum.unique
@@ -150,8 +150,8 @@ class ValueType(enum.Enum):
     NULL = enum.auto()
 
 
-UxfInfo = collections.namedtuple('UxfInfo', 'custom comment ttypes')
+UxfInfo = collections.namedtuple('UxfInfo', 'custom comment tclasses')
 ListInfo = collections.namedtuple('ListInfo', 'comment vtype')
 MapInfo = collections.namedtuple('MapInfo', 'comment ktype vtype')
-TableInfo = collections.namedtuple('TableInfo', 'name comment ttype')
+TableInfo = collections.namedtuple('TableInfo', 'comment ttype tclass')
 Tag = collections.namedtuple('Tag', 'name')

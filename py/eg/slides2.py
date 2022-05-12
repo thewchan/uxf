@@ -7,7 +7,7 @@ This reads slides.uxf and outputs slides/index.html and slides/N.html where
 N is a slide number.
 
 This program is just an illustration of the flexibility of the UXF format.
-It also shows how even an empty table can be useful (e.g., the nl ttype).
+It also shows how even an empty table can be useful (e.g., the nl tclass).
 '''
 
 import base64
@@ -79,16 +79,16 @@ def html_for_block(block):
     # ∴ must be a Table
     parts = []
     end = None
-    if block.name == 'B':
+    if block.ttype == 'B':
         parts.append('<ul><li>')
         end = '</li></ul>'
-    elif block.name in {'h1', 'h2'}:
-        parts.append(f'<{block.name}>')
-        end = f'</{block.name}>'
-    elif block.name == 'i':
+    elif block.ttype in {'h1', 'h2'}:
+        parts.append(f'<{block.ttype}>')
+        end = f'</{block.ttype}>'
+    elif block.ttype == 'i':
         parts.append('<i>')
         end = '</i>'
-    elif block.name == 'img':
+    elif block.ttype == 'img':
         record = block[0]
         data = base64.urlsafe_b64encode(record.image).decode('ascii')
         parts.append(f'<img src="data:image/png;base64,{data}" />')
@@ -96,18 +96,18 @@ def html_for_block(block):
         if end is not None:
             parts.append(end)
         return parts
-    elif block.name == 'm':
+    elif block.ttype == 'm':
         parts.append('<tt>')
         end = '</tt>'
-    elif block.name == 'nl':
+    elif block.ttype == 'nl':
         parts.append('<br />')
-    elif block.name == 'p':
+    elif block.ttype == 'p':
         parts.append('<p>')
         end = '</p>'
-    elif block.name == 'pre':
+    elif block.ttype == 'pre':
         parts.append('<pre>')
         end = '</pre>'
-    elif block.name == 'url':
+    elif block.ttype == 'url':
         record = block[0]
         parts.append(f'<a href="{record.link}">')
         parts += html_for_block(record.content)
