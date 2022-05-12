@@ -1,3 +1,5 @@
+# TODO complete master.py (need some eg UXF files, e.g., master.uxf,
+# file1.uxf, ...)
 # TODO go through every uxf.py error code & try to make sure there's a
 # matching test in test_errors.py
 # TODO code review & improvement
@@ -17,11 +19,11 @@ py/t/test_sqlite.py
 py/t/test_errors.py
 py/t/test_lints.py
 py/t/eq.py
-py/eg/importer.py
 py/eg/visit.py
 py/eg/slides1.py
 py/eg/slides2.py
 py/eg/slides.sld
+py/eg/master.py
 
 README.md
 

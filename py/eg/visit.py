@@ -10,12 +10,14 @@ The visit function calls the given function on every value in the given data
 import collections
 import datetime
 import enum
+import os
+import sys
 
 try:
     import uxf
 except ImportError: # needed for development
-    import importer
-    uxf = importer.import_module('uxf', '../uxf.py')
+    sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
+    import uxf
 
 try:
     from dateutil.parser import isoparse
