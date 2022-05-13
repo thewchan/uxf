@@ -1,8 +1,5 @@
-# TODO add tests of system, local, and url imports
-# e.g. ttype-test (system), eg/slides.sld (local), 
-# http://www.qtrac.eu/ttype-eg.uxf (url)
-# TODO complete include.py (need some eg UXF files, e.g., include.uxf,
-# file1.uxf, ...)
+# TODO Create the new egs (see below)
+# TODO Create tests for the new egs (see below)
 # TODO go through every uxf.py error code & try to make sure there's a
 # matching test in test_errors.py
 # TODO code review & improvement
@@ -22,12 +19,21 @@ py/t/test_converters.py
 py/t/test_sqlite.py
 py/t/test_errors.py
 py/t/test_lints.py
+# TODO py/t/test_imports.py # add tests of system, local, and url
+#			    # imports e.g. ttype-test (system),
+#			    # eg/slides.sld (local),
+#			    # http://www.qtrac.eu/ttype-eg.uxf (url)
+# TODO py/t/test_include.py
+# TODO py/t/test_on_error.py
+# TODO py/t/test_merge.py
 py/t/eq.py
 py/eg/visit.py
 py/eg/slides1.py
 py/eg/slides2.py
 py/eg/slides.sld
-py/eg/include.py
+py/eg/include.py # TODO need test files
+py/eg/merge.py # TODO implement & need test files
+py/eg/on_error.py # TODO implement & need test files
 
 README.md
 
