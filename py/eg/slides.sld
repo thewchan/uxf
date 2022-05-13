@@ -1,6 +1,6 @@
 uxf 1.0 Slides 0.1.0
 #<This is a simple example of an application-specific use of UXF.
-See slides.py for an example of converting this format to HTML.>
+See slides[12].py for examples of converting this format to HTML.>
 = Slide title body
 = #<title> h1 content
 = #<subtitle> h2 content

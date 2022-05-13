@@ -1,3 +1,5 @@
+# TODO use urllib to keep deps on just std lib
+# TODO test ! http://www.qtrac.eu/ttype-eg.uxf
 # TODO complete include.py (need some eg UXF files, e.g., include.uxf,
 # file1.uxf, ...)
 # TODO go through every uxf.py error code & try to make sure there's a

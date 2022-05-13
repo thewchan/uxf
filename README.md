@@ -8,8 +8,10 @@ UXF is an open standard. The UXF software linked from this page is all free
 open source software.
 
 - [Datatypes](#datatypes)
+    - [Terminology](#terminology)
 - [Examples](#examples)
 - [Libraries](#libraries) ([Python](py/README.md))
+- [Imports](#imports)
 - [BNF](#bnf)
 - [Vim Support](#vim-support)
 - [UXF Logo](#uxf-logo)
@@ -476,14 +478,47 @@ _Implementations in additional languages are planned._
 |-----------|------------|-----------------------------|
 |uxf        | Python 3   | See the [Python UXF library](py/README.md).|
 
+## Imports
+
+UXF files are normally completely self-contained. However, in some cases it
+may be desirable to share a set of _ttype_ definitions amongst a bunch of
+UXF files.
+
+The _disadvantage_ of doing this is that the relevant UXF files become
+dependend on one or more external dependencies. (However, this disadvantage
+doesn't apply if all the dependencies are provided by the UXF processor
+itself.)
+
+The _advantage_ of importing _ttype_ definitions is that for UXF's that have
+lots of _ttypes_, only the imports and the data need be in the file, without
+having to repeat all the _ttype_ definitions.
+
+Imports go at the start of the file _after_ the header and any file-level
+comment, and _before_ any _ttype_ definitions. Each import must be on its
+own line and may not span lines.
+
+Any _ttype_ definition that follows an import will redefine any imported
+defintion of the same name.
+
+|**Import**|**Notes**|
+|----------|---------|
+|`! html-basic-eg`|These imports are provided by the UXF processor itself|
+|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the current folder|
+|`! /path/to/shared.uxf`|Import the _ttypes_ from the given file|
+|`! http://www.qtrac.eu/ttype-eg.uxf`|Import from the given URL|
+
+The imported file must be a valid UXF file, but any custom string, comments,
+or data it may contain are ignored: only the _ttype_ definitions are used.
+
 ## BNF
 
 A `.uxf` file consists of a mandatory header followed by a single
 optional `map`, `list`, or `table`.
 
-    UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' DATA
+    UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' CONTENT
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA         ::= COMMENT? TTYPEDEF* (MAP | LIST | TABLE)
+    CONTENT      ::= COMMENT? IMPORT* TTYPEDEF* (MAP | LIST | TABLE)
+    IMPORT       ::= '!' OWS DEF_FILE '\n' # See below for DEF_FILE
     TTYPEDEF     ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is the ttype (i.e., the table name)
     FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is the field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
@@ -504,12 +539,19 @@ optional `map`, `list`, or `table`.
     DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
     BYTES        ::= '(:' (OWS [A-Fa-f0-9]{2})* OWS ':)'
-    IDENFIFIER	 ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscore; may not be a built-in typename or constant
+    IDENFIFIER   ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscore; may not be a built-in typename or constant
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 
-Note that a UXF file _must_ contain data, even if this is merely an empty
-list, empty map, or empty table.
+Note that a UXF file _must_ contain a single map, list, or table, even if
+it is empty.
+
+A `DEF_FILE` may be a filename which does _not_ end with `.uxf`, in which
+case it is a “system” UXF file provided by the UXF processor itself.
+(Currently there is just one system file, `ttype-example.uxf`.) Or it may be
+a filename with a relative or absolute path (or no path and taken to be in
+the same folder as the `.uxf` file that refers to it). Or it may be a URL
+referring to an external `.uxf` file.
 
 To indicate any type valid for the context, simply omit the type name.
 
