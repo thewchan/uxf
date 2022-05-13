@@ -4,7 +4,7 @@ uxf 1.0 EPD (SQLite full list of tables)
 = Playlists PID Title CID Selected
 = Tracks TID Title Seconds Filename Selected PID
 [
-  (Categories
+  ( Categories
     5 <Classical> yes
     4 <Modern Instrumental> no
     1 <New Acquistions> no
@@ -13,7 +13,7 @@ uxf 1.0 EPD (SQLite full list of tables)
     ? ? ?
     6 <Unpopular Pop> no
   )
-  (Playlists
+  ( Playlists
     4 <ABBA> 2 no
     38 <Bach> 5 no
     39 <Bartok> 5 no
@@ -70,7 +70,7 @@ uxf 1.0 EPD (SQLite full list of tables)
     31 <The Stranglers> 3 no
     53 <UB40> 6 no
   )
-  (Tracks
+  ( Tracks
     48 <A Fool Such as I> 156.0 </home/mark/music/Housewives/Housewives-2/23-A Fool Such as I.ogg> no 1
     5 <A Little Bird Told Me> 161.0 </home/mark/music/Housewives/Housewives-1/05-A Little Bird Told Me.ogg> no 1
     51 <Answer Me> 157.0 </home/mark/music/Housewives/Housewives-3/01-Answer Me.ogg> no 1

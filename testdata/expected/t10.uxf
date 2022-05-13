@@ -8,7 +8,7 @@ uxf 1.0 TLM Config
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> (Files
+    <files> ( Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
@@ -31,7 +31,7 @@ uxf 1.0 TLM Config
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> no]
     ]
-    <Nested Table> (Categories
+    <Nested Table> ( Categories
       5 <Classical> yes
       4 <Modern Instrumental> no
       1 <New Acquistions> no
@@ -41,7 +41,7 @@ uxf 1.0 TLM Config
       6 <Unpopular Pop> no
     )
     <Nested List of Tables> [
-      (Categories
+      ( Categories
         5 <Classical> yes
         4 <Modern Instrumental> no
         1 <New Acquistions> no
@@ -50,7 +50,7 @@ uxf 1.0 TLM Config
         7 <Uncategorized> no
         6 <Unpopular Pop> no
       )
-      (Playlists
+      ( Playlists
         4 <ABBA> 2 no
         38 <Bach> 5 no
         39 <Bartok> 5 no

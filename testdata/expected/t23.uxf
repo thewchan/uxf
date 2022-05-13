@@ -1,6 +1,6 @@
 uxf 1.0
 [list
-  [list
+  [ list
     [5 <Classical> yes]
     [4 <Modern Instrumental> no]
     [1 <New Acquistions> no]
@@ -9,7 +9,7 @@ uxf 1.0
     [7 <Uncategorized> no]
     [6 <Unpopular Pop> no]
   ]
-  [list
+  [ list
     [4 <ABBA> 2 no]
     [38 <Bach> 5 no]
     [39 <Bartok> 5 no]

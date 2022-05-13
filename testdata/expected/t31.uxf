@@ -10,7 +10,7 @@ uxf 1.0
    [4 <Modern Instrumental> no]
    [1 <New Acquistions> no]
   ]
-  <Nested Table> (Categories
+  <Nested Table> ( Categories
    5 <Classical> yes
    4 <Modern Instrumental> no
    1 <New Acquistions> no
@@ -20,7 +20,7 @@ uxf 1.0
    6 <Unpopular Pop> no
   )
   <Nested List of Tables> [
-   (Categories
+   ( Categories
     5 <Classical> yes
     4 <Modern Instrumental> no
     1 <New Acquistions> no
@@ -29,7 +29,7 @@ uxf 1.0
     7 <Uncategorized> no
     6 <Unpopular Pop> no
    )
-   (Playlists
+   ( Playlists
     4 <ABBA> 2 no
     38 <Bach> 5 no
     39 <Bartok> 5 no

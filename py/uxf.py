@@ -1478,10 +1478,11 @@ class _Writer:
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
+        space = ' ' if pad else ''
         if uxo.imports:
-            self.write_imports(uxo.import_filenames)
+            self.write_imports(uxo.import_filenames, space)
         if uxo.tclasses:
-            self.write_tclasses(uxo.tclasses, uxo.imports)
+            self.write_tclasses(uxo.tclasses, uxo.imports, space)
         if not self.write_value(uxo.data, pad=pad):
             self.file.write('\n')
 
@@ -1497,19 +1498,19 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_imports(self, import_filenames):
+    def write_imports(self, import_filenames, space):
         for filename in import_filenames: # don't sort!
-            self.file.write(f'! {filename}\n')
+            self.file.write(f'!{space}{filename}\n')
 
 
-    def write_tclasses(self, tclasses, imports):
+    def write_tclasses(self, tclasses, imports, space):
         for ttype, tclass in sorted(tclasses.items()):
             if imports and ttype in imports:
                 continue # defined in an import
-            self.file.write('=')
+            self.file.write(f'={space}')
             if tclass.comment:
-                self.file.write(f' #<{escape(tclass.comment)}>')
-            self.file.write(f' {tclass.ttype}')
+                self.file.write(f'#<{escape(tclass.comment)}> ')
+            self.file.write(f'{tclass.ttype}')
             for field in tclass.fields:
                 self.file.write(f' {field.name}')
                 if field.vtype is not None:
@@ -1534,8 +1535,9 @@ class _Writer:
 
 
     def write_list(self, item, indent=0, *, pad, is_map_value=False):
-        tab = '' if is_map_value else pad * indent
-        prefix = self.collection_prefix(item)
+        pindent = pad * indent
+        tab = '' if is_map_value else pindent
+        prefix = self.collection_prefix(item, ' ' if pindent else '')
         if len(item) == 0:
             self.file.write(f'{tab}[{prefix}]')
             return False
@@ -1567,8 +1569,9 @@ class _Writer:
 
 
     def write_map(self, item, indent=0, *, pad, is_map_value=False):
-        tab = '' if is_map_value else pad * indent
-        prefix = self.collection_prefix(item)
+        pindent = pad * indent
+        tab = '' if is_map_value else pindent
+        prefix = self.collection_prefix(item, ' ' if pindent else '')
         if len(item) == 0:
             self.file.write(f'{tab}{{{prefix}}}')
             return False
@@ -1606,8 +1609,9 @@ class _Writer:
 
 
     def write_table(self, item, indent=0, *, pad, is_map_value=False):
-        tab = '' if is_map_value else pad * indent
-        prefix = self.collection_prefix(item)
+        pindent = pad * indent
+        tab = '' if is_map_value else pindent
+        prefix = self.collection_prefix(item, ' ' if pindent else '')
         self.file.write(f'{tab}({prefix}')
         if len(item) == 0:
             self.file.write(')')
@@ -1680,21 +1684,21 @@ class _Writer:
         return False
 
 
-    def collection_prefix(self, item):
+    def collection_prefix(self, item, space):
         comment = getattr(item, 'comment', None)
         ktype = getattr(item, 'ktype', None)
         vtype = getattr(item, 'vtype', None)
         tclass = getattr(item, 'tclass', None)
         parts = []
         if comment is not None:
-            parts.append(f' #<{escape(comment)}>')
+            parts.append(f'#<{escape(comment)}>')
         if ktype is not None:
             parts.append(ktype)
         if vtype is not None:
             parts.append(vtype)
         if tclass is not None:
             parts.append(tclass.ttype)
-        return ' '.join(parts) if parts else ''
+        return (space + ' '.join(parts)) if parts else ''
 
 
 def is_scalar(x):

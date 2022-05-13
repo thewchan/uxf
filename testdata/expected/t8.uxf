@@ -9,7 +9,7 @@ before evertthing else.>
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> (Files
+    <files> ( Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
@@ -32,7 +32,7 @@ before evertthing else.>
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> no]
     ]
-    <Nested Table> (Categories
+    <Nested Table> ( Categories
       5 <Classical> yes
       4 <Modern Instrumental> no
       1 <New Acquistions> no

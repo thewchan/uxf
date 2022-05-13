@@ -3,6 +3,6 @@ uxf 1.0
 = img content image:bytes
 = p content
 [
-  (p <first para>)
-  (p (img (b <bold caption>) (:B445:)))
+  ( p <first para>)
+  ( p (img (b <bold caption>) (:B445:)))
 ]

@@ -2,12 +2,12 @@ uxf 1.0
 = IP4 A:int B:int C:int D:int
 = IntPair First:int Second:int
 = RGB Red:int Green:int Blue:int
-[ #<Unused TTypes are dropped when converting from uxf to uxf;
+[#<Unused TTypes are dropped when converting from uxf to uxf;
     to preserve them, just use them to make an empty table>
-  (IntPair)
-  (IP4
+  ( IntPair)
+  ( IP4
     168 1 4 29
     192 0 18 27
   )
-  (RGB)
+  ( RGB)
 ]
