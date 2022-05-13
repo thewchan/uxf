@@ -1,5 +1,5 @@
 uxf 1.0
-= Pair First:int Second:int
+=Pair First:int Second:int
 (Pair
   1 2
   3 4

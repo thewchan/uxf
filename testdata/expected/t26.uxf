@@ -1,5 +1,5 @@
 uxf 1.0 MyApp 1.2.0 Config
-= Files Kind Filename
+=Files Kind Filename
 {
   <General> {
     <shapename> <Hexagon>
@@ -27,7 +27,7 @@ uxf 1.0 MyApp 1.2.0 Config
     <height> 22
     <scale> 0.5
   }
-  <Files> ( Files
+  <Files> (Files
     <current> <test1.uxf>
     <recent1> </tmp/test2.uxf>
     <recent2> <C:\Users\mark\test3.uxf>

@@ -126,7 +126,7 @@ concrete type (all ``str``s for the first row, and `date`, `real`, `int`,
 The most _appropriate_ UXF equivalent is to use a UXF `table`:
 
     uxf 1.0
-    = PriceList Date Price Quantity ID Description
+    =PriceList Date Price Quantity ID Description
     (PriceList
       2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
       2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
@@ -157,7 +157,7 @@ example, the UXF processor will treat every five values as a single record
 (row) since the _ttype_ has five fields.
 
     uxf 1.0 Price List
-    = PriceList Date:date Price:real Quantity:int ID:str Description:str
+    =PriceList Date:date Price:real Quantity:int ID:str Description:str
     (PriceList
       2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
       2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
@@ -171,7 +171,7 @@ correct type. Omit the type altogether (as in the earliler examples) to
 indicate _any_ valid table type.
 
     uxf 1.0 Price List
-    = PriceList Date:date Price:real Quantity:int ID:str Description:str
+    =PriceList Date:date Price:real Quantity:int ID:str Description:str
     (PriceList)
 
 Just for completeness, here's an example of an empty table.
@@ -212,7 +212,7 @@ This first equivalent is a simplistic conversion that we'll improve in
 stages.
 
     uxf 1.0 MyApp 1.2.0 Config
-    = Files Kind Filename
+    =Files Kind Filename
     {
       <General> {
         <shapename> <Hexagon>
@@ -263,17 +263,17 @@ Of course, we can nest as deep as we like and mix ``map``s and ``list``s.
 For example, here's an alternative:
 
     uxf 1.0 MyApp 1.2.0 Config
-    = pos x:int y:int
-    = size width:int height:int
+    =pos x:int y:int
+    =size width:int height:int
     {
-      <General> { #<Miscellaneous settings>
+      <General> {#<Miscellaneous settings>
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> {
           <current> <test1.uxf>
-          <recent> [ #<From most to least recent>
+          <recent> [#<From most to least recent>
           </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
-      <Window1> { #<Window dimensions and scales> str
+      <Window1> {#<Window dimensions and scales> str
         <pos> (pos 615 252)
         <size> (size 592 636)
         <scale> 1.1
@@ -304,17 +304,17 @@ start of a map before the optional _ktype_ or the first key, or at the start
 of a table before the _ttype_ name.
 
     uxf 1.0 MyApp 1.2.0 Config
-    = pos x:int y:int
-    = size width:int height:int
-    { #<We want str keys and map values> str map
-      <General> { #<We want str keys and any values> str
+    =pos x:int y:int
+    =size width:int height:int
+    {#<We want str keys and map values> str map
+      <General> {#<We want str keys and any values> str
         <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
           <current> <test1.uxf>
           <recent> [ #<From most to least recent> str
           </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
-      <Windows> { #<Window dimensions and scales>
+      <Windows> {#<Window dimensions and scales>
         <pos> (pos 615 252 28 42 57 98)
         <size> (size 592 636 140 81 89 22)
         <scale> [1.1 1.0 0.5]
@@ -333,16 +333,16 @@ this case three (since each row has two fields based on each table's
 _ttype_).
 
     uxf 1.0 MyApp 1.2.0 Config
-    = #<Window dimensions> Geometry x:int y:int width:int height:int scale:real
-    { #<Notes on this configuration file format> str map
-      <General> { #<Miscellaneous settings> str
-        <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
+    =#<Window dimensions> Geometry x:int y:int width:int height:int scale:real
+    {#<Notes on this configuration file format> str map
+      <General> {#<Miscellaneous settings> str
+        <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> {str
           <current> <test1.uxf>
-          <recent> [ #<From most to least recent> str
+          <recent> [#<From most to least recent> str
           </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
-      <Windows> ( #<Window dimensions and scales> Geometry
+      <Windows> (#<Window dimensions and scales> Geometry
          615 252 592 636 1.1
          28 42 140 81 1.0
          57 98 89 22 0.5
@@ -360,10 +360,10 @@ A database normally consists of one or more tables. A UXF equivalent using
 a `list` of ``table``s is easily made.
 
     uxf 1.0 MyApp Data
-    = Customers CID Company Address Contact Email
-    = Invoices INUM CID Raised_Date Due_Date Paid Description
-    = Items IID INUM Delivery_Date Unit_Price Quantity Description
-    [ #<There is a 1:M relationship between the Invoices and Items tables>
+    =Customers CID Company Address Contact Email
+    =Invoices INUM CID Raised_Date Due_Date Paid Description
+    =Items IID INUM Delivery_Date Unit_Price Quantity Description
+    [#<There is a 1:M relationship between the Invoices and Items tables>
       (Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> ? <Jane Doe> <jane@super.com> 
@@ -388,10 +388,10 @@ invoice has an empty description.
     uxf 1.0 MyApp Data
     #<It is also possible to have one overall comment at the beginning,
     after the uxf header and before any ttype definitions or the data.>
-    = Customers CID:int Company:str Address:str Contact:str Email:str
-    = Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool Description:str
-    = Items IID:int INUM:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
-    [ #<There is a 1:M relationship between the Invoices and Items tables>
+    =Customers CID:int Company:str Address:str Contact:str Email:str
+    =Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool Description:str
+    =Items IID:int INUM:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
+    [#<There is a 1:M relationship between the Invoices and Items tables>
       (Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> ? <Jane Doe> <jane@super.com> 
@@ -413,11 +413,11 @@ It is conventional in a database to have IDs and foreign keys. But these can
 often be avoided by using hierarchical data. For example:
 
     uxf 1.0 MyApp Data
-    = Customers CID:int Company:str Address:str Contact:str Email:str
-    = Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool
+    =Customers CID:int Company:str Address:str Contact:str Email:str
+    =Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool
     Description:str Items:Items
-    = Items IID:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
-    [ #<There is a 1:M relationship between the Invoices and Items tables>
+    =Items IID:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
+    [#<There is a 1:M relationship between the Invoices and Items tables>
         (Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> ? <Jane Doe> <jane@super.com> 
@@ -455,9 +455,9 @@ the container, something like:
 As mentioned earlier, is possible to nest tables.
 
     uxf 1.0
-    = Pair First Second
-    = Triple First Second Third
-    [ #<Nested tables>
+    =Pair First Second
+    =Triple First Second Third
+    [#<Nested tables>
       (Pair (Pair 17 21) (Pair 98 65))
       (Triple
         (Pair <a> <b>) (Triple 2020-01-17 2020-02-18 2021-12-05) (Pair ? no)

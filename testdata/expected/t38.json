@@ -33,7 +33,7 @@
   ],
   "UXF^data": {
     "UXF^list": {
-      "comment": "Unused TTypes are dropped when converting from uxf to uxf;\n    to preserve them, just use them to make an empty table",
+      "comment": "Unused TTypes produce warnings when converting from uxf to uxf.\nOne way to avoid the warnings is to use them for empty tables.",
       "vtype": null,
       "list": [
         {

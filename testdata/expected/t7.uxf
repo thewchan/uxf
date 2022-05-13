@@ -1,12 +1,12 @@
 uxf 1.0 TLM Config
-= Files Kind Filename
+=Files Kind Filename
 {
-  <General> { #<Map comment>
+  <General> {#<Map comment>
     <saved> 2022-03-21
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> ( #<Table comment> Files
+    <files> (#<Table comment> Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
@@ -24,7 +24,7 @@ uxf 1.0 TLM Config
     <Classical> [5 yes]
     <Modern Instrumental> [4 no]
     <New Acquistions> [1 no]
-    <Nested List of Lists> [ #<List comment>
+    <Nested List of Lists> [#<List comment>
       [5 <Classical &amp; &lt;Special&gt;> yes]
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> ?]

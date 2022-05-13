@@ -1,48 +1,48 @@
 uxf 1.0 TLM Config
-= Categories CID Title Selected
-= Files Kind Filename
-= IPv4 A:int B:int C:int D:int
-= IntPair First:int Second:int
-= Playlists PID Title CID Selected
-= RGB Red:int Green:int Blue:int
-= RGBA Red:int Green:int Blue:int Alpha:int
+=Categories CID Title Selected
+=Files Kind Filename
+=IPv4 A:int B:int C:int D:int
+=IntPair First:int Second:int
+=Playlists PID Title CID Selected
+=RGB Red:int Green:int Blue:int
+=RGBA Red:int Green:int Blue:int Alpha:int
 {
-  <General> { #<Various configuration items>
+  <General> {#<Various configuration items>
     <saved> 2022-03-21
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> ( #<Another little comment> Files
+    <files> (#<Another little comment> Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
     )
   }
-  <Window> { #<Some numbers>
-    <pos> ( IntPair 383 124)
-    <size> ( IntPair 590 536)
+  <Window> {#<Some numbers>
+    <pos> (IntPair 383 124)
+    <size> (IntPair 590 536)
     <scale> 1.1
   }
   <UXF Type Tests> [
     <one>
-    ( IPv4 141 179 19 9)
+    (IPv4 141 179 19 9)
     <many>
-    ( IPv4
+    (IPv4
       172 16 254 1
       192 0 2 235
       127 0 0 1
     )
     <red>
-    ( RGB 255 0 0)
+    (RGB 255 0 0)
     <semi-transparent blue>
-    ( RGBA 0 0 255 80)
+    (RGBA 0 0 255 80)
   ]
   <Magic> (:1F8B:)
-  <Nested Map> { #<Another comment this time in a nested map>
+  <Nested Map> {#<Another comment this time in a nested map>
     <Classical> [5 yes]
     <Modern Instrumental> [4 no]
     <New Acquistions> [1 no]
-    <Nested List of Lists> [ #<Just a little list>
+    <Nested List of Lists> [#<Just a little list>
       [5 <Classical> yes]
       [
         4
@@ -51,7 +51,7 @@ uxf 1.0 TLM Config
       ]
       [1 <New Acquistions> no]
     ]
-    <Nested Table> ( #<A table with a rather long comment just to
+    <Nested Table> (#<A table with a rather long comment just to
 show what can be done.> Categories
       5 <Classical> yes
       4 <Modern Instrumental> no
@@ -61,8 +61,8 @@ show what can be done.> Categories
       7 <Uncategorized> no
       6 <Unpopular Pop> no
     )
-    <Nested List of Tables> [ #<Yet another comment in a list>
-      ( Categories
+    <Nested List of Tables> [#<Yet another comment in a list>
+      (Categories
         5 <Classical> yes
         4 <Modern Instrumental> no
         1 <New Acquistions> no
@@ -71,7 +71,7 @@ show what can be done.> Categories
         7 <Uncategorized> no
         6 <Unpopular Pop> no
       )
-      ( #<Comments may appear at the beginning of any list, map or table> Playlists
+      (#<Comments may appear at the beginning of any list, map or table> Playlists
         4 <ABBA> 2 no
         38 <Bach> 5 no
         39 <Bartok> 5 no

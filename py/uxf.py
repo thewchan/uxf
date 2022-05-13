@@ -1478,11 +1478,10 @@ class _Writer:
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
-        space = ' ' if pad else ''
         if uxo.imports:
-            self.write_imports(uxo.import_filenames, space)
+            self.write_imports(uxo.import_filenames)
         if uxo.tclasses:
-            self.write_tclasses(uxo.tclasses, uxo.imports, space)
+            self.write_tclasses(uxo.tclasses, uxo.imports)
         if not self.write_value(uxo.data, pad=pad):
             self.file.write('\n')
 
@@ -1498,16 +1497,16 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_imports(self, import_filenames, space):
+    def write_imports(self, import_filenames):
         for filename in import_filenames: # don't sort!
-            self.file.write(f'!{space}{filename}\n')
+            self.file.write(f'!{filename}\n')
 
 
-    def write_tclasses(self, tclasses, imports, space):
+    def write_tclasses(self, tclasses, imports):
         for ttype, tclass in sorted(tclasses.items()):
             if imports and ttype in imports:
                 continue # defined in an import
-            self.file.write(f'={space}')
+            self.file.write('=')
             if tclass.comment:
                 self.file.write(f'#<{escape(tclass.comment)}> ')
             self.file.write(f'{tclass.ttype}')
@@ -1535,9 +1534,8 @@ class _Writer:
 
 
     def write_list(self, item, indent=0, *, pad, is_map_value=False):
-        pindent = pad * indent
-        tab = '' if is_map_value else pindent
-        prefix = self.collection_prefix(item, ' ' if pindent else '')
+        tab = '' if is_map_value else pad * indent
+        prefix = self.collection_prefix(item)
         if len(item) == 0:
             self.file.write(f'{tab}[{prefix}]')
             return False
@@ -1569,9 +1567,8 @@ class _Writer:
 
 
     def write_map(self, item, indent=0, *, pad, is_map_value=False):
-        pindent = pad * indent
-        tab = '' if is_map_value else pindent
-        prefix = self.collection_prefix(item, ' ' if pindent else '')
+        tab = '' if is_map_value else pad * indent
+        prefix = self.collection_prefix(item)
         if len(item) == 0:
             self.file.write(f'{tab}{{{prefix}}}')
             return False
@@ -1609,9 +1606,8 @@ class _Writer:
 
 
     def write_table(self, item, indent=0, *, pad, is_map_value=False):
-        pindent = pad * indent
-        tab = '' if is_map_value else pindent
-        prefix = self.collection_prefix(item, ' ' if pindent else '')
+        tab = '' if is_map_value else pad * indent
+        prefix = self.collection_prefix(item)
         self.file.write(f'{tab}({prefix}')
         if len(item) == 0:
             self.file.write(')')
@@ -1684,7 +1680,7 @@ class _Writer:
         return False
 
 
-    def collection_prefix(self, item, space):
+    def collection_prefix(self, item):
         comment = getattr(item, 'comment', None)
         ktype = getattr(item, 'ktype', None)
         vtype = getattr(item, 'vtype', None)
@@ -1698,7 +1694,7 @@ class _Writer:
             parts.append(vtype)
         if tclass is not None:
             parts.append(tclass.ttype)
-        return (space + ' '.join(parts)) if parts else ''
+        return ' '.join(parts) if parts else ''
 
 
 def is_scalar(x):

@@ -1,8 +1,8 @@
 uxf 1.0
-= Categories CID:int Title Selected:bool
-= Playlists PID:int Title:str CID:int Selected
+=Categories CID:int Title Selected:bool
+=Playlists PID:int Title:str CID:int Selected
 [table
-  ( Categories
+  (Categories
     5 <Classical> yes
     4 <Modern Instrumental> no
     1 <New Acquistions> no
@@ -12,7 +12,7 @@ uxf 1.0
     7 <Uncategorized> no
     6 <Unpopular Pop> no
   )
-  ( Playlists
+  (Playlists
     4 <ABBA> 2 no
     38 <Bach> 5 no
     ? ? ? ?

@@ -1,4 +1,4 @@
 uxf 1.0
 #<File-level comment>
-= Pair first:str second:str
+=Pair first:str second:str
 {}

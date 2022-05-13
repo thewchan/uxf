@@ -1,19 +1,19 @@
 uxf 1.0 TLM Config
 #<This is a file-level comment.>
-= Categories CID Title Selected
-= Files Kind Filename
-= IPv4 A:int B:int C:int D:int
-= IntPair First:int Second:int
-= Playlists PID Title CID Selected
-= RGB Red:int Green:int Blue:int
-= RGBA Red:int Green:int Blue:int Alpha:int
+=Categories CID Title Selected
+=Files Kind Filename
+=IPv4 A:int B:int C:int D:int
+=IntPair First:int Second:int
+=Playlists PID Title CID Selected
+=RGB Red:int Green:int Blue:int
+=RGBA Red:int Green:int Blue:int Alpha:int
 {
-  <General> { #<Map comment #1>
+  <General> {#<Map comment #1>
     <saved> 2022-03-21
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> ( #<Table comment #2> Files
+    <files> (#<Table comment #2> Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
@@ -27,16 +27,16 @@ uxf 1.0 TLM Config
     <scale> 1.1
   }
   <Magic> (:1F8B:)
-  <Nested Map> { #<Map comment #3>
-    <Classical> [ #<List comment #4> 5 yes]
-    <Modern Instrumental> [ #<List comment #5> 4 no]
+  <Nested Map> {#<Map comment #3>
+    <Classical> [#<List comment #4> 5 yes]
+    <Modern Instrumental> [#<List comment #5> 4 no]
     <New Acquistions> [1 no]
-    <Nested List of Lists> [ #<List comment #6>
-      [ #<List comment #7> 5 <Classical> yes]
+    <Nested List of Lists> [#<List comment #6>
+      [#<List comment #7> 5 <Classical> yes]
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> no]
     ]
-    <Nested Table> ( #<Table comment #8> Categories
+    <Nested Table> (#<Table comment #8> Categories
       5 <Classical> yes
       4 <Modern Instrumental> no
       1 <New Acquistions> no

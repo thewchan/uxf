@@ -1,9 +1,9 @@
 uxf 1.0
 #<Suitable for SQLite conversion>
-= Categories CID:int title:str selected:bool when:date
-= Playlists PID:int title cid:int selected:bool timestamp:datetime
+=Categories CID:int title:str selected:bool when:date
+=Playlists PID:int title cid:int selected:bool timestamp:datetime
 [
-  ( Categories
+  (Categories
     5 <Classical> yes 2001-12-27
     4 <Modern Instrumental> no 1973-10-18
     1 <New Acquistions> no 2019-02-10
@@ -12,7 +12,7 @@ uxf 1.0
     7 <Uncategorized> no 1992-02-24
     6 <Unpopular Pop> no 2004-04-11
   )
-  ( Playlists
+  (Playlists
     4 <ABBA> 2 no 1998-09-19T23:57:59
     38 <Bach> 5 no 1982-07-12T23:57:12
     39 <Bartok> 5 no 1983-04-13T23:46:31

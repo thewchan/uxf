@@ -1,18 +1,18 @@
 uxf 1.0 TLM Config
-= Categories CID:int Title Selected:bool
-= Files Kind Filename
-= IPv4 A:int B:int C:int D:int
-= IntPair First:int Second:int
-= Playlists PID Title CID Selected
-= RGB Red:int Green:int Blue:int
-= RGBA Red:int Green:int Blue:int Alpha:int
+=Categories CID:int Title Selected:bool
+=Files Kind Filename
+=IPv4 A:int B:int C:int D:int
+=IntPair First:int Second:int
+=Playlists PID Title CID Selected
+=RGB Red:int Green:int Blue:int
+=RGBA Red:int Green:int Blue:int Alpha:int
 {
   <General> {
     <saved> 2022-03-21
     <autosave> yes
     <historysize> -35
     <volume> 0.7
-    <files> ( Files
+    <files> (Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
@@ -30,12 +30,12 @@ uxf 1.0 TLM Config
     <Classical> [5 yes]
     <Modern Instrumental> [4 no]
     <New Acquistions> [1 no]
-    <Nested List of Lists> [ list
+    <Nested List of Lists> [list
       [5 <Classical> yes]
       [4 <Modern Instrumental> no]
       [1 <New Acquistions> no]
     ]
-    <Nested Table> ( Categories
+    <Nested Table> (Categories
       5 <Classical> yes
       4 <Modern Instrumental> no
       1 <New Acquistions> no

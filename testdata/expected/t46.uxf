@@ -1,10 +1,10 @@
 uxf 1.0 TLM Config
-= Categories CID Title Selected
-= Files Kind Filename
-= IPv4 A:int B:int C:int D:int
-= Playlists PID Title CID Selected
-= RGB Red:int Green:int Blue:int
-= RGBA Red:int Green:int Blue:int Alpha:int
+=Categories CID Title Selected
+=Files Kind Filename
+=IPv4 A:int B:int C:int D:int
+=Playlists PID Title CID Selected
+=RGB Red:int Green:int Blue:int
+=RGBA Red:int Green:int Blue:int Alpha:int
 {
   <General> {
     <empty map 0> {}
@@ -13,7 +13,7 @@ uxf 1.0 TLM Config
     <historysize> -35
     <volume> 0.7
     <empty map 1> {}
-    <files> ( Files
+    <files> (Files
       <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
       <recent2> </home/mark/data/playlists-all.tlm>
@@ -25,25 +25,25 @@ uxf 1.0 TLM Config
     <size> [590 536]
     <scale> 1.1
   }
-  <More Tests> [ #<A list of name value pairs; normally would be a map>
+  <More Tests> [#<A list of name value pairs; normally would be a map>
     <empty table 0>
-    ( RGBA)
+    (RGBA)
     <one>
-    ( IPv4 141 179 19 9)
+    (IPv4 141 179 19 9)
     <empty table 1>
-    ( RGBA)
+    (RGBA)
     <many>
-    ( IPv4
+    (IPv4
       172 16 254 1
       192 0 2 235
       127 0 0 1
     )
     <red>
-    ( RGB 255 0 0)
+    (RGB 255 0 0)
     <semi-transparent blue>
-    ( RGBA 0 0 255 80)
+    (RGBA 0 0 255 80)
     <empty table 2>
-    ( RGBA)
+    (RGBA)
   ]
   <Magic> (:1F8B:)
   <Nested Map> {
@@ -61,7 +61,7 @@ uxf 1.0 TLM Config
       [1 <New Acquistions> no]
       []
     ]
-    <Nested Table> ( Categories
+    <Nested Table> (Categories
       5 <Classical> yes
       4 <Modern Instrumental> no
       1 <New Acquistions> no
@@ -71,8 +71,8 @@ uxf 1.0 TLM Config
       6 <Unpopular Pop> no
     )
     <Nested List of Tables> [
-      ( Categories)
-      ( Categories
+      (Categories)
+      (Categories
         5 <Classical> yes
         4 <Modern Instrumental> no
         1 <New Acquistions> no
@@ -81,9 +81,9 @@ uxf 1.0 TLM Config
         7 <Uncategorized> no
         6 <Unpopular Pop> no
       )
-      ( Categories)
-      ( Playlists)
-      ( Playlists
+      (Categories)
+      (Playlists)
+      (Playlists
         4 <ABBA> 2 no
         38 <Bach> 5 no
         39 <Bartok> 5 no
@@ -97,7 +97,7 @@ uxf 1.0 TLM Config
         8 <David Bowie> 2 no
         9 <Dire Straits> 2 no
       )
-      ( Playlists)
+      (Playlists)
     ]
   }
 }

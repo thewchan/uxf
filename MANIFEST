@@ -2,6 +2,7 @@
 # TODO Create tests for the new egs (see below)
 # TODO (8) go through every uxf.py error code & try to make sure there's a
 # matching test in test_errors.py
+# TODO review _Writer output & see if it can be improved
 # TODO code review & improvement
 # TODO release py 1.0.0
 # TODO UXF libraries:

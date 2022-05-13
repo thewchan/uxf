@@ -1,6 +1,6 @@
 uxf 1.0
 #<Suitable for SQLite conversion>
-= PriceList Date Price Quantity ID Description
+=PriceList Date Price Quantity ID Description
 (PriceList
   2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>
   2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb>

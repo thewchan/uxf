@@ -1,19 +1,19 @@
 uxf 1.0 TLM Config
 {str map
-  <Map Test #1> { #<Map with different types of key>
+  <Map Test #1> {#<Map with different types of key>
     5 6
     <hello> 2021-02-01
     2001-01-31 <world>
     1965-04-27T16:05:00 <UXF in ASCII bytes follows>
     (:757866:) 1985-05-22T04:31:00
   }
-  <Map Test #2> { #<Map same type of non-str keys> int
+  <Map Test #2> {#<Map same type of non-str keys> int
     1 <one>
     2 2
     3 3.0
     4 (:0220:)
   }
-  <Map Test #3> { #<Map same type of non-str keys and values> int date
+  <Map Test #3> {#<Map same type of non-str keys and values> int date
     5 2001-12-27
     4 1973-10-18
     1 2019-02-10
@@ -40,7 +40,7 @@ uxf 1.0 TLM Config
     1992-02-24 7
     2004-04-11 6
   }
-  <Map Test #6> { date
+  <Map Test #6> {date
     2001-12-27 5
     1973-10-18 4
     2019-02-10 1
@@ -49,7 +49,7 @@ uxf 1.0 TLM Config
     1992-02-24 7
     2004-04-11 6
   }
-  <Map Test #7> { date int
+  <Map Test #7> {date int
     2001-12-27 5
     1973-10-18 4
     2019-02-10 1
