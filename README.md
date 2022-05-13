@@ -485,17 +485,17 @@ may be desirable to share a set of _ttype_ definitions amongst a bunch of
 UXF files.
 
 The _disadvantage_ of doing this is that the relevant UXF files become
-dependend on one or more external dependencies. (However, this disadvantage
+dependent on one or more external dependencies. (However, this disadvantage
 doesn't apply if all the dependencies are provided by the UXF processor
 itself.)
 
 The _advantage_ of importing _ttype_ definitions is that for UXF's that have
-lots of _ttypes_, only the imports and the data need be in the file, without
-having to repeat all the _ttype_ definitions.
+lots of _ttypes_, only the import(s) and the data need be in the file,
+without having to repeat all the _ttype_ definitions.
 
-Imports go at the start of the file _after_ the header and any file-level
-comment, and _before_ any _ttype_ definitions. Each import must be on its
-own line and may not span lines.
+Imports go at the start of the file _after_ the header and _after_ any
+file-level comment, and _before_ any _ttype_ definitions. Each import must
+be on its own line and may not span lines.
 
 Any _ttype_ definition that follows an import will redefine any imported
 defintion of the same name.
@@ -507,13 +507,15 @@ defintion of the same name.
 |`! /path/to/shared.uxf`|Import the _ttypes_ from the given file|
 |`! http://www.qtrac.eu/ttype-eg.uxf`|Import from the given URL|
 
-The imported file must be a valid UXF file, but any custom string, comments,
-or data it may contain are ignored: only the _ttype_ definitions are used.
+The imported file must be a valid UXF file and _must_ have a `.uxf` or
+`.uxf.gz` suffix. Any custom string, comments, or data the imported file may
+contain are ignored: only the _ttype_ definitions are used.
 
 ## BNF
 
-A `.uxf` file consists of a mandatory header followed by a single
-optional `map`, `list`, or `table`.
+A `.uxf` file consists of a mandatory header followed by an optional
+file-level comment, optional imports, optional _ttype_ definitions, and then
+a single mandatory `map`, `list`, or `table` (which may be empty).
 
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' CONTENT
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version

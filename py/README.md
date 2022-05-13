@@ -44,11 +44,9 @@ For custom types (e.g., enums; or as an alternative to using a _ttype_ for
 complex numbers, or for any other custom type), use `uxf.add_converter()`.
 See `test_converters.py` for examples.
 
-For collection types such as `set`, `frozenset`, `tuple`, or
-`collections.deque`, either manually convert to/from a `List`, or set
-`uxf.AutoConvertSequences = True`, in which case any of these will be
-automatically converted to a `List` when they are encountered. Of course,
-these are one way conversions.
+Collection types such as `set`, `frozenset`, `tuple`, or `collections.deque`
+are automatically converted to a `List` when they are encountered. Of
+course, these are one way conversions.
 
 Using `uxf` as an executable (with `python3 -m uxf ...`) provides a means of
 doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress, or make
@@ -58,9 +56,8 @@ Installed alongside `uxf.py` is `uxfconvert.py` which might prove useful to
 see how to use `uxf`. For example, `uxfconvert.py` can losslessly convert
 `.uxf` to `.json` or `.xml` and back. It can also do some simple conversions
 to and from `.csv`, to `.ini`, and to and from `.sqlite`, but these are
-really to illustrate use of the uxf APIs. And also see the `../t/*` test
-files and the `../eg` folder (for example, the `../eg/slides.uxf` and
-`../eg/slides.py` files).
+really to illustrate use of the uxf APIs. And also see the UXF test files in
+the `../testdata` folder and the Python examples in the `./eg` folder.
 
 If you just want to create a small standalone `.pyz`, simply copy
 `py/uxf.py` as `uxf.py` into your project folder and inlude it in your
