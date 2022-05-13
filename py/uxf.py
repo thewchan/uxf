@@ -319,6 +319,7 @@ class _Lexer:
     def __init__(self, filename, *, on_error=on_error):
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
+        self.clear()
 
 
     def error(self, code, message, *, fail=False):
@@ -335,7 +336,6 @@ class _Lexer:
 
     def tokenize(self, uxt):
         self.text = uxt
-        self.clear()
         self.scan_header()
         self.maybe_read_comment()
         while not self.at_end():
@@ -1047,6 +1047,10 @@ class _Parser:
     def __init__(self, filename, *, on_error=on_error):
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
+        self.clear()
+        if filename and filename != '-':
+            self.imported.add(os.path.abspath(filename))
+
 
 
     def error(self, code, message, *, fail=False):
@@ -1056,6 +1060,7 @@ class _Parser:
     def clear(self):
         self.stack = []
         self.imports = {} # key=ttype value=import text
+        self.imported = set() # to avoid reimports or self import
         self.tclasses = {} # key=ttype value=TClass
         self.lino_for_tclass = {} # key=ttype value=lino
         self.used_tclasses = set()
@@ -1064,7 +1069,6 @@ class _Parser:
 
 
     def parse(self, tokens):
-        self.clear()
         if not tokens:
             return
         self.tokens = tokens
@@ -1348,6 +1352,9 @@ class _Parser:
         filename = text = None
         if value.upper().endswith(('.UXF', '.UXF.GZ')):
             if value.startswith(('http://', 'https://')):
+                if value in self.imported:
+                    return # don't reimport
+                self.imported.add(value)
                 try:
                     with urllib.request.urlopen(value) as file:
                         text = file.read().decode('utf-8')
@@ -1364,6 +1371,10 @@ class _Parser:
                                 f'file {value!r}')
                 return
         if filename is not None:
+            fullname = os.path.abspath(filename)
+            if fullname in self.imported: # don't reimport
+                return
+            self.imported.add(fullname)
             uxo = load(filename, on_error=error)
         elif text is not None:
             uxo = loads(text, on_error=error)
