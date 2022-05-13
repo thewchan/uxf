@@ -194,6 +194,15 @@ class Uxf:
 
 
     @property
+    def import_filenames(self):
+        seen = set()
+        for filename in self.imports.values(): # don't sort!
+            if filename not in seen:
+                yield filename
+                seen.add(filename)
+
+
+    @property
     def data(self):
         return self._data
 
@@ -1459,7 +1468,7 @@ class _Writer:
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
         if uxo.imports:
-            self.write_imports(uxo.imports)
+            self.write_imports(uxo.import_filenames)
         if uxo.tclasses:
             self.write_tclasses(uxo.tclasses, uxo.imports)
         if not self.write_value(uxo.data, pad=pad):
@@ -1477,18 +1486,14 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_imports(self, imports):
-        seen = set()
-        for filename in imports.values(): # don't sort!
-            if filename in seen:
-                continue
+    def write_imports(self, import_filenames):
+        for filename in import_filenames: # don't sort!
             self.file.write(f'! {filename}\n')
-            seen.add(filename)
 
 
     def write_tclasses(self, tclasses, imports):
         for ttype, tclass in sorted(tclasses.items()):
-            if ttype in imports:
+            if imports and ttype in imports:
                 continue # defined in an import
             self.file.write('=')
             if tclass.comment:

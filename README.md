@@ -566,7 +566,9 @@ values each row has.
 
 If a map key, list value, or table value's type is specified, then the UXF
 processor is expected to be able to check for (and if requested and
-possible, correct) any mistyped values.
+possible, correct) any mistyped values. UXF readers and writers are expected
+to preserve map items in the original reading order (first to last) (i.e.,
+in insertion order).
 
 For ``datetime``s, support may vary across different UXF libraries and
 might _not_ include timezone support. For example, the Python library
