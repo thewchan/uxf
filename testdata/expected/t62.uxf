@@ -1,6 +1,7 @@
 uxf 1.0 TLM Config
 ! ttype-test
 = Files Kind Filename
+= point x:int y:int z:int
 {
   <files> (Files
     <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
@@ -20,5 +21,11 @@ uxf 1.0 TLM Config
     (rgb 255 0 0)
     <semi-transparent blue>
     (rgba 0 0 255 80)
+    <points>
+    (point
+      -1 2 3
+      -4 5 6
+      -7 8 9
+    )
   ]
 }

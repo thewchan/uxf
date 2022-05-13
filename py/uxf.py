@@ -1811,7 +1811,9 @@ simply `gunzip infile.uxf.gz`.
 To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 infile.uxf outfile.uxf.gz`
 
-Converting uxf to uxf will alphabetically order any ttypes.
+Converting uxf to uxf will alphabetically order any ttypes, but will \
+leave the order of any imports unchanged to allow later ones to override \
+earlier ones.
 ''')
     indent = 2
     args = sys.argv[1:]
