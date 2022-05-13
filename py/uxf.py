@@ -1256,6 +1256,7 @@ class _Parser:
 
     def _parse_tclasses(self):
         tclass = None
+        offset = 0
         for index, token in enumerate(self.tokens):
             self.lino = token.lino
             if token.kind is _Kind.TCLASS_BEGIN:
@@ -1283,9 +1284,10 @@ class _Parser:
                     self.tclasses[tclass.ttype] = tclass
                     if tclass.ttype not in self.lino_for_tclass:
                         self.lino_for_tclass[tclass.ttype] = self.lino
-                self.tokens = self.tokens[index + 1:]
+                offset = index + 1
             else:
                 break # no TClasses at all
+        self.tokens = self.tokens[offset:]
 
 
     def typecheck(self, value):
