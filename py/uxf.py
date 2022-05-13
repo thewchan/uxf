@@ -128,6 +128,8 @@ import io
 import os
 import pathlib
 import sys
+import urllib.error
+import urllib.request
 from xml.sax.saxutils import escape, unescape
 
 try:
@@ -186,7 +188,18 @@ class Uxf:
         self.data = data
         self.custom = custom
         self.comment = comment
+        # tclasses key=ttype value=TClass
         self.tclasses = tclasses if tclasses is not None else {}
+        self.imports = {} # key=ttype value=import text
+
+
+    @property
+    def import_filenames(self):
+        seen = set()
+        for filename in self.imports.values(): # don't sort!
+            if filename not in seen:
+                yield filename
+                seen.add(filename)
 
 
     @property
@@ -229,7 +242,7 @@ class Uxf:
         function'''
         filename = (filename_or_filelike if isinstance(filename_or_filelike,
                     (str, pathlib.Path)) else '-')
-        data, custom, tclasses, comment = _loads(
+        data, custom, tclasses, imports, comment = _loads(
             _read_text(filename_or_filelike), filename, on_error=on_error)
         self.data = data
         self.custom = custom
@@ -240,8 +253,8 @@ class Uxf:
     def loads(self, uxt, filename='-', *, on_error=on_error):
         '''Convenience method that wraps the module-level loads()
         function'''
-        data, custom, tclasses, comment = _loads(uxt, filename,
-                                                 on_error=on_error)
+        data, custom, tclasses, imports, comment = _loads(uxt, filename,
+                                                          on_error=on_error)
         self.data = data
         self.custom = custom
         self.tclasses = tclasses
@@ -257,9 +270,11 @@ def load(filename_or_filelike, *, on_error=on_error):
     '''
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
-    data, custom, tclasses, comment = _loads(
+    data, custom, tclasses, imports, comment = _loads(
         _read_text(filename_or_filelike), filename, on_error=on_error)
-    return Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo.imports = imports
+    return uxo
 
 
 def loads(uxt, filename='-', *, on_error=on_error):
@@ -268,15 +283,18 @@ def loads(uxt, filename='-', *, on_error=on_error):
 
     uxt must be a string of UXF data.
     '''
-    data, custom, tclasses, comment = _loads(uxt, filename,
-                                             on_error=on_error)
-    return Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    data, custom, tclasses, imports, comment = _loads(uxt, filename,
+                                                      on_error=on_error)
+    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo.imports = imports
+    return uxo
 
 
 def _loads(uxt, filename='-', *, on_error=on_error):
     tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
-    data, comment, tclasses = _parse(tokens, filename, on_error=on_error)
-    return data, custom, tclasses, comment
+    data, comment, tclasses, imports = _parse(tokens, filename,
+                                              on_error=on_error)
+    return data, custom, tclasses, imports, comment
 
 
 def _tokenize(uxt, filename='-', *, on_error=on_error):
@@ -354,8 +372,7 @@ class _Lexer:
             self.pos += 1 # skip the #
             if self.peek() == '<':
                 self.pos += 1 # skip the leading <
-                value = self.match_to(
-                    '>', error_text='unterminated comment string')
+                value = self.match_to('>', what='comment string')
                 self.add_token(_Kind.COMMENT, unescape(value))
             else:
                 self.error(160, 'invalid comment syntax: expected \'<\', '
@@ -396,6 +413,8 @@ class _Lexer:
             self.add_token(_Kind.MAP_END)
         elif c == '?':
             self.add_token(_Kind.NULL)
+        elif c == '!':
+            self.read_import()
         elif c == '#':
             self.read_comment()
         elif c == '<':
@@ -419,6 +438,18 @@ class _Lexer:
             self.add_token(_Kind.TCLASS_END)
 
 
+    def read_import(self):
+        size = len(self.tokens)
+        if ((size == 0) or
+                (size == 1 and self.tokens[-1] is _Kind.COMMENT) or
+                (self.tokens[-1] is _Kind.IMPORT)):
+            value = self.match_to('\n', what='import')
+            self.add_token(_Kind.IMPORT, value.strip())
+        else:
+            self.error(176, ('imports are only allowed after the header or '
+                       'after the file-level comment'))
+
+
     def read_comment(self):
         if self.tokens and self.tokens[-1].kind in {
                 _Kind.LIST_BEGIN, _Kind.MAP_BEGIN,
@@ -427,8 +458,7 @@ class _Lexer:
                 self.error(180, 'a str must follow the # comment '
                            f'introducer, got {self.peek()!r}')
             self.pos += 1 # skip the leading <
-            value = self.match_to('>',
-                                  error_text='unterminated comment string')
+            value = self.match_to('>', what='comment string')
             self.add_token(_Kind.COMMENT, unescape(value))
         else:
             self.error(190, 'comments may only occur at the start of '
@@ -436,12 +466,12 @@ class _Lexer:
 
 
     def read_string(self):
-        value = self.match_to('>', error_text='unterminated string')
+        value = self.match_to('>', what='string')
         self.add_token(_Kind.STR, unescape(value))
 
 
     def read_bytes(self):
-        value = self.match_to(':)', error_text='unterminated bytes')
+        value = self.match_to(':)', what='bytes')
         try:
             self.add_token(_Kind.BYTES, bytes.fromhex(value))
         except ValueError as err:
@@ -593,7 +623,7 @@ class _Lexer:
         self.error(260, f'expected {what}, got {text}…')
 
 
-    def match_to(self, target, *, error_text):
+    def match_to(self, target, *, what):
         if not self.at_end():
             i = self.text.find(target, self.pos)
             if i > -1:
@@ -601,7 +631,7 @@ class _Lexer:
                 self.lino += text.count('\n')
                 self.pos = i + len(target) # skip past target
                 return text
-        self.error(270, error_text)
+        self.error(270, f'unterminated {what}')
 
 
     def match_any_of(self, targets):
@@ -648,6 +678,7 @@ class _Token:
 
 @enum.unique
 class _Kind(enum.Enum):
+    IMPORT = enum.auto()
     TCLASS_BEGIN = enum.auto()
     TCLASS_END = enum.auto()
     TABLE_BEGIN = enum.auto()
@@ -793,7 +824,11 @@ class TClass:
         return hash(self.ttype)
 
 
-    def __lt__(self, other):
+    def __lt__(self, other): # case-insensitive when possible
+        uttype = self.ttype.upper()
+        uother = other.ttype.upper()
+        if uttype != uother:
+            return uttype < uother
         return self.ttype < other.ttype
 
 
@@ -1004,8 +1039,7 @@ class Table:
 def _parse(tokens, filename='-', *, on_error=on_error):
     parser = _Parser(filename, on_error=on_error)
     data, comment = parser.parse(tokens)
-    tclasses = parser.tclasses
-    return data, comment, tclasses
+    return data, comment, parser.tclasses, parser.imports
 
 
 class _Parser:
@@ -1021,8 +1055,9 @@ class _Parser:
 
     def clear(self):
         self.stack = []
-        self.tclasses = {}
-        self.lino_for_tclass = {}
+        self.imports = {} # key=ttype value=import text
+        self.tclasses = {} # key=ttype value=TClass
+        self.lino_for_tclass = {} # key=ttype value=lino
         self.used_tclasses = set()
         self.pos = -1
         self.lino = 0
@@ -1035,6 +1070,7 @@ class _Parser:
         self.tokens = tokens
         data = None
         comment = self._parse_file_comment()
+        self._parse_imports()
         self._parse_tclasses()
         for i, token in enumerate(self.tokens):
             self.lino = token.lino
@@ -1068,9 +1104,10 @@ class _Parser:
 
 
     def _check_tclasses(self):
+        imported = set(self.imports.keys())
         defined = set(self.tclasses.keys())
         unused = defined - self.used_tclasses
-        if unused:
+        if unused and unused - imported: # don't warn on unused imports
             self._report_tclasses(unused, 'unused')
         undefined = self.used_tclasses - defined
         if undefined:
@@ -1254,6 +1291,16 @@ class _Parser:
         return None
 
 
+    def _parse_imports(self):
+        offset = 0
+        for index, token in enumerate(self.tokens):
+            self.lino = token.lino
+            if token.kind is _Kind.IMPORT:
+                self._handle_import(token.value)
+                offset = index + 1
+        self.tokens = self.tokens[offset:]
+
+
     def _parse_tclasses(self):
         tclass = None
         offset = 0
@@ -1288,6 +1335,44 @@ class _Parser:
             else:
                 break # no TClasses at all
         self.tokens = self.tokens[offset:]
+
+
+    def _handle_import(self, value):
+        def error(lino, code, message, *, filename, fail=False,
+                  verbose=True):
+            if code == 418: # we expect all ttypes to be unused here
+                return
+            self.on_error(lino, code, message, filename=filename, fail=fail,
+                          verbose=verbose)
+
+        filename = text = None
+        if value.upper().endswith(('.UXF', '.UXF.GZ')):
+            if value.startswith(('http://', 'https://')):
+                try:
+                    with urllib.request.urlopen(value) as file:
+                        text = file.read().decode('utf-8')
+                except (UnicodeDecodeError, urllib.error.HTTPError) as err:
+                    self.error(530, f'failed to import {value!r}: {err}')
+                    return
+            else:
+                filename = value
+        else:
+            filename = os.path.abspath(os.path.join(os.path.dirname(
+                                       __file__), f'{value}.uxf'))
+            if not os.path.isfile(filename):
+                self.error(540, 'there is no system ttype definition '
+                                f'file {value!r}')
+                return
+        if filename is not None:
+            uxo = load(filename, on_error=error)
+        elif text is not None:
+            uxo = loads(text, on_error=error)
+        else:
+            self.error(550, 'there are no ttype definitions to import '
+                       f'{value!r}') # should never get here
+        for ttype, tclass in uxo.tclasses.items():
+            self.tclasses[ttype] = tclass
+            self.imports[ttype] = value
 
 
     def typecheck(self, value):
@@ -1382,8 +1467,10 @@ class _Writer:
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
+        if uxo.imports:
+            self.write_imports(uxo.import_filenames)
         if uxo.tclasses:
-            self.write_tclasses(uxo.tclasses)
+            self.write_tclasses(uxo.tclasses, uxo.imports)
         if not self.write_value(uxo.data, pad=pad):
             self.file.write('\n')
 
@@ -1399,8 +1486,15 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_tclasses(self, tclasses):
-        for tclass in sorted(tclasses.values()):
+    def write_imports(self, import_filenames):
+        for filename in import_filenames: # don't sort!
+            self.file.write(f'! {filename}\n')
+
+
+    def write_tclasses(self, tclasses, imports):
+        for ttype, tclass in sorted(tclasses.items()):
+            if imports and ttype in imports:
+                continue # defined in an import
             self.file.write('=')
             if tclass.comment:
                 self.file.write(f' #<{escape(tclass.comment)}>')
@@ -1722,7 +1816,9 @@ simply `gunzip infile.uxf.gz`.
 To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 infile.uxf outfile.uxf.gz`
 
-Converting uxf to uxf will alphabetically order any ttypes.
+Converting uxf to uxf will alphabetically order any ttypes, but will \
+leave the order of any imports unchanged to allow later ones to override \
+earlier ones.
 ''')
     indent = 2
     args = sys.argv[1:]

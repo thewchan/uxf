@@ -52,10 +52,15 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             if debug:
                 _fail('Uxf.comment', a.comment, b.comment)
             return False
-        if not ignore_types and not eq(a.tclasses, b.tclasses, **kwargs):
-            if debug:
-                _fail('Uxf.tclasses', a.tclasses, b.tclasses)
-            return False
+        if not ignore_types:
+            if not eq(a.tclasses, b.tclasses, **kwargs):
+                if debug:
+                    _fail('Uxf.tclasses', a.tclasses, b.tclasses)
+                return False
+            if a.imports != b.imports:
+                if debug:
+                    _fail('Uxf.imports', a.imports, b.imports)
+                return False
         if not eq(a.data, b.data, **kwargs):
             if debug:
                 _fail('Uxf.data', a.data, b.data)

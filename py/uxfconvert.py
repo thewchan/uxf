@@ -213,6 +213,8 @@ def uxf_to_json(infile, outfile, *, verbose=True):
         d[JSON_CUSTOM] = uxo.custom
     if uxo.comment is not None:
         d[JSON_COMMENT] = uxo.comment
+    if uxo.imports:
+        d[JSON_IMPORTS] = list(uxo.import_filenames)
     if uxo.tclasses: # sorted helps round-trip regression tests
         d[JSON_TCLASSES] = sorted(uxo.tclasses.values(),
                                   key=lambda t: t.ttype)
@@ -291,6 +293,8 @@ def json_to_uxf(infile, outfile, *, verbose=True):
         d = json.load(file, object_hook=_json_naturalize)
     custom = d.get(JSON_CUSTOM)
     comment = d.get(JSON_COMMENT)
+    imports_list = d.get(JSON_IMPORTS)
+    imports = None if imports_list is None else _get_imports(imports_list)
     tclasses = None
     tclass_list = d.get(JSON_TCLASSES)
     if tclass_list:
@@ -299,8 +303,23 @@ def json_to_uxf(infile, outfile, *, verbose=True):
             tclasses[tclass.ttype] = tclass
     data = d.get(JSON_DATA)
     on_error = functools.partial(uxf.on_error, verbose=verbose)
-    uxf.dump(outfile, uxf.Uxf(data, custom=custom, tclasses=tclasses,
-                              comment=comment), on_error=on_error)
+    uxo = uxf.Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo.imports = imports
+    uxf.dump(outfile, uxo, on_error=on_error)
+
+
+def _json_read_imports(d):
+    imports = None
+    imports_list = d.get(JSON_IMPORTS)
+    if imports_list:
+        uxt = ['uxf 1.0\n']
+        for import_filename in imports_list:
+            uxt.append(f'!{import_filename}\n')
+        uxt.append('[]\n')
+        uxt = ''.join(uxt)
+        uxo = uxf.loads(uxt)
+        imports = uxo.imports
+    return imports
 
 
 def _json_naturalize(d):
@@ -475,11 +494,22 @@ def _uxf_to_xml(uxo, outfile):
         root.setAttribute('custom', uxo.custom)
     if uxo.comment:
         root.setAttribute('comment', uxo.comment)
+    if uxo.imports:
+        _xml_add_imports(tree, root, uxo.import_filenames)
     if uxo.tclasses:
         _xml_add_tclasses(tree, root, uxo.tclasses)
     _xml_add_value(tree, root, uxo.data)
     with open(outfile, 'wt', encoding='utf-8') as file:
         file.write(tree.toprettyxml(indent='  '))
+
+
+def _xml_add_imports(tree, root, import_filenames):
+    imports_element = tree.createElement('imports')
+    for filename in import_filenames: # don't sort!
+        import_element = tree.createElement('import')
+        import_element.setAttribute('filename', filename)
+        imports_element.appendChild(import_element)
+    root.appendChild(imports_element)
 
 
 def _xml_add_tclasses(tree, root, tclasses):
@@ -613,6 +643,7 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
         super().__init__()
         self.stack = None
         self.tclass = None
+        self.imports_list = []
         self.instr = False
         self.inbytes = False
         self.string = ''
@@ -625,8 +656,10 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
         if name == 'uxf':
             self.uxo.custom = d.get('custom', '')
             self.uxo.comment = d.get('comment')
-        elif name == 'ttypes':
+        elif name in {'imports', 'ttypes'}:
             pass
+        elif name == 'import':
+            self.imports_list.append(d['filename'])
         elif name == 'ttype':
             self.tclass = uxf.TClass(d['name'], comment=d.get('comment'))
         elif name == 'field':
@@ -672,8 +705,11 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
 
     def endElement(self, name):
         if name in {'uxf', 'ttypes', 'field', 'key', 'value', 'int', 'real',
-                    'date', 'datetime', 'null', 'yes', 'no'}:
+                    'date', 'datetime', 'null', 'yes', 'no', 'import'}:
             pass
+        elif name == 'imports': # got them all (if any)
+            if self.imports_list:
+                self.uxo.imports = _get_imports(self.imports_list)
         elif name == 'ttype':
             self.uxo.tclasses[self.tclass.ttype] = self.tclass
             self.tclass = None
@@ -705,6 +741,19 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
         self.stack.append(container)
 
 
+def _get_imports(imports_list):
+    imports = None
+    if imports_list:
+        uxt = ['uxf 1.0\n']
+        for import_filename in imports_list:
+            uxt.append(f'!{import_filename}\n')
+        uxt.append('[]\n')
+        uxt = ''.join(uxt)
+        uxo = uxf.loads(uxt)
+        imports = uxo.imports
+    return imports
+
+
 BYTES = 'bytes'
 COMMENT = 'comment'
 DOT_CSV = '.CSV'
@@ -720,6 +769,7 @@ ITYPE = 'itype'
 ITYPES = 'itypes'
 JSON_CUSTOM = 'UXF^custom'
 JSON_COMMENT = 'UXF^comment'
+JSON_IMPORTS = 'UXF^imports'
 JSON_TCLASSES = 'UXF^ttypes'
 JSON_TCLASS = 'UXF^ttype'
 JSON_DATA = 'UXF^data'

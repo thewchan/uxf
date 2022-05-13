@@ -1,3 +1,6 @@
+# TODO add tests of system, local, and url imports
+# e.g. ttype-test (system), eg/slides.sld (local), 
+# http://www.qtrac.eu/ttype-eg.uxf (url)
 # TODO complete include.py (need some eg UXF files, e.g., include.uxf,
 # file1.uxf, ...)
 # TODO go through every uxf.py error code & try to make sure there's a
@@ -11,6 +14,7 @@
 py/uxf.py
 py/uxfconvert.py
 py/README.md
+py/ttype-test.uxf
 py/setup.py
 py/pypi.sh
 py/t/regression.py

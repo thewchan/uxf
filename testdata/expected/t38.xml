@@ -1,15 +1,15 @@
 <?xml version="1.0" ?>
 <uxf version="1.0">
   <ttypes>
+    <ttype name="IntPair">
+      <field name="First" vtype="int"/>
+      <field name="Second" vtype="int"/>
+    </ttype>
     <ttype name="IP4">
       <field name="A" vtype="int"/>
       <field name="B" vtype="int"/>
       <field name="C" vtype="int"/>
       <field name="D" vtype="int"/>
-    </ttype>
-    <ttype name="IntPair">
-      <field name="First" vtype="int"/>
-      <field name="Second" vtype="int"/>
     </ttype>
     <ttype name="RGB">
       <field name="Red" vtype="int"/>

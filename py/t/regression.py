@@ -13,7 +13,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import textwrap
 import time
 
 
@@ -59,15 +58,10 @@ def main():
         total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
     if total < max_total:
         total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
-    for cmd in (TEST_CONVERTERS, TEST_SQLITE, TEST_ERRORS, TEST_LINTS):
-        if total >= max_total:
-            break
-        total += 1
-        diff = total - ok
-        total, ok = test_external([cmd, '--regression'], total, ok,
-                                  verbose=verbose)
-        if total - ok > diff:
-            print(f'{cmd} • FAIL')
+    if total < max_total:
+        total, ok = test_externals((TEST_CONVERTERS, TEST_SQLITE,
+                                   TEST_ERRORS, TEST_LINTS), total, ok,
+                                   verbose=verbose, max_total=max_total)
     if total < 150:
         print('\b' * total, end='', flush=True)
     t = time.monotonic() - t
@@ -143,9 +137,8 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
         else:
             new_uxt = uxf.dumps(uxo, use_true_false=use_true_false,
                                 on_error=on_error)
-        nws_uxt = normalize_uxt(uxt)
-        nws_new_uxt = normalize_uxt(new_uxt)
-        if nws_uxt == nws_new_uxt:
+        new_uxo = uxf.loads(new_uxt, on_error=on_error)
+        if eq.eq(uxo, new_uxo):
             ok += 1
             if verbose:
                 print(f'loads()/dumps() • {name} OK')
@@ -153,8 +146,6 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
                 print('.', end='', flush=True)
         else:
             print(f'{name} • FAIL (loads()/dumps())')
-            if verbose:
-                print(f'LOADS = {nws_uxt}\nDUMPS = {nws_new_uxt}')
     return total, ok
 
 
@@ -196,31 +187,6 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
         else:
             print(f'{name} • FAIL (eq())')
     return total, ok
-
-
-def normalize_uxt(text):
-    flags = re.DOTALL | re.MULTILINE
-    i = text.find('\n') + 1 # ignore header
-    body = text[i:]
-    comment = ''
-    if body.lstrip().startswith('#<'):
-        i = body.find('#<')
-        if i > -1:
-            end = body.find('>')
-            if end > -1:
-                end += 1
-                comment = body[:end].strip()
-                body = body[end:].lstrip()
-    body = re.sub(r'\d+[Ee]\d+', lambda m: str(float(m.group())), body,
-                  flags=flags)
-    match = re.match(r'(^=[^[({]+$)*', body, flags=flags)
-    if match is not None:
-        body = body[match.end():]
-        tclasses = sorted(match.group().splitlines())
-        body = '\n'.join(tclasses) + '\n' + body
-    body = comment + body
-    body = ''.join(body.split()) # eliminate whitespace
-    return '\n'.join(textwrap.wrap(body, 40)).strip() # easier to compare
 
 
 def test_uxfconvert(uxffiles, total, ok, *, verbose, max_total):
@@ -322,6 +288,19 @@ def test_slides(slides_py, total, ok, *, verbose):
             total += 1
             ok += compare(cmd, 'slides.sld', f'actual/slides{num}/{name}',
                           f'expected/slides{num}/{name}', verbose=verbose)
+    return total, ok
+
+
+def test_externals(cmds, total, ok, *, verbose, max_total):
+    for cmd in cmds:
+        if total >= max_total:
+            return total - 1, ok
+        total += 1
+        diff = total - ok
+        total, ok = test_external([cmd, '--regression'], total, ok,
+                                  verbose=verbose)
+        if total - ok > diff:
+            print(f'{cmd} • FAIL')
     return total, ok
 
 
