@@ -16,21 +16,22 @@ import tempfile
 import textwrap
 import time
 
+
 try:
-    os.chdir(os.path.dirname(__file__)) # move to this file's dir
-    sys.path.append('..')
+    PATH = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(os.path.abspath(os.path.join(PATH, '../')))
     import uxf
     import eq
-    UXF_EXE = os.path.abspath('../uxf.py')
-    UXFCONVERT_EXE = os.path.abspath('../uxfconvert.py')
-    SLIDES1 = os.path.abspath('../eg/slides1.py')
-    SLIDES2 = os.path.abspath('../eg/slides2.py')
-    SLIDES_SLD = os.path.abspath('../eg/slides.sld')
-    TEST_CONVERTERS = os.path.abspath('../t/test_converters.py')
-    TEST_SQLITE = os.path.abspath('../t/test_sqlite.py')
-    TEST_ERRORS = os.path.abspath('../t/test_errors.py')
-    TEST_LINTS = os.path.abspath('../t/test_lints.py')
-    os.chdir('../../testdata') # move to test data
+    UXF_EXE = os.path.join(PATH, '../uxf.py')
+    UXFCONVERT_EXE = os.path.join(PATH, '../uxfconvert.py')
+    SLIDES1 = os.path.join(PATH, '../eg/slides1.py')
+    SLIDES2 = os.path.join(PATH, '../eg/slides2.py')
+    SLIDES_SLD = os.path.join(PATH, '../eg/slides.sld')
+    TEST_CONVERTERS = os.path.join(PATH, '../t/test_converters.py')
+    TEST_SQLITE = os.path.join(PATH, '../t/test_sqlite.py')
+    TEST_ERRORS = os.path.join(PATH, '../t/test_errors.py')
+    TEST_LINTS = os.path.join(PATH, '../t/test_lints.py')
+    os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
 

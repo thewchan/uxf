@@ -10,8 +10,7 @@ import pprint
 try:
     import os
     import sys
-    os.chdir(os.path.dirname(__file__)) # move to this file's dir
-    sys.path.append('..')
+    sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
     import uxf
 finally:
     pass

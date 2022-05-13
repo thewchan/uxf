@@ -3,14 +3,14 @@
 # License: GPLv3
 
 import sys
+import os
 
 
 try:
-    import os
-    os.chdir(os.path.dirname(__file__)) # move to this file's dir
-    sys.path.append('..')
+    PATH = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(os.path.abspath(os.path.join(PATH, '../')))
     import uxf
-    os.chdir('../../testdata') # move to test data
+    os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
 

@@ -3,8 +3,8 @@
 # License: GPLv3
 
 '''
-uxf 1.0 UXF Master
-#<e.g., master.uxf>
+uxf 1.0 UXF Include
+#<e.g., include.uxf>
 =include filename:str
 (include
   <file1.uxf>
@@ -25,7 +25,7 @@ except ImportError: # needed for development
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help'}:
-        raise SystemExit('usage: uxfmaster.py <master.uxf> [<outfile.uxf>]')
+        raise SystemExit('usage: include.py <include.uxf> [<outfile.uxf>]')
     tclasses = {}
     data = uxf.List()
     uxo = uxf.load(sys.argv[1])

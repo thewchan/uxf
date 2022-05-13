@@ -2,18 +2,15 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+import os
 import re
 import subprocess
 import sys
 
-try:
-    import os
-    os.chdir(os.path.dirname(__file__)) # move to this file's dir
-    sys.path.append('..')
-    UXF_EXE = os.path.abspath('../uxf.py')
-    os.chdir('../../testdata') # move to test data
-finally:
-    pass
+
+PATH = os.path.abspath(os.path.dirname(__file__))
+UXF_EXE = os.path.join(PATH, '../uxf.py')
+os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 
 
 ERROR_FILES = {'t13.uxf', 't14.uxf', 't28.uxf', 't33.uxf', 't54.uxf',
