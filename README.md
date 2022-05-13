@@ -548,10 +548,10 @@ it is empty.
 
 A `DEF_FILE` may be a filename which does _not_ end with `.uxf`, in which
 case it is a “system” UXF file provided by the UXF processor itself.
-(Currently there is just one system file, `ttype-example.uxf`.) Or it may be
-a filename with a relative or absolute path (or no path and taken to be in
-the same folder as the `.uxf` file that refers to it). Or it may be a URL
-referring to an external `.uxf` file.
+(Currently there is just one system file, `ttype-test.uxf`, purely for
+testing.) Or it may be a filename with a relative or absolute path (or no
+path and taken to be in the same folder as the `.uxf` file that refers to
+it). Or it may be a URL referring to an external `.uxf` file.
 
 To indicate any type valid for the context, simply omit the type name.
 

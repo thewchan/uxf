@@ -13,6 +13,7 @@
 py/uxf.py
 py/uxfconvert.py
 py/README.md
+py/ttype-test.uxf
 py/setup.py
 py/pypi.sh
 py/t/regression.py
