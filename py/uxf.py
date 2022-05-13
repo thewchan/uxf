@@ -128,6 +128,8 @@ import io
 import os
 import pathlib
 import sys
+import urllib.error
+import urllib.request
 from xml.sax.saxutils import escape, unescape
 
 try:
@@ -261,8 +263,9 @@ def load(filename_or_filelike, *, on_error=on_error):
                 (str, pathlib.Path)) else '-')
     data, custom, tclasses, imports, comment = _loads(
         _read_text(filename_or_filelike), filename, on_error=on_error)
-    return Uxf(data, custom=custom, tclasses=tclasses, imports=imports,
-               comment=comment)
+    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo.imports = imports
+    return uxo
 
 
 def loads(uxt, filename='-', *, on_error=on_error):
@@ -273,8 +276,9 @@ def loads(uxt, filename='-', *, on_error=on_error):
     '''
     data, custom, tclasses, imports, comment = _loads(uxt, filename,
                                                       on_error=on_error)
-    return Uxf(data, custom=custom, tclasses=tclasses, imports=imports,
-               comment=comment)
+    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo.imports = imports
+    return uxo
 
 
 def _loads(uxt, filename='-', *, on_error=on_error):
@@ -811,7 +815,11 @@ class TClass:
         return hash(self.ttype)
 
 
-    def __lt__(self, other):
+    def __lt__(self, other): # case-insensitive when possible
+        uttype = self.ttype.upper()
+        uother = other.ttype.upper()
+        if uttype != uother:
+            return uttype < uother
         return self.ttype < other.ttype
 
 
@@ -1087,9 +1095,10 @@ class _Parser:
 
 
     def _check_tclasses(self):
+        imported = set(self.imports.keys())
         defined = set(self.tclasses.keys())
         unused = defined - self.used_tclasses
-        if unused:
+        if unused and unused - imported: # don't warn on unused imports
             self._report_tclasses(unused, 'unused')
         undefined = self.used_tclasses - defined
         if undefined:
@@ -1274,14 +1283,18 @@ class _Parser:
 
 
     def _parse_imports(self):
+        offset = 0
         for index, token in enumerate(self.tokens):
             self.lino = token.lino
             if token.kind is _Kind.IMPORT:
-                _handle_import(token.value)
+                self._handle_import(token.value)
+                offset = index + 1
+        self.tokens = self.tokens[offset:]
 
 
     def _parse_tclasses(self):
         tclass = None
+        offset = 0
         for index, token in enumerate(self.tokens):
             self.lino = token.lino
             if token.kind is _Kind.TCLASS_BEGIN:
@@ -1309,9 +1322,48 @@ class _Parser:
                     self.tclasses[tclass.ttype] = tclass
                     if tclass.ttype not in self.lino_for_tclass:
                         self.lino_for_tclass[tclass.ttype] = self.lino
-                self.tokens = self.tokens[index + 1:]
+                offset = index + 1
             else:
                 break # no TClasses at all
+        self.tokens = self.tokens[offset:]
+
+
+    def _handle_import(self, value):
+        def error(lino, code, message, *, filename, fail=False,
+                  verbose=True):
+            if code == 418: # we expect all ttypes to be unused here
+                return
+            self.on_error(lino, code, message, filename=filename, fail=fail,
+                          verbose=verbose)
+
+        filename = text = None
+        if value.upper().endswith(('.UXF', '.UXF.GZ')):
+            if value.startswith(('http://', 'https://')):
+                try:
+                    with urllib.request.urlopen(value) as file:
+                        text = file.read().decode('utf-8')
+                except (UnicodeDecodeError, urllib.error.HTTPError) as err:
+                    self.error(530, f'failed to import {value!r}: {err}')
+                    return
+            else:
+                filename = value
+        else:
+            filename = os.path.abspath(os.path.join(os.path.dirname(
+                                       __file__), f'{value}.uxf'))
+            if not os.path.isfile(filename):
+                self.error(540, 'there is no system ttype definition '
+                                f'file {value!r}')
+                return
+        if filename is not None:
+            uxo = load(filename, on_error=error)
+        elif text is not None:
+            uxo = loads(text, on_error=error)
+        else:
+            self.error(550, 'there are no ttype definitions to import '
+                       f'{value!r}') # should never get here
+        for ttype, tclass in uxo.tclasses.items():
+            self.tclasses[ttype] = tclass
+            self.imports[ttype] = value
 
 
     def typecheck(self, value):
@@ -1406,8 +1458,10 @@ class _Writer:
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
+        if uxo.imports:
+            self.write_imports(uxo.imports)
         if uxo.tclasses:
-            self.write_tclasses(uxo.tclasses)
+            self.write_tclasses(uxo.tclasses, uxo.imports)
         if not self.write_value(uxo.data, pad=pad):
             self.file.write('\n')
 
@@ -1423,8 +1477,19 @@ class _Writer:
         self.file.write('\n')
 
 
-    def write_tclasses(self, tclasses):
-        for tclass in sorted(tclasses.values()):
+    def write_imports(self, imports):
+        seen = set()
+        for filename in imports.values(): # don't sort!
+            if filename in seen:
+                continue
+            self.file.write(f'! {filename}\n')
+            seen.add(filename)
+
+
+    def write_tclasses(self, tclasses, imports):
+        for ttype, tclass in sorted(tclasses.items()):
+            if ttype in imports:
+                continue # defined in an import
             self.file.write('=')
             if tclass.comment:
                 self.file.write(f' #<{escape(tclass.comment)}>')
