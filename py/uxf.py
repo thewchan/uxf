@@ -1351,26 +1351,25 @@ class _Parser:
                           verbose=verbose)
 
         filename = text = None
-        if value.upper().endswith(('.UXF', '.UXF.GZ')):
-            if value.startswith(('http://', 'https://')):
-                if value in self.imported:
-                    return # don't reimport
-                self.imported.add(value)
-                try:
-                    with urllib.request.urlopen(value) as file:
-                        text = file.read().decode('utf-8')
-                except (UnicodeDecodeError, urllib.error.HTTPError) as err:
-                    self.error(530, f'failed to import {value!r}: {err}')
-                    return
-            else:
-                filename = value
-        else:
+        if value.startswith(('http://', 'https://')):
+            if value in self.imported:
+                return # don't reimport
+            self.imported.add(value)
+            try:
+                with urllib.request.urlopen(value) as file:
+                    text = file.read().decode('utf-8')
+            except (UnicodeDecodeError, urllib.error.HTTPError) as err:
+                self.error(530, f'failed to import {value!r}: {err}')
+                return
+        elif '.' not in value: # system import
             filename = os.path.abspath(os.path.join(os.path.dirname(
                                        __file__), f'{value}.uxf'))
             if not os.path.isfile(filename):
                 self.error(540, 'there is no system ttype definition '
                                 f'file {value!r}')
                 return
+        else:
+            filename = value
         if filename is not None:
             fullname = os.path.abspath(filename)
             if fullname in self.imported: # don't reimport

@@ -105,7 +105,8 @@ def _get_other_converter(parser, config):
             uoutfile.endswith((DOT_UXF, DOT_UXF_GZ))):
         parser.error('cannot convert uxf to uxf, instead use: '
                      'python3 -m uxf infile.uxf outfile.uxf')
-    if uoutfile.endswith((DOT_UXF, DOT_UXF_GZ)):
+    if not uoutfile.endswith((DOT_CSV, DOT_INI, DOT_JSN, DOT_JSON,
+                              DOT_SQLITE, DOT_XML)):
         if uinfile.endswith(DOT_CSV):
             return lambda: csv_to_uxf(infile, outfile,
                                       fieldnames=config.fieldnames,
@@ -122,7 +123,8 @@ def _get_other_converter(parser, config):
         elif uinfile.endswith(DOT_XML):
             return lambda: xml_to_uxf(infile, outfile,
                                       verbose=config.verbose)
-    elif uinfile.endswith((DOT_UXF, DOT_UXF_GZ)):
+    elif not uinfile.endswith((DOT_CSV, DOT_INI, DOT_JSN, DOT_JSON,
+                               DOT_SQLITE, DOT_XML)):
         if uoutfile.endswith(DOT_CSV):
             return lambda: uxf_to_csv(infile, outfile,
                                       verbose=config.verbose)
