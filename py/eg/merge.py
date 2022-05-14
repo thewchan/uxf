@@ -2,6 +2,10 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+'''
+For another example of this file's merge() function see include.py.
+'''
+
 import os
 import sys
 

@@ -16,6 +16,8 @@ uxf 1.0 UXF Include
 import os
 import sys
 
+import merge
+
 try:
     import uxf
 except ImportError: # needed for development
@@ -26,15 +28,9 @@ except ImportError: # needed for development
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help'}:
         raise SystemExit('usage: include.py <include.uxf> [<outfile.uxf>]')
-    tclasses = {}
-    data = uxf.List()
-    uxo = uxf.load(sys.argv[1])
-    for record in uxo.data:
-        temp_uxo = uxf.load(record.filename)
-        data.append(temp_uxo.data)
-        # TODO see merge.py for merge_imports() & merge_tclasses()
-    uxo.tclasses = tclasses
-    uxo.data = data
+    include_uxo = uxf.load(sys.argv[1])
+    filenames = [record.filename for record in include_uxo.data]
+    uxo = merge.merge(*filenames, aslist=True)
     if len(sys.argv) > 2:
         uxo.dump(sys.argv[2])
     else:
