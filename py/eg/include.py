@@ -32,7 +32,7 @@ def main():
     for record in uxo.data:
         temp_uxo = uxf.load(record.filename)
         data.append(temp_uxo.data)
-        tclasses.update(temp_uxo.tclasses)
+        # TODO see merge.py for merge_imports() & merge_tclasses()
     uxo.tclasses = tclasses
     uxo.data = data
     if len(sys.argv) > 2:

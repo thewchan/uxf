@@ -44,7 +44,8 @@ options.
     on_error(...)
 
 This is the default error handler which you can replace by passing a new one
-to load(s) and dump(s).
+to load(s) and dump(s). For examples of custom on_error functions, see
+t/test_errors.py and eg/on_error.py.
 
     add_converter(obj_type, to_str, from_str)
 

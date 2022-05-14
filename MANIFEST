@@ -32,9 +32,9 @@ py/eg/visit.py
 py/eg/slides1.py
 py/eg/slides2.py
 py/eg/slides.sld
-py/eg/include.py # TODO (2) need test files
+py/eg/include.py # TODO (2) add support for imports + need test files
 py/eg/on_error.py # TODO (4) implement & need test files
-py/eg/merge.py # TODO (6) implement & need test files
+py/eg/merge.py # TODO (6) add support for imports + implement & need test files
 
 README.md
 
