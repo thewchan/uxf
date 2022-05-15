@@ -18,7 +18,7 @@ except ImportError: # needed for development
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help'}:
-        raise SystemExit('''usage: merge.py [-o|--outfile <outfile.uxf>\ \
+        raise SystemExit('''usage: merge.py [-o|--outfile <outfile.uxf> \
 <infile1.uxf> <infile2.uxf> [... <infileN.uxf>]''')
     # uxo = merge(...)
     # if outfile and outfile != '-':
@@ -27,7 +27,7 @@ def main():
     # else:
     #     print(uxo.dumps())
 
-    
+
 
 def merge(file1, file2, *files, aslist=False):
     uxo = uxf.Uxf([] if aslist else {})
@@ -39,10 +39,10 @@ def merge(file1, file2, *files, aslist=False):
             else:
                 uxo.comment += '\n' + new_uxo.comment
         merge_imports(uxo, new_uxo)
-        merge_tclasses(uxo, new_uxo)
+        merge_tclasses(uxo, new_uxo, filename)
         if not aslist:
             uxo.append(filename) # key
-        uxo.append(data) # value for map or list
+        uxo.append(new_uxo.data) # value for map or list
     return uxo
 
 
@@ -50,7 +50,7 @@ def merge_imports(uxo1, uxo2):
     print('merge_imports') # TODO see ../uxfconvert.py _get_imports()
 
 
-def merge_tclasses(uxo1, uxo2):
+def merge_tclasses(uxo1, uxo2, filename):
     # TODO this accounts for imports if merge_imports() is called first
     for ttype, tclass in uxo2.tclasses.items():
         if ttype not in uxo1.tclasses:
@@ -58,7 +58,8 @@ def merge_tclasses(uxo1, uxo2):
         elif uxo1.tclasses[ttype] == tclass:
             pass # same so safe to ignore
         else:
-            raise Error() # conflict
+            raise uxf.Error(f'cannot merge {filename} due to conflicting '
+                            f'ttype {ttype}')
 
 
 if __name__ == '__main__':

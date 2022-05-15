@@ -27,7 +27,7 @@ def on_error(...):
     on_error.errors.append(text)
     if fail:
         show_errors(1)
-on_error.errors = []
+on_error.errors = [] # noqa: E305
 
 
 def show_errors(exit=0):

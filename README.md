@@ -520,7 +520,7 @@ a single mandatory `map`, `list`, or `table` (which may be empty).
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' CONTENT
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     CONTENT      ::= COMMENT? IMPORT* TTYPEDEF* (MAP | LIST | TABLE)
-    IMPORT       ::= '!' OWS DEF_FILE '\n' # See below for DEF_FILE
+    IMPORT       ::= '!' /\s*/ DEF_FILE '\n' # See below for DEF_FILE
     TTYPEDEF     ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is the ttype (i.e., the table name)
     FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is the field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
