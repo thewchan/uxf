@@ -63,9 +63,10 @@ def main():
         total, ok = test_externals(
             (TEST_CONVERTERS, TEST_SQLITE, TEST_ERRORS, TEST_LINTS,
              TEST_IMPORTS), total, ok, verbose=verbose, max_total=max_total)
-    span = min(1000, total // 10)
-    for c in ('\b', ' ', '\b'):
-        print(c * span, end='', flush=True)
+    if os.isatty(sys.stdout.fileno()):
+        span = min(1000, total // 10)
+        for c in ('\b', ' ', '\b'):
+            print(c * span, end='', flush=True)
     t = time.monotonic() - t
     if total == ok:
         print(f'{ok}/{total} All OK ({t:.3f} sec)')
