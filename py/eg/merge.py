@@ -41,7 +41,7 @@ Regardless of suffix, all infiles are assumed to be UXF format.''')
         else:
             print(uxo.dumps())
     except uxf.Error as err:
-        print('failed to merge: {err}')
+        print(f'failed to merge: {err}')
 
 
 def get_config():
