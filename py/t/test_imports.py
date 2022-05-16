@@ -35,7 +35,7 @@ def main():
         if attype == ettype:
             ok += 1
         total += 1
-        if eq.eq(atclass, etclass):
+        if eq.eq(atclass, etclass, ignore_comments=True):
             ok += 1
     total += 1
     if actual_uxo.imports == EXPECTED_IMPORTS:
@@ -51,21 +51,21 @@ def main():
 
 
 EXPECTED_UXT = '''uxf 1.0
-= Slide title body
-= #<title> h1 content
-= #<subtitle> h2 content
-= #<bullet item> B content
-= #<para> p content
-= #<image> img content image:bytes
-= #<monospace inline> m content
-= #<monospace block> pre content
-= #<italic> i content
-= url content link
-= #<newline with no content> nl empty
-= IPv4 A:int B:int C:int D:int
-= #<0-255 per component> rgb red:int green:int blue:int
-= #<0-255 per component> rgba red:int green:int blue:int alpha:int
-= #<a pair of any two values> pair first second
+=Slide title body
+=h1 content
+=h2 content
+=B content
+=p content
+=img content image:bytes
+=m content
+=pre content
+=i content
+=url content link
+=nl empty
+=IPv4 A:int B:int C:int D:int
+=rgb red:int green:int blue:int
+=rgba red:int green:int blue:int alpha:int
+=pair first second
 =cmyk cyan:real magenta:real yellow:real black:real
 =point2d x:int y:int
 []
