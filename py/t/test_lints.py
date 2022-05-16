@@ -7,15 +7,17 @@ import re
 import subprocess
 import sys
 
-
-PATH = os.path.abspath(os.path.dirname(__file__))
-UXF_EXE = os.path.join(PATH, '../uxf.py')
-os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
+try:
+    PATH = os.path.abspath(os.path.dirname(__file__))
+    UXF_EXE = os.path.join(PATH, '../uxf.py')
+    os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
+finally:
+    pass
 
 
 ERROR_FILES = {'t13.uxf', 't14.uxf', 't28.uxf', 't33.uxf', 't54.uxf',
                't55.uxf', 'l56.uxf', 'l57.uxf', 'l58.uxf', 'l59.uxf',
-               'l60.uxf'}
+               'l60.uxf', 't63.uxf'}
 
 
 def main():

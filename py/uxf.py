@@ -415,7 +415,7 @@ class _Lexer:
         elif c == '?':
             self.add_token(_Kind.NULL)
         elif c == '!':
-            self.read_import()
+            self.read_imports()
         elif c == '#':
             self.read_comment()
         elif c == '<':
@@ -439,16 +439,14 @@ class _Lexer:
             self.add_token(_Kind.TCLASS_END)
 
 
-    def read_import(self):
-        size = len(self.tokens)
-        if ((size == 0) or
-                (size == 1 and self.tokens[-1] is _Kind.COMMENT) or
-                (self.tokens[-1] is _Kind.IMPORT)):
+    def read_imports(self):
+        while True:
             value = self.match_to('\n', what='import')
             self.add_token(_Kind.IMPORT, value.strip())
-        else:
-            self.error(176, ('imports are only allowed after the header or '
-                       'after the file-level comment'))
+            if self.peek() == '!':
+                self.getch() # skip !
+            else:
+                break # imports finished
 
 
     def read_comment(self):
@@ -1046,6 +1044,7 @@ def _parse(tokens, filename='-', *, on_error=on_error):
 class _Parser:
 
     def __init__(self, filename, *, on_error=on_error):
+        self.filename = filename
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
         self.clear()
@@ -1112,7 +1111,8 @@ class _Parser:
         imported = set(self.imports.keys())
         defined = set(self.tclasses.keys())
         unused = defined - self.used_tclasses
-        if unused and unused - imported: # don't warn on unused imports
+        unused -= imported # don't warn on unused imports
+        if unused:
             self._report_tclasses(unused, 'unused')
         undefined = self.used_tclasses - defined
         if undefined:
@@ -1372,10 +1372,15 @@ class _Parser:
             filename = value
         if filename is not None:
             fullname = os.path.abspath(filename)
+            if (not os.path.isfile(fullname) and
+                    not os.path.isabs(filename) and self.filename and
+                    self.filename != '-'): # find relative to UXF file
+                fullname = os.path.join(os.path.dirname(self.filename),
+                                        filename)
             if fullname in self.imported: # don't reimport
                 return
             self.imported.add(fullname)
-            uxo = load(filename, on_error=error)
+            uxo = load(fullname, on_error=error)
         elif text is not None:
             uxo = loads(text, on_error=error)
         else:

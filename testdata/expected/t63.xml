@@ -1,0 +1,157 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <imports>
+    <import filename="http://www.qtrac.eu/ttype-eg.uxf"/>
+    <import filename="ttype-test"/>
+    <import filename="t63.uxt"/>
+  </imports>
+  <ttypes>
+    <ttype name="B" comment="bullet item">
+      <field name="content"/>
+    </ttype>
+    <ttype name="cmyk">
+      <field name="cyan" vtype="real"/>
+      <field name="magenta" vtype="real"/>
+      <field name="yellow" vtype="real"/>
+      <field name="black" vtype="real"/>
+    </ttype>
+    <ttype name="dob">
+      <field name="dob" vtype="date"/>
+    </ttype>
+    <ttype name="h1" comment="title">
+      <field name="content"/>
+    </ttype>
+    <ttype name="h2" comment="subtitle">
+      <field name="content"/>
+    </ttype>
+    <ttype name="i" comment="italic">
+      <field name="content"/>
+    </ttype>
+    <ttype name="img" comment="image">
+      <field name="content"/>
+      <field name="image" vtype="bytes"/>
+    </ttype>
+    <ttype name="IPv4">
+      <field name="A" vtype="int"/>
+      <field name="B" vtype="int"/>
+      <field name="C" vtype="int"/>
+      <field name="D" vtype="int"/>
+    </ttype>
+    <ttype name="m" comment="monospace inline">
+      <field name="content"/>
+    </ttype>
+    <ttype name="nl" comment="newline with no content">
+      <field name="empty"/>
+    </ttype>
+    <ttype name="p" comment="para">
+      <field name="content"/>
+    </ttype>
+    <ttype name="pair" comment="a pair of any two values">
+      <field name="first"/>
+      <field name="second"/>
+    </ttype>
+    <ttype name="point2d">
+      <field name="x" vtype="int"/>
+      <field name="y" vtype="int"/>
+    </ttype>
+    <ttype name="point3d">
+      <field name="x" vtype="int"/>
+      <field name="y" vtype="int"/>
+      <field name="z" vtype="int"/>
+    </ttype>
+    <ttype name="pre" comment="monospace block">
+      <field name="content"/>
+    </ttype>
+    <ttype name="rgb" comment="0-255 per component">
+      <field name="red" vtype="int"/>
+      <field name="green" vtype="int"/>
+      <field name="blue" vtype="int"/>
+    </ttype>
+    <ttype name="rgba" comment="0-255 per component">
+      <field name="red" vtype="int"/>
+      <field name="green" vtype="int"/>
+      <field name="blue" vtype="int"/>
+      <field name="alpha" vtype="int"/>
+    </ttype>
+    <ttype name="Slide">
+      <field name="title"/>
+      <field name="body"/>
+    </ttype>
+    <ttype name="url">
+      <field name="content"/>
+      <field name="link"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="img">
+      <row>
+        <table name="rgb">
+          <row>
+            <int v="0"/>
+            <int v="0"/>
+            <int v="127"/>
+          </row>
+        </table>
+        <bytes>DECADE</bytes>
+      </row>
+    </table>
+    <table name="i">
+      <row>
+        <str>is this oblique?</str>
+      </row>
+    </table>
+    <map>
+      <key>
+        <int v="10"/>
+      </key>
+      <value>
+        <table name="point3d">
+          <row>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+          </row>
+          <row>
+            <int v="5"/>
+            <int v="12"/>
+            <int v="13"/>
+          </row>
+          <row>
+            <int v="8"/>
+            <int v="15"/>
+            <int v="17"/>
+          </row>
+          <row>
+            <int v="7"/>
+            <int v="24"/>
+            <int v="25"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <int v="20"/>
+      </key>
+      <value>
+        <table name="cmyk">
+          <row>
+            <real v="0.9"/>
+            <real v="0.9"/>
+            <real v="0.5"/>
+            <real v="0.0"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <int v="30"/>
+      </key>
+      <value>
+        <table name="pair">
+          <row>
+            <str>one</str>
+            <int v="2"/>
+          </row>
+        </table>
+      </value>
+    </map>
+  </list>
+</uxf>

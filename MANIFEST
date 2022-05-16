@@ -2,7 +2,8 @@
 # TODO Create tests for the new egs (see below)
 # TODO (8) go through every uxf.py error code & try to make sure there's a
 # matching test in test_errors.py
-# TODO review _Writer output & see if it can be improved
+# TODO review _Writer output & see if it can be improved, experiment in
+# py/eg/writer.py
 # TODO code review & improvement
 # TODO release py 1.0.0
 # TODO UXF libraries:
@@ -20,10 +21,7 @@ py/t/test_converters.py
 py/t/test_sqlite.py
 py/t/test_errors.py
 py/t/test_lints.py
-# TODO (1) py/t/test_imports.py # add tests of system, local, and url
-#			    # imports e.g. ttype-test (system),
-#			    # eg/slides.sld (local),
-#			    # http://www.qtrac.eu/ttype-eg.uxf (url)
+py/t/test_imports.py
 # TODO (3) py/t/test_include.py
 # TODO (5) py/t/test_on_error.py
 # TODO (7) py/t/test_merge.py

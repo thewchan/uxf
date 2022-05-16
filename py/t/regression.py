@@ -30,6 +30,7 @@ try:
     TEST_SQLITE = os.path.join(PATH, '../t/test_sqlite.py')
     TEST_ERRORS = os.path.join(PATH, '../t/test_errors.py')
     TEST_LINTS = os.path.join(PATH, '../t/test_lints.py')
+    TEST_IMPORTS = os.path.join(PATH, '../t/test_imports.py')
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -59,9 +60,9 @@ def main():
     if total < max_total:
         total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
     if total < max_total:
-        total, ok = test_externals((TEST_CONVERTERS, TEST_SQLITE,
-                                   TEST_ERRORS, TEST_LINTS), total, ok,
-                                   verbose=verbose, max_total=max_total)
+        total, ok = test_externals(
+            (TEST_CONVERTERS, TEST_SQLITE, TEST_ERRORS, TEST_LINTS,
+             TEST_IMPORTS), total, ok, verbose=verbose, max_total=max_total)
     span = min(1000, total // 10)
     for c in ('\b', ' ', '\b'):
         print(c * span, end='', flush=True)

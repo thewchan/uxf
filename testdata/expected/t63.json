@@ -1,0 +1,321 @@
+{
+  "UXF^imports": [
+    "http://www.qtrac.eu/ttype-eg.uxf",
+    "ttype-test",
+    "t63.uxt"
+  ],
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "B",
+        "fields": {
+          "content": null
+        },
+        "comment": "bullet item"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "IPv4",
+        "fields": {
+          "A": "int",
+          "B": "int",
+          "C": "int",
+          "D": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Slide",
+        "fields": {
+          "title": null,
+          "body": null
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "cmyk",
+        "fields": {
+          "cyan": "real",
+          "magenta": "real",
+          "yellow": "real",
+          "black": "real"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "dob",
+        "fields": {
+          "dob": "date"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "h1",
+        "fields": {
+          "content": null
+        },
+        "comment": "title"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "h2",
+        "fields": {
+          "content": null
+        },
+        "comment": "subtitle"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "i",
+        "fields": {
+          "content": null
+        },
+        "comment": "italic"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "img",
+        "fields": {
+          "content": null,
+          "image": "bytes"
+        },
+        "comment": "image"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "m",
+        "fields": {
+          "content": null
+        },
+        "comment": "monospace inline"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "nl",
+        "fields": {
+          "empty": null
+        },
+        "comment": "newline with no content"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "p",
+        "fields": {
+          "content": null
+        },
+        "comment": "para"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "pair",
+        "fields": {
+          "first": null,
+          "second": null
+        },
+        "comment": "a pair of any two values"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "point2d",
+        "fields": {
+          "x": "int",
+          "y": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "point3d",
+        "fields": {
+          "x": "int",
+          "y": "int",
+          "z": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "pre",
+        "fields": {
+          "content": null
+        },
+        "comment": "monospace block"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "rgb",
+        "fields": {
+          "red": "int",
+          "green": "int",
+          "blue": "int"
+        },
+        "comment": "0-255 per component"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "rgba",
+        "fields": {
+          "red": "int",
+          "green": "int",
+          "blue": "int",
+          "alpha": "int"
+        },
+        "comment": "0-255 per component"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "url",
+        "fields": {
+          "content": null,
+          "link": null
+        }
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "UXF^table": {
+        "name": "img",
+        "comment": null,
+        "fields": {
+          "content": null,
+          "image": "bytes"
+        },
+        "records": [
+          [
+            {
+              "UXF^table": {
+                "name": "rgb",
+                "comment": null,
+                "fields": {
+                  "red": "int",
+                  "green": "int",
+                  "blue": "int"
+                },
+                "records": [
+                  [
+                    0,
+                    0,
+                    127
+                  ]
+                ]
+              }
+            },
+            {
+              "UXF^bytes": "DECADE"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "i",
+        "comment": null,
+        "fields": {
+          "content": null
+        },
+        "records": [
+          [
+            "is this oblique?"
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": null,
+        "ktype": null,
+        "vtype": null,
+        "map": {
+          "10": {
+            "UXF^table": {
+              "name": "point3d",
+              "comment": null,
+              "fields": {
+                "x": "int",
+                "y": "int",
+                "z": "int"
+              },
+              "records": [
+                [
+                  3,
+                  4,
+                  5
+                ],
+                [
+                  5,
+                  12,
+                  13
+                ],
+                [
+                  8,
+                  15,
+                  17
+                ],
+                [
+                  7,
+                  24,
+                  25
+                ]
+              ]
+            }
+          },
+          "20": {
+            "UXF^table": {
+              "name": "cmyk",
+              "comment": null,
+              "fields": {
+                "cyan": "real",
+                "magenta": "real",
+                "yellow": "real",
+                "black": "real"
+              },
+              "records": [
+                [
+                  0.9,
+                  0.9,
+                  0.5,
+                  0.0
+                ]
+              ]
+            }
+          },
+          "30": {
+            "UXF^table": {
+              "name": "pair",
+              "comment": null,
+              "fields": {
+                "first": null,
+                "second": null
+              },
+              "records": [
+                [
+                  "one",
+                  2
+                ]
+              ]
+            }
+          }
+        },
+        "itype": "uxf"
+      }
+    }
+  ]
+}
