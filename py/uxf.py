@@ -1049,8 +1049,7 @@ class _Parser:
             on_error, filename=os.path.basename(filename))
         self.clear()
         if filename and filename != '-':
-            self.imported.add(os.path.abspath(filename))
-
+            self.imported.add(_full_filename(filename))
 
 
     def error(self, code, message, *, fail=False):
@@ -1343,52 +1342,70 @@ class _Parser:
 
 
     def _handle_import(self, value):
-        def error(lino, code, message, *, filename, fail=False,
-                  verbose=True):
-            if code == 418: # we expect all ttypes to be unused here
-                return
-            self.on_error(lino, code, message, filename=filename, fail=fail,
-                          verbose=verbose)
-
         filename = text = None
-        if value.startswith(('http://', 'https://')):
-            if value in self.imported:
-                return # don't reimport
-            self.imported.add(value)
-            try:
-                with urllib.request.urlopen(value) as file:
-                    text = file.read().decode('utf-8')
-            except (UnicodeDecodeError, urllib.error.HTTPError) as err:
-                self.error(530, f'failed to import {value!r}: {err}')
-                return
-        elif '.' not in value: # system import
-            filename = os.path.abspath(os.path.join(os.path.dirname(
-                                       __file__), f'{value}.uxf'))
-            if not os.path.isfile(filename):
-                self.error(540, 'there is no system ttype definition '
-                                f'file {value!r}')
-                return
-        else:
-            filename = value
-        if filename is not None:
-            fullname = os.path.abspath(filename)
-            if (not os.path.isfile(fullname) and
-                    not os.path.isabs(filename) and self.filename and
-                    self.filename != '-'): # find relative to UXF file
-                fullname = os.path.join(os.path.dirname(self.filename),
-                                        filename)
-            if fullname in self.imported: # don't reimport
-                return
-            self.imported.add(fullname)
-            uxo = load(fullname, on_error=error)
-        elif text is not None:
-            uxo = loads(text, on_error=error)
-        else:
-            self.error(550, 'there are no ttype definitions to import '
-                       f'{value!r}') # should never get here
-        for ttype, tclass in uxo.tclasses.items():
-            self.tclasses[ttype] = tclass
-            self.imports[ttype] = value
+        try:
+            if value.startswith(('http://', 'https://')):
+                text = self._url_import(value)
+            elif '.' not in value: # system import
+                filename = self._system_import(value)
+            else:
+                filename = value
+            if filename is not None:
+                uxo = self._load_import(filename)
+            elif text is not None:
+                uxo = loads(text, on_error=self._on_import_error)
+            else:
+                self.error(550, 'there are no ttype definitions to import '
+                           f'{value!r} ({filename!r})')
+                return # should never get here
+            for ttype, tclass in uxo.tclasses.items():
+                self.tclasses[ttype] = tclass
+                self.imports[ttype] = value
+        except _HandleImportError:
+            pass # don't reimport & errors already handled
+
+
+    def _url_import(self, url):
+        if url in self.imported:
+            raise _HandleImportError # don't reimport
+        try:
+            with urllib.request.urlopen(url) as file:
+                return file.read().decode('utf-8')
+        except (UnicodeDecodeError, urllib.error.HTTPError) as err:
+            self.error(530, f'failed to import {url!r}: {err}')
+            raise _HandleImportError
+        finally:
+            self.imported.add(url) # don't want to retry
+
+
+    def _system_import(self, value):
+        filename = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                f'{value}.uxf'))
+        if os.path.isfile(filename):
+            return filename
+        self.error(540, 'there is no system ttype definition '
+                   f'file {value!r} ({filename!r})')
+        raise _HandleImportError
+
+
+    def _load_import(self, filename):
+        path = (os.path.dirname(self.filename) if
+                self.filename and self.filename != '-' else '.')
+        filename = _full_filename(filename, path)
+        if filename in self.imported:
+            raise _HandleImportError # don't reimport
+        try:
+            return load(filename, on_error=self._on_import_error)
+        finally:
+            self.imported.add(filename) # don't want to retry
+
+
+    def _on_import_error(self, lino, code, message, *, filename, fail=False,
+                         verbose=True):
+        if code == 418: # we expect all ttypes to be unused here
+            return
+        self.on_error(lino, code, message, filename=filename, fail=fail,
+                      verbose=verbose)
 
 
     def typecheck(self, value):
@@ -1726,6 +1743,16 @@ def _are_short_len(*items):
 
 def _is_uxf_collection(value):
     return isinstance(value, (List, Map, Table))
+
+
+def _full_filename(filename, path=None):
+    if os.path.isabs(filename):
+        return filename
+    return os.path.abspath(os.path.join(path or '.', filename))
+
+
+class _HandleImportError(Exception):
+    pass
 
 
 Converter = collections.namedtuple('Converter', ('to_str', 'from_str'))

@@ -487,7 +487,7 @@ UXF files.
 The _disadvantage_ of doing this is that the relevant UXF files become
 dependent on one or more external dependencies. (However, this disadvantage
 doesn't apply if all the dependencies are provided by the UXF processor
-itself.)
+itself, i.e., are system imports.)
 
 The _advantage_ of importing _ttype_ definitions is that for UXF's that have
 lots of _ttypes_, only the import(s) and the data need be in the file,
@@ -496,6 +496,9 @@ without having to repeat all the _ttype_ definitions.
 Imports go at the start of the file _after_ the header and _after_ any
 file-level comment, and _before_ any _ttype_ definitions. Each import must
 be on its own line and may not span lines.
+
+If a filename import has no path or a relative path, the import attempt will
+be made relative to the importing `.uxf` file.
 
 Any _ttype_ definition that follows an import will redefine any imported
 defintion of the same name.
