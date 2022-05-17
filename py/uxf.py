@@ -142,7 +142,7 @@ except ImportError:
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
            'naturalize', 'canonicalize', 'is_scalar', 'Uxf', 'List',
            'Map', 'Table', 'TClass', 'Field')
-__version__ = '0.29.0' # uxf module version
+__version__ = '0.30.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
