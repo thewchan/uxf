@@ -262,7 +262,7 @@ class Uxf:
         self.comment = comment
 
 
-def load(filename_or_filelike, *, on_error=on_error):
+def load(filename_or_filelike, *, on_error=on_error, _imported=None):
     '''
     Returns a Uxf object.
 
@@ -272,29 +272,30 @@ def load(filename_or_filelike, *, on_error=on_error):
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
     data, custom, tclasses, imports, comment = _loads(
-        _read_text(filename_or_filelike), filename, on_error=on_error)
+        _read_text(filename_or_filelike), filename, on_error=on_error,
+        _imported=_imported)
     uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
     return uxo
 
 
-def loads(uxt, filename='-', *, on_error=on_error):
+def loads(uxt, filename='-', *, on_error=on_error, _imported=None):
     '''
     Returns a Uxf object.
 
     uxt must be a string of UXF data.
     '''
-    data, custom, tclasses, imports, comment = _loads(uxt, filename,
-                                                      on_error=on_error)
+    data, custom, tclasses, imports, comment = _loads(
+        uxt, filename, on_error=on_error, _imported=_imported)
     uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
     return uxo
 
 
-def _loads(uxt, filename='-', *, on_error=on_error):
+def _loads(uxt, filename='-', *, on_error=on_error, _imported=None):
     tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
-    data, comment, tclasses, imports = _parse(tokens, filename,
-                                              on_error=on_error)
+    data, comment, tclasses, imports = _parse(
+        tokens, filename, on_error=on_error, _imported=_imported)
     return data, custom, tclasses, imports, comment
 
 
@@ -318,6 +319,7 @@ def _read_text(filename_or_filelike):
 class _Lexer:
 
     def __init__(self, filename, *, on_error=on_error):
+        self.filename = filename
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
         self.clear()
@@ -440,9 +442,16 @@ class _Lexer:
 
 
     def read_imports(self):
+        this_file = _full_filename(self.filename)
+        path = os.path.dirname(this_file)
         while True:
             value = self.match_to('\n', what='import')
-            self.add_token(_Kind.IMPORT, value.strip())
+            value = value.strip()
+            if this_file == _full_filename(value, path):
+                self.error(176, 'a UXF file cannot import itself',
+                           fail=True)
+            else:
+                self.add_token(_Kind.IMPORT, value)
             if self.peek() == '!':
                 self.getch() # skip !
             else:
@@ -933,12 +942,13 @@ class Table:
 
     @property
     def _next_vtype(self):
-        if not self.records:
-            return self.tclass.fields[0].vtype
-        else:
-            if len(self.records[-1]) == len(self.tclass):
+        if self.tclass:
+            if not self.records:
                 return self.tclass.fields[0].vtype
-            return self.tclass.fields[len(self.records[-1])].vtype
+            else:
+                if len(self.records[-1]) == len(self.tclass):
+                    return self.tclass.fields[0].vtype
+                return self.tclass.fields[len(self.records[-1])].vtype
 
 
     def append(self, value):
@@ -1035,19 +1045,21 @@ class Table:
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, filename='-', *, on_error=on_error):
-    parser = _Parser(filename, on_error=on_error)
+def _parse(tokens, filename='-', *, on_error=on_error, _imported=None):
+    parser = _Parser(filename, on_error=on_error, _imported=_imported)
     data, comment = parser.parse(tokens)
     return data, comment, parser.tclasses, parser.imports
 
 
 class _Parser:
 
-    def __init__(self, filename, *, on_error=on_error):
+    def __init__(self, filename, *, on_error=on_error, _imported=None):
         self.filename = filename
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
         self.clear()
+        if _imported is not None:
+            self.imported = _imported
         if filename and filename != '-':
             self.imported.add(_full_filename(filename))
 
@@ -1164,16 +1176,18 @@ class _Parser:
             if tclass is None:
                 self.error(450, f'undefined table tclass, {token}',
                            fail=True) # A table with no tclass is invalid
-            parent.tclass = tclass
-            self.used_tclasses.add(tclass.ttype)
-            if len(self.stack) > 1:
-                grand_parent = self.stack[-2]
-                vtype = getattr(grand_parent, 'vtype', None) # map or list
-                if (vtype is not None and vtype != 'table' and
-                        vtype != tclass.ttype):
-                    self.error(
-                        456, (f'expected table value of type {vtype}, '
-                              f'got value of type {tclass.ttype}'))
+            else:
+                parent.tclass = tclass
+                self.used_tclasses.add(tclass.ttype)
+                if len(self.stack) > 1:
+                    grand_parent = self.stack[-2]
+                    # map or list:
+                    vtype = getattr(grand_parent, 'vtype', None)
+                    if (vtype is not None and vtype != 'table' and
+                            vtype != tclass.ttype):
+                        self.error(
+                            456, (f'expected table value of type {vtype}, '
+                                  f'got value of type {tclass.ttype}'))
         else: # should never happen
             self.error(460, 'ttypes may only appear at the start of a '
                        f'map (as the value type), list, or table, {token}')
@@ -1353,9 +1367,13 @@ class _Parser:
             if filename is not None:
                 uxo = self._load_import(filename)
             elif text is not None:
-                uxo = loads(text, on_error=self._on_import_error)
+                try:
+                    uxo = loads(text, on_error=self._on_import_error,
+                                _imported=self.imported)
+                except Error as err:
+                    self.error(530, f'failed to import {value!r}: {err}')
             else:
-                self.error(550, 'there are no ttype definitions to import '
+                self.error(540, 'there are no ttype definitions to import '
                            f'{value!r} ({filename!r})')
                 return # should never get here
             for ttype, tclass in uxo.tclasses.items():
@@ -1372,7 +1390,7 @@ class _Parser:
             with urllib.request.urlopen(url) as file:
                 return file.read().decode('utf-8')
         except (UnicodeDecodeError, urllib.error.HTTPError) as err:
-            self.error(530, f'failed to import {url!r}: {err}')
+            self.error(550, f'failed to import {url!r}: {err}')
             raise _HandleImportError
         finally:
             self.imported.add(url) # don't want to retry
@@ -1383,7 +1401,7 @@ class _Parser:
                                                 f'{value}.uxf'))
         if os.path.isfile(filename):
             return filename
-        self.error(540, 'there is no system ttype definition '
+        self.error(560, 'there is no system ttype definition '
                    f'file {value!r} ({filename!r})')
         raise _HandleImportError
 
@@ -1395,7 +1413,15 @@ class _Parser:
         if filename in self.imported:
             raise _HandleImportError # don't reimport
         try:
-            return load(filename, on_error=self._on_import_error)
+            return load(filename, on_error=self._on_import_error,
+                        _imported=self.imported)
+        except Error as err:
+            if filename in self.imported:
+                self.error(580, f'cannot do circular imports {filename!r}',
+                           fail=True)
+            else:
+                self.error(586, f'failed to import {filename!r}: {err}')
+            raise _HandleImportError # couldn't import
         finally:
             self.imported.add(filename) # don't want to retry
 
@@ -1859,9 +1885,9 @@ simply `gunzip infile.uxf.gz`.
 To produce a compressed and compact .uxf file run: \
 `uxf.py -i0 infile.uxf outfile.uxf.gz`
 
-Converting uxf to uxf will alphabetically order any ttypes, but will \
-leave the order of any imports unchanged to allow later ones to override \
-earlier ones.
+Converting uxf to uxf will alphabetically order any ttypes.
+However, the order of imports is preserved (with any duplicates removed) \
+to allow later imports to override earlier ones.
 ''')
     indent = 2
     args = sys.argv[1:]
