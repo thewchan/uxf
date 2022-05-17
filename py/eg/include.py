@@ -3,6 +3,10 @@
 # License: GPLv3
 
 '''
+See eg/merge.py for more about the merge() function.
+
+Example 'include' file:
+
 uxf 1.0 UXF Include
 #<e.g., include.uxf>
 =include filename:str
@@ -30,7 +34,7 @@ def main():
         raise SystemExit('usage: include.py <include.uxf> [<outfile.uxf>]')
     include_uxo = uxf.load(sys.argv[1])
     filenames = [record.filename for record in include_uxo.data]
-    uxo = merge.merge(*filenames, aslist=True)
+    uxo = merge.merge(*filenames, asmap=False)
     if len(sys.argv) > 2:
         uxo.dump(sys.argv[2])
     else:

@@ -83,26 +83,34 @@ def merge(file1, file2, *files, asmap):
                 uxo.comment += '\n' + new_uxo.comment
         merge_ttypes(uxo, new_uxo, filename)
         if asmap:
-            uxo.append(filename) # key
-        uxo.append(new_uxo.data) # value for map or list
+            uxo.data.append(filename) # key
+        uxo.data.append(new_uxo.data) # value for map or list
     return uxo
 
 
-def merge_ttypes(uxo1, uxo2, filename):
-    _merge_imports(uxo1, uxo2)
-    _merge_tclasses(uxo1, uxo2, filename)
+def merge_ttypes(uxo, new_uxo, filename):
+    _merge_imports(uxo, new_uxo, filename)
+    _merge_tclasses(uxo, new_uxo, filename)
 
 
-def _merge_imports(uxo1, uxo2):
-    print('merge_imports') # TODO see ../uxfconvert.py _get_imports()
+def _merge_imports(uxo, new_uxo, filename):
+    for ttype, filename in new_uxo.imports.items():
+        original_filename = uxo.imports.get(ttype)
+        if original_filename is None:
+            uxo.imports[ttype] = filename # add
+        elif original_filename != filename:
+            raise uxf.Error(f'cannot merge {filename} due to conflicting '
+                            f'imported ttype {ttype} filename '
+                            f'{original_filename!r} != {filename!r}')
+        # else: same
 
 
-def _merge_tclasses(uxo1, uxo2, filename):
+def _merge_tclasses(uxo, new_uxo, filename):
     # *must* be called *after* merge_imports()
-    for ttype, tclass in uxo2.tclasses.items():
-        if ttype not in uxo1.tclasses:
-            uxo1.tclasses[ttype] = tclass
-        elif eq.eq(uxo1.tclasses[ttype], tclass, ignore_comments=True):
+    for ttype, tclass in new_uxo.tclasses.items():
+        if ttype not in uxo.tclasses:
+            uxo.tclasses[ttype] = tclass
+        elif eq.eq(uxo.tclasses[ttype], tclass, ignore_comments=True):
             pass # same so safe to ignore
         else:
             raise uxf.Error(f'cannot merge {filename} due to conflicting '
