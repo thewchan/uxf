@@ -277,7 +277,7 @@ def main():
 
     try:
         total += 1
-        e = 400
+        e = 402
         uxf.loads('uxf 1.0\n(:AB:)', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:

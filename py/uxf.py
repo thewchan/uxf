@@ -1061,7 +1061,10 @@ class _Parser:
         if _imported is not None:
             self.imported = _imported
         if filename and filename != '-':
-            self.imported.add(_full_filename(filename))
+            filename = _full_filename(filename)
+            if filename in self.imported:
+                self.error(400, f'already imported {filename}', fail=True)
+            self.imported.add(filename)
 
 
     def error(self, code, message, *, fail=False):
@@ -1092,7 +1095,7 @@ class _Parser:
             kind = token.kind
             collection_start = self._is_collection_start(kind)
             if data is None and not collection_start:
-                self.error(400,
+                self.error(402,
                            f'expected a map, list, or table, got {token}')
             if collection_start:
                 self._on_collection_start(token)

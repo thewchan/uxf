@@ -2,12 +2,8 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-
-import contextlib
-import functools
 import os
 import sys
-import tempfile
 
 try:
     PATH = os.path.abspath(os.path.dirname(__file__))
