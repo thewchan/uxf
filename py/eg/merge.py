@@ -79,7 +79,7 @@ def merge(file1, file2, *files, asmap):
         if new_uxo.comment:
             if not uxo.comment:
                 uxo.comment = new_uxo.comment
-            else:
+            elif new_uxo.comment not in uxo.comment.splitlines():
                 uxo.comment += '\n' + new_uxo.comment
         merge_ttypes(uxo, new_uxo, filename)
         if asmap:

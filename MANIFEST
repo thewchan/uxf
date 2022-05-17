@@ -1,8 +1,8 @@
-# TODO (3) go through every uxf.py error code & try to make sure there's a
+# TODO (1) go through every uxf.py error code & try to make sure there's a
 # matching test in test_errors.py
-# TODO (4) review _Writer output & see if it can be improved, experiment
+# TODO (2) review _Writer output & see if it can be improved, experiment
 # in py/eg/writer.py
-# TODO code review & improvement
+# TODO (3) code review & improvement
 # TODO release py 1.0.0
 # TODO UXF libraries:
 #   - for .js use Dart or TypeScript or similar that can output JS?
@@ -20,8 +20,8 @@ py/t/test_sqlite.py
 py/t/test_errors.py
 py/t/test_lints.py
 py/t/test_imports.py
-py/t/test_merge.py # TODO (1)
-py/t/test_include.py # TODO (2)
+py/t/test_merge.py
+py/t/test_include.py
 py/t/eq.py
 py/eg/visit.py
 py/eg/slides1.py

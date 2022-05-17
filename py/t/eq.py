@@ -44,6 +44,10 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                   debug=debug)
 
     if isinstance(a, uxf.Uxf):
+        if not isinstance(b, uxf.Uxf):
+            if debug:
+                _fail(f'Uxf can\'t be compared with {b.__class__.__name__}')
+            return False
         if not ignore_custom and not eq_custom(a.custom, b.custom):
             if debug:
                 _fail('custom', a.custom, b.custom)
@@ -67,6 +71,11 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             return False
         return True
     if isinstance(a, uxf.List):
+        if not isinstance(b, uxf.List):
+            if debug:
+                _fail(
+                    f'List can\'t be compared with {b.__class__.__name__}')
+            return False
         if not ignore_comments and not eq_comment(a.comment, b.comment):
             if debug:
                 _fail('List.comment', a.comment, b.comment)
@@ -81,6 +90,10 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             return False
         return True
     if isinstance(a, uxf.Map):
+        if not isinstance(b, uxf.Map):
+            if debug:
+                _fail(f'Map can\'t be compared with {b.__class__.__name__}')
+            return False
         if not ignore_comments and not eq_comment(a.comment, b.comment):
             if debug:
                 _fail('Map.comment', a.comment, b.comment)
@@ -100,6 +113,11 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             return False
         return True
     if isinstance(a, uxf.TClass):
+        if not isinstance(b, uxf.TClass):
+            if debug:
+                _fail('TClass can\'t be compared with '
+                      f'{b.__class__.__name__}')
+            return False
         if not ignore_comments and not eq_comment(a.comment, b.comment):
             if debug:
                 _fail('TClass.comment', a.comment, b.comment)
@@ -123,6 +141,11 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                 return False
         return True
     if isinstance(a, uxf.Table):
+        if not isinstance(b, uxf.Table):
+            if debug:
+                _fail(
+                    f'Table can\'t be compared with {b.__class__.__name__}')
+            return False
         if not ignore_comments and not eq_comment(a.comment, b.comment):
             if debug:
                 _fail('Table.comment', a.comment, b.comment)
