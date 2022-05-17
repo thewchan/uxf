@@ -31,6 +31,8 @@ try:
     TEST_ERRORS = os.path.join(PATH, '../t/test_errors.py')
     TEST_LINTS = os.path.join(PATH, '../t/test_lints.py')
     TEST_IMPORTS = os.path.join(PATH, '../t/test_imports.py')
+    TEST_MERGE = os.path.join(PATH, '../t/test_merge.py')
+    TEST_INCLUDE = os.path.join(PATH, '../t/test_include.py')
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -62,7 +64,8 @@ def main():
     if total < max_total:
         total, ok = test_externals(
             (TEST_CONVERTERS, TEST_SQLITE, TEST_ERRORS, TEST_LINTS,
-             TEST_IMPORTS), total, ok, verbose=verbose, max_total=max_total)
+             TEST_IMPORTS, TEST_MERGE, TEST_INCLUDE), total, ok,
+            verbose=verbose, max_total=max_total)
     if os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)
         for c in ('\b', ' ', '\b'):

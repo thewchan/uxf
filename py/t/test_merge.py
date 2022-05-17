@@ -23,7 +23,7 @@ def main():
         regression = True
     total = ok = 0
 
-    print(MERGE_EXE)
+    if not regression: print(MERGE_EXE) # TODO delete
 
     if regression:
         print(f'total={total} ok={ok}')

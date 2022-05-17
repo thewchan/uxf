@@ -23,7 +23,8 @@ def main():
         regression = True
     total = ok = 0
 
-    print(INCLUDE_EXE)
+    if not regression: print(INCLUDE_EXE) # TODO delete
+    # NOTE See testdata/i68.uxi
 
     if regression:
         print(f'total={total} ok={ok}')
