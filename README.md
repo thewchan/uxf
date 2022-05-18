@@ -498,7 +498,9 @@ file-level comment, and _before_ any _ttype_ definitions. Each import must
 be on its own line and may not span lines.
 
 If a filename import has no path or a relative path, the import attempt will
-be made relative to the importing `.uxf` file.
+be made relative to the importing `.uxf` file, and failing that relative to
+each path in  the `UXF_PATH` environment variable (if it exists and is
+nonempty), and failing all that relative to the current folder.
 
 Any _ttype_ definition that follows an import will redefine any imported
 defintion of the same name.

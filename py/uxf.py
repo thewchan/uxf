@@ -115,6 +115,10 @@ underscores. A vtype must be one of these strs: 'bool', 'int', 'real',
 'date', 'datetime', 'str', 'bytes', or None (which means accept any valid
 type), or a ttype name.
 
+Note that for imports, if the filename is relative it is searched for in the
+same folder as the importing UXF file, and if not found there, each of the
+paths in UXF_PATH is tried in turn (if any).
+
 Note that the __version__ is the module version (i.e., the versio of this
 implementation), while the VERSION is the maximum UXF version that this
 module can read (and the UXF version that it writes).
@@ -1382,19 +1386,19 @@ class _Parser:
             for ttype, tclass in uxo.tclasses.items():
                 self.tclasses[ttype] = tclass
                 self.imports[ttype] = value
-        except _HandleImportError:
+        except _AlreadyImported:
             pass # don't reimport & errors already handled
 
 
     def _url_import(self, url):
         if url in self.imported:
-            raise _HandleImportError # don't reimport
+            raise _AlreadyImported # don't reimport
         try:
             with urllib.request.urlopen(url) as file:
                 return file.read().decode('utf-8')
         except (UnicodeDecodeError, urllib.error.HTTPError) as err:
             self.error(550, f'failed to import {url!r}: {err}')
-            raise _HandleImportError
+            raise _AlreadyImported
         finally:
             self.imported.add(url) # don't want to retry
 
@@ -1406,27 +1410,44 @@ class _Parser:
             return filename
         self.error(560, 'there is no system ttype definition '
                    f'file {value!r} ({filename!r})')
-        raise _HandleImportError
+        raise _AlreadyImported
 
 
     def _load_import(self, filename):
-        path = (os.path.dirname(self.filename) if
-                self.filename and self.filename != '-' else '.')
-        filename = _full_filename(filename, path)
-        if filename in self.imported:
-            raise _HandleImportError # don't reimport
+        fullname = self._get_fullname(filename)
+        if fullname in self.imported:
+            raise _AlreadyImported # don't reimport
         try:
-            return load(filename, on_error=self._on_import_error,
+            return load(fullname, on_error=self._on_import_error,
                         _imported=self.imported)
-        except Error as err:
-            if filename in self.imported:
-                self.error(580, f'cannot do circular imports {filename!r}',
+        except (FileNotFoundError, Error) as err:
+            if fullname in self.imported:
+                self.error(580, f'cannot do circular imports {fullname!r}',
                            fail=True)
             else:
-                self.error(586, f'failed to import {filename!r}: {err}')
-            raise _HandleImportError # couldn't import
+                self.error(586, f'failed to import {fullname!r}: {err}')
+            raise _AlreadyImported # couldn't import
         finally:
-            self.imported.add(filename) # don't want to retry
+            self.imported.add(fullname) # don't want to retry
+
+
+    def _get_fullname(self, filename):
+        path = '.'
+        if self.filename and self.filename != '-':
+            path = os.path.dirname(self.filename) or '.'
+        paths = os.environ.get('UXF_PATH')
+        if paths:
+            paths = [path] + paths.split(
+                ';' if sys.platform.startswith('win') else ':')
+        else:
+            paths = [path]
+        for path in paths:
+            fullname = _full_filename(filename, path)
+            if fullname in self.imported:
+                raise _AlreadyImported # don't reimport
+            if os.path.isfile(fullname):
+                return fullname # stop as soon as we find one
+        return _full_filename(filename)
 
 
     def _on_import_error(self, lino, code, message, *, filename, fail=False,
@@ -1780,7 +1801,7 @@ def _full_filename(filename, path=None):
     return os.path.abspath(os.path.join(path or '.', filename))
 
 
-class _HandleImportError(Exception):
+class _AlreadyImported(Exception):
     pass
 
 

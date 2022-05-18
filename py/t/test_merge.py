@@ -3,7 +3,6 @@
 # License: GPLv3
 
 import os
-import shutil
 import subprocess
 import sys
 
@@ -23,8 +22,6 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] in {'-r', '--regression'}:
         regression = True
     total = ok = 0
-
-    shutil.copyfile('t63.uxt', 'actual/t63.uxt')
 
     filename = 'm1.uxf.gz'
     cmd = [MERGE_EXE, '--list', '--outfile', f'actual/{filename}',
