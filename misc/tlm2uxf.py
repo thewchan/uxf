@@ -2,56 +2,88 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-'''
-uxf 1.0 TLM 1.1
-#<Track lists are represented by maps with name keys.
-Their values may be Tracks or sublists.
-The special __History__ key is invalid as a list name and is used to hold
-the recent track history; other special keys are possible.
->
-=Track filename:str seconds:real
-{
-  <ABBA> (Track
-      </home/mark/music/ABBA/CD1/01-People_Need_Love.ogg> 165.773
-      </home/mark/music/ABBA/CD1/02-He_Is_Your_Brother.ogg> 198.440
-  )
-  <Amelie> (Track
-      </home/mark/music/Amelie/01-J_y_suis_jamais_all.ogg> 94.467
-      </home/mark/music/Amelie/02-Les_jours_tristes_instrumental.ogg> 183.467
-      </home/mark/music/Amelie/03-La_valse_d_Am_lie.ogg> 135.907
-  )
-  <Classical> {
-    <Bach> (Track
-        </home/mark/music/J.S._Bach/Orchestral_Suites_Nos.1-4/01-Suite_No.1_in_C_BWV1066_-I_Ouvert_re.ogg> 361.973
-        </home/mark/music/J.S._Bach/Orchestral_Suites_Nos.1-4/02-Suite_No.1_in_C_BWV1066_-II_Courante.ogg> 124.533
-    )
-    <Bartok> (Track
-        </home/mark/music/Bela_Bartok/CD1/01-Piano_Concerto_No._1-I._Allegro_moderato.ogg> 550.000
-        </home/mark/music/Bela_Bartok/CD1/02-Piano_Concerto_No._1-II._Andante_-.ogg> 497.493
-    )
-  }
-  <__History__> [
-    <Classical/Prokofiev/Piano Concerto No. 3 in C major Op. 26 I. Andante Allegro>
-    <Classical/Prokofiev/Piano Concerto No. 2 in G minor Op. 16 IV. Allegro tempestoso>
-    <Blondie/Denis>
-  ]
-}
-''' # noqa: E501
-
-
 import gzip
 import os
 import sys
-from xml.sax.saxutils import escape
+
+try:
+    import uxf
+except ImportError: # needed for development
+    sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../py'))
+    import uxf
 
 
 def main():
     if len(sys.argv) == 1 or sys.argv[1] in {'-h', '--help'}:
         raise SystemExit('usage: tlm2uxf.py <filename.tlm>')
-    infile = sys.argv[1]
-    outfile = infile.replace('.tlm', '.uxf')
-    #print('wrote', outfile)
+    infilename = sys.argv[1]
+    outfilename = infilename.replace('.tlm', '.uxf.gz')
+    infile = None
+    try:
+        infile = open_file(infilename, 'rt')
+        trackclass = uxf.TClass('Track', (uxf.Field('filename', 'str'),
+                                          uxf.Field('seconds', 'real')))
+        uxo = uxf.Uxf({}, custom='TLM 1.1', comment=COMMENT)
+        intracks = True
+        stack = ['__ROOT__']
+        prevlistname = None
+        for line in infile:
+            if line.startswith(('\fTLM', '\fTRACKS')):
+                pass
+            elif line.startswith('\fHISTORY'):
+                intracks = False
+            elif line.startswith('\v'):
+                depth = line.count('\v')
+                listname = '_' + line.lstrip('\v').rstrip()
+                if depth > len(stack):
+                    stack.append(prevlistname)
+                else:
+                    while depth < len(stack):
+                        stack.pop()
+                prevlistname = listname
+                parent = find_parent(uxo, stack)
+                parent[listname] = uxf.Map()
+            elif intracks:
+                filename, seconds = line.rstrip().split('\t')
+                if listname not in parent:
+                    parent[listname] = uxf.Table(ttype=trackclass)
+                parent[listname].append(filename)
+                parent[listname].append(float(seconds))
+            else: # history
+                if HISTORY not in uxo.data:
+                    uxo.data[HISTORY] = uxf.List()
+                uxo.data[HISTORY].append(line.strip())
+        uxo.dump(outfilename)
+        print('wrote', outfilename)
+    finally:
+        if infile is not None:
+            infile.close()
 
+
+def find_parent(uxo, stack):
+    for name in stack:
+        if name == '__ROOT__':
+            parent = uxo.data
+        else:
+            parent = parent[name]
+    return parent
+
+
+def open_file(filename, mode):
+    try:
+        return gzip.open(filename, mode, encoding='utf-8')
+    except gzip.BadGzipFile:
+        return open(filename, mode, encoding='utf-8')
+
+
+HISTORY = '__HISTORY__'
+
+COMMENT = f'''\
+Track lists names are indicated by a leading underscore.
+Track lists can nest.
+Tracks consist of a filename and seconds duration.
+The recently played history is in the special list {HISTORY}.
+'''
 
 if __name__ == '__main__':
     main()

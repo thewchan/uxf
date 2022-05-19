@@ -901,6 +901,10 @@ class Table:
         A Table may be created empty, e.g., Table(). However, if records is
         not None, then both the ttype and fields must be given.
 
+        ttype is a table name that will be used for the TClass ttype name
+        with fields the names of the fields. Or, ttype can be a TClass in
+        which case fields is ignored.
+
         .records can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fields) long), or a list of
         lists in which case each list is _assumed_ to be len(fields) i.e.,
@@ -912,7 +916,8 @@ class Table:
         comment is an optional str.
         '''
         self.RecordClass = None
-        self.tclass = TClass(ttype, fields)
+        self.tclass = ttype if isinstance(ttype, TClass) else TClass(ttype,
+                                                                     fields)
         self.records = []
         self.comment = comment
         if records:
