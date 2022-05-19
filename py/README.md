@@ -1,5 +1,9 @@
 # Python UXF Library
 
+UXF is a plain text human readable optionally typed storage format. UXF may
+serve as a convenient alternative to csv, ini, json, sqlite, toml, xml, or
+yaml.
+
 For details of the Uniform eXchange Format (UXF) supported by this library,
 see the [UXF Overview](../README.md). ([PyPI link to UXF
 Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
@@ -74,10 +78,44 @@ If you just want to create a small standalone `.pyz`, simply copy
 
 ## API
 
+### Reading and Writing UXF Data
+
+    load(filename_or_filelike): -> uxo
+    loads(uxt): -> uxo
+
+These functions read UXF data from a file, file-like, or string.
+The returned `uxo` is of type [Uxf](#uxf-class)
+See the function docs for additional options.
+
+In the docs we use uxo to refer to a Uxf object and uxt to refer to a string
+containing a UXF file's text.
+
+    dump(filename_or_filelike, data)
+    dumps(data) -> uxt
+
+These functions write UXF data to a file, file-like, or string. The data can
+be a Uxf object or a single list, List, dict, Map, or Table. dump() writes
+the data to the filename\_or\_filelike; dumps() writes the data into a
+string that's then returned. See [dump](#dump) and [dumps](#dumps) for full
+details.
+
 ### Classes
+
+#### Uxf {#uxf-class}
 
 ### Functions
 
 ### Constants
 
 ### Command Line Usage
+
+The uxf module can be used as an executable. To see the command line help
+run:
+
+    python3 -m uxf -h
+
+or
+
+    path/to/uxf.py -h
+
+### Additional Notes

@@ -2,19 +2,9 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+'''The full API documentation is in the accompanying README.md file.'''
+
 '''
-UXF is a plain text human readable optionally typed storage format. UXF may
-serve as a convenient alternative to csv, ini, json, sqlite, toml, xml, or
-yaml.
-
-The uxf module can be used as an executable. To see the command line help run:
-
-    python3 -m uxf -h
-
-or
-
-    path/to/uxf.py -h
-
 The uxf module distinguishes between a ttype (the name of a user-defined
 table) and a TClass (the Python class which represents a user-defined
 table). A TClass has a .ttype attribute and a .fields attribute (see below).
