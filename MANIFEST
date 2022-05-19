@@ -1,6 +1,4 @@
-# TODO generate docs from .py files and put in uxf/py/{md or html?} then
-# add link to uxf.html from uxf/py/README.md using pydoc 
-# put the doc update in st.sh ?
+# TODO doc.sh
 # TODO misc/tlmuxf2fltk.py to produce treepaths to see how to do it for Rust
 # TODO review _Writer output & see if it can be improved, experiment
 # in py/eg/writer.py
@@ -16,6 +14,7 @@ py/README.md
 py/ttype-test.uxf
 py/setup.py
 py/pypi.sh
+py/doc.sh
 py/t/regression.py
 py/t/test_converters.py
 py/t/test_sqlite.py
