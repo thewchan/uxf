@@ -4,6 +4,15 @@ For details of the Uniform eXchange Format (UXF) supported by this library,
 see the [UXF Overview](../README.md). ([PyPI link to UXF
 Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
 
+- [Introduction](#introduction)
+- [API](#api)
+    - [Classes](#classes)
+    - [Functions](#functions)
+    - [Constants](#constants)
+    - [Command Line Usage](#command-line-usage)
+
+## Introduction
+
 The Python `uxf` library works out of the box with the standard library, and
 will use _dateutil_ if available.
 
@@ -62,3 +71,13 @@ the `../testdata` folder and the Python examples in the `./eg` folder.
 If you just want to create a small standalone `.pyz`, simply copy
 `py/uxf.py` as `uxf.py` into your project folder and inlude it in your
 `.pyz` file.
+
+## API
+
+### Classes
+
+### Functions
+
+### Constants
+
+### Command Line Usage
