@@ -9,27 +9,7 @@ The uxf module distinguishes between a ttype (the name of a user-defined
 table) and a TClass (the Python class which represents a user-defined
 table). A TClass has a .ttype attribute and a .fields attribute (see below).
 
-The uxf module's public API provides the following free functions and
-classes.
-
-    load(filename_or_filelike): -> uxo
-    loads(uxt): -> uxo
-
-These functions read UXF data from a file, file-like, or string.
-The returned uxo is of type Uxf (see below).
-See the function docs for additional options.
-
-In the docs we use uxo to refer to a Uxf object and uxt to refer to a string
-containing a UXF file's text.
-
-    dump(filename_or_filelike, data)
-    dumps(data) -> uxt
-
-These functions write UXF data to a file, file-like, or string.
-The data can be a Uxf object or a single list, List, dict, Map, or Table.
-dump() writes the data to the filename_or_filelike; dumps() writes the data
-into a string that's then returned. See the function docs for additional
-options.
+###### TODO move to README.md #######
 
     on_error(...)
 

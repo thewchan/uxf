@@ -10,6 +10,7 @@ Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
 
 - [Introduction](#introduction)
 - [API](#api)
+    - [Reading and Writing UXF Data](#reading-and-writing-uxf-data)
     - [Classes](#classes)
     - [Functions](#functions)
     - [Constants](#constants)
@@ -41,13 +42,15 @@ Most Python types convert losslessly to and from UXF types. In particular:
 |`uxf.Map`           | `map`      |
 |`uxf.Table`         | `table    `|
 
-A `uxf.List` is a Python `collections.UserList` subclass with `.data` (the
-list)`, .comment` and `.vtype` attributes. Similarly a `uxf.Map` is a Python
-`collections.UserDict` subclass with `.data` (the dict), `.comment`,
-`.ktype`, and `.vtype` attributes. The `uxf.Table` class has `.records`,
-`.comment`, and `.fields` attributes; with `.fields` holding a list of
-`uxf.Field` values (which each has a field name and type). In all cases a
-type of `None` signifies that any type valid for the context may be used.
+A [List](#list-class) is a Python `collections.UserList` subclass with
+`.data` (the list)`, .comment` and `.vtype` attributes. Similarly a
+[Map](#map-class) is a Python `collections.UserDict` subclass with `.data`
+(the dict), `.comment`, `.ktype`, and `.vtype` attributes. The
+[Table](#table-class) class has `.records`, `.comment`, and `.tclass`
+attributes; with `.tclass` holding a [TClass](#tclass-class) which in turn
+holds the table's `ttype` (i.e., its table type name), and the table's field
+names and (optional) types. In all cases a type of `None` signifies that any
+type valid for the context may be used.
 
 For complex numbers you could define a _ttype_ such as: `= Complex Real real
 Imag real`. Then you could include single complex values like `(Complex 1.5
@@ -78,33 +81,74 @@ If you just want to create a small standalone `.pyz`, simply copy
 
 ## API
 
+The simplest part of the API loads and saves (dumps) UXF data from/to
+strings or files.
+
+A UXF object (called a `uxo` in these docs) has a `.data` attribute that is
+always a [List](#list-class) or [Map](#map-class) or [Table](#table-class).
+The first two have essentially the same APIs as `list` and `dict`. However,
+the recommended way to add an item of data is to use `.append()` which all
+three collections support. (In the case of a [Map](#map-class), use two
+``.append()``s or the conventional `map[key] = value`.)
+
+For reading UXF data it is easiest to iterate, and to do so recursively, if
+the data has nested collections. Note that the `visit.py` example provides a
+way of doing this using the visitor design pattern.
+
 ### Reading and Writing UXF Data
 
     load(filename_or_filelike): -> uxo
     loads(uxt): -> uxo
 
-These functions read UXF data from a file, file-like, or string.
-The returned `uxo` is of type [Uxf](#uxf-class)
-See the function docs for additional options.
+The [load()](#load-def) function reads UXF data from a file or file-like
+object, and the [loads()](#loads-def) function reads UXF data from a string.
+The returned `uxo` is of type [Uxf](#uxf-class).
 
-In the docs we use uxo to refer to a Uxf object and uxt to refer to a string
-containing a UXF file's text.
+In the docs we use `uxo` to refer to a [Uxf](#uxf-class) object and `uxt` to
+refer to a string containing a UXF file's text.
 
     dump(filename_or_filelike, data)
     dumps(data) -> uxt
 
-These functions write UXF data to a file, file-like, or string. The data can
-be a Uxf object or a single list, List, dict, Map, or Table. dump() writes
-the data to the filename\_or\_filelike; dumps() writes the data into a
-string that's then returned. See [dump](#dump) and [dumps](#dumps) for full
-details.
+The [dump()](#dump-def) function writes the data to a file or file-like
+object, and the [dumps()](#dumps-def) function writes the data into a string
+that's then returned. The data can be a [Uxf](#uxfclass) object or a single
+`list`, [List](#list-class), `dict`, [Map](#map-class), or
+[Table](#table-class).
 
 ### Classes
 
 <a name="uxf-class"></a>
 #### Uxf
 
+<a name="list-class"></a>
+#### List
+
+<a name="map-class"></a>
+#### Map
+
+<a name="table-class"></a>
+#### Table
+
+<a name="tclass-class"></a>
+#### TClass
+
+<a name="field-class"></a>
+#### Field
+
 ### Functions
+
+<a name="load-def"></a>
+#### load()
+
+<a name="loads-def"></a>
+#### loads()
+
+<a name="dump-def"></a>
+#### dump()
+
+<a name="dumps-def"></a>
+#### dumps()
 
 ### Constants
 
