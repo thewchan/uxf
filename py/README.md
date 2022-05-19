@@ -101,7 +101,8 @@ details.
 
 ### Classes
 
-#### Uxf {#uxf-class}
+<a name="uxf-class"></a>
+#### Uxf
 
 ### Functions
 
