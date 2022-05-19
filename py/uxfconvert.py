@@ -691,19 +691,19 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
             self.inbytes = True
             self.bytes = ''
         elif name == 'int':
-            self.stack[-1].append(int(d['v']))
+            uxf.append_to_parent(self.stack, int(d['v']))
         elif name == 'real':
-            self.stack[-1].append(float(d['v']))
+            uxf.append_to_parent(self.stack, float(d['v']))
         elif name == 'date':
-            self.stack[-1].append(uxf.naturalize(d['v']))
+            uxf.append_to_parent(self.stack, uxf.naturalize(d['v']))
         elif name == 'datetime':
-            self.stack[-1].append(uxf.naturalize(d['v']))
+            uxf.append_to_parent(self.stack, uxf.naturalize(d['v']))
         elif name == 'null':
-            self.stack[-1].append(None)
+            uxf.append_to_parent(self.stack, None)
         elif name == 'yes':
-            self.stack[-1].append(True)
+            uxf.append_to_parent(self.stack, True)
         elif name == 'no':
-            self.stack[-1].append(False)
+            uxf.append_to_parent(self.stack, False)
 
 
     def endElement(self, name):
@@ -719,11 +719,11 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
         elif name in {'map', 'list', 'table'}:
             self.stack.pop()
         elif name == 'str':
-            self.stack[-1].append(self.string)
+            uxf.append_to_parent(self.stack, self.string)
             self.string = ''
             self.instr = False
         elif name == 'bytes':
-            self.stack[-1].append(bytes.fromhex(self.bytes))
+            uxf.append_to_parent(self.stack, bytes.fromhex(self.bytes))
             self.bytes = ''
             self.inbytes = False
 
@@ -740,7 +740,7 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
             self.uxo.data = container
             self.stack = [container]
         elif self.stack:
-            self.stack[-1].append(container)
+            uxf.append_to_parent(self.stack, container)
         self.stack.append(container)
 
 

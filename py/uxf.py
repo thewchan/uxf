@@ -716,7 +716,7 @@ class Map(collections.UserDict):
         self._pending_key = _MISSING
 
 
-    def append(self, value):
+    def _append(self, value):
         '''This is for UXF readers; instead use: map[key] = value
 
         If there's no pending key, sets the value as the pending key;
@@ -1251,7 +1251,7 @@ class _Parser:
                 value = new_value
             else:
                 self.error(494, message)
-        self.stack[-1].append(value)
+        append_to_parent(self.stack, value)
 
 
     def _handle_scalar(self, i, token):
@@ -1268,7 +1268,7 @@ class _Parser:
                 value = v
             else:
                 self.error(500, message)
-        self.stack[-1].append(value)
+        append_to_parent(self.stack, value)
 
 
     def _on_collection_start(self, token):
@@ -1286,7 +1286,8 @@ class _Parser:
             _, message = self.typecheck(value)
             if message is not None:
                 self.error(506, message)
-            self.stack[-1].append(value) # add the collection to the parent
+            # add the collection to the parent
+            append_to_parent(self.stack, value)
         self.stack.append(value) # make the collection the current parent
 
 
@@ -1819,6 +1820,15 @@ def _full_filename(filename, path=None):
 
 class _AlreadyImported(Exception):
     pass
+
+
+def append_to_parent(stack, value):
+    '''Utility for UXF processors'''
+    parent = stack[-1]
+    if isinstance(parent, Map):
+        parent._append(value)
+    else:
+        parent.append(value)
 
 
 Converter = collections.namedtuple('Converter', ('to_str', 'from_str'))
