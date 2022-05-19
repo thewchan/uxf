@@ -278,7 +278,7 @@ def main():
         total += 1
         e = 340
         t = uxf.Table()
-        t.append(1)
+        t._append(1)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -287,7 +287,7 @@ def main():
         total += 1
         e = 340
         t = uxf.Table(uxf.TClass('t1'))
-        t.append(1)
+        t._append(1)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -297,7 +297,7 @@ def main():
         e = 340
         t = uxf.table('t1', ('a', 'b'))
         t.tclass.fields = None
-        t.append(1)
+        t._append(1)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -306,7 +306,7 @@ def main():
         total += 1
         e = 380
         t = uxf.table('t1', ('a', 'b'))
-        t.append(1)
+        t._append(1)
         r = t[0]
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -316,7 +316,7 @@ def main():
         total += 1
         e = 390
         t = uxf.table('t1', ('a', 'b'))
-        t.append(1)
+        t._append(1)
         for r in t:
             pass
         fail(f'test_errors • #{e} FAIL', regression)

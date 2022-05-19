@@ -185,11 +185,7 @@ def _read_csv_to_data(infile, fieldnames):
                     continue
                 else:
                     data = []
-            row = [uxf.naturalize(x) for x in row]
-            if isinstance(data, uxf.Table):
-                data += row
-            else:
-                data.append(row)
+            data.append([uxf.naturalize(x) for x in row])
     return data, infile, tclasses
 
 
@@ -471,8 +467,9 @@ def _sqlite_to_uxf(infile):
             fields = [f'[{field}]' for field in fields]
             sql = f'SELECT {", ".join(fields)} FROM {ttype};'
             for row in cursor.execute(sql):
-                table += [uxf.naturalize(value) if isinstance(value, str)
-                          else value for value in row]
+                table.append(
+                    [uxf.naturalize(value) if isinstance(value, str) else
+                     value for value in row])
             uxo.tclasses[table.ttype] = table.tclass
             uxo.data.append(table)
         return uxo

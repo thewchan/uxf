@@ -906,7 +906,7 @@ class Table:
                 self.records = list(records)
             else:
                 for value in records:
-                    self.append(value)
+                    self._append(value)
 
 
     @property
@@ -934,8 +934,8 @@ class Table:
                 return self.tclass.fields[len(self.records[-1])].vtype
 
 
-    def append(self, value):
-        '''This is for UXF readers; instead use: table.appendrow(record)
+    def _append(self, value):
+        '''This is for UXF readers; instead use: table.append(record)
 
         Use to append a value to the table. The value will be added to
         the last record (row) if that isn't full, or as the first value in a
@@ -973,21 +973,8 @@ class Table:
             [field.name for field in self.fields])
 
 
-    def __iadd__(self, value):
-        '''This is for UXF readers; instead use: table.appendrow(record)'''
-        if not self.ttype:
-            raise Error('#360:can\'t += to an unnamed table')
-        if not self.fields:
-            raise Error('#370:can\'t += to a table with no fields')
-        if isinstance(value, (list, List, tuple)):
-            for v in value:
-                self.append(v)
-        else:
-            self.append(value)
-        return self
-
-
-    def appendrow(self, record):
+    def append(self, record):
+        # TODO add tests to regression.py & test_errors.py
         '''Add a record (either a RecordClass tuple or a sequence of fields)
         to the table'''
         if self.records and len(self.records[-1]) != len(self.tclass):
@@ -996,9 +983,18 @@ class Table:
         if len(record) != len(self.tclass):
             raise Error(f'#374:appendrow expects {len(self.tclass)} '
                         f'fields, got {len(record)}')
+        if self.RecordClass is None:
+            self._make_record_class()
         if not isinstance(record, self.RecordClass):
             record = self.RecordClass(*record)
         self.records.append(record)
+
+
+    def __iadd__(self, record):
+        # TODO document &
+        # TODO add tests to regression.py & test_errors.py (same ones as for
+        # append())
+        self.append(record)
 
 
     def __getitem__(self, row):
@@ -1825,7 +1821,7 @@ class _AlreadyImported(Exception):
 def append_to_parent(stack, value):
     '''Utility for UXF processors'''
     parent = stack[-1]
-    if isinstance(parent, Map):
+    if isinstance(parent, (Map, Table)):
         parent._append(value)
     else:
         parent.append(value)
