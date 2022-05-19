@@ -1,0 +1,16 @@
+uxf 1.0
+!http://www.qtrac.eu/ttype-eg.uxf
+!ttype-test
+!t63.uxt
+!ttype-test
+!http://www.qtrac.eu/ttype-eg.uxf
+!t63.uxt
+=point3d x:int y:int z:int
+=dob dob:date
+[
+  (img (rgb 0 0 127) (:DECADE:))
+  (i <is this oblique?>)
+  {
+      30 (pair <one> 2)
+  }
+]

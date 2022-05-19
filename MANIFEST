@@ -1,8 +1,6 @@
-# TODO (1) go through every uxf.py error code & try to make sure there's a
-# matching test in test_errors.py
-# TODO (2) review _Writer output & see if it can be improved, experiment
+# TODO (1) review _Writer output & see if it can be improved, experiment
 # in py/eg/writer.py
-# TODO (3) code review & improvement
+# TODO (2) code review & improvement
 # TODO release py 1.0.0
 # TODO UXF libraries:
 #   - for .js use Dart or TypeScript or similar that can output JS?
@@ -44,5 +42,7 @@ st.sh
 # - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Experiment with using uxf format to store various kinds of data,
 #   e.g., styled text (but see uxf2html notes), spreadsheet, graphics, etc.
+# NOTE Rejected Ideas
+# - Union types.
 
 # vim: syn=yaml

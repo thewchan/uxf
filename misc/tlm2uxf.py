@@ -61,6 +61,7 @@ def main():
 
 
 def find_parent(uxo, stack):
+    parent = None
     for name in stack:
         parent = uxo.data if name == ROOT else parent[name]
     return parent
