@@ -15,7 +15,6 @@ py/README.md
 py/ttype-test.uxf
 py/setup.py
 py/pypi.sh
-py/doc.sh
 py/t/regression.py
 py/t/test_converters.py
 py/t/test_sqlite.py
