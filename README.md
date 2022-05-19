@@ -507,13 +507,14 @@ defintion of the same name.
 
 |**Import**|**Notes**|
 |----------|---------|
-|`! html-basic-eg`|These imports are provided by the UXF processor itself|
-|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the current folder|
+|`! ttype-test`|These imports are provided by the UXF processor itself|
+|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the current folder (or from a folder in the `UXF_PATH`)|
 |`! /path/to/shared.uxf`|Import the _ttypes_ from the given file|
 |`! http://www.qtrac.eu/ttype-eg.uxf`|Import from the given URL|
 
-The imported file must be a valid UXF file and _must_ have a `.uxf` or
-`.uxf.gz` suffix. Any custom string, comments, or data the imported file may
+The imported file must be a valid UXF file. It need not have a `.uxf` suffix
+(e.g., you might prefer `.uxt`), but must have a `.gz` suffix if gzip
+compressed. Any custom string, comments, or data the imported file may
 contain are ignored: only the _ttype_ definitions are used.
 
 ## BNF
@@ -525,7 +526,7 @@ a single mandatory `map`, `list`, or `table` (which may be empty).
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' CONTENT
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     CONTENT      ::= COMMENT? IMPORT* TTYPEDEF* (MAP | LIST | TABLE)
-    IMPORT       ::= '!' /\s*/ DEF_FILE '\n' # See below for DEF_FILE
+    IMPORT       ::= '!' /\s*/ IMPORT_FILE '\n' # See below for IMPORT_FILE
     TTYPEDEF     ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is the ttype (i.e., the table name)
     FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is the field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
@@ -553,12 +554,15 @@ a single mandatory `map`, `list`, or `table` (which may be empty).
 Note that a UXF file _must_ contain a single map, list, or table, even if
 it is empty.
 
-A `DEF_FILE` may be a filename which does _not_ end with `.uxf`, in which
-case it is a “system” UXF file provided by the UXF processor itself.
-(Currently there is just one system file, `ttype-test.uxf`, purely for
-testing.) Or it may be a filename with a relative or absolute path (or no
-path and taken to be in the same folder as the `.uxf` file that refers to
-it). Or it may be a URL referring to an external `.uxf` file.
+An `IMPORT_FILE` may be a filename which does _not_ contain a `.` (i.e.,
+doesn't have a file suffix), in which case it is a “system” UXF file
+provided by the UXF processor itself. (Currently there is just one system
+file, `ttype-test`, purely for testing.) Or it may be a filename with a
+relative or absolute path (or no path and taken to be in the same folder as
+the `.uxf` file that refers to it) or in a folder in the `UXF_PATH`. Or it
+may be a URL referring to an external UXF file. For non-system files a
+suffixe is required, but any suffix is acceptable (e.g., `.uxf`, `.uxt`,
+`.mysuffix`).
 
 To indicate any type valid for the context, simply omit the type name.
 
