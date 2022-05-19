@@ -23,9 +23,9 @@ def main():
         infile = open_file(infilename, 'rt')
         trackclass = uxf.TClass('Track', (uxf.Field('filename', 'str'),
                                           uxf.Field('seconds', 'real')))
-        uxo = uxf.Uxf({}, custom='TLM 1.1', comment=COMMENT)
+        uxo = uxf.Uxf({}, custom='TLM 1.1')
         intracks = True
-        stack = ['__ROOT__']
+        stack = [ROOT]
         prevlistname = None
         for line in infile:
             if line.startswith(('\fTLM', '\fTRACKS')):
@@ -62,10 +62,7 @@ def main():
 
 def find_parent(uxo, stack):
     for name in stack:
-        if name == '__ROOT__':
-            parent = uxo.data
-        else:
-            parent = parent[name]
+        parent = uxo.data if name == ROOT else parent[name]
     return parent
 
 
@@ -76,14 +73,8 @@ def open_file(filename, mode):
         return open(filename, mode, encoding='utf-8')
 
 
+ROOT = '__ROOT__'
 HISTORY = '__HISTORY__'
-
-COMMENT = f'''\
-Track lists names are indicated by a leading underscore.
-Track lists can nest.
-Tracks consist of a filename and seconds duration.
-The recently played history is in the special list {HISTORY}.
-'''
 
 if __name__ == '__main__':
     main()
