@@ -90,7 +90,7 @@ The first two have essentially the same APIs as `list` and `dict`. The
 [Table](#table-class) API is very similar to a `list` except that it works
 in terms of whole records (i.e., tuples of field values), rather than
 individual values. The best way to append new records is to use the
-[Table.appendrow()](#table-appendrow-def) method.
+[Table.append()](#table-append-def) method.
 
 For reading UXF data it is easiest to iterate, and to do so recursively, if
 the data has nested collections. Note that the `visit.py` example provides a
@@ -131,8 +131,8 @@ that's then returned. The data can be a [Uxf](#uxfclass) object or a single
 <a name="table-class"></a>
 #### Table
 
-<a name="table-appendrow-def"></a>
-##### appendrow()
+<a name="table-append-def"></a>
+##### append()
 
 <a name="tclass-class"></a>
 #### TClass
