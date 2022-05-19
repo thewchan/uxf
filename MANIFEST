@@ -1,6 +1,10 @@
-# TODO (1) review _Writer output & see if it can be improved, experiment
+# TODO generate docs from .py files and put in uxf/py/{md or html?} then
+# add link to uxf.html from uxf/py/README.md using pydoc 
+# put the doc update in st.sh ?
+# TODO misc/tlmuxf2fltk.py to produce treepaths to see how to do it for Rust
+# TODO review _Writer output & see if it can be improved, experiment
 # in py/eg/writer.py
-# TODO (2) code review & improvement
+# TODO code review & improvement
 # TODO release py 1.0.0
 # TODO UXF libraries:
 #   - for .js use Dart or TypeScript or similar that can output JS?

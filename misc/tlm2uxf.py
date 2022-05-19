@@ -46,7 +46,7 @@ def main():
             elif intracks:
                 filename, seconds = line.rstrip().split('\t')
                 if listname not in parent:
-                    parent[listname] = uxf.Table(ttype=trackclass)
+                    parent[listname] = uxf.Table(trackclass)
                 parent[listname].append(filename)
                 parent[listname].append(float(seconds))
             else: # history

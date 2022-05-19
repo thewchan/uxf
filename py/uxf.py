@@ -100,7 +100,7 @@ This class is used to store UXF Tables. A Table has a TClass (see below) and
 a records list which is a list of lists of scalars with each sublist having
 the same number of items as the number of fields. It also has .comment,
 .ttype (a convenience for .tclass.ttype), and .tclass attributes, and a
-special append() method.
+special append() method. See also the table() convenience function.
 
     TClass
 
@@ -880,6 +880,12 @@ class Field:
         return f'{self.__class__.__name__}({self.name!r}, {self.vtype!r})'
 
 
+def table(ttype, fields, *, comment=None):
+    '''Convenience function for creating empty tables with a new tclass.
+    See also the Table constructor.'''
+    return Table(TClass(ttype, fields), comment=comment)
+
+
 class Table:
     '''Used to store a UXF table.
 
@@ -895,15 +901,10 @@ class Table:
     When a Table is iterated each row is returned as a namedtuple.
     '''
 
-    def __init__(self, *, ttype=None, fields=None, records=None,
-                 comment=None):
+    def __init__(self, tclass=None, *, records=None, comment=None):
         '''
         A Table may be created empty, e.g., Table(). However, if records is
-        not None, then both the ttype and fields must be given.
-
-        ttype is a table name that will be used for the TClass ttype name
-        with fields the names of the fields. Or, ttype can be a TClass in
-        which case fields is ignored.
+        not None, then the tclass (of type TClass) must be given.
 
         .records can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fields) long), or a list of
@@ -914,18 +915,19 @@ class Table:
         records.
 
         comment is an optional str.
+
+        See also the table() convenience function.
         '''
         self.RecordClass = None
-        self.tclass = ttype if isinstance(ttype, TClass) else TClass(ttype,
-                                                                     fields)
+        self.tclass = tclass
         self.records = []
         self.comment = comment
         if records:
-            if not ttype:
-                raise Error('#320:can\'t create an unnamed nonempty table')
-            if not self.tclass:
+            if tclass is None:
                 raise Error(
-                    '#330:can\'t create a nonempty table without fields')
+                    '#320:can\'t create a nonempty table without fields')
+            elif not tclass.ttype:
+                raise Error('#330:can\'t create an unnamed nonempty table')
             if isinstance(records, (list, List)):
                 if self.RecordClass is None:
                     self._make_record_class()
@@ -937,12 +939,12 @@ class Table:
 
     @property
     def ttype(self):
-        return self.tclass.ttype
+        return self.tclass.ttype if self.tclass else None
 
 
     @property
     def fields(self):
-        return self.tclass.fields
+        return self.tclass.fields if self.tclass else None
 
 
     def field(self, column):
@@ -1037,9 +1039,11 @@ class Table:
 
 
     def __str__(self):
-        parts = [f'ttype={self.ttype!r}']
-        if self.fields:
-            parts.append(f'fields={self.fields!r}')
+        parts = []
+        if self.tclass is not None:
+            parts.append(f'ttype={self.ttype!r}')
+            if self.fields:
+                parts.append(f'fields={self.fields!r}')
         else:
             parts.append('(no fields)')
         if self.comment:
@@ -1049,8 +1053,7 @@ class Table:
 
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}(ttype={self.ttype!r}, '
-                f'fields={self.fields!r}, '
+        return (f'{self.__class__.__name__}(tclass={self.tclass!r}, '
                 f'records={self.records!r}, comment={self.comment!r})')
 
 

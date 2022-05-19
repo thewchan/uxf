@@ -179,8 +179,8 @@ def _read_csv_to_data(infile, fieldnames):
             if data is None:
                 if fieldnames:
                     ttype = uxf.canonicalize(pathlib.Path(infile).stem)
-                    data = uxf.Table(ttype=ttype, fields=[uxf.Field(name)
-                                     for name in row])
+                    data = uxf.table(ttype,
+                                     [uxf.Field(name) for name in row])
                     tclasses[ttype] = data.tclass
                     continue
                 else:
@@ -358,8 +358,8 @@ def _json_naturalize(d):
         jtable = d[JSON_TABLE]
         fields = [uxf.Field(name, vtype) for name, vtype in
                   jtable[FIELDS].items()]
-        return uxf.Table(ttype=jtable[NAME], comment=jtable[COMMENT],
-                         fields=fields, records=jtable[RECORDS])
+        return uxf.Table(uxf.TClass(jtable[NAME], fields),
+                         comment=jtable[COMMENT], records=jtable[RECORDS])
     if JSON_TCLASS in d:
         fields = [uxf.Field(name, vtype) for name, vtype in
                   d[JSON_TCLASS][FIELDS].items()]
@@ -467,7 +467,7 @@ def _sqlite_to_uxf(infile):
             sql = 'SELECT name FROM pragma_table_info(?)'
             for row in cursor.execute(sql, (ttype,)):
                 fields.append(row[0])
-            table = uxf.Table(ttype=ttype, fields=fields, comment=comment)
+            table = uxf.table(ttype, fields, comment=comment)
             fields = [f'[{field}]' for field in fields]
             sql = f'SELECT {", ".join(fields)} FROM {ttype};'
             for row in cursor.execute(sql):
@@ -678,7 +678,8 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
             container.vtype = d.get('vtype')
             self.start_container(container)
         elif name == 'table':
-            container = uxf.Table(ttype=d['name'], comment=d.get('comment'))
+            container = uxf.Table(uxf.TClass(d['name']),
+                                  comment=d.get('comment'))
             container.tclass = self.uxo.tclasses[d['name']]
             self.start_container(container)
         elif name in {'key', 'value'}:
