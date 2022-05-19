@@ -717,7 +717,9 @@ class Map(collections.UserDict):
 
 
     def append(self, value):
-        '''If there's no pending key, sets the value as the pending key;
+        '''This is for UXF readers; instead use: map[key] = value
+
+        If there's no pending key, sets the value as the pending key;
         otherwise adds a new item with the pending key and this value and
         clears the pending key.'''
         if self._pending_key is _MISSING:
@@ -868,7 +870,7 @@ class Table:
     The only type-safe way to add values to a table is via .append() for
     single values or += for single values or a sequence of values.
 
-    When a Table is iterated each row is returned as a namedtuple.
+    When a Table is iterated each record (row) is returned as a namedtuple.
     '''
 
     def __init__(self, tclass=None, *, records=None, comment=None):
@@ -933,9 +935,11 @@ class Table:
 
 
     def append(self, value):
-        '''Use to append a value to the table. The value will be added to
-        the last row if that isn't full, or as the first value in a new
-        row'''
+        '''This is for UXF readers; instead use: table.appendrow(record)
+
+        Use to append a value to the table. The value will be added to
+        the last record (row) if that isn't full, or as the first value in a
+        new record (row)'''
         if self.RecordClass is None:
             self._make_record_class()
         if not self.records or len(self.records[-1]) >= len(self.tclass):
@@ -952,8 +956,8 @@ class Table:
                 return False # non-scalar expected so not a scalar table
         else:
             return True # all vtypes specified and all scalar
-        for row in self.records:
-            for x in row:
+        for record in self.records:
+            for x in record:
                 if not is_scalar(x):
                     return False
         return True
@@ -970,10 +974,11 @@ class Table:
 
 
     def __iadd__(self, value):
+        '''This is for UXF readers; instead use: table.appendrow(record)'''
         if not self.ttype:
-            raise Error('#360:can\'t append to an unnamed table')
+            raise Error('#360:can\'t += to an unnamed table')
         if not self.fields:
-            raise Error('#370:can\'t append to a table with no fields')
+            raise Error('#370:can\'t += to a table with no fields')
         if isinstance(value, (list, List, tuple)):
             for v in value:
                 self.append(v)
@@ -982,22 +987,52 @@ class Table:
         return self
 
 
+    def appendrow(self, record):
+        '''Add a record (either a RecordClass tuple or a sequence of fields)
+        to the table'''
+        if self.records and len(self.records[-1]) != len(self.tclass):
+            raise Error('#372:can\'t use appendrow when the last record '
+                        'is incomplete')
+        if len(record) != len(self.tclass):
+            raise Error(f'#374:appendrow expects {len(self.tclass)} '
+                        f'fields, got {len(record)}')
+        if not isinstance(record, self.RecordClass):
+            record = self.RecordClass(*record)
+        self.records.append(record)
+
+
     def __getitem__(self, row):
         '''Return the row-th record as a namedtuple'''
         try:
-            return self.RecordClass(*self.records[row])
+            record = self.records[row]
+            if not isinstance(record, self.RecordClass):
+                record = self.RecordClass(*record)
+            return record
         except TypeError as err:
             if 'missing' in str(err):
                 err = '#380:table\'s ttype has fewer fields than in a row'
                 raise Error(err) from None
 
 
+    def __setitem__(self, row, record):
+        if not isinstance(record, self.RecordClass):
+            record = self.RecordClass(*record)
+        self.records[row] = record
+
+
+    def __delitem__(self, row):
+        del self.records[row]
+
+
     def __iter__(self):
         if self.RecordClass is None:
             self._make_record_class()
         try:
-            for record in self.records:
-                yield self.RecordClass(*record)
+            for i in range(len(self.records)):
+                record = self.records[i]
+                if not isinstance(record, self.RecordClass):
+                    record = self.records[i] = self.RecordClass(*record)
+                yield record
         except TypeError as err:
             if 'missing' in str(err):
                 raise Error(
@@ -1023,7 +1058,7 @@ class Table:
 
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}(tclass={self.tclass!r}, '
+        return (f'{self.__class__.__name__}({self.tclass!r}, '
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
@@ -1317,7 +1352,10 @@ class _Parser:
             elif token.kind is _Kind.COMMENT:
                 tclass.comment = token.value
             elif token.kind is _Kind.IDENTIFIER:
-                if tclass.ttype is None:
+                if tclass is None:
+                    self.error(518, 'missing ttype; is an `=` missing?',
+                               fail=True)
+                elif tclass.ttype is None:
                     tclass.ttype = token.value
                 else:
                     tclass.append(token.value)
