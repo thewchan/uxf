@@ -126,7 +126,7 @@ attribute that is always a [List](#list-class) or [Map](#map-class) or
 `list` and `dict` respectively. The [Table](#table-class) API is very
 similar to a `list` except that it works in terms of whole records (i.e.,
 named tuples of field values), rather than individual values. The best way
-to append new records is to use the [Table.append()](#table-append-def)
+to append new records is to use the [Table](#table-class)'s `append()`
 method.
 
 The `uxf` module distinguishes between a _ttype_ (the name of a user-defined
@@ -244,9 +244,6 @@ whole records rather than individual values.
 
 See also the [table()](#table-def) convenience function.
 
-<a name="table-append-def"></a>
-##### append()
-
 <a name="tclass-class"></a>
 #### TClass
 
@@ -294,19 +291,55 @@ ordered links:
 [table()](#table-def).
 
 <a name="load-def"></a>
-#### load()
+#### load(filename\_or\_filelike, \*, on\_error=on\_error)
+
+Returns a [Uxf](uxf-class) object.
+
+`filename_or_filelike` is `sys.stdin` or a filename (`str` or
+`pathlib.Path`) or an open readable file (text mode UTF-8 encoded,
+optionally gzipped).
+
+`on_error` is a custom error handling function that defaults to
+[on\_error](#on_error-def).
 
 <a name="loads-def"></a>
-#### loads()
+#### loads(uxt, filename='-', \*, on\_error=on\_error)
+
+Returns a [Uxf](#uxf-class) object.
+
+`uxt` must be a `str` of UXF data, e.g., `uxf 1.0\n[1 2 3]`.
 
 <a name="dump-def"></a>
-#### dump()
+#### dump(filename\_or\_filelike, data, \*, use\_true\_false=False, on\_error=on\_error)
+
+`filename_or_filelike` is `sys.stdout` or a filename or an open writable
+file (text mode UTF-8 encoded). If `filename_or_filelike` is a filename with
+a `.gz` suffix then the output will be gzip-compressed.
+
+`data` is a [Uxf](#uxf-class) object, or a list, [List](#list-class), dict,
+[Map](#map-class), or [Table](#table-class), that this function will write
+to the `filename_or_filelike` in UXF format.
+
+If `use_true_false` is `False` (the default), bools are output as 'yes' or
+'no'; but if `use_true_false` is `True` the are output as 'true' or 'false'.
 
 <a name="dumps-def"></a>
-#### dumps()
+#### dumps(data, \*, use\_true\_false=False, on\_error=on\_error)
+
+`data` is a [Uxf](#uxf-class) object, or a list, [List](#list-class), dict,
+[Map](#map-class), or [Table](#table-class) that this function will write to
+a `str` in UXF format which will then be returned.
+
+If `use_true_false` is `False` (the default), bools are output as 'yes' or
+'no'; but if `use_true_false` is `True` the are output as 'true' or 'false'.
 
 <a name="table-def"></a>
 #### table(ttype, fields, \*, comment=None)
+
+Convenience function for creating empty tables with a new
+[TClass](#tclass-class).
+
+See also the `Table` `__init__()` method.
 
 <a name="naturalize-def"></a>
 #### naturalize(s)
@@ -377,6 +410,11 @@ use.
 
 ### Constants
 
+|**Constant**|**Description**|
+|------------|---------------|
+|`VERSION`|The UXF file format version|
+|`RESERVED_WORDS`|A set of names that cannot be used for table or field names|
+
 ### Command Line Usage
 
 The uxf module can be used as an executable. To see the command line help
@@ -387,3 +425,5 @@ run:
 or
 
     path/to/uxf.py -h
+
+---

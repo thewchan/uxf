@@ -1,6 +1,3 @@
-# TODO Update py/README.md to contain full API docs of all classes and
-# public functions etc. Copy/merge docs from uxf.py & complete where
-# missing.
 # TODO misc/tlmuxf2fltk.py to produce treepaths to see how to do it for Rust
 # TODO review _Writer output & see if it can be improved, experiment
 # in py/eg/writer.py
