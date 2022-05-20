@@ -302,6 +302,7 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
+    # See test_table.py for 360 370
     try:
         total += 1
         e = 380

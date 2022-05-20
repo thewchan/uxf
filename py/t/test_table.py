@@ -8,8 +8,6 @@ and deques into a Uxf object, and how to handle round-trippable custom data
 including enums, complex numbers, and a custom type.
 '''
 
-import collections
-import enum
 import sys
 import os
 
@@ -51,18 +49,18 @@ def main():
         ok += 1
     # len()
     total += 1
-    if len(t) ==  5:
+    if len(t) == 5:
         ok += 1
     # __delitem__
     del t[3]
     total += 1
-    if len(t) ==  4:
+    if len(t) == 4:
         ok += 1
     # __iter__
     total += 1
     expected = [t.RecordClass(*p)
                 for p in [(1, -6), (-20, 191), (3, 21), (5, 17)]]
-    if list(t) == expected: 
+    if list(t) == expected:
         ok += 1
     # properties
     total += 1
@@ -72,7 +70,7 @@ def main():
     if t.fields == [uxf.Field('x'), uxf.Field('y')]:
         ok += 1
 
-    # errors (see test_errors.py for 320 340 
+    # errors (see test_errors.py for 320 340
     try:
         total += 1
         e = 370 # must preced 360

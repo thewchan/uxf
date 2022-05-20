@@ -1,8 +1,8 @@
 uxf 1.0 1.csv 2.csv
-=T_1 CID Name Selected
-=T_2 TID Artist CID Selected
+=UXF_1 CID Name Selected
+=UXF_2 TID Artist CID Selected
 [
-  (T_1
+  (UXF_1
     5 <Classical> yes
     4 <Modern Instrumental &amp; &lt;Experimental&gt;> no
     1 <New Acquistions> no
@@ -11,7 +11,7 @@ uxf 1.0 1.csv 2.csv
     7 <Uncategorized> no
     6 <Unpopular Pop> no
   )
-  (T_2
+  (UXF_2
     4 <ABBA> 2 no
     38 <Bach> 5 no
     39 <Bartok> 5 no

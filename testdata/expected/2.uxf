@@ -1,6 +1,6 @@
 uxf 1.0 2.csv
-=T_1 TID Artist CID Selected
-(T_1
+=UXF_1 TID Artist CID Selected
+(UXF_1
   4 <ABBA> 2 no
   38 <Bach> 5 no
   39 <Bartok> 5 no

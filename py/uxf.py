@@ -4,96 +4,6 @@
 
 '''The full API documentation is in the accompanying README.md file.'''
 
-'''
-The uxf module distinguishes between a ttype (the name of a user-defined
-table) and a TClass (the Python class which represents a user-defined
-table). A TClass has a .ttype attribute and a .fields attribute (see below).
-
-###### TODO move to README.md #######
-
-    on_error(...)
-
-This is the default error handler which you can replace by passing a new one
-to load(s) and dump(s). For examples of custom on_error functions, see
-t/test_errors.py and eg/on_error.py.
-
-    add_converter(obj_type, to_str, from_str)
-
-This function can be used to register custom types and custom converters
-to/from strings. (See test_converter.py examples of use.)
-
-    naturalize(s) -> object
-
-This function takes a str and returns a bool or datetime.datetime or
-datetime.date or int or float if any of these can be parsed, otherwise
-returns the original string s. This is provided as a helper function (e.g.,
-it is used by uxfconvert.py).
-
-    canonicalize(name)
-
-Given a name, returns a name that is a valid table or field name.
-
-    is_scalar(x) -> bool
-
-Returns True if x is None or a bool, int, float, datetime.date,
-datetime.datetime, str, bytes, or bytearray; otherwise returns False.
-
-    Error
-
-This class is used to propagate errors.
-
-(If this module produces an exception that isn't a uxf.Error or IOError
-subclass then it is probably a bug that should be reported.)
-
-    Uxf
-
-This class has a .data attribute which holds a Map, List, or Table, a
-.custom str holding a (possibly empty) custom string, and a .tclasses
-holding a (possibly empty) dict whose names are TClass table names (ttypes)
-and whose values are TClasses. It also has convenience dump(), dumps(),
-load() and loads() methods.
-
-    List
-
-This class is used to represent a UXF list. It is a collections.UserList
-subclass that also has .comment and .vtype attributes.
-
-    Map
-
-This class is used to represent a UXF map. It is a collections.UserDict
-subclass that also has .comment, .ktype, and .vtype attributes. It also has
-a special append() method.
-
-    Table
-
-This class is used to store UXF Tables. A Table has a TClass (see below) and
-a records list which is a list of lists of scalars with each sublist having
-the same number of items as the number of fields. It also has .comment,
-.ttype (a convenience for .tclass.ttype), and .tclass attributes, and a
-special append() method. See also the table() convenience function.
-
-    TClass
-
-This class is used to store a Table's ttype (i.e., its name) and fields (see
-below).
-
-    Field
-
-This class is used to store a Table's fields. The .name must start with a
-letter and be followed by 0-uxf.MAX_IDENTIFIER_LEN-1 letters, digits, or
-underscores. A vtype must be one of these strs: 'bool', 'int', 'real',
-'date', 'datetime', 'str', 'bytes', or None (which means accept any valid
-type), or a ttype name.
-
-Note that for imports, if the filename is relative it is searched for in the
-same folder as the importing UXF file, and if not found there, each of the
-paths in UXF_PATH is tried in turn (if any).
-
-Note that the __version__ is the module version (i.e., the versio of this
-implementation), while the VERSION is the maximum UXF version that this
-module can read (and the UXF version that it writes).
-'''
-
 import collections
 import datetime
 import enum
@@ -116,7 +26,7 @@ except ImportError:
 __all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
            'naturalize', 'canonicalize', 'is_scalar', 'Uxf', 'List',
            'Map', 'Table', 'TClass', 'Field')
-__version__ = '0.30.0' # uxf module version
+__version__ = '0.31.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
@@ -135,6 +45,13 @@ _MISSING = object()
 
 
 def on_error(lino, code, message, *, filename, fail=False, verbose=True):
+    '''The default on_error() error handler.
+    Is called with the line number (lino), error code, error message,
+    and filename. The filename may be '-' or empty if the UXF is created in
+    memory rather than loaded from a file. If fail is True it means the
+    error is unrecoverable, so the normal action would be to raise. If
+    verbose is True the normal action is to print a textual version of the
+    error data to stderr.'''
     text = f'uxf.py:{filename}:{lino}:#{code}:{message}'
     if fail:
         raise Error(text)
@@ -143,14 +60,6 @@ def on_error(lino, code, message, *, filename, fail=False, verbose=True):
 
 
 class Uxf:
-    '''A Uxf object holds three attributes.
-
-    .data is a List, Map, or Table of data
-    .custom is an opional custom string used for customizing the file format
-    .tclasses is a dict where each key is a ttype (i.e., the .tclass.ttype
-    which is a TClass's name) and each value is a TClass object.
-    .comment is an optional file-level comment
-    '''
 
     def __init__(self, data=None, *, custom='', tclasses=None,
                  comment=None):
@@ -170,6 +79,8 @@ class Uxf:
 
     @property
     def import_filenames(self):
+        '''A utility useful for some UXF processors. This yields all the
+        unique import filenames.'''
         seen = set()
         for filename in self.imports.values(): # don't sort!
             if filename not in seen:
@@ -866,15 +777,17 @@ class Table:
     '''Used to store a UXF table.
 
     A Table has a list of fields (name, optional type) and a records list
-    which is a list of lists of scalars. with each sublist having the same
+    which is a list of lists of values, with each sublist having the same
     number of items as the number of fields. It also has a .comment
     attribute. (Note that the lists in a Table are plain lists not UXF
     Lists.)
 
-    The only type-safe way to add values to a table is via .append() for
-    single values or += for single values or a sequence of values.
+    Table's API is very similar to the list API, only it works in terms of
+    whole records rather than individual values.
 
-    When a Table is iterated each record (row) is returned as a namedtuple.
+    When a Table is iterated each record (row) is returned as a namedtuple,
+    and in the process each record is converted from a list to a namedtuple
+    if it isn't one already.
     '''
 
     def __init__(self, tclass=None, *, records=None, comment=None):
@@ -1793,6 +1706,8 @@ class _Writer:
 
 
 def is_scalar(x):
+    '''Returns True if x is None or a bool, int, float, datetime.date,
+    datetime.datetime, str, bytes, or bytearray; otherwise returns False.'''
     return x is None or isinstance(
         x, (bool, int, float, datetime.date, datetime.datetime, str, bytes,
             bytearray))
@@ -1829,7 +1744,8 @@ class _AlreadyImported(Exception):
 
 
 def append_to_parent(parent, value):
-    '''Utility for UXF processors'''
+    '''Utility for UXF processors; see uxf.py and uxfconvert.py for examples
+    of use.'''
     if isinstance(parent, (Map, Table)):
         parent._append(value)
     else:
@@ -1856,6 +1772,7 @@ def add_converter(obj_type, *, to_str=repr, from_str=None):
 
 
 def delete_converter(obj_type):
+    '''Deletes the converter for objects of type `obj_type`.'''
     del _Converters[obj_type]
 
 
@@ -1891,11 +1808,11 @@ def naturalize(s):
                 return s
 
 
-def canonicalize(name, is_table_name=True):
+def canonicalize(name):
     '''Given a name, returns a name that is a valid table or field name.
     is_table_name must be True (the default) for tables since table names
     have additional constraints. (See uxfconvert.py for uses.)'''
-    prefix = 'T_' if is_table_name else 'F_'
+    prefix = 'UXF_'
     cs = []
     if name[0] == '_' or name[0].isalpha():
         cs.append(name[0])
@@ -1908,7 +1825,7 @@ def canonicalize(name, is_table_name=True):
         elif c == '_' or c.isalnum():
             cs.append(c)
     name = ''.join(cs)
-    if is_table_name and name in RESERVED_WORDS:
+    if name in RESERVED_WORDS:
         name = prefix + name
     elif not name:
         name = prefix
