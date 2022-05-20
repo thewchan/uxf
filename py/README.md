@@ -200,12 +200,12 @@ Convenience method that wraps the module-level [loads()](#loads-def)
 function.
 
 <a name="Uxf.dump-def"></a>
-##### .dump(filename\_or\_filelike, \*, indent=2, use\_true\_false=False, on\_error=on\_error)
+##### .dump(filename\_or\_filelike, \*, use\_true\_false=False, on\_error=on\_error)
 
 Convenience method that wraps the module-level [dump()](#dump-def) function.
 
 <a name="Uxf.dumps-def"></a>
-##### .dumps(\*, indent=2, use\_true\_false=False, on\_error=on\_error)
+##### .dumps(\*, use\_true\_false=False, on\_error=on\_error)
 
 Convenience method that wraps the module-level [dumps()](#dumps-def)
 function.
