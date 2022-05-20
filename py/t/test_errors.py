@@ -3,7 +3,7 @@
 # License: GPLv3
 
 # NOTE Can't work out how to produce:
-# 210 240 250 260 330 400 410 420 490 494 500 504 506 510 530 540
+# 210 240 250 260 330 350 400 410 420 490 494 500 504 506 510 530 540
 
 import sys
 import os
@@ -504,6 +504,14 @@ def main():
         e = 512
         uxo = uxf.loads('uxf 1.0\n[1 2 3}', on_error=on_error)
         print(uxo.dumps(on_error=on_error))
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 518
+        uxf.loads('uxf 1.0\np a b\n(p 1 2)', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)

@@ -848,6 +848,10 @@ class Field:
         self._name = name
 
 
+    def __eq__(self, other): # for testing
+        return self.name == other.name and self.vtype == other.vtype
+
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.name!r}, {self.vtype!r})'
 
@@ -969,7 +973,7 @@ class Table:
         if not self.fields:
             raise Error('#350:can\'t create a table with no fields')
         self.RecordClass = collections.namedtuple(
-            f'UXF{self.ttype}', # prefix avoids name clashes
+            f'UXF_{self.ttype}', # prefix avoids name clashes
             [field.name for field in self.fields])
 
 
