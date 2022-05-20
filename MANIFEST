@@ -1,11 +1,12 @@
-# TODO misc/tlmuxf2fltk.py to produce treepaths to see how to do it for Rust
 # TODO review _Writer output & see if it can be improved, experiment
 # in py/eg/writer.py
 # TODO code review & improvement
 # TODO release py 1.0.0
 # TODO UXF libraries:
 #   - for .js use Dart or TypeScript or similar that can output JS?
-#   - uxf.rs uxf.cpp uxf.java uxf.rb ... ?
+#   - uxf.rs (just before this, create misc/tlmuxf2fltk.py to produce
+#     treepaths to see how to do it for Rust.
+#   - uxf.cpp uxf.java uxf.rb ... ?
 
 py/uxf.py
 py/uxfconvert.py
