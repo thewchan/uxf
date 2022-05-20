@@ -189,23 +189,23 @@ The `.import_filenames` property is a  utility useful for some UXF
 processors. it yields all the unique import filenames.
 
 <a name="Uxf.load-def"></a>
-##### load(filename\_or\_filelike, \*, on\_error=on\_error)
+##### .load(filename\_or\_filelike, \*, on\_error=on\_error)
 
 Convenience method that wraps the module-level [load()](#load-def) function.
 
 <a name="Uxf.loads-def"></a>
-##### loads(uxt, filename='-', \*, on\_error=on\_error)
+##### .loads(uxt, filename='-', \*, on\_error=on\_error)
 
 Convenience method that wraps the module-level [loads()](#loads-def)
 function.
 
 <a name="Uxf.dump-def"></a>
-##### dump(filename\_or\_filelike, \*, indent=2, use\_true\_false=False, on\_error=on\_error)
+##### .dump(filename\_or\_filelike, \*, indent=2, use\_true\_false=False, on\_error=on\_error)
 
 Convenience method that wraps the module-level [dump()](#dump-def) function.
 
 <a name="Uxf.dumps-def"></a>
-##### dumps(\*, indent=2, use\_true\_false=False, on\_error=on\_error)
+##### .dumps(\*, indent=2, use\_true\_false=False, on\_error=on\_error)
 
 Convenience method that wraps the module-level [dumps()](#dumps-def)
 function.
