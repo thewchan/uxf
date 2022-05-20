@@ -3,7 +3,7 @@
 # License: GPLv3
 
 # NOTE Can't work out how to produce:
-# 210 240 250 260 330 360 370 400 410 420 490 494 500 504 506 510 530 540
+# 210 240 250 260 330 400 410 420 490 494 500 504 506 510 530 540
 
 import sys
 import os

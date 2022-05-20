@@ -688,19 +688,19 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
             self.inbytes = True
             self.bytes = ''
         elif name == 'int':
-            uxf.append_to_parent(self.stack, int(d['v']))
+            uxf.append_to_parent(self.stack[-1], int(d['v']))
         elif name == 'real':
-            uxf.append_to_parent(self.stack, float(d['v']))
+            uxf.append_to_parent(self.stack[-1], float(d['v']))
         elif name == 'date':
-            uxf.append_to_parent(self.stack, uxf.naturalize(d['v']))
+            uxf.append_to_parent(self.stack[-1], uxf.naturalize(d['v']))
         elif name == 'datetime':
-            uxf.append_to_parent(self.stack, uxf.naturalize(d['v']))
+            uxf.append_to_parent(self.stack[-1], uxf.naturalize(d['v']))
         elif name == 'null':
-            uxf.append_to_parent(self.stack, None)
+            uxf.append_to_parent(self.stack[-1], None)
         elif name == 'yes':
-            uxf.append_to_parent(self.stack, True)
+            uxf.append_to_parent(self.stack[-1], True)
         elif name == 'no':
-            uxf.append_to_parent(self.stack, False)
+            uxf.append_to_parent(self.stack[-1], False)
 
 
     def endElement(self, name):
@@ -716,11 +716,11 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
         elif name in {'map', 'list', 'table'}:
             self.stack.pop()
         elif name == 'str':
-            uxf.append_to_parent(self.stack, self.string)
+            uxf.append_to_parent(self.stack[-1], self.string)
             self.string = ''
             self.instr = False
         elif name == 'bytes':
-            uxf.append_to_parent(self.stack, bytes.fromhex(self.bytes))
+            uxf.append_to_parent(self.stack[-1], bytes.fromhex(self.bytes))
             self.bytes = ''
             self.inbytes = False
 
@@ -737,7 +737,7 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
             self.uxo.data = container
             self.stack = [container]
         elif self.stack:
-            uxf.append_to_parent(self.stack, container)
+            uxf.append_to_parent(self.stack[-1], container)
         self.stack.append(container)
 
 

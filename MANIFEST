@@ -1,5 +1,6 @@
-# TODO test & document Table.__iadd__()
-# TODO test_errors.py: add tests for 372 374 518
+# TODO add tests to test_table.py for Table.insert(), Table.append(),
+# table[row] = record
+# TODO add tests to test_errors.py for 360 370 518
 # TODO Update py/README.md to contain full API docs of all classes and
 # public functions etc.
 # TODO misc/tlmuxf2fltk.py to produce treepaths to see how to do it for Rust

@@ -974,15 +974,9 @@ class Table:
 
 
     def append(self, record):
-        # TODO add tests to regression.py & test_errors.py
         '''Add a record (either a RecordClass tuple or a sequence of fields)
         to the table'''
-        if self.records and len(self.records[-1]) != len(self.tclass):
-            raise Error('#372:can\'t use appendrow when the last record '
-                        'is incomplete')
-        if len(record) != len(self.tclass):
-            raise Error(f'#374:appendrow expects {len(self.tclass)} '
-                        f'fields, got {len(record)}')
+        self._check_append_or_insert(record, 'append')
         if self.RecordClass is None:
             self._make_record_class()
         if not isinstance(record, self.RecordClass):
@@ -990,11 +984,22 @@ class Table:
         self.records.append(record)
 
 
-    def __iadd__(self, record):
-        # TODO document &
-        # TODO add tests to regression.py & test_errors.py (same ones as for
-        # append())
-        self.append(record)
+    def _check_append_or_insert(self, record, what):
+        if self.records and len(self.records[-1]) != len(self.tclass):
+            raise Error(f'#360:can\'t use {what} when the last record '
+                        'is incomplete')
+        if len(record) != len(self.tclass):
+            raise Error(f'#370:{what} expects {len(self.tclass)} '
+                        f'fields, got {len(record)}')
+
+
+    def insert(self, index, record):
+        self._check_append_or_insert(record, 'insert')
+        if self.RecordClass is None:
+            self._make_record_class()
+        if not isinstance(record, self.RecordClass):
+            record = self.RecordClass(*record)
+        self.records.insert(index, record)
 
 
     def __getitem__(self, row):
@@ -1011,6 +1016,7 @@ class Table:
 
 
     def __setitem__(self, row, record):
+        self._check_append_or_insert(record, f'table[{row}] = …')
         if not isinstance(record, self.RecordClass):
             record = self.RecordClass(*record)
         self.records[row] = record
@@ -1247,7 +1253,7 @@ class _Parser:
                 value = new_value
             else:
                 self.error(494, message)
-        append_to_parent(self.stack, value)
+        append_to_parent(self.stack[-1], value)
 
 
     def _handle_scalar(self, i, token):
@@ -1264,7 +1270,7 @@ class _Parser:
                 value = v
             else:
                 self.error(500, message)
-        append_to_parent(self.stack, value)
+        append_to_parent(self.stack[-1], value)
 
 
     def _on_collection_start(self, token):
@@ -1283,7 +1289,7 @@ class _Parser:
             if message is not None:
                 self.error(506, message)
             # add the collection to the parent
-            append_to_parent(self.stack, value)
+            append_to_parent(self.stack[-1], value)
         self.stack.append(value) # make the collection the current parent
 
 
@@ -1818,9 +1824,8 @@ class _AlreadyImported(Exception):
     pass
 
 
-def append_to_parent(stack, value):
+def append_to_parent(parent, value):
     '''Utility for UXF processors'''
-    parent = stack[-1]
     if isinstance(parent, (Map, Table)):
         parent._append(value)
     else:
