@@ -52,8 +52,8 @@ holds the table's `ttype` (i.e., its table type name), and the table's field
 names and (optional) types. In all cases a type of `None` signifies that any
 type valid for the context may be used.
 
-For complex numbers you could define a _ttype_ such as: `= Complex Real real
-Imag real`. Then you could include single complex values like `(Complex 1.5
+For complex numbers you could define a _ttype_ such as: `=Complex Real:real
+Imag:real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 
 For custom types (e.g., enums; or as an alternative to using a _ttype_ for
@@ -61,8 +61,8 @@ complex numbers, or for any other custom type), use `uxf.add_converter()`.
 See `test_converters.py` for examples.
 
 Collection types such as `set`, `frozenset`, `tuple`, or `collections.deque`
-are automatically converted to a `List` when they are encountered. Of
-course, these are one way conversions.
+are automatically converted to a [List](#list-class) when they are
+encountered. Of course, these are one way conversions.
 
 Using `uxf` as an executable (with `python3 -m uxf ...`) provides a means of
 doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress, or make
@@ -73,9 +73,9 @@ see how to use `uxf`. For example, `uxfconvert.py` can losslessly convert
 `.uxf` to `.json` or `.xml` and back. It can also do some simple conversions
 to and from `.csv`, to `.ini`, and to and from `.sqlite`, but these are
 really to illustrate use of the uxf APIs. And also see the UXF test files in
-the `../testdata` folder and the Python examples in the `./eg` folder.
+the `../testdata` folder and the Python examples in the `eg` folder.
 
-If you just want to create a small standalone `.pyz`, simply copy
+If you just want to create a small standalone `.pyz`, you could simply copy
 `py/uxf.py` as `uxf.py` into your project folder and inlude it in your
 `.pyz` file.
 
@@ -84,17 +84,18 @@ If you just want to create a small standalone `.pyz`, simply copy
 The simplest part of the API loads and saves (dumps) UXF data from/to
 strings or files.
 
-A UXF object (called a `uxo` in these docs) has a `.data` attribute that is
-always a [List](#list-class) or [Map](#map-class) or [Table](#table-class).
-The first two have essentially the same APIs as `list` and `dict`. The
-[Table](#table-class) API is very similar to a `list` except that it works
-in terms of whole records (i.e., tuples of field values), rather than
-individual values. The best way to append new records is to use the
-[Table.append()](#table-append-def) method.
+A [UXF](#uxf-class) object (called a `uxo` in these docs) has a `.data`
+attribute that is always a [List](#list-class) or [Map](#map-class) or
+[Table](#table-class). The first two have essentially the same APIs as
+`list` and `dict`. The [Table](#table-class) API is very similar to a `list`
+except that it works in terms of whole records (i.e., tuples of field
+values), rather than individual values. The best way to append new records
+is to use the [Table.append()](#table-append-def) method.
 
 For reading UXF data it is easiest to iterate, and to do so recursively, if
 the data has nested collections. Note that the `visit.py` example provides a
-way of doing this using the visitor design pattern.
+way of doing this using the visitor design pattern. The `uxfconvert.py`
+example shows alternative approaches to manual iteration.
 
 ### Reading and Writing UXF Data
 
@@ -105,17 +106,14 @@ The [load()](#load-def) function reads UXF data from a file or file-like
 object, and the [loads()](#loads-def) function reads UXF data from a string.
 The returned `uxo` is of type [Uxf](#uxf-class).
 
-In the docs we use `uxo` to refer to a [Uxf](#uxf-class) object and `uxt` to
-refer to a string containing a UXF file's text.
-
     dump(filename_or_filelike, data)
     dumps(data) -> uxt
 
 The [dump()](#dump-def) function writes the data to a file or file-like
 object, and the [dumps()](#dumps-def) function writes the data into a string
-that's then returned. The data can be a [Uxf](#uxfclass) object or a single
-`list`, [List](#list-class), `dict`, [Map](#map-class), or
-[Table](#table-class).
+that's then returned (here called `uxt` to indicate UXF text). The data can
+be a [Uxf](#uxfclass) object or a single `list`, [List](#list-class),
+`dict`, [Map](#map-class), or [Table](#table-class).
 
 ### Classes
 
