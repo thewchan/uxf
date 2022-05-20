@@ -118,6 +118,14 @@ that's then returned (here called `uxt` to indicate UXF text). The data can
 be a [Uxf](#uxfclass) object or a single `list`, [List](#list-class),
 `dict`, [Map](#map-class), or [Table](#table-class).
 
+If the data contains values of types that aren't supported by UXF, they
+could either be transformed in advance (e.g., to a custom table type, a
+_ttype_), or converted on-the-fly using a custom converter.
+See [Python UXF Types](#python-uxf-types) and
+[add\_converter()](#add_converter-def).
+
+See also the examples in the `eg` folder and the tests in the `t` folder.
+
 ### API Notes
 
 A [UXF](#uxf-class) object (called a `uxo` in these docs) has a `.data`
@@ -309,6 +317,10 @@ Returns a [Uxf](#uxf-class) object.
 
 `uxt` must be a `str` of UXF data, e.g., `uxf 1.0\n[1 2 3]`.
 
+If given, the `filename` is used for error messages.
+
+For more on the other argument see [load()](#load-def).
+
 <a name="dump-def"></a>
 #### dump(filename\_or\_filelike, data, \*, use\_true\_false=False, on\_error=on\_error)
 
@@ -323,6 +335,12 @@ to the `filename_or_filelike` in UXF format.
 If `use_true_false` is `False` (the default), bools are output as 'yes' or
 'no'; but if `use_true_false` is `True` the are output as 'true' or 'false'.
 
+If the data contains values of types that aren't supported by UXF, they
+could either be transformed in advance (e.g., to a custom table type, a
+_ttype_), or converted on-the-fly using a custom converter.
+See [Python UXF Types](#python-uxf-types) and
+[add\_converter()](#add_converter-def).
+
 <a name="dumps-def"></a>
 #### dumps(data, \*, use\_true\_false=False, on\_error=on\_error)
 
@@ -330,8 +348,7 @@ If `use_true_false` is `False` (the default), bools are output as 'yes' or
 [Map](#map-class), or [Table](#table-class) that this function will write to
 a `str` in UXF format which will then be returned.
 
-If `use_true_false` is `False` (the default), bools are output as 'yes' or
-'no'; but if `use_true_false` is `True` the are output as 'true' or 'false'.
+For more on the other arguments see [dump()](#dump-def).
 
 <a name="table-def"></a>
 #### table(ttype, fields, \*, comment=None)
@@ -386,7 +403,31 @@ Use this to register custom types and conversions to and from ``str``'s.
 value of `str` type and either returns `(None, False)` or `(value, True)`
 where `value` is of type `obj_type`.
 
-For examples see `t/test_converters.py`. See also
+_Example:_
+
+```python
+def complex_from_str(s):
+    if s.startswith('©(') and s.endswith('j)'):
+	try:
+	    return complex(s[1:]), True
+	except ValueError:
+	    pass
+    return None, False
+
+uxf.add_converter(complex, to_str=lambda c: f'©{c}',
+		  from_str=complex_from_str)
+```
+
+A `to_str` converter must return a `str`. In the example a complex number,
+say, `(2.5-1j)` is returned as `'©(2.5-1j)'`, using the © copyright symbol
+as a distingisher. A distingisher is needed to avoid trying to convert
+normal ``str``s to complex numbers.
+
+A `from_str` converter must return a 2-tuple, either a value and `True` when
+the conversion succeeds, or `None` and `False` when the conversion fails.
+
+Using a converter is also ideal for handling enums. For examples see
+`t/test_converters.py`. See also
 [delete\_converter()](#delete_converter-def).
 
 <a name="delete_converter-def"></a>
