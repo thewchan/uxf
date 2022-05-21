@@ -18,13 +18,7 @@ open source software.
 
 ## Datatypes
 
-Every `.uxf` file consists of a header line (starting `uxf 1.0`), then an
-optional file-level comment, then any _ttype_ (table type) imports, then any
-_ttype_ definitions, and finally a single `list`, `map`, or `table` in which
-all the values are stored. Since ``list``s, ``map``s, and ``table``s can be
-nested inside each other, the UXF format is extremely flexible.
-
-UXF supports eleven datatypes.
+UXF supports the following eleven datatypes.
 
 |**Type**   |**Example(s)**|**Notes**|
 |-----------|----------------------|--|
@@ -42,6 +36,22 @@ UXF supports eleven datatypes.
 |`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of any type.|
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of type _vtype_.|
 |`table`    |`(ttype <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _ttype_, or any value type where no type has been specified.|
+
+### Minimal empty UXF
+
+    uxf 1.0
+    []
+
+Every UXF file consists of a header line (starting `uxf 1.0`). This may be
+followed by an optional file-level comment, then any _ttype_ (table type)
+imports, then any _ttype_ definitions. After this comes the data in the form
+of a single `list`, `map`, or `table` in which all the values are stored.
+The data must be present even if it is merely an empty list (as here), an
+empty map (e.g., `{}`), or an empty table. Since ``list``s, ``map``s, and
+``table``s can be nested inside each other, the UXF format is extremely
+flexible.
+
+### Notes on the Supported Types
 
 Map keys (i.e., _ktype_) may only be of types `bytes`, `date`, `datetime`,
 `int`, and `str`.
@@ -77,23 +87,35 @@ and do whatever conversion you want.
 - A `map` _key-value_ is collectively called an _item_.
 - A “single” valued type (`bool`, `bytes`, `date`, `datetime`, `int`,
   `str`), is called a _scalar_.
+- A “multi-” valued type (`list`, `map`, `table`) is called a _collection_.
 - A `list`, `map`, or `table` which contains only scalar values is called a
   scalar `list`, scalar `map`, or scalar `table`, respectively.
 - A `ttype` is the name of a table's user-defined type.
 
 ## Examples
 
-### Minimal empty UXF
+### Minimal UXFs
 
     uxf 1.0
-    []
+    {}
 
-Every UXF file starts with a header line. This may be followed by an
-optional file-level comment and by optional _ttype_ definitions. This is
-followed by the data which is held in a single overall collection. (This is
-no limitation since lists, maps, and tables can nest inside one another.)
-The data must be present even if it is merely an empty list (as here), an
-empty map (e.g., `{}`), or an empty table.
+We saw earlier an example of a minimal UXF file with an empty list; here we
+have one with an empty map.
+
+    uxf 1.0
+    =Pair first second
+    (Pair)
+
+Here is a UXF with a _ttype_ specifying a Pair that has two fields each of
+which can hold _any_ UXF value (including nested collections). In this case
+the data is a single _empty_ Pair table.
+
+    uxf 1.0
+    =Pair first second
+    (Pair (Pair 1 2) (Pair 3 4))
+
+And here is a UXF with a single Pair table that contains two nested Pair
+tables.
 
 ### CSV to UXF
 
