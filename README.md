@@ -20,8 +20,8 @@ open source software.
 
 Every `.uxf` file consists of a header line (starting `uxf 1.0`), then an
 optional file-level comment, then any _ttype_ (table type) imports, then any
-_ttype_ definitions, and finally a single `map`, `list`, or `table` in which
-all the values are stored. Since ``map``s, ``list``s, and ``table``s can be
+_ttype_ definitions, and finally a single `list`, `map`, or `table` in which
+all the values are stored. Since ``list``s, ``map``s, and ``table``s can be
 nested inside each other, the UXF format is extremely flexible.
 
 UXF supports eleven datatypes.
@@ -30,12 +30,12 @@ UXF supports eleven datatypes.
 |-----------|----------------------|--|
 |`null`     |`?`                   |`?` is the UXF _null_ type's literal representation.|
 |`bool`     |`no` `false` `yes` `true`||
-|`int`      |`-192` `+234` `7891409`||
-|`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific with at least one digit before and after the point.|
+|`bytes`    |`(:20AC 65 66 48:)`|There must be an even number of case-insensitive hex digits; whitespace optional.|
 |`date`     |`2022-04-01`|Basic ISO8601 YYYY-MM-DD format.|
 |`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent).|
+|`int`      |`-192` `+234` `7891409`||
+|`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific with at least one digit before and after the point.|
 |`str`      |`<Some text which may include newlines>`|For &, <, >, use \&amp;, \&lt;, \&gt; respectively.|
-|`bytes`    |`(:20AC 65 66 48:)`|There must be an even number of case-insensitive hex digits; whitespace optional.|
 |`list`     |`[value1 value2 ... valueN]`|A list of values of any type.|
 |`list`     |`[vtype value1 value2 ... valueN]`|A list of values of type _vtype_.|
 |`map`      |`{key1 value1 key2 value2 ... keyN valueN}`|A map with keys of any valid key type and values of any type.|
@@ -43,30 +43,31 @@ UXF supports eleven datatypes.
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of type _vtype_.|
 |`table`    |`(ttype <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _ttype_, or any value type where no type has been specified.|
 
-Map keys (i.e., _ktype_) may only be of types `int`, `date`, `datetime`,
-`str`, and `bytes`.
+Map keys (i.e., _ktype_) may only be of types `bytes`, `date`, `datetime`,
+`int`, and `str`.
 
-Map, list, and table values may be of _any_ type (including nested ``map``s,
+List, map, and table values may be of _any_ type (including nested ``map``s,
 ``list``s, and ``table``s), unless restricted to a specific type. If
 restricted to a specific _vtype_, the _vtype_ may be any built-in type (as
 listed above, except `null`), or any user-defined _ttype_, and the
 corresponding value or values must be any valid value for the specified
 type, or `?` (null).
 
+Maps are insertion-ordered, that is, they preserve their items' order.
+
 A `table` starts with a _ttype_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
 _ttype_.
 
-Maps, lists, tables, and _ttype_ definitions may begin with a comment. And
-maps, lists, and tables may optionally by typed as indicated above. (See
+Lists, maps, tables, and _ttype_ definitions may begin with a comment. And
+lists, maps, and tables may optionally by typed as indicated above. (See
 also the examples below and the BNF at the end).
 
-Strings may not include `&`, `<` or `>`, so if they are required, we must
-use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively in their
-place.
+Strings may not include `&`, `<` or `>`, so if they are needed, they must be
+replaced by the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
 
-Where whitespace is allowed (or required) it may be spaces, tabs, or
-newlines.
+Where whitespace is allowed (or required) it may consist of one or more
+spaces, tabs, or newlines in any combination.
 
 If you don't want to be committed to a particular UXF type, just use a `str`
 and do whatever conversion you want.
@@ -74,10 +75,10 @@ and do whatever conversion you want.
 ### Terminology
 
 - A `map` _key-value_ is collectively called an _item_.
-- A “single” valued type (`bool`, `int`, `str`, `bytes`, `date`,
-  `datetime`), is called a _scalar_.
-- A `map`, `list`, or `table` which contains only scalar values is called a
-  scalar `map`, scalar `list`, or scalar `table`, respectively.
+- A “single” valued type (`bool`, `bytes`, `date`, `datetime`, `int`,
+  `str`), is called a _scalar_.
+- A `list`, `map`, or `table` which contains only scalar values is called a
+  scalar `list`, scalar `map`, or scalar `table`, respectively.
 - A `ttype` is the name of a table's user-defined type.
 
 ## Examples
@@ -259,7 +260,7 @@ the ``map``'s keys are themselves ``map``s. But for the third key's value
 we use a `table`. The table's _ttype_ is defined at the start and consists
 of two untyped fields.
 
-Of course, we can nest as deep as we like and mix ``map``s and ``list``s.
+Of course, we can nest as deep as we like and mix ``list``s and ``map``s.
 For example, here's an alternative:
 
     uxf 1.0 MyApp 1.2.0 Config
@@ -521,7 +522,7 @@ contain are ignored: only the _ttype_ definitions are used.
 
 A `.uxf` file consists of a mandatory header followed by an optional
 file-level comment, optional imports, optional _ttype_ definitions, and then
-a single mandatory `map`, `list`, or `table` (which may be empty).
+a single mandatory `list`, `map`, or `table` (which may be empty).
 
     UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' CONTENT
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
@@ -551,7 +552,7 @@ a single mandatory `map`, `list`, or `table` (which may be empty).
     OWS          ::= /[\s\n]*/
     RWS          ::= /[\s\n]+/ # in some cases RWS is actually optional
 
-Note that a UXF file _must_ contain a single map, list, or table, even if
+Note that a UXF file _must_ contain a single list, map, or table, even if
 it is empty.
 
 An `IMPORT_FILE` may be a filename which does _not_ contain a `.` (i.e.,
@@ -566,8 +567,8 @@ suffixe is required, but any suffix is acceptable (e.g., `.uxf`, `.uxt`,
 
 To indicate any type valid for the context, simply omit the type name.
 
-As the BNF shows, `map`, `list`, and `table` values may be of _any_ type
-including nested ``map``s, ``list``s, and ``table``s.
+As the BNF shows, `list`, `map`, and `table` values may be of _any_ type
+including nested ``list``s, ``map``s, and ``table``s.
 
 For a `table`, after the optional comment, there must be an identifier which
 is the table's _ttype_. This is followed by the table's values. There's no
@@ -575,7 +576,7 @@ need to distinguish between one row and the next (although it is common to
 start new rows on new lines) since the number of fields indicate how many
 values each row has.
 
-If a map key, list value, or table value's type is specified, then the UXF
+If a list value, map key, or table value's type is specified, then the UXF
 processor is expected to be able to check for (and if requested and
 possible, correct) any mistyped values. UXF readers and writers are expected
 to preserve map items in the original reading order (first to last) (i.e.,

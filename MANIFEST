@@ -1,5 +1,6 @@
 # TODO review _Writer output & see if it can be improved, experiment in
 # py/eg/writer.py & be sure to test on the output of misc/tlm2uxf.py
+# TODO review & improve README.md and py/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
 # TODO UXF libraries:

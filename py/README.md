@@ -52,13 +52,13 @@ Most Python types convert losslessly to and from UXF types. In particular:
 |--------------------|------------|
 |`None`              | `null`     |
 |`bool`              | `bool`     |
-|`int`               | `int`      |
-|`float`             | `real`     |
-|`datetime.date`     | `date`     |
-|`datetime.datetime` | `datetime` |
-|`str`               | `str`      |
 |`bytes`             | `bytes`    |
 |`bytearray`         | `bytes`    |
+|`datetime.date`     | `date`     |
+|`datetime.datetime` | `datetime` |
+|`int`               | `int`      |
+|`float`             | `real`     |
+|`str`               | `str`      |
 |`uxf.List`          | `list`     |
 |`uxf.Map`           | `map`      |
 |`uxf.Table`         | `table    `|
