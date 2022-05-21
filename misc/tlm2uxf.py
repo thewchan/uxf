@@ -21,8 +21,6 @@ def main():
     infile = None
     try:
         infile = open_file(infilename, 'rt')
-        trackclass = uxf.TClass('Track', (uxf.Field('filename', 'str'),
-                                          uxf.Field('seconds', 'real')))
         uxo = uxf.Uxf({}, custom='TLM 1.1')
         intracks = True
         stack = [ROOT]
@@ -46,9 +44,8 @@ def main():
             elif intracks:
                 filename, seconds = line.rstrip().split('\t')
                 if listname not in parent:
-                    parent[listname] = uxf.Table(trackclass)
-                parent[listname].append(filename)
-                parent[listname].append(float(seconds))
+                    parent[listname] = uxf.Map()
+                parent[listname][filename] = float(seconds)
             else: # history
                 if HISTORY not in uxo.data:
                     uxo.data[HISTORY] = uxf.List()
