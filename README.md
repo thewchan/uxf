@@ -112,10 +112,10 @@ the data is a single _empty_ Pair table.
 
     uxf 1.0
     =Pair first second
-    (Pair (Pair 1 2) (Pair 3 4))
+    (Pair (Pair 1 2) (Pair 3 (Pair 4 5)))
 
 And here is a UXF with a single Pair table that contains two nested Pair
-tables.
+tables, the second of which itself contains a nested pair.
 
 ### CSV to UXF
 

@@ -1,0 +1,74 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Pair",
+        "fields": {
+          "first": null,
+          "second": null
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^table": {
+      "name": "Pair",
+      "comment": null,
+      "fields": {
+        "first": null,
+        "second": null
+      },
+      "records": [
+        [
+          {
+            "UXF^table": {
+              "name": "Pair",
+              "comment": null,
+              "fields": {
+                "first": null,
+                "second": null
+              },
+              "records": [
+                [
+                  1,
+                  2
+                ]
+              ]
+            }
+          },
+          {
+            "UXF^table": {
+              "name": "Pair",
+              "comment": null,
+              "fields": {
+                "first": null,
+                "second": null
+              },
+              "records": [
+                [
+                  3,
+                  {
+                    "UXF^table": {
+                      "name": "Pair",
+                      "comment": null,
+                      "fields": {
+                        "first": null,
+                        "second": null
+                      },
+                      "records": [
+                        [
+                          4,
+                          5
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  }
+}
