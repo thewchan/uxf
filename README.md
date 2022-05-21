@@ -18,11 +18,11 @@ open source software.
 
 ## Datatypes
 
-Every `.uxf` file consists of a header line (starting `uxf 1.0`), then any
-_ttype_ (table type) definitions, and then a single `map`, `list`, or
-`table` in which all the values are stored. Since ``map``s, ``list``s, and
-``table``s can be nested inside each other, the UXF format is extremely
-flexible.
+Every `.uxf` file consists of a header line (starting `uxf 1.0`), then an
+optional file-level comment, then any _ttype_ (table type) imports, then any
+_ttype_ definitions, and finally a single `map`, `list`, or `table` in which
+all the values are stored. Since ``map``s, ``list``s, and ``table``s can be
+nested inside each other, the UXF format is extremely flexible.
 
 UXF supports eleven datatypes.
 
