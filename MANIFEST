@@ -1,9 +1,4 @@
-# TODO utypes
-# TODO Ensure that I can use utypes as vtypes in lists, maps, and tables
-# t71.uxf t72.uxf t73.uxf
-# TODO fix round-trip errors (if any after above)
-# TODO test_errors.py: add tests for 490
-# TODO test_lints.py: fix problems
+# TODO test_errors.py: add tests for 416 418 422 490
 # TODO document UType
 #
 # TODO review _Writer output & see if it can be improved, experiment in

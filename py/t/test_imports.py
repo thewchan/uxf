@@ -181,7 +181,7 @@ EXPECTED_IMPORTS67 = {
     'point2d': 't63.uxt'}
 
 EXPECTED_ERRORS = [
-    "uxf.py:t63.uxf:12:#416:unused type: 'dob'",
+    "uxf.py:t63.uxf:12:#412:unused TClass type: 'dob'",
     "uxf.py:i64.uxi:1:#176:a UXF file cannot import itself",
     "uxf.py:i66.uxi:4:#450:undefined table tclass, 4:IDENTIFIER='img'",
     "uxf.py:i65.uxi:1:#580:cannot do circular imports \
@@ -189,7 +189,7 @@ EXPECTED_ERRORS = [
     "uxf.py:i65.uxi:4:#450:undefined table tclass, 4:IDENTIFIER='img'",
     "uxf.py:i66.uxi:1:#580:cannot do circular imports \
 '/home/mark/app/uxf/testdata/i65.uxi'",
-    "uxf.py:i67.uxi:11:#416:unused type: 'dob'",
+    "uxf.py:i67.uxi:11:#412:unused TClass type: 'dob'",
     ]
 
 

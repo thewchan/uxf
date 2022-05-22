@@ -6,76 +6,37 @@
     </ttype>
   </ttypes>
   <list>
-    <list>
-      <str>complex</str>
-      <str>1.2+0.7</str>
+    <UType utype="complex" value="1.2+0.7"/>
+    <UType utype="complex" value="3.0-0.8"/>
+    <UType utype="Light" value="RED"/>
+    <UType utype="Light" value="AMBER"/>
+    <UType utype="Light" value="GREEN"/>
+    <UType utype="MyType" value="False 1 one"/>
+    <UType utype="MyType" value="True 2 one &amp; one"/>
+    <list vtype="MyType">
+      <UType utype="MyType" value="False 3 three"/>
+      <UType utype="MyType" value="True 4 two &amp; two"/>
     </list>
-    <list>
-      <str>complex</str>
-      <str>3.0-0.8</str>
-    </list>
-    <list>
-      <str>Light</str>
-      <str>RED</str>
-    </list>
-    <list>
-      <str>Light</str>
-      <str>AMBER</str>
-    </list>
-    <list>
-      <str>Light</str>
-      <str>GREEN</str>
-    </list>
-    <list>
-      <str>MyType</str>
-      <str>False 1 one</str>
-    </list>
-    <list>
-      <str>MyType</str>
-      <str>True 2 one &amp; one</str>
-    </list>
-    <list>
-      <list>
-        <str>MyType</str>
-        <str>False 3 three</str>
-      </list>
-      <list>
-        <str>MyType</str>
-        <str>True 4 two &amp; two</str>
-      </list>
-    </list>
-    <map ktype="int">
+    <map ktype="int" vtype="MyType">
       <key>
         <int v="1"/>
       </key>
       <value>
-        <list>
-          <str>MyType</str>
-          <str>False 5 five</str>
-        </list>
+        <UType utype="MyType" value="False 5 five"/>
       </value>
       <key>
         <int v="2"/>
       </key>
       <value>
-        <list>
-          <str>MyType</str>
-          <str>True 6 three &amp; three</str>
-        </list>
+        <UType utype="MyType" value="True 6 three &amp; three"/>
       </value>
     </map>
     <table name="Test">
       <row>
-        <list>
-          <str>MyType</str>
-          <str>False 7 seven</str>
-        </list>
+        <UType utype="MyType" value="False 7 seven"/>
       </row>
       <row>
-        <list>
-          <str>MyType</str>
-          <str>True 8 six &amp; two</str>
-        </list>
+        <UType utype="MyType" value="True 8 six &amp; two"/>
       </row>
     </table>
   </list>

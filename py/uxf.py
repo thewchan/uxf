@@ -148,7 +148,8 @@ class Uxf:
         self.comment = comment
 
 
-def load(filename_or_filelike, *, on_error=on_error, _imported=None):
+def load(filename_or_filelike, *, on_error=on_error, _imported=None,
+         _is_import=False):
     '''
     Returns a Uxf object.
 
@@ -159,29 +160,33 @@ def load(filename_or_filelike, *, on_error=on_error, _imported=None):
                 (str, pathlib.Path)) else '-')
     data, custom, tclasses, imports, comment = _loads(
         _read_text(filename_or_filelike), filename, on_error=on_error,
-        _imported=_imported)
+        _imported=_imported, _is_import=_is_import)
     uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
     return uxo
 
 
-def loads(uxt, filename='-', *, on_error=on_error, _imported=None):
+def loads(uxt, filename='-', *, on_error=on_error, _imported=None,
+          _is_import=False):
     '''
     Returns a Uxf object.
 
     uxt must be a string of UXF data.
     '''
     data, custom, tclasses, imports, comment = _loads(
-        uxt, filename, on_error=on_error, _imported=_imported)
+        uxt, filename, on_error=on_error, _imported=_imported,
+        _is_import=_is_import)
     uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
     return uxo
 
 
-def _loads(uxt, filename='-', *, on_error=on_error, _imported=None):
+def _loads(uxt, filename='-', *, on_error=on_error, _imported=None,
+           _is_import=False):
     tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
     data, comment, tclasses, imports = _parse(
-        tokens, filename, on_error=on_error, _imported=_imported)
+        tokens, filename, on_error=on_error, _imported=_imported,
+        _is_import=_is_import)
     return data, custom, tclasses, imports, comment
 
 
@@ -684,7 +689,27 @@ def _check_name(name):
                         f'or underscores, got {name}')
 
 
-UType = collections.namedtuple('UType', 'utype value')
+class UType:
+
+    def __init__(self, utype, value):
+        self.utype = utype
+        self.value = value
+
+
+    @property
+    def utype(self):
+        return self._utype
+
+
+    @utype.setter
+    def utype(self, utype):
+        if utype is not None:
+            _check_name(utype)
+        self._utype = utype
+
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.utype!r}, {self.value!r})'
 
 
 class TClass:
@@ -999,18 +1024,22 @@ class Table:
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, filename='-', *, on_error=on_error, _imported=None):
-    parser = _Parser(filename, on_error=on_error, _imported=_imported)
+def _parse(tokens, filename='-', *, on_error=on_error, _imported=None,
+           _is_import=False):
+    parser = _Parser(filename, on_error=on_error, _imported=_imported,
+                     _is_import=_is_import)
     data, comment = parser.parse(tokens)
     return data, comment, parser.tclasses, parser.imports
 
 
 class _Parser:
 
-    def __init__(self, filename, *, on_error=on_error, _imported=None):
+    def __init__(self, filename, *, on_error=on_error, _imported=None,
+                 _is_import=False):
         self.filename = filename
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
+        self._is_import = _is_import
         self.clear()
         if _imported is not None:
             self.imported = _imported
@@ -1032,6 +1061,8 @@ class _Parser:
         self.tclasses = {} # key=ttype value=TClass
         self.lino_for_tclass = {} # key=ttype value=lino
         self.used_tclasses = set()
+        self.vtype_utypes = set()
+        self.used_utypes = set()
         self.pos = -1
         self.lino = 0
 
@@ -1073,7 +1104,9 @@ class _Parser:
                 break
             else:
                 self.error(410, f'unexpected token, got {token}')
-        self._check_tclasses()
+        if not self._is_import:
+            self._check_tclasses()
+        self._check_utypes()
         return data, comment
 
 
@@ -1083,26 +1116,32 @@ class _Parser:
         unused = defined - self.used_tclasses
         unused -= imported # don't warn on unused imports
         if unused:
-            self._report_tclasses(unused, 'unused')
+            self._report_problem(unused, 412, 'unused TClass')
         undefined = self.used_tclasses - defined
         if undefined:
-            self._report_tclasses(undefined, 'undefined')
+            self._report_problem(undefined, 416, 'undefined TClass')
 
 
-    def _report_tclasses(self, tclasses, what):
-        diff = sorted(tclasses)
+    def _report_problem(self, diff, code, what):
+        diff = sorted(diff)
         if len(diff) == 1:
-            self.error(416, f'{what} type: {diff[0]!r}')
+            self.error(code, f'{what} type: {diff[0]!r}')
         else:
             diff = ', '.join(repr(t) for t in diff)
-            self.error(418, f'{what} types: {diff}')
+            self.error(code + 2, f'{what} types: {diff}')
+
+
+    def _check_utypes(self):
+        diff = self.vtype_utypes - self.used_utypes
+        if diff:
+            self._report_problem(diff, 420, 'absent utype')
 
 
     def _handle_comment(self, i, token):
         parent = self.stack[-1]
         prev_token = self.tokens[i - 1]
         if not self._is_collection_start(prev_token.kind):
-            self.error(420, 'comments may only be put at the beginning '
+            self.error(428, 'comments may only be put at the beginning '
                        f'of a map, list, or table, not after {prev_token}')
         parent.comment = token.value
 
@@ -1115,7 +1154,8 @@ class _Parser:
                  self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
             tclass = self.tclasses.get(token.value)
             if tclass is None:
-                self.error(430, f'undefined map value table type, {token}')
+                parent.vtype = token.value # Assume this is a utype
+                self.vtype_utypes.add(token.value)
             else:
                 parent.vtype = tclass.ttype
                 self.used_tclasses.add(tclass.ttype)
@@ -1124,7 +1164,8 @@ class _Parser:
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
             vtype = self.tclasses.get(token.value)
             if vtype is None:
-                self.error(440, f'undefined list table type, {token}')
+                parent.vtype = token.value # Assume this is a utype
+                self.vtype_utypes.add(token.value)
             else:
                 parent.vtype = vtype.name
                 self.used_tclasses.add(vtype.name)
@@ -1194,6 +1235,7 @@ class _Parser:
         if value is not None and vtype is not None and vtype != utype:
             self.error(490, message)
         append_to_parent(self.stack[-1], token.value)
+        self.used_utypes.add(utype)
 
 
     def _handle_scalar(self, i, token):
@@ -1335,7 +1377,7 @@ class _Parser:
             elif text is not None:
                 try:
                     uxo = loads(text, on_error=self._on_import_error,
-                                _imported=self.imported)
+                                _imported=self.imported, _is_import=True)
                 except Error as err:
                     self.error(530, f'failed to import {value!r}: {err}')
             else:
@@ -1378,7 +1420,7 @@ class _Parser:
             raise _AlreadyImported # don't reimport
         try:
             return load(fullname, on_error=self._on_import_error,
-                        _imported=self.imported)
+                        _imported=self.imported, _is_import=True)
         except (FileNotFoundError, Error) as err:
             if fullname in self.imported:
                 self.error(580, f'cannot do circular imports {fullname!r}',
@@ -1549,9 +1591,6 @@ class _Writer:
 
 
     def write_value(self, item, indent=0, *, pad, is_map_value=False):
-        if isinstance(item, UType):
-            self.file.write(f'%{item.utype}<{escape(item.value)}>')
-            return False # Must come before tuple!
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
             item = List(item)
         if isinstance(item, (list, List)):
@@ -1701,6 +1740,8 @@ class _Writer:
             self.file.write(f'<{escape(item)}>')
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
+        elif isinstance(item, UType):
+            self.file.write(f'%{item.utype}<{escape(item.value)}>')
         else:
             self.file.write(
                 f'{item.__class__.__name__}<{escape(repr(item))}>')

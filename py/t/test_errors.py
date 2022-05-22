@@ -3,7 +3,7 @@
 # License: GPLv3
 
 # NOTE Can't work out how to produce:
-# 210 240 250 260 330 350 400 410 420 490 494 500 504 506 510 530 540
+# 210 240 250 260 330 350 400 410 420 494 500 504 506 510 530 540
 
 import sys
 import os
@@ -334,7 +334,7 @@ def main():
 
     try:
         total += 1
-        e = 416
+        e = 412
         uxf.load('i67.uxi', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -342,7 +342,7 @@ def main():
 
     try:
         total += 1
-        e = 418
+        e = 414
         uxf.load('i69.uxi', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -350,7 +350,7 @@ def main():
 
     try:
         total += 1
-        e = 430
+        e = 420
         uxf.loads('uxf 1.0\n{int T 5 <x>}', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -358,7 +358,7 @@ def main():
 
     try:
         total += 1
-        e = 430
+        e = 420
         uxf.loads('uxf 1.0\n{int p}', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -366,7 +366,7 @@ def main():
 
     try:
         total += 1
-        e = 440
+        e = 420
         uxf.loads('uxf 1.0\n[q]', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -374,7 +374,7 @@ def main():
 
     try:
         total += 1
-        e = 440
+        e = 500
         uxf.loads('uxf 1.0\n[T 5]', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:

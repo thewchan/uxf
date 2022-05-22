@@ -1,1 +1,1 @@
-uxf.py:l59.uxf:20:#418:unused types: 'one', 'three', 'two'
+uxf.py:l59.uxf:20:#414:unused TClass types: 'one', 'three', 'two'
