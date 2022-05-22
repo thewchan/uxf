@@ -7,6 +7,11 @@ json, sqlite, toml, xml, or yaml.
 UXF is an open standard. The UXF software linked from this page is all free
 open source software.
 
+The primary purpose of UXF is to make developers lives easier. It does this
+by providing a convenient, scalable, easy-to-use file format that can be
+used for most purposes, from configuration files to application data. And
+UXF-based formats are very easy to adapt to future requirements
+
 - [Datatypes](#datatypes)
     - [Terminology](#terminology)
 - [Examples](#examples)
