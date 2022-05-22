@@ -13,7 +13,11 @@ used for most purposes, from configuration files to application data. And
 UXF-based formats are very easy to adapt to future requirements
 
 - [Datatypes](#datatypes)
+    - [Table of Built-in Types](#table-of-built-in-types)
     - [Terminology](#terminology)
+    - [Minimal empty UXF](#minimal-empty-uxf)
+    - [Built-in Types](#built-in-types)
+    - [Custom Types](#custom-types)
 - [Examples](#examples)
 - [Libraries](#libraries) ([Python](py/README.md))
 - [Imports](#imports)
@@ -23,11 +27,12 @@ UXF-based formats are very easy to adapt to future requirements
 
 ## Datatypes
 
-UXF supports the following eleven datatypes.
+UXF supports the following eleven built-indatatypes.
 
-|**Type**   |**Example(s)**|**Notes**|
+
+|**Type**<a name="table-of-built-in-types"></a>|**Example(s)**|**Notes**|
 |-----------|----------------------|--|
-|`null`     |`?`                   |`?` is the UXF _null_ type's literal representation.|
+|`null`     |`?`|`?` is the UXF _null_ type's literal representation.|
 |`bool`     |`no` `false` `yes` `true`||
 |`bytes`    |`(:20AC 65 66 48:)`|There must be an even number of case-insensitive hex digits; whitespace optional.|
 |`date`     |`2022-04-01`|Basic ISO8601 YYYY-MM-DD format.|
@@ -41,6 +46,19 @@ UXF supports the following eleven datatypes.
 |`map`      |`{ktype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of any type.|
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of type _vtype_.|
 |`table`    |`(ttype <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _ttype_, or any value type where no type has been specified.|
+
+Note that it is also possible to represent [custom data
+types](#custom-types).
+
+### Terminology
+
+- A `map` _key-value_ is collectively called an _item_.
+- A “single” valued type (`bool`, `bytes`, `date`, `datetime`, `int`,
+  `str`), is called a _scalar_.
+- A “multi-” valued type (`list`, `map`, `table`) is called a _collection_.
+- A `list`, `map`, or `table` which contains only scalar values is called a
+  scalar `list`, scalar `map`, or scalar `table`, respectively.
+- A `ttype` is the name of a table's user-defined type.
 
 ### Minimal empty UXF
 
@@ -56,7 +74,7 @@ empty map (e.g., `{}`), or an empty table. Since ``list``s, ``map``s, and
 ``table``s can be nested inside each other, the UXF format is extremely
 flexible.
 
-### Notes on the Supported Types
+### Built-in Types
 
 Map keys (i.e., _ktype_) may only be of types `bytes`, `date`, `datetime`,
 `int`, and `str`.
@@ -85,17 +103,64 @@ Where whitespace is allowed (or required) it may consist of one or more
 spaces, tabs, or newlines in any combination.
 
 If you don't want to be committed to a particular UXF type, just use a `str`
-and do whatever conversion you want.
+and do whatever conversion you want, or use a [custom type](#custom-types).
 
-### Terminology
+### Custom Types
 
-- A `map` _key-value_ is collectively called an _item_.
-- A “single” valued type (`bool`, `bytes`, `date`, `datetime`, `int`,
-  `str`), is called a _scalar_.
-- A “multi-” valued type (`list`, `map`, `table`) is called a _collection_.
-- A `list`, `map`, or `table` which contains only scalar values is called a
-  scalar `list`, scalar `map`, or scalar `table`, respectively.
-- A `ttype` is the name of a table's user-defined type.
+There are two common approaches to handling custom types in UXF. Both allow
+for UXFs to remain round-trip readable and writeable even by UXF processors
+that aren't aware of the use of custom types as such.
+
+Here, we'll look at both approaches for two different custom types, a
+complex number and an enumeration, and at the end we'll mention a third
+approach that's supported by some UXF processors.
+
+    uxf 1.0
+    [
+      {<Cmplx> 1.4 9.8} {<Cmplx> -0.7 3.0} {<Cmplx> 2.1 -6.3}
+      <Light: GREEN> <Light: AMBER> <Light: RED>
+    ]
+
+This first approach shows three complex numbers, each represented by a map
+with a `str` indicating the type and using ``real``s for the real and
+imaginary parts of the number. The example also shows a traffic light
+enumeration each represented by a `str` with internal structure.
+
+A UXF processor that has no knowledge of these representations of complex
+numbers or enumerations, will handle both seamlessly since they are both
+represented in terms of built-in UXF types. Nonetheless, an application that
+reads such UXF data can recognize and convert to and from these
+representations to and from the actual types.
+
+    uxf 1.0
+    =Cmplx real_:real imag:real
+    =Light color:str
+    [
+      (Cmplx 1.4 9.8 -0.7 3.0 2.1 -6.3)
+      (Light <GREEN> <AMBER> <RED>)
+    ]
+
+This second approach uses two _ttypes_. For the first complex field name we
+had to use `real_` rather than `real`, since table (_ttype_) and field names
+may not be the same as any built-in type or constant.
+
+Using tables gives us the advantage that we can represent any number of
+values of a particular _ttype_ in a single table (including just one, or
+even none), thus cutting down on repetitive text. And some UXF processor
+libraries will be able to return table values as custom types. (For example,
+the [Python UXF library](py/README.md) would return these as namedtuples.)
+
+If many applications need to use the same _ttypes_, it _may_ make sense to
+create some shared _ttype_ definitions. See [Imports](#imports) for how to
+do this.
+
+<!-- TODO -->
+A third way of representing custom data is to use a custom converter, if the
+UXF processor library being used supports this. This allows custom types to
+be stored in ``str``s that have some internal structure that signifies they
+are custom types (typically using leading or trailing—or
+both—distinguishers). See the [Python UXF library](py/README.md) and
+`py/t/test_converters.py` for examples.
 
 ## Examples
 
@@ -544,6 +609,15 @@ The imported file must be a valid UXF file. It need not have a `.uxf` suffix
 (e.g., you might prefer `.uxt`), but must have a `.gz` suffix if gzip
 compressed. Any custom string, comments, or data the imported file may
 contain are ignored: only the _ttype_ definitions are used.
+
+    uxf 1.0
+    !ttype-test
+    [(pair 1 2 3 4 5 6) <a string> (rgb 127 127 0)]
+
+Here we've used the system ``ttype-test``'s `pair` and `rgb` _ttypes_
+without having to specify them explicitly. The data represented is a list
+consisting of three ``pair``s of ``int``s, a `str`, and a single `rgb`
+triple of ``int``s.
 
 ## BNF
 
