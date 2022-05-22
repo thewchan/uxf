@@ -44,14 +44,14 @@ def main():
 
     def complex_from_str(s):
         try:
-            return complex(f'({s}j)'), True
+            return complex(f'({s}j)')
         except ValueError:
-            return None, False
+            return None
 
     uxf.add_converter('complex', to_str=lambda c: f'{c.real}{c.imag:+}',
                       from_str=complex_from_str)
     uxf.add_converter('NumKind', to_str=lambda e: e.name,
-                      from_str=numkind_from_str)
+                      from_str=lambda n: NumKind.from_name(n))
     uxf.add_converter('State', to_str=lambda e: e.name,
                       from_str=state_from_str)
     uxf.add_converter('Align', to_str=lambda e: e.name,
@@ -77,6 +77,14 @@ def main():
     if eq.eq(uxo1, uxo2):
         ok += 1
     elif not regression:
+        #################################### TODO BEGIN
+        with open('/tmp/1', 'wt', encoding='utf8') as file:
+            for k, v in uxo1.data.items():
+                file.write(f'{k!r} = {v!r}\n')
+        with open('/tmp/2', 'wt', encoding='utf8') as file:
+            for k, v in uxo2.data.items():
+                file.write(f'{k!r} = {v!r}\n')
+        #################################### TODO END
         print('test_converters • eq() FAIL')
     if not regression:
         print(uxt1, end='')
@@ -113,16 +121,6 @@ def check_all_types(total, ok, which, Class, seq, regression):
     return total, ok
 
 
-# to_str=lambda c: f'©{c}'
-def complex_from_str(s):
-    if s.startswith('©(') and s.endswith('j)'):
-        try:
-            return complex(s[1:]), True
-        except ValueError:
-            pass
-    return None, False
-
-
 # 4 different enums with 4 different approaches to from_str
 # (followed by a custom type and its own to_str and from_str)
 
@@ -149,11 +147,6 @@ class NumKind(OrderedEnum):
                 return kind
 
 
-def numkind_from_str(s):
-    kind = NumKind.from_name(s)
-    return (kind, True) if kind is not None else (None, False)
-
-
 class State(OrderedEnum):
     BEGIN = 'begin'
     MIDDLE = 'middle'
@@ -163,8 +156,7 @@ class State(OrderedEnum):
 def state_from_str(s):
     for state in State:
         if state.value.upper() == s:
-            return state, True
-    return None, False
+            return state
 
 
 class Align(OrderedEnum):
@@ -177,8 +169,7 @@ class Align(OrderedEnum):
 def align_from_str(s):
     for align in Align:
         if align.name == s:
-            return align, True
-    return None, False
+            return align
 
 
 @enum.unique
@@ -190,8 +181,7 @@ class Symbols(OrderedEnum):
 def symbol_from_str(s):
     for symbol in Symbols:
         if symbol.name == s:
-            return symbol, True
-    return None, False
+            return symbol
 
 
 class MyType:
@@ -229,8 +219,7 @@ def mytype_from_str(s):
         except ValueError:
             return None, False
         name = parts[2]
-        return MyType(name, code, flag), True
-    return None, False
+        return MyType(name, code, flag)
 
 
 if __name__ == '__main__':

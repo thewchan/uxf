@@ -453,7 +453,7 @@ def main():
 
     try:
         total += 1
-        e = 492
+        e = 486
         uxf.loads('''uxf 1.0
 =p x:int y:int
 {str p <one> (#<ok> p 1 2 -3 4 5 6)
@@ -556,6 +556,14 @@ def main():
         total += 1
         e = 570
         uxf.add_converter(str)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 572
+        uxf.add_converter('date')
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)

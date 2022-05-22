@@ -1,0 +1,119 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Test",
+        "fields": {
+          "a": "MyType"
+        }
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "UXF^utype": {
+        "utype": "complex",
+        "value": "1.2+0.7"
+      }
+    },
+    {
+      "UXF^utype": {
+        "utype": "complex",
+        "value": "3.0-0.8"
+      }
+    },
+    {
+      "UXF^utype": {
+        "utype": "Light",
+        "value": "RED"
+      }
+    },
+    {
+      "UXF^utype": {
+        "utype": "Light",
+        "value": "AMBER"
+      }
+    },
+    {
+      "UXF^utype": {
+        "utype": "Light",
+        "value": "GREEN"
+      }
+    },
+    {
+      "UXF^utype": {
+        "utype": "MyType",
+        "value": "False 1 one"
+      }
+    },
+    {
+      "UXF^utype": {
+        "utype": "MyType",
+        "value": "True 2 one & one"
+      }
+    },
+    [
+      {
+        "UXF^utype": {
+          "utype": "MyType",
+          "value": "False 3 three"
+        }
+      },
+      {
+        "UXF^utype": {
+          "utype": "MyType",
+          "value": "True 4 two & two"
+        }
+      }
+    ],
+    {
+      "UXF^map": {
+        "comment": null,
+        "ktype": "int",
+        "vtype": null,
+        "map": {
+          "1": {
+            "UXF^utype": {
+              "utype": "MyType",
+              "value": "False 5 five"
+            }
+          },
+          "2": {
+            "UXF^utype": {
+              "utype": "MyType",
+              "value": "True 6 three & three"
+            }
+          }
+        },
+        "itype": "uxf"
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Test",
+        "comment": null,
+        "fields": {
+          "a": "MyType"
+        },
+        "records": [
+          [
+            {
+              "UXF^utype": {
+                "utype": "MyType",
+                "value": "False 7 seven"
+              }
+            }
+          ],
+          [
+            {
+              "UXF^utype": {
+                "utype": "MyType",
+                "value": "True 8 six & two"
+              }
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

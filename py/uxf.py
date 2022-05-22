@@ -1181,7 +1181,7 @@ class _Parser:
                 self.error(480, 'can only have at most one ktype and one '
                            f'vtype for a map, got {token}')
         else:
-            self.error(490, 'ktypes and vtypes are only allowed at the '
+            self.error(484, 'ktypes and vtypes are only allowed at the '
                        f'start of maps and lists, got {token}')
 
 
@@ -1192,11 +1192,11 @@ class _Parser:
                 'bool', 'int', 'real', 'date', 'datetime'}:
             new_value = naturalize(value)
             if new_value != value:
-                self.error(492,
+                self.error(486,
                            f'converted str {value!r} to {vtype} {value}')
                 value = new_value
             else:
-                self.error(494, message)
+                self.error(488, message)
         append_to_parent(self.stack[-1], value)
 
 
@@ -1205,11 +1205,11 @@ class _Parser:
         value = token.value.value
         vtype, message = self.typecheck(value)
         if value is not None and vtype is not None and vtype != utype:
-            self.error(495, message)
+            self.error(490, message)
         converter = _Converters.get(utype)
         if converter is not None and converter.from_str is not None:
-            v, ok = converter.from_str(value)
-            if ok:
+            v = converter.from_str(value)
+            if v is not None:
                 append_to_parent(self.stack[-1], v)
                 return
         append_to_parent(self.stack[-1], token.value) # not value!
@@ -1817,13 +1817,16 @@ def add_converter(utype, *, to_str=repr, from_str=None):
     str's.
     to_str takes a value of the utype's type and returns a str
     representation of the value
-    from_str takes a str and either returns (None, False) or (value, True)
-    where value is of the utype's type
+    from_str takes a str and either returns a value of utype's type or None
     '''
-    if utype in {'bool', 'int', 'float', 'datetime.date',
-                 'datetime.datetime', 'str', 'bytes', 'bytearray'}:
+    if not isinstance(utype, str):
+        raise Error('#570: utype should be a str, got '
+                    f'{utype.__class__.__name__} {utype!r}')
+    if utype in {'bool', 'int', 'float', 'date', 'datetime.date',
+                 'datetime', 'datetime.datetime', 'str', 'bytes',
+                 'bytearray'}:
         raise Error(
-            '#570: can\'t override default conversions for standard types')
+            '#572: can\'t override default conversions for standard types')
     _Converters[utype] = Converter(to_str, from_str)
 
 
