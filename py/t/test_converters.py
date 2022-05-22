@@ -36,26 +36,29 @@ def main():
     d['deque'] = collections.deque('EFGHIJK')
     d['numkind'] = frozenset([NumKind.ROMAN, NumKind.ARABIC])
     d['symbols'] = frozenset([Symbols.ROMAN, Symbols.DECIMAL])
-    d['not enum'] = '%Not enum'
-    d['not complex1'] = '%(Not complex)'
-    d['not complex2'] = '%(18/4)'
     d['state'] = set((State.MIDDLE, State.BEGIN, State.END))
     d['align'] = (Align.LEFT, Align.CENTER, Align.JUSTIFY, Align.RIGHT)
     d['complex'] = (complex(-3.9), (8-7j), (1.3+.1j), # noqa: E226
                     complex(-1.2, -.3))
     d['MyType'] = (MyType('one', 1, False), MyType('one & one', 2, True))
 
-    uxf.add_converter(NumKind, to_str=lambda k: f'%NumKind {k.name}',
-                      from_str=numkind_from_str)
-    uxf.add_converter(State, to_str=lambda s: f'%State {s.value}',
-                      from_str=state_from_str)
-    uxf.add_converter(Align, to_str=lambda a: f'%{a.name}%',
-                      from_str=align_from_str)
-    uxf.add_converter(complex, to_str=lambda c: f'©{c}',
+    def complex_from_str(s):
+        try:
+            return complex(f'({s}j)'), True
+        except ValueError:
+            return None, False
+
+    uxf.add_converter('complex', to_str=lambda c: f'{c.real}{c.imag:+}',
                       from_str=complex_from_str)
-    uxf.add_converter(Symbols, to_str=lambda s: s.name,
+    uxf.add_converter('NumKind', to_str=lambda e: e.name,
+                      from_str=numkind_from_str)
+    uxf.add_converter('State', to_str=lambda e: e.name,
+                      from_str=state_from_str)
+    uxf.add_converter('Align', to_str=lambda e: e.name,
+                      from_str=align_from_str)
+    uxf.add_converter('Symbols', to_str=lambda e: e.name,
                       from_str=symbol_from_str)
-    uxf.add_converter(MyType, to_str=mytype_to_str,
+    uxf.add_converter('MyType', to_str=mytype_to_str,
                       from_str=mytype_from_str)
 
     uxo1 = uxf.Uxf(d)
@@ -146,14 +149,9 @@ class NumKind(OrderedEnum):
                 return kind
 
 
-# to_str=lambda k: f'%NumKind {k.name}'
 def numkind_from_str(s):
-    parts = s.split(None, 1)
-    if len(parts) == 2 and parts[0] == '%NumKind':
-        kind = NumKind.from_name(parts[1])
-        if kind is not None:
-            return kind, True
-    return None, False
+    kind = NumKind.from_name(s)
+    return (kind, True) if kind is not None else (None, False)
 
 
 class State(OrderedEnum):
@@ -162,14 +160,10 @@ class State(OrderedEnum):
     END = 'end'
 
 
-# to_str=lambda s: f'%State {s.value}'
 def state_from_str(s):
-    parts = s.split(None, 1)
-    if len(parts) == 2 and parts[0] == '%State':
-        value = parts[1]
-        for state in State:
-            if state.value == value:
-                return state, True
+    for state in State:
+        if state.value.upper() == s:
+            return state, True
     return None, False
 
 
@@ -180,13 +174,10 @@ class Align(OrderedEnum):
     RIGHT = enum.auto()
 
 
-# to_str=lambda a: f'%{a.name}%'
 def align_from_str(s):
-    if s.startswith('%') and s.endswith('%'):
-        value = s[1:-1]
-        for align in Align:
-            if align.name == value:
-                return align, True
+    for align in Align:
+        if align.name == s:
+            return align, True
     return None, False
 
 
@@ -196,7 +187,6 @@ class Symbols(OrderedEnum):
     ROMAN = 1
 
 
-# to_str=lambda s: s.name
 def symbol_from_str(s):
     for symbol in Symbols:
         if symbol.name == s:
@@ -225,23 +215,22 @@ class MyType:
 
 
 def mytype_to_str(m):
-    return f'@MyType {m.flag!r} {m.code!r} {m.name}'
+    return f'{m.flag!r} {m.code!r} {m.name}' if isinstance(m, MyType) else m
 
 
 def mytype_from_str(s):
     parts = s.split(None, 3)
-    if len(parts) == 4 and parts[0] == '@MyType': # NOTE Safe if we sanitize
-        if parts[1] not in {'True', 'False'}:
+    if len(parts) == 3: # NOTE Safe if we sanitize
+        if parts[0] not in {'True', 'False'}:
             return None, False
-        flag = parts[1] == 'True'
+        flag = parts[0] == 'True'
         try:
-            code = int(parts[2])
+            code = int(parts[1])
         except ValueError:
             return None, False
-        name = parts[3]
+        name = parts[2]
         return MyType(name, code, flag), True
     return None, False
-
 
 
 if __name__ == '__main__':

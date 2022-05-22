@@ -1,0 +1,9 @@
+uxf 1.0
+#<utype tests>
+[#<utype c is complex; utype Light is enum>
+  c<1.2+0.7>
+  c<3.0-0.8>
+  Light<RED>
+  Light<AMBER>
+  Light<GREEN>
+]

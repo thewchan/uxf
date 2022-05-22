@@ -1,21 +1,5 @@
-# TODO Add support for ctypes these are custom types of the form:
-#   %identifier<a string>
-# By default they should round-trip as-is
-# However, by registering a ctype converter with
-#   add_converter(ctype:str, str_for_ctype:function, ctype_for_str:function)
-# an application should be able to convert to/from a custom type.
+# TODO utypes: fix test_converters.py
 #
-# This **replaces** the current add_converter(type, ...) which I'm
-# unhappy with because it interferes with strs.
-#
-# (1) Update BNF
-# (2) Update README.md py/README.py
-# (3) Update test_converters.py to use these (and all tests should fail)
-# (4) Update any testdata/*.uxf that depends on add_converter() (if any)
-# (5) Implement in the lexer and parser & update add_converter() &
-#     delete_converter()
-# (6) If successful and satisfactory, merge back into main
-
 # TODO review _Writer output & see if it can be improved, experiment in
 # py/eg/writer.py & be sure to test on the output of misc/tlm2uxf.py
 # TODO review & improve README.md and py/README.md

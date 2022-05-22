@@ -107,11 +107,11 @@ and do whatever conversion you want, or use a [custom type](#custom-types).
 
 ### Custom Types
 
-There are two common approaches to handling custom types in UXF. Both allow
-for UXFs to remain round-trip readable and writeable even by UXF processors
-that aren't aware of the use of custom types as such.
+There are three common approaches to handling custom types in UXF. All
+allow for UXFs to remain round-trip readable and writeable even by UXF
+processors that aren't aware of the use of custom types as such.
 
-Here, we'll look at both approaches for two different custom types, a
+Here, we'll look at all three approaches for two different custom types, a
 complex number and an enumeration, and at the end we'll mention a third
 approach that's supported by some UXF processors.
 
@@ -154,12 +154,40 @@ If many applications need to use the same _ttypes_, it _may_ make sense to
 create some shared _ttype_ definitions. See [Imports](#imports) for how to
 do this.
 
-<!-- TODO -->
-A third way of representing custom data is to use a custom converter, if the
-UXF processor library being used supports this. This allows custom types to
-be stored in ``str``s that have some internal structure that signifies they
-are custom types (typically using leading or trailing—or
-both—distinguishers). See the [Python UXF library](py/README.md) and
+The third approach is to use custom user types, _utypes_. A _utype_ consists
+of an identifier followed by a `str` (with no intervening whitespace). The
+identifier is the _utype_'s name and the `str` contains a representation of
+the _utype_'s value.
+
+    uxf 1.0
+    [#<utype c is complex; utype Light is enum>
+      c<1.2+0.7> c<3.0-0.8>
+      Light<RED> Light<AMBER> Light<GREEN>
+    ]
+
+Here we've used an identifier of _c_ to indicate complex numbers and _Light_
+to represent the enumeration.
+
+This will just work as-is, i.e., this UXF file can be converted to a UXF
+file and will round-trip with perfect fidelity, with no need for any
+explicit converters.
+
+By default any UXF reader will handle such _utypes_ by creating some kind of
+`UType` object containing two strings, a `utype` (the type's name) and a
+`value` (the string representation of the type's value).  And
+correspondingly, any UXF writer will write out any `UType` in the form
+shown.
+
+However, some UXF processors will allow you to register a _converter_ for a
+custom user type. Such converters accept two functions, `to_str()` and
+`from_str()`. The `to_str()` function is used to convert the user type's
+value to its string representation (like the library's language's “tostring”
+method, or in Python the `repr()` function). The `from_str()` function is
+used when reading in a UXF file or text to convert the _utype_'s value
+string to a new value of the right type. But if there's no converter at all
+or no `from_str()` some kind of `UType` will be used.
+
+See also the [Python UXF library](py/README.md) and
 `py/t/test_converters.py` for examples.
 
 ## Examples
@@ -640,7 +668,8 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
     TABLE        ::= '(' COMMENT? OWS IDENFIFIER (RWS VALUE)* ')' # IDENFIFIER is the ttype (i.e., the table name)
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
-    VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
+    VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE | UVALUE
+    UVALUE       ::= IDENFIFIER STR # IDENFIFIER is utype name
     NULL         ::= '?'
     BOOL         ::= 'no' | 'false' | 'yes' | 'true'
     INT          ::= /[-+]?\d+/

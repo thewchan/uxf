@@ -252,6 +252,8 @@ class _JsonEncoder(json.JSONEncoder):
             if obj.comment is not None:
                 d[COMMENT] = obj.comment
             return {JSON_TCLASS: d}
+        if isinstance(obj, uxf.UType):
+            return {JSON_UTYPE: dict(utype=obj.utype, value=obj.value)}
         return json.JSONEncoder.default(self, obj)
 
 
@@ -361,6 +363,9 @@ def _json_naturalize(d):
                   d[JSON_TCLASS][FIELDS].items()]
         return uxf.TClass(d[JSON_TCLASS][NAME], fields,
                           comment=d[JSON_TCLASS].get(COMMENT))
+    if JSON_UTYPE in d:
+        value = d[JSON_UTYPE]
+        return uxf.UType(value['utype'], value['value'])
     return d
 
 
@@ -616,6 +621,10 @@ def _xml_add_scalar(tree, root, value):
         element = tree.createElement('bytes')
         text_element = tree.createTextNode(value.hex().upper())
         element.appendChild(text_element)
+    elif isinstance(value, uxf.UType):
+        element = tree.createElement('UType')
+        element.setAttribute('utype', value.utype)
+        element.setAttribute('value', value.value)
     if element is not None:
         root.appendChild(element)
     else:
@@ -701,6 +710,9 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
             _append_to_parent(self.stack, True)
         elif name == 'no':
             _append_to_parent(self.stack, False)
+        elif name == 'UType':
+            _append_to_parent(self.stack,
+                              uxf.UType(d.get('utype'), d.get('value')))
 
 
     def endElement(self, name):
@@ -776,6 +788,7 @@ JSON_COMMENT = 'UXF^comment'
 JSON_IMPORTS = 'UXF^imports'
 JSON_TCLASSES = 'UXF^ttypes'
 JSON_TCLASS = 'UXF^ttype'
+JSON_UTYPE = 'UXF^utype'
 JSON_DATA = 'UXF^data'
 JSON_BYTES = 'UXF^bytes'
 JSON_DATE = 'UXF^date'

@@ -44,7 +44,8 @@ RESERVED_WORDS = frozenset(_ANY_VALUE_TYPES | {'null'} | _CONSTANTS)
 _MISSING = object()
 
 
-def on_error(lino, code, message, *, filename, fail=False, verbose=True):
+def on_error(lino, code, message, *, filename='-', fail=False,
+             verbose=True):
     '''The default on_error() error handler.
     Is called with the line number (lino), error code, error message,
     and filename. The filename may be '-' or empty if the UXF is created in
@@ -473,7 +474,12 @@ class _Lexer:
         start = self.pos - 1
         if self.text[start] == '_' or self.text[start].isalpha():
             identifier = self. match_identifier(start, 'identifier')
-            self.add_token(_Kind.IDENTIFIER, identifier)
+            if self.peek() != '<':
+                self.add_token(_Kind.IDENTIFIER, identifier)
+            else:
+                self.getch() # skip '<'
+                value = unescape(self.match_to('>', what='string'))
+                self.add_token(_Kind.UTYPE, UType(identifier, value))
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
@@ -590,6 +596,7 @@ class _Kind(enum.Enum):
     STR = enum.auto()
     BYTES = enum.auto()
     TYPE = enum.auto()
+    UTYPE = enum.auto()
     IDENTIFIER = enum.auto()
     EOF = enum.auto()
 
@@ -656,7 +663,8 @@ class Map(collections.UserDict):
 
 def _check_name(name):
     if not name:
-        raise Error('#298:fields and tables must have nonempty names')
+        raise Error(
+            '#298:fields, tables, and utypes must have nonempty names')
     if name[0].isdigit():
         raise Error('#300:names must start with a letter or '
                     f'underscore, got {name}')
@@ -667,6 +675,29 @@ def _check_name(name):
         if not (c == '_' or c.isalnum()):
             raise Error('#310:names may only contain letters, digits, '
                         f'or underscores, got {name}')
+
+
+class UType:
+
+    def __init__(self, utype, value):
+        self.utype = utype
+        self.value = value
+
+
+    @property
+    def utype(self):
+        return self._utype
+
+
+    @utype.setter
+    def utype(self, utype):
+        if utype is not None:
+            _check_name(utype)
+        self._utype = utype
+
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.utype!r}, {self.value!r})'
 
 
 class TClass:
@@ -1047,6 +1078,8 @@ class _Parser:
                 self._handle_type(i, token)
             elif kind is _Kind.STR:
                 self._handle_str(i, token)
+            elif kind is _Kind.UTYPE:
+                self._handle_utype(i, token)
             elif kind.is_scalar:
                 self._handle_scalar(i, token)
             elif kind is _Kind.EOF:
@@ -1154,12 +1187,6 @@ class _Parser:
 
     def _handle_str(self, i, token):
         value = token.value
-        for converter in _Converters.values():
-            if converter is not None and converter.from_str is not None:
-                v, ok = converter.from_str(value)
-                if ok:
-                    self.stack[-1].append(v)
-                    return
         vtype, message = self.typecheck(value)
         if value is not None and vtype is not None and vtype in {
                 'bool', 'int', 'real', 'date', 'datetime'}:
@@ -1171,6 +1198,21 @@ class _Parser:
             else:
                 self.error(494, message)
         append_to_parent(self.stack[-1], value)
+
+
+    def _handle_utype(self, i, token):
+        utype = token.value.utype
+        value = token.value.value
+        vtype, message = self.typecheck(value)
+        if value is not None and vtype is not None and vtype != utype:
+            self.error(495, message)
+        converter = _Converters.get(utype)
+        if converter is not None and converter.from_str is not None:
+            v, ok = converter.from_str(value)
+            if ok:
+                append_to_parent(self.stack[-1], v)
+                return
+        append_to_parent(self.stack[-1], token.value) # not value!
 
 
     def _handle_scalar(self, i, token):
@@ -1658,13 +1700,8 @@ class _Writer:
     def write_scalar(self, item, indent=0, *, pad, is_map_value=False):
         if not is_map_value:
             self.file.write(pad * indent)
-        converters = _Converters.get(type(item))
         if item is None:
             self.file.write('?')
-        elif converters is not None and converters.to_str is not None:
-            # must come here because some enums type check as ints!
-            value = escape(converters.to_str(item))
-            self.file.write(f'<{value}>')
         elif isinstance(item, bool):
             self.file.write(self.yes if item else self.no)
         elif isinstance(item, int):
@@ -1680,12 +1717,29 @@ class _Writer:
             self.file.write(f'<{escape(item)}>')
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
+        elif (isinstance(item, UType) or
+                item.__class__.__name__ in _Converters):
+            self.write_utype(item)
         else:
-            self.file.write(str(item))
+            self.file.write(
+                f'{item.__class__.__name__}<{escape(repr(item))}>')
             self.error(561, 'wrote unexpected item of type '
                        f'{item.__class__.__name__}: {item!r} as a str; '
                        'consider using uxf.add_converter()')
         return False
+
+
+    def write_utype(self, item):
+        if isinstance(item, UType):
+            utype = item.utype
+            value = item.value
+        else:
+            utype = item.__class__.__name__
+            value = item
+        converter = _Converters.get(utype)
+        value = (converter.to_str(value) if converter is not None and
+                 converter.to_str is not None else value)
+        self.file.write(f'{utype}<{escape(value)}>')
 
 
     def collection_prefix(self, item):
@@ -1758,22 +1812,24 @@ Converter = collections.namedtuple('Converter', ('to_str', 'from_str'))
 _Converters = {}
 
 
-def add_converter(obj_type, *, to_str=repr, from_str=None):
-    '''Use this to register custom types and conversions to and from str's.
-    to_str takes a value of obj_type and returns a str
-    from_str takes a value of str type and either returns (None, False) or
-    (value, True) where value is of type obj_type
+def add_converter(utype, *, to_str=repr, from_str=None):
+    '''Use this to register custom user types and conversions to and from
+    str's.
+    to_str takes a value of the utype's type and returns a str
+    representation of the value
+    from_str takes a str and either returns (None, False) or (value, True)
+    where value is of the utype's type
     '''
-    if obj_type in {bool, int, float, datetime.date, datetime.datetime,
-                    str, bytes, bytearray}:
+    if utype in {'bool', 'int', 'float', 'datetime.date',
+                 'datetime.datetime', 'str', 'bytes', 'bytearray'}:
         raise Error(
             '#570: can\'t override default conversions for standard types')
-    _Converters[obj_type] = Converter(to_str, from_str or obj_type)
+    _Converters[utype] = Converter(to_str, from_str)
 
 
-def delete_converter(obj_type):
+def delete_converter(utype):
     '''Deletes the converter for objects of type `obj_type`.'''
-    del _Converters[obj_type]
+    del _Converters[utype]
 
 
 def naturalize(s):
