@@ -10,61 +10,43 @@
     }
   ],
   "UXF^data": [
-    {
-      "UXF^utype": {
-        "utype": "complex",
-        "value": "1.2+0.7"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "complex",
-        "value": "3.0-0.8"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "Light",
-        "value": "RED"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "Light",
-        "value": "AMBER"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "Light",
-        "value": "GREEN"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "MyType",
-        "value": "False 1 one"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "MyType",
-        "value": "True 2 one & one"
-      }
-    },
     [
-      {
-        "UXF^utype": {
-          "utype": "MyType",
-          "value": "False 3 three"
-        }
-      },
-      {
-        "UXF^utype": {
-          "utype": "MyType",
-          "value": "True 4 two & two"
-        }
-      }
+      "complex",
+      "1.2+0.7"
+    ],
+    [
+      "complex",
+      "3.0-0.8"
+    ],
+    [
+      "Light",
+      "RED"
+    ],
+    [
+      "Light",
+      "AMBER"
+    ],
+    [
+      "Light",
+      "GREEN"
+    ],
+    [
+      "MyType",
+      "False 1 one"
+    ],
+    [
+      "MyType",
+      "True 2 one & one"
+    ],
+    [
+      [
+        "MyType",
+        "False 3 three"
+      ],
+      [
+        "MyType",
+        "True 4 two & two"
+      ]
     ],
     {
       "UXF^map": {
@@ -72,18 +54,14 @@
         "ktype": "int",
         "vtype": null,
         "map": {
-          "1": {
-            "UXF^utype": {
-              "utype": "MyType",
-              "value": "False 5 five"
-            }
-          },
-          "2": {
-            "UXF^utype": {
-              "utype": "MyType",
-              "value": "True 6 three & three"
-            }
-          }
+          "1": [
+            "MyType",
+            "False 5 five"
+          ],
+          "2": [
+            "MyType",
+            "True 6 three & three"
+          ]
         },
         "itype": "uxf"
       }
@@ -97,20 +75,16 @@
         },
         "records": [
           [
-            {
-              "UXF^utype": {
-                "utype": "MyType",
-                "value": "False 7 seven"
-              }
-            }
+            [
+              "MyType",
+              "False 7 seven"
+            ]
           ],
           [
-            {
-              "UXF^utype": {
-                "utype": "MyType",
-                "value": "True 8 six & two"
-              }
-            }
+            [
+              "MyType",
+              "True 8 six & two"
+            ]
           ]
         ]
       }

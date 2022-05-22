@@ -1,47 +1,33 @@
 {
   "UXF^comment": "utype tests",
   "UXF^data": [
-    {
-      "UXF^utype": {
-        "utype": "complex",
-        "value": "1.2+0.7"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "complex",
-        "value": "3.0-0.8"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "Light",
-        "value": "RED"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "Light",
-        "value": "AMBER"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "Light",
-        "value": "GREEN"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "MyType",
-        "value": "False 1 one"
-      }
-    },
-    {
-      "UXF^utype": {
-        "utype": "MyType",
-        "value": "True 2 one & one"
-      }
-    }
+    [
+      "complex",
+      "1.2+0.7"
+    ],
+    [
+      "complex",
+      "3.0-0.8"
+    ],
+    [
+      "Light",
+      "RED"
+    ],
+    [
+      "Light",
+      "AMBER"
+    ],
+    [
+      "Light",
+      "GREEN"
+    ],
+    [
+      "MyType",
+      "False 1 one"
+    ],
+    [
+      "MyType",
+      "True 2 one & one"
+    ]
   ]
 }

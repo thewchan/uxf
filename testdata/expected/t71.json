@@ -5,36 +5,26 @@
       "comment": "utype c is complex; utype Light is enum",
       "vtype": null,
       "list": [
-        {
-          "UXF^utype": {
-            "utype": "c",
-            "value": "1.2+0.7"
-          }
-        },
-        {
-          "UXF^utype": {
-            "utype": "c",
-            "value": "3.0-0.8"
-          }
-        },
-        {
-          "UXF^utype": {
-            "utype": "Light",
-            "value": "RED"
-          }
-        },
-        {
-          "UXF^utype": {
-            "utype": "Light",
-            "value": "AMBER"
-          }
-        },
-        {
-          "UXF^utype": {
-            "utype": "Light",
-            "value": "GREEN"
-          }
-        }
+        [
+          "c",
+          "1.2+0.7"
+        ],
+        [
+          "c",
+          "3.0-0.8"
+        ],
+        [
+          "Light",
+          "RED"
+        ],
+        [
+          "Light",
+          "AMBER"
+        ],
+        [
+          "Light",
+          "GREEN"
+        ]
       ]
     }
   }

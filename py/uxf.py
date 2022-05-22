@@ -310,6 +310,8 @@ class _Lexer:
             self.read_string()
         elif c == ':':
             self.read_field_vtype()
+        elif c == '%':
+            self.read_utype()
         elif c == '-' and self.peek().isdecimal():
             c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
@@ -362,6 +364,16 @@ class _Lexer:
     def read_string(self):
         value = self.match_to('>', what='string')
         self.add_token(_Kind.STR, unescape(value))
+
+
+    def read_utype(self):
+        identifier = self.match_identifier(self.pos, what='UType.uame')
+        c = self.getch()
+        if c != '<':
+            self.error(194, 'expected a <str> after a utype name, got '
+                       f'{self.peek()}')
+        value = unescape(self.match_to('>', what='UType.value'))
+        self.add_token(_Kind.UTYPE, UType(identifier, value))
 
 
     def read_bytes(self):
@@ -474,12 +486,7 @@ class _Lexer:
         start = self.pos - 1
         if self.text[start] == '_' or self.text[start].isalpha():
             identifier = self. match_identifier(start, 'identifier')
-            if self.peek() != '<':
-                self.add_token(_Kind.IDENTIFIER, identifier)
-            else:
-                self.getch() # skip '<'
-                value = unescape(self.match_to('>', what='string'))
-                self.add_token(_Kind.UTYPE, UType(identifier, value))
+            self.add_token(_Kind.IDENTIFIER, identifier)
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
@@ -677,27 +684,7 @@ def _check_name(name):
                         f'or underscores, got {name}')
 
 
-class UType:
-
-    def __init__(self, utype, value):
-        self.utype = utype
-        self.value = value
-
-
-    @property
-    def utype(self):
-        return self._utype
-
-
-    @utype.setter
-    def utype(self, utype):
-        if utype is not None:
-            _check_name(utype)
-        self._utype = utype
-
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.utype!r}, {self.value!r})'
+UType = collections.namedtuple('UType', 'utype value')
 
 
 class TClass:
@@ -1206,13 +1193,7 @@ class _Parser:
         vtype, message = self.typecheck(value)
         if value is not None and vtype is not None and vtype != utype:
             self.error(490, message)
-        converter = _Converters.get(utype)
-        if converter is not None and converter.from_str is not None:
-            v = converter.from_str(value)
-            if v is not None:
-                append_to_parent(self.stack[-1], v)
-                return
-        append_to_parent(self.stack[-1], token.value) # not value!
+        append_to_parent(self.stack[-1], token.value)
 
 
     def _handle_scalar(self, i, token):
@@ -1568,6 +1549,9 @@ class _Writer:
 
 
     def write_value(self, item, indent=0, *, pad, is_map_value=False):
+        if isinstance(item, UType):
+            self.file.write(f'%{item.utype}<{escape(item.value)}>')
+            return False # Must come before tuple!
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
             item = List(item)
         if isinstance(item, (list, List)):
@@ -1717,9 +1701,6 @@ class _Writer:
             self.file.write(f'<{escape(item)}>')
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
-        elif (isinstance(item, UType) or
-                item.__class__.__name__ in _Converters):
-            self.write_utype(item)
         else:
             self.file.write(
                 f'{item.__class__.__name__}<{escape(repr(item))}>')
@@ -1727,19 +1708,6 @@ class _Writer:
                        f'{item.__class__.__name__}: {item!r} as a str; '
                        'consider using uxf.add_converter()')
         return False
-
-
-    def write_utype(self, item):
-        if isinstance(item, UType):
-            utype = item.utype
-            value = item.value
-        else:
-            utype = item.__class__.__name__
-            value = item
-        converter = _Converters.get(utype)
-        value = (converter.to_str(value) if converter is not None and
-                 converter.to_str is not None else value)
-        self.file.write(f'{utype}<{escape(value)}>')
 
 
     def collection_prefix(self, item):
@@ -1804,35 +1772,6 @@ def append_to_parent(parent, value):
         parent._append(value)
     else:
         parent.append(value)
-
-
-Converter = collections.namedtuple('Converter', ('to_str', 'from_str'))
-
-
-_Converters = {}
-
-
-def add_converter(utype, *, to_str=repr, from_str=None):
-    '''Use this to register custom user types and conversions to and from
-    str's.
-    to_str takes a value of the utype's type and returns a str
-    representation of the value
-    from_str takes a str and either returns a value of utype's type or None
-    '''
-    if not isinstance(utype, str):
-        raise Error('#570: utype should be a str, got '
-                    f'{utype.__class__.__name__} {utype!r}')
-    if utype in {'bool', 'int', 'float', 'date', 'datetime.date',
-                 'datetime', 'datetime.datetime', 'str', 'bytes',
-                 'bytearray'}:
-        raise Error(
-            '#572: can\'t override default conversions for standard types')
-    _Converters[utype] = Converter(to_str, from_str)
-
-
-def delete_converter(utype):
-    '''Deletes the converter for objects of type `obj_type`.'''
-    del _Converters[utype]
 
 
 def naturalize(s):

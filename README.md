@@ -160,35 +160,23 @@ identifier is the _utype_'s name and the `str` contains a representation of
 the _utype_'s value.
 
     uxf 1.0
-    [#<utype c is complex; utype Light is enum>
-      c<1.2+0.7> c<3.0-0.8>
-      Light<RED> Light<AMBER> Light<GREEN>
+    [#<utype Light is enum>
+      %complex<1.2+0.7> %complex<3.0-0.8>
+      %Light<RED> %Light<AMBER> %Light<GREEN>
     ]
 
-Here we've used an identifier of _c_ to indicate complex numbers and _Light_
-to represent the enumeration.
+Here we've used an identifier of _complex_ to indicate complex numbers and
+_Light_ to represent the enumeration. The `%` is used to indicate _utype_
+values.
 
 This will just work as-is, i.e., this UXF file can be converted to a UXF
-file and will round-trip with perfect fidelity, with no need for any
-explicit converters.
+file and will round-trip with perfect fidelity.
 
 By default any UXF reader will handle such _utypes_ by creating some kind of
 `UType` object containing two strings, a `utype` (the type's name) and a
 `value` (the string representation of the type's value).  And
 correspondingly, any UXF writer will write out any `UType` in the form
 shown.
-
-However, some UXF processors will allow you to register a _converter_ for a
-custom user type. Such converters accept two functions, `to_str()` and
-`from_str()`. The `to_str()` function is used to convert the user type's
-value to its string representation (like the library's language's “tostring”
-method, or in Python the `repr()` function). The `from_str()` function is
-used when reading in a UXF file or text to convert the _utype_'s value
-string to a new value of the right type. But if there's no converter at all
-or no `from_str()` some kind of `UType` will be used.
-
-See also the [Python UXF library](py/README.md) and
-`py/t/test_converters.py` for examples.
 
 ## Examples
 
@@ -669,7 +657,7 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
     VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE | UVALUE
-    UVALUE       ::= IDENFIFIER STR # IDENFIFIER is utype name
+    UVALUE       ::= '%' IDENFIFIER STR # IDENFIFIER is utype name
     NULL         ::= '?'
     BOOL         ::= 'no' | 'false' | 'yes' | 'true'
     INT          ::= /[-+]?\d+/

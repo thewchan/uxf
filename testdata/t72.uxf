@@ -1,11 +1,11 @@
 uxf 1.0
 #<utype tests>
 [
-  complex<1.2+0.7>
-  complex<3.0-0.8>
-  Light<RED>
-  Light<AMBER>
-  Light<GREEN>
-  MyType<False 1 one>
-  MyType<True 2 one &amp; one>
+  %complex<1.2+0.7>
+  %complex<3.0-0.8>
+  %Light<RED>
+  %Light<AMBER>
+  %Light<GREEN>
+  %MyType<False 1 one>
+  %MyType<True 2 one &amp; one>
 ]

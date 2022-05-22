@@ -26,7 +26,6 @@ try:
     SLIDES1 = os.path.join(PATH, '../eg/slides1.py')
     SLIDES2 = os.path.join(PATH, '../eg/slides2.py')
     SLIDES_SLD = os.path.join(PATH, '../eg/slides.sld')
-    TEST_CONVERTERS = os.path.join(PATH, '../t/test_converters.py')
     TEST_TABLE = os.path.join(PATH, '../t/test_table.py')
     TEST_SQLITE = os.path.join(PATH, '../t/test_sqlite.py')
     TEST_ERRORS = os.path.join(PATH, '../t/test_errors.py')
@@ -64,9 +63,9 @@ def main():
         total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
     if total < max_total:
         total, ok = test_externals(
-            (TEST_CONVERTERS, TEST_TABLE, TEST_SQLITE, TEST_ERRORS,
-             TEST_LINTS, TEST_IMPORTS, TEST_MERGE, TEST_INCLUDE), total,
-            ok, verbose=verbose, max_total=max_total)
+            (TEST_TABLE, TEST_SQLITE, TEST_ERRORS, TEST_LINTS,
+             TEST_IMPORTS, TEST_MERGE, TEST_INCLUDE), total, ok,
+            verbose=verbose, max_total=max_total)
     if os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)
         for c in ('\b', ' ', '\b'):

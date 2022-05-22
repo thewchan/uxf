@@ -552,22 +552,6 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
-    try:
-        total += 1
-        e = 570
-        uxf.add_converter(str)
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
-    try:
-        total += 1
-        e = 572
-        uxf.add_converter('date')
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
     try: # attempt to do circular import #1
         total += 1
         e = 580

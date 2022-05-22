@@ -1,7 +1,9 @@
-# TODO utypes: fix test_converters.py
+# TODO utypes
 # TODO Ensure that I can use utypes as vtypes in lists, maps, and tables
 # t71.uxf t72.uxf t73.uxf
 # TODO test_errors.py: add tests for 490
+# TODO test_lints.py: fix problems
+# TODO document UType
 #
 # TODO review _Writer output & see if it can be improved, experiment in
 # py/eg/writer.py & be sure to test on the output of misc/tlm2uxf.py
@@ -21,7 +23,6 @@ py/ttype-test.uxf
 py/setup.py
 py/pypi.sh
 py/t/regression.py
-py/t/test_converters.py
 py/t/test_table.py
 py/t/test_sqlite.py
 py/t/test_errors.py

@@ -1,12 +1,33 @@
 <?xml version="1.0" ?>
 <uxf version="1.0" comment="utype tests">
   <list>
-    <UType utype="complex" value="1.2+0.7"/>
-    <UType utype="complex" value="3.0-0.8"/>
-    <UType utype="Light" value="RED"/>
-    <UType utype="Light" value="AMBER"/>
-    <UType utype="Light" value="GREEN"/>
-    <UType utype="MyType" value="False 1 one"/>
-    <UType utype="MyType" value="True 2 one &amp; one"/>
+    <list>
+      <str>complex</str>
+      <str>1.2+0.7</str>
+    </list>
+    <list>
+      <str>complex</str>
+      <str>3.0-0.8</str>
+    </list>
+    <list>
+      <str>Light</str>
+      <str>RED</str>
+    </list>
+    <list>
+      <str>Light</str>
+      <str>AMBER</str>
+    </list>
+    <list>
+      <str>Light</str>
+      <str>GREEN</str>
+    </list>
+    <list>
+      <str>MyType</str>
+      <str>False 1 one</str>
+    </list>
+    <list>
+      <str>MyType</str>
+      <str>True 2 one &amp; one</str>
+    </list>
   </list>
 </uxf>

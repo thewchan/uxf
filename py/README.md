@@ -88,8 +88,7 @@ Imag:real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 
 For custom types (e.g., enums; or as an alternative to using a _ttype_ for
-complex numbers, or for any other custom type), use a _utype_ and optionally
-use `uxf.add_converter()`. See `test_converters.py` for examples.
+complex numbers, or for any other custom type), use a _utype_.
 
 Collection types such as `set`, `frozenset`, `tuple`, or `collections.deque`
 are automatically converted to a [List](#list-class) when they are
@@ -120,9 +119,7 @@ be a [Uxf](#uxfclass) object or a single `list`, [List](#list-class),
 
 If the data contains values of types that aren't supported by UXF, they
 could either be transformed in advance (e.g., to a custom table type, a
-_ttype_), or converted on-the-fly using a custom converter.
-See [Python UXF Types](#python-uxf-types) and
-[add\_converter()](#add_converter-def).
+_ttype_), or you could use a _utype_.
 
 See also the examples in the `eg` folder and the tests in the `t` folder.
 
@@ -285,10 +282,8 @@ subclass then it is probably a bug that should be reported.)
 
 The functions are documented in importance order. Here are alphabetically
 ordered links:
-[add\_converter()](#add_converter-def),
 [append\_to\_parent()](#append_to_parent-def),
 [canonicalize()](#canonicalize-def),
-[delete\_converter()](#delete_converter-def),
 [dump()](#dump-def),
 [dumps()](#dumps-def),
 [is\_scalar()](#is_scalar-def),
@@ -337,9 +332,7 @@ If `use_true_false` is `False` (the default), bools are output as 'yes' or
 
 If the data contains values of types that aren't supported by UXF, they
 could either be transformed in advance (e.g., to a custom table type, a
-_ttype_), or converted on-the-fly using a custom converter.
-See [Python UXF Types](#python-uxf-types) and
-[add\_converter()](#add_converter-def).
+_ttype_), or you could use a _utype_.
 
 <a name="dumps-def"></a>
 #### dumps(data, \*, use\_true\_false=False, on\_error=on\_error)
@@ -394,48 +387,6 @@ For examples of custom `on_error()` functions, see `t/test_errors.py`,
 Returns `True` if `x` is `None` or a `bool`, `int`, `float`,
 `datetime.date`, `datetime.datetime`, `str`, `bytes`, or `bytearray`;
 otherwise returns `False`.
-
-<a name="add_converter-def"></a>
-#### add\_converter(obj\_type, \*, to\_str=repr, from\_str=None)
-
-Use this to register custom types and conversions to and from ``str``'s.
-`to_str` takes a value of `obj_type` and returns a `str`; `from_str` takes a
-value of `str` type and either returns `(None, False)` or `(value, True)`
-where `value` is of type `obj_type`.
-
-_Example:_
-
-```python
-def complex_from_str(s):
-    if s.startswith('©(') and s.endswith('j)'):
-	try:
-	    return complex(s[1:]), True
-	except ValueError:
-	    pass
-    return None, False
-
-uxf.add_converter(complex, to_str=lambda c: f'©{c}',
-		  from_str=complex_from_str)
-```
-
-A `to_str` converter must return a `str`. In the example a complex number,
-say, `(2.5-1j)` is returned as `'©(2.5-1j)'`, using the © copyright symbol
-as a distingisher. A distingisher is needed to avoid trying to convert
-normal ``str``s to complex numbers.
-
-A `from_str` converter must return a 2-tuple, either a value and `True` when
-the conversion succeeds, or `None` and `False` when the conversion fails.
-
-Using a converter is also ideal for handling enums. For examples see
-`t/test_converters.py`. See also
-[delete\_converter()](#delete_converter-def).
-
-<a name="delete_converter-def"></a>
-#### delete\_converter(obj\_type)
-
-Deletes the converter for objects of type `obj_type`.
-
-See [add\_converter()](#add-converter-def).
 
 <a name="canonicalize-def"></a>
 #### canonicalize(name, is\_table\_name)
