@@ -74,7 +74,7 @@ def main():
              ('L', TEST_LINTS), ('i', TEST_IMPORTS), ('m', TEST_MERGE),
              ('I', TEST_INCLUDE)), total, ok,
             verbose=verbose, max_total=max_total)
-    if ok < total and os.isatty(sys.stdout.fileno()):
+    if ok == total and os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)
         for c in ('\b', ' ', '\b'):
             print(c * span, end='', flush=True)
@@ -83,7 +83,7 @@ def main():
         print(f'{ok}/{total} All OK ({t:.3f} sec)')
         cleanup()
     else:
-        print(f'{ok}/{total} FAIL ({t:.3f} sec)')
+        print(f' {ok}/{total} FAIL ({t:.3f} sec)')
 
 
 def get_config():
