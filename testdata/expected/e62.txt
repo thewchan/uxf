@@ -1,1 +1,1 @@
-uxf.py:ttype-test.uxf:7:#414:unused TClass types: 'IPv4', 'pair', 'rgb', 'rgba'
+uxf.py:ttype-test.uxf:7:#422:unused utypes: 'IPv4', 'pair', 'rgb', 'rgba'

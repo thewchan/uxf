@@ -1116,32 +1116,32 @@ class _Parser:
         unused = defined - self.used_tclasses
         unused -= imported # don't warn on unused imports
         if unused:
-            self._report_problem(unused, 412, 'unused TClass')
+            self._report_problem(unused, 422, 'unused ttype')
         undefined = self.used_tclasses - defined
         if undefined:
-            self._report_problem(undefined, 416, 'undefined TClass')
+            self._report_problem(undefined, 424, 'undefined ttype')
 
 
     def _report_problem(self, diff, code, what):
         diff = sorted(diff)
         if len(diff) == 1:
-            self.error(code, f'{what} type: {diff[0]!r}')
+            self.error(code, f'{what}: {diff[0]!r}')
         else:
             diff = ', '.join(repr(t) for t in diff)
-            self.error(code + 2, f'{what} types: {diff}')
+            self.error(code, f'{what}s: {diff}')
 
 
     def _check_utypes(self):
         diff = self.vtype_utypes - self.used_utypes
         if diff:
-            self._report_problem(diff, 420, 'absent utype')
+            self._report_problem(diff, 430, 'unused utype')
 
 
     def _handle_comment(self, i, token):
         parent = self.stack[-1]
         prev_token = self.tokens[i - 1]
         if not self._is_collection_start(prev_token.kind):
-            self.error(428, 'comments may only be put at the beginning '
+            self.error(440, 'comments may only be put at the beginning '
                        f'of a map, list, or table, not after {prev_token}')
         parent.comment = token.value
 
@@ -1376,7 +1376,8 @@ class _Parser:
                 uxo = self._load_import(filename)
             elif text is not None:
                 try:
-                    uxo = loads(text, on_error=self._on_import_error,
+                    uxo = loads(text, filename=value,
+                                on_error=self._on_import_error,
                                 _imported=self.imported, _is_import=True)
                 except Error as err:
                     self.error(530, f'failed to import {value!r}: {err}')
@@ -1746,8 +1747,9 @@ class _Writer:
             self.file.write(
                 f'{item.__class__.__name__}<{escape(repr(item))}>')
             self.error(561, 'wrote unexpected item of type '
-                       f'{item.__class__.__name__}: {item!r} as a str; '
-                       'consider using uxf.add_converter()')
+                       f'{item.__class__.__name__} as a str; '
+                       'consider using a utype, e.g., something like'
+                       f'%{item.__class__.__name__}<{item!r}>')
         return False
 
 
