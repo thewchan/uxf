@@ -962,6 +962,13 @@ class Table:
         self.records.insert(index, record)
 
 
+    @property
+    def first(self):
+        if self.records:
+            return self[0]
+        # else return None
+
+
     def __getitem__(self, row):
         '''Return the row-th record as a namedtuple'''
         try:
@@ -1560,8 +1567,8 @@ class _Writer:
             self.file.write('\n')
 
 
-    def error(self, code, message):
-        self.on_error(0, code, message)
+    def error(self, code, message, *, fail=False):
+        self.on_error(0, code, message, fail=fail)
 
 
     def write_header(self, custom):
@@ -1744,12 +1751,9 @@ class _Writer:
         elif isinstance(item, UType):
             self.file.write(f'%{item.utype}<{escape(item.value)}>')
         else:
-            self.file.write(
-                f'{item.__class__.__name__}<{escape(repr(item))}>')
-            self.error(561, 'wrote unexpected item of type '
-                       f'{item.__class__.__name__} as a str; '
-                       'consider using a utype, e.g., something like'
-                       f'%{item.__class__.__name__}<{item!r}>')
+            self.error(561, 'unexpected item of type '
+                       f'{item.__class__.__name__}: {item!r};'
+                       'consider using a ttype', fail=True)
         return False
 
 
