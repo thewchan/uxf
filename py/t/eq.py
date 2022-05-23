@@ -164,13 +164,6 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                     _fail(f'Table[{i}]', arec, brec)
                 return False
         return True
-    if isinstance(a, uxf.UType):
-        if not isinstance(b, uxf.UType):
-            if debug:
-                _fail(
-                    f'UType can\'t be compared with {b.__class__.__name__}')
-            return False
-        return a.utype == b.utype and eq(a.value, b.value)
     if isinstance(a, (list, tuple, collections.deque)):
         if len(a) != len(b):
             if debug:

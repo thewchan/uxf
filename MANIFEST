@@ -1,10 +1,7 @@
-# TODO test_errors.py: add tests for 416 418 422 490
-# TODO add t73.uxf to test_merge.py
-# TODO add t73.uxf to test_include.py
+# TODO test_errors.py: add tests for 418 424
 # TODO create test_visit.py: the visitor function should output
-# everything visited to actual/vN.txt
-# (N=13 63 73 for t13.uxf t63.uxf t73.uxf) and then regression test
-# against expected/vN.txt
+# everything visited to actual/vN.txt # (N=13 63 for t13.uxf t63.uxf)
+# and then regression test against expected/vN.txt
 #
 # TODO review _Writer output & see if it can be improved, experiment in
 # py/eg/writer.py & be sure to test on the output of misc/tlm2uxf.py

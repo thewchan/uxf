@@ -315,8 +315,6 @@ class _Lexer:
             self.read_string()
         elif c == ':':
             self.read_field_vtype()
-        elif c == '%':
-            self.read_utype()
         elif c == '-' and self.peek().isdecimal():
             c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
@@ -369,16 +367,6 @@ class _Lexer:
     def read_string(self):
         value = self.match_to('>', what='string')
         self.add_token(_Kind.STR, unescape(value))
-
-
-    def read_utype(self):
-        identifier = self.match_identifier(self.pos, what='UType.uame')
-        c = self.getch()
-        if c != '<':
-            self.error(194, 'expected a <str> after a utype name, got '
-                       f'{self.peek()}')
-        value = unescape(self.match_to('>', what='UType.value'))
-        self.add_token(_Kind.UTYPE, UType(identifier, value))
 
 
     def read_bytes(self):
@@ -608,7 +596,6 @@ class _Kind(enum.Enum):
     STR = enum.auto()
     BYTES = enum.auto()
     TYPE = enum.auto()
-    UTYPE = enum.auto()
     IDENTIFIER = enum.auto()
     EOF = enum.auto()
 
@@ -675,8 +662,7 @@ class Map(collections.UserDict):
 
 def _check_name(name):
     if not name:
-        raise Error(
-            '#298:fields, tables, and utypes must have nonempty names')
+        raise Error('#298:fields and tables must have nonempty names')
     if name[0].isdigit():
         raise Error('#300:names must start with a letter or '
                     f'underscore, got {name}')
@@ -687,29 +673,6 @@ def _check_name(name):
         if not (c == '_' or c.isalnum()):
             raise Error('#310:names may only contain letters, digits, '
                         f'or underscores, got {name}')
-
-
-class UType:
-
-    def __init__(self, utype, value):
-        self.utype = utype
-        self.value = value
-
-
-    @property
-    def utype(self):
-        return self._utype
-
-
-    @utype.setter
-    def utype(self, utype):
-        if utype is not None:
-            _check_name(utype)
-        self._utype = utype
-
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.utype!r}, {self.value!r})'
 
 
 class TClass:
@@ -1068,8 +1031,6 @@ class _Parser:
         self.tclasses = {} # key=ttype value=TClass
         self.lino_for_tclass = {} # key=ttype value=lino
         self.used_tclasses = set()
-        self.vtype_utypes = set()
-        self.used_utypes = set()
         self.pos = -1
         self.lino = 0
 
@@ -1103,8 +1064,6 @@ class _Parser:
                 self._handle_type(i, token)
             elif kind is _Kind.STR:
                 self._handle_str(i, token)
-            elif kind is _Kind.UTYPE:
-                self._handle_utype(i, token)
             elif kind.is_scalar:
                 self._handle_scalar(i, token)
             elif kind is _Kind.EOF:
@@ -1113,7 +1072,6 @@ class _Parser:
                 self.error(410, f'unexpected token, got {token}')
         if not self._is_import:
             self._check_tclasses()
-        self._check_utypes()
         return data, comment
 
 
@@ -1138,12 +1096,6 @@ class _Parser:
             self.error(code, f'{what}s: {diff}')
 
 
-    def _check_utypes(self):
-        diff = self.vtype_utypes - self.used_utypes
-        if diff:
-            self._report_problem(diff, 430, 'unused utype')
-
-
     def _handle_comment(self, i, token):
         parent = self.stack[-1]
         prev_token = self.tokens[i - 1]
@@ -1161,8 +1113,7 @@ class _Parser:
                  self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
             tclass = self.tclasses.get(token.value)
             if tclass is None:
-                parent.vtype = token.value # Assume this is a utype
-                self.vtype_utypes.add(token.value)
+                self.error(444, f'expected map vtype, got {token}')
             else:
                 parent.vtype = tclass.ttype
                 self.used_tclasses.add(tclass.ttype)
@@ -1171,8 +1122,7 @@ class _Parser:
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
             vtype = self.tclasses.get(token.value)
             if vtype is None:
-                parent.vtype = token.value # Assume this is a utype
-                self.vtype_utypes.add(token.value)
+                self.error(446, f'expected list vtype, got {token}')
             else:
                 parent.vtype = vtype.name
                 self.used_tclasses.add(vtype.name)
@@ -1181,7 +1131,7 @@ class _Parser:
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
             tclass = self.tclasses.get(token.value)
             if tclass is None:
-                self.error(450, f'undefined table tclass, {token}',
+                self.error(450, f'expected table ttype, got {token}',
                            fail=True) # A table with no tclass is invalid
             else:
                 parent.tclass = tclass
@@ -1233,16 +1183,6 @@ class _Parser:
             else:
                 self.error(488, message)
         append_to_parent(self.stack[-1], value)
-
-
-    def _handle_utype(self, i, token):
-        utype = token.value.utype
-        value = token.value.value
-        vtype, message = self.typecheck(value)
-        if value is not None and vtype is not None and vtype != utype:
-            self.error(490, message)
-        append_to_parent(self.stack[-1], token.value)
-        self.used_utypes.add(utype)
 
 
     def _handle_scalar(self, i, token):
@@ -1748,8 +1688,6 @@ class _Writer:
             self.file.write(f'<{escape(item)}>')
         elif isinstance(item, (bytes, bytearray)):
             self.file.write(f'(:{item.hex().upper()}:)')
-        elif isinstance(item, UType):
-            self.file.write(f'%{item.utype}<{escape(item.value)}>')
         else:
             self.error(561, 'unexpected item of type '
                        f'{item.__class__.__name__}: {item!r};'

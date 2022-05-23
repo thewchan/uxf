@@ -86,11 +86,6 @@ For complex numbers you could define a _ttype_ such as: `=Complex Real:real
 Imag:real`. Then you could include single complex values like `(Complex 1.5
 7.2)`, or many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 
-For custom types (e.g., enums; or as an alternative to using a _ttype_ for
-complex numbers, or for any other custom type), you could use a _utype_. For
-example, `complex<1.5+7.2>`, `complex<8.3-9.4>`. In many cases _ttypes_ can
-be easier to work with (and more compact) than _utypes_.
-
 Collection types such as `set`, `frozenset`, `tuple`, or `collections.deque`
 are automatically converted to a [List](#list-class) when they are
 encountered. Of course, these are one way conversions.
@@ -120,7 +115,7 @@ be a [Uxf](#uxfclass) object or a single `list`, [List](#list-class),
 
 If the data contains values of types that aren't supported by UXF, they
 could either be transformed in advance (e.g., to a custom table type, a
-_ttype_), or you could use a _utype_.
+_ttype_).
 
 See also the examples in the `eg` folder and the tests in the `t` folder.
 
@@ -163,7 +158,6 @@ ordered links:
 [Map](#map-class),
 [TClass](#tclass-class),
 [Table](#table-class),
-[UType](#utype-class),
 [Uxf](#uxf-class).
 
 <a name="uxf-class"></a>
@@ -272,20 +266,6 @@ name or constant. A _vtype_ must be one of these ``str``s: `bool`, `int`,
 `real`, `date`, `datetime`, `str`, `bytes`, or `None` (which means accept
 any valid type), or a _ttype_ name.
 
-<a name="utype-class"></a>
-#### UType
-
-This class is used to store a _utype_.
-
-The `.utype` attribute holds the type name (as a `str`) and the `.value`
-attribute holds the value's representation (again, as a `str`).
-
-For example, `%MyType<T 21 some text>` would be stored as a `UType('MyType',
-'T 21 some text')`.
-
-In many cases [Tables](#table-class), i.e., _ttypes_ can be easier to work
-with (and more compact) than _utypes_.
-
 <a name="error-class"></a>
 #### Error
 
@@ -348,7 +328,7 @@ If `use_true_false` is `False` (the default), bools are output as 'yes' or
 
 If the data contains values of types that aren't supported by UXF, they
 could either be transformed in advance (e.g., to a custom table type, a
-_ttype_), or you could use a _utype_.
+_ttype_).
 
 <a name="dumps-def"></a>
 #### dumps(data, \*, use\_true\_false=False, on\_error=on\_error)

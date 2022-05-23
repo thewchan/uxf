@@ -82,9 +82,9 @@ Map keys (i.e., _ktype_) may only be of types `bytes`, `date`, `datetime`,
 List, map, and table values may be of _any_ type (including nested ``map``s,
 ``list``s, and ``table``s), unless restricted to a specific type. If
 restricted to a specific _vtype_, the _vtype_ may be any built-in type (as
-listed above, except `null`), or any user-defined _ttype_, or any _utype_,
-and the corresponding value or values must be any valid value for the
-specified type, or `?` (null).
+listed above, except `null`), or any user-defined _ttype_, and the
+corresponding value or values must be any valid value for the specified
+type, or `?` (null).
 
 Maps are insertion-ordered, that is, they preserve their items' order.
 
@@ -107,13 +107,12 @@ and do whatever conversion you want, or use a [custom type](#custom-types).
 
 ### Custom Types
 
-There are three common approaches to handling custom types in UXF. All
+There are two common approaches to handling custom types in UXF. Both
 allow for UXFs to remain round-trip readable and writeable even by UXF
 processors that aren't aware of the use of custom types as such.
 
-Here, we'll look at all three approaches for two different custom types, a
-complex number and an enumeration, and at the end we'll mention a third
-approach that's supported by some UXF processors.
+Here, we'll look at both approaches for two different custom types, a
+complex number and an enumeration.
 
     uxf 1.0
     [
@@ -126,8 +125,8 @@ with a `str` indicating the type and using ``real``s for the real and
 imaginary parts of the number. The example also shows a traffic light
 enumeration each represented by a `str` with internal structure.
 
-A UXF processor that has no knowledge of these representations of complex
-numbers or enumerations, will handle both seamlessly since they are both
+A UXF processor has no knowledge of these representations of complex numbers
+or enumerations, but will handle both seamlessly since they are both
 represented in terms of built-in UXF types. Nonetheless, an application that
 reads such UXF data can recognize and convert to and from these
 representations to and from the actual types.
@@ -153,37 +152,6 @@ the [Python UXF library](py/README.md) would return these as namedtuples.)
 If many applications need to use the same _ttypes_, it _may_ make sense to
 create some shared _ttype_ definitions. See [Imports](#imports) for how to
 do this.
-
-The third approach is to use custom user types, _utypes_. A _utype_ consists
-of a `%` _utype_ indicator, then an identifier followed by a `str` (with no
-intervening whitespace). The identifier is the _utype_'s name and the `str`
-contains a representation of the _utype_'s value.
-
-    uxf 1.0
-    [
-      %complex<1.2+0.7> %complex<3.0-0.8>
-      %Light<RED> %Light<AMBER> %Light<GREEN>
-    ]
-
-Here we've used an identifier of _complex_ to indicate complex numbers and
-_Light_ to represent the enumeration.
-
-This will just work as-is, i.e., this UXF file can be converted to a UXF
-file and will round-trip with perfect fidelity.
-
-By default any UXF reader will handle such _utypes_ by creating some kind of
-`UType` object containing two strings, a `utype` (the type's name) and a
-`value` (the string representation of the type's value).  And
-correspondingly, any UXF writer will write out any `UType` in the form
-shown.
-
-Naturally, you could post-process the data you read to transform ``UType``s
-into the types you want, and pre-process the data you read to transform your
-non-UXF types into ``UType``s. Or you could just use your UXF library's
-``UType``s as-is.
-
-Note that in many cases _ttypes_ can be easier to work with (and more
-compact) than _utypes_.
 
 ## Examples
 
@@ -579,25 +547,11 @@ the container, something like:
         1 2 3
         <x> <y> (Pair)
       )
-      (Pair %Part<X123 Green widget> %Part<Y238 Long blue plank>)
-      [Part %Part<A193 Yellow notebook> %Part<B934 Red ribbon>]
-      [%Part<K134 Pink nailpolish> %Part<V494 Teal bunting>]
-      (Parts %Part<E942 Magenta pen> %Part<F113 Black biro>)
-      %Part<K239 Cyan envelope>
     ]
 
 This rather abstract example gives a flavor of what's possible.
 Here we have a list of tables, with some tables nested inside others. For
 the last triple we have two ``str``s ("x” and "y”), and an _empty_ Pair.
-We also have a `Part` _utype_, with ``Part``s stored in a `Pair` table, a
-list with a `Part` _vtype_, a plain list, a ``Parts`` table, and one on its
-own in the overall list.
-
-Note that ``Part``s round-trip as-is. From the UXF processor's point of view
-each is held as some kind of `UType` object with two `str` attributes,
-`utype` (the name, in this case “Part”), and the string representation. It
-is up to any user code or user UXF processor to interpret the
-representation if required.
 
 ## Libraries
 
@@ -676,8 +630,7 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
     TABLE        ::= '(' COMMENT? OWS IDENFIFIER (RWS VALUE)* ')' # IDENFIFIER is the ttype (i.e., the table name)
     COMMENT      ::= OWS '#' STR
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
-    VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE | UVALUE
-    UVALUE       ::= '%' IDENFIFIER STR # IDENFIFIER is utype name
+    VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
     NULL         ::= '?'
     BOOL         ::= 'no' | 'false' | 'yes' | 'true'
     INT          ::= /[-+]?\d+/
