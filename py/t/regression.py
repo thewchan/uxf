@@ -50,23 +50,31 @@ def main():
     total = ok = 0
     total, ok = test_uxf_files(uxffiles, verbose=verbose,
                                max_total=max_total)
+    print('r', end='', flush=True)
     total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose,
                                      max_total=max_total)
+    print('l', end='', flush=True)
     total, ok = test_uxf_equal(uxffiles, total, ok, verbose=verbose,
                                max_total=max_total)
+    print('e', end='', flush=True)
     total, ok = test_uxfconvert(uxffiles, total, ok, verbose=verbose,
                                 max_total=max_total)
+    print('c', end='', flush=True)
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
+    print('t', end='', flush=True)
     if total < max_total:
         total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
+        print('s', end='', flush=True)
     if total < max_total:
         total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
+        print('S', end='', flush=True)
     if total < max_total:
         total, ok = test_externals(
-            (TEST_TABLE, TEST_SQLITE, TEST_ERRORS, TEST_LINTS,
-             TEST_IMPORTS, TEST_MERGE, TEST_INCLUDE), total, ok,
+            (('T', TEST_TABLE), ('q', TEST_SQLITE), ('E', TEST_ERRORS),
+             ('L', TEST_LINTS), ('i', TEST_IMPORTS), ('m', TEST_MERGE),
+             ('I', TEST_INCLUDE)), total, ok,
             verbose=verbose, max_total=max_total)
-    if os.isatty(sys.stdout.fileno()):
+    if ok < total and os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)
         for c in ('\b', ' ', '\b'):
             print(c * span, end='', flush=True)
@@ -302,7 +310,7 @@ def test_slides(slides_py, total, ok, *, verbose):
 
 
 def test_externals(cmds, total, ok, *, verbose, max_total):
-    for cmd in cmds:
+    for letter, cmd in cmds:
         if total >= max_total:
             return total - 1, ok
         total += 1
@@ -311,6 +319,7 @@ def test_externals(cmds, total, ok, *, verbose, max_total):
                                   verbose=verbose)
         if total - ok > diff:
             print(f'{cmd} • FAIL')
+        print(letter, end='', flush=True)
     return total, ok
 
 
