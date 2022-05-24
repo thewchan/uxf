@@ -58,12 +58,15 @@ class Config:
         self.uxo.add_tclass(decimal)
         self.uxo.add_tclass(roman)
         self.uxo.add_tclass(size)
+        general = uxf.List((
+            uxf.Table(initiallyvisible, records=(28, 32)),
+            uxf.Table(decimal), uxf.Table(size, records=(-1, -1))))
+        general.vtype = 'table'
         self.uxo.data = dict(
-            general=[uxf.Table(initiallyvisible, records=(28, 32)),
-                     uxf.Table(decimal), uxf.Table(size, records=(-1, -1))],
-            fontsize=18, bgcolour1='lightyellow', bgcolour2='#FFE7FF',
-            annotationcolour='red', confirmedcolour='blue',
-            numbercolour='navy', pagenumber=1, gamenumber=1)
+            general=general, fontsize=18, bgcolour1='lightyellow',
+            bgcolour2='#FFE7FF', annotationcolour='red',
+            confirmedcolour='blue', numbercolour='navy', pagenumber=1,
+            gamenumber=1)
         if self.filename is not None:
             self.load()
 
@@ -72,10 +75,39 @@ class Config:
         if filename is not None:
             self.filename = filename
         try:
-            tclasses = self.uxo.tclasses
-            self.uxo = uxf.load(self.filename)
-            self.uxo.tclasses.update(tclasses) # make sure they're all there
-        except OSError as err:
+            uxo = uxf.load(self.filename)
+            for name, value in uxo.data.items():
+                if name == 'general':
+                    for table in value:
+                        if table.ttype == 'initiallyvisible':
+                            record = table.first
+                            self.mininitiallyvisible = record.min
+                            self.maxinitiallyvisible = record.max
+                        elif table.ttype == 'size':
+                            record = table.first
+                            self.width = record.width
+                            self.height = record.ight
+                        elif table.ttype == 'Decimal':
+                            self.symbols = Symbols.DECIMAL
+                        elif table.ttype == 'Roman':
+                            self.symbols = Symbols.ROMAN
+                elif name == 'fontsize':
+                    self.fontsize = value
+                elif name == 'bgcolour1':
+                    self.bgcolour1 = value
+                elif name == 'bgcolour2':
+                    self.bgcolour2 = value
+                elif name == 'annotationcolour':
+                    self.annotationcolour = value
+                elif name == 'confirmedcolour':
+                    self.confirmedcolour = value
+                elif name == 'numbercolour':
+                    self.numbercolour = value
+                elif name == 'pagenumber':
+                    self.pagenumber = value
+                elif name == 'gamenumber':
+                    self.gamenumber = value
+        except (uxf.Error, OSError) as err:
             print(f'Failed to load configuration file: {err}. '
                   'Will try to create a new one on exit.')
 
@@ -121,15 +153,142 @@ class Config:
         self.uxo.data['general'][i] = uxf.Table(self.uxo.tclasses[ttype])
 
 
-    # TODO add a property getter/setter for every config item, validating &
-    # converting types on-demand
+    @property
+    def fontsize(self):
+        return self.uxo.data['fontsize']
 
-#        elif (name in {'maxinitiallyvisible', 'mininitiallyvisible'} and
-#                not (isinstance(value, int) and (9 <= value <= 72))):
-#            return # ignore bad value
-#        elif (name == 'fontsize' and not (isinstance(value, int) and
-#              (8 <= value <= 36))):
-#            return # ignore bad value
+
+    @fontsize.setter
+    def fontsize(self, value):
+        if isinstance(value, int) and 8 <= value <= 36:
+            self.uxo.data['fontsize'] = value
+
+
+    @property
+    def width(self):
+        i = self._size_index()
+        return self.uxo.data['general'][i].first.width
+
+
+    @width.setter
+    def width(self, value):
+        if isinstance(value, int) and value >= -1:
+            i = self._size_index()
+            table = self.uxo.data['general'][i]
+            table[0] = (value, table[0][1])
+
+
+    def _size_index(self):
+        for i, value in enumerate(self.uxo.data['general']):
+            if value.ttype == 'size':
+                return i
+
+
+    @property
+    def height(self):
+        i = self._size_index()
+        return self.uxo.data['general'][i].first.height
+
+
+    @height.setter
+    def height(self, value):
+        if isinstance(value, int) and value >= -1:
+            i = self._size_index()
+            table = self.uxo.data['general'][i]
+            table[0] = (table[0][0], value)
+
+
+    @property
+    def mininitiallyvisible(self):
+        return self.uxo.data['mininitiallyvisible']
+
+
+    @mininitiallyvisible.setter
+    def mininitiallyvisible(self, value):
+        if isinstance(value, int) and 9 <= value <= 72:
+            self.uxo.data['mininitiallyvisible'] = value
+
+    @property
+    def maxinitiallyvisible(self):
+        return self.uxo.data['maxinitiallyvisible']
+
+
+    @maxinitiallyvisible.setter
+    def maxinitiallyvisible(self, value):
+        if isinstance(value, int) and 9 <= value <= 72:
+            self.uxo.data['maxinitiallyvisible'] = value
+
+
+    @property
+    def bgcolour1(self):
+        return self.uxo.data['bgcolour1']
+
+
+    @bgcolour1.setter
+    def bgcolour1(self, value):
+        self.uxo.data['bgcolour1'] = value
+
+
+    @property
+    def bgcolour2(self):
+        return self.uxo.data['bgcolour2']
+
+
+    @bgcolour2.setter
+    def bgcolour2(self, value):
+        self.uxo.data['bgcolour2'] = value
+
+
+    @property
+    def annotationcolour(self):
+        return self.uxo.data['annotationcolour']
+
+
+    @annotationcolour.setter
+    def annotationcolour(self, value):
+        self.uxo.data['annotationcolour'] = value
+
+
+    @property
+    def confirmedcolour(self):
+        return self.uxo.data['confirmedcolour']
+
+
+    @confirmedcolour.setter
+    def confirmedcolour(self, value):
+        self.uxo.data['confirmedcolour'] = value
+
+
+    @property
+    def numbercolour(self):
+        return self.uxo.data['numbercolour']
+
+
+    @numbercolour.setter
+    def numbercolour(self, value):
+        self.uxo.data['numbercolour'] = value
+
+
+    @property
+    def pagenumber(self):
+        return self.uxo.data['pagenumber']
+
+
+    @pagenumber.setter
+    def pagenumber(self, value):
+        if isinstance(value, int):
+            self.uxo.data['pagenumber'] = value
+
+
+    @property
+    def gamenumber(self):
+        return self.uxo.data['gamenumber']
+
+
+    @gamenumber.setter
+    def gamenumber(self, value):
+        if isinstance(value, int):
+            self.uxo.data['gamenumber'] = value
 
 
 if __name__ == '__main__':
