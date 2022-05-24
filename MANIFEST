@@ -1,4 +1,6 @@
 # TODO test_errors.py: add tests for 418 424
+# TODO test_errors.py: go through all the error codes again to ensure
+# all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
 # everything visited to actual/vN.txt # (N=13 63 for t13.uxf t63.uxf)
 # and then regression test against expected/vN.txt
