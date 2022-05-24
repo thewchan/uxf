@@ -1,4 +1,5 @@
 # TODO complete py/t/test_use_config.py
+# TODO update docs to mention eg/Config.py ?
 # TODO Add support for complex numbers?
 #	COMPLEX ::= REAL [-+] REAL 'i'
 #      If this is done, replace doc complex, Cmplx, etc. egs. with
@@ -42,6 +43,7 @@ py/eg/slides2.py
 py/eg/slides.sld
 py/eg/merge.py
 py/eg/include.py
+py/eg/Config.py
 
 README.md
 

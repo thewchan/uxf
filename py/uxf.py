@@ -76,10 +76,11 @@ class Uxf:
         self.imports = {} # key=ttype value=import text
 
 
-    def add_tclass(self, tclass):
-        if tclass.ttype is None:
-            raise Error('#90:cannot add an unnamed TClass')
-        self.tclasses[tclass.ttype] = tclass
+    def add_tclasses(self, tclass, *tclasses):
+        for tclass in (tclass,) + tclasses:
+            if tclass.ttype is None:
+                raise Error('#90:cannot add an unnamed TClass')
+            self.tclasses[tclass.ttype] = tclass
 
 
     @property
