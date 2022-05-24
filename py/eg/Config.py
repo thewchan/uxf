@@ -226,7 +226,8 @@ class Config:
 
     @bgcolour1.setter
     def bgcolour1(self, value):
-        self._uxo.data[BGCOLOUR1] = value
+        if value != '':
+            self._uxo.data[BGCOLOUR1] = value
 
 
     @property
@@ -236,7 +237,8 @@ class Config:
 
     @bgcolour2.setter
     def bgcolour2(self, value):
-        self._uxo.data[BGCOLOUR2] = value
+        if value != '':
+            self._uxo.data[BGCOLOUR2] = value
 
 
     @property
@@ -246,7 +248,8 @@ class Config:
 
     @annotationcolour.setter
     def annotationcolour(self, value):
-        self._uxo.data[ANNOTATIONCOLOUR] = value
+        if value != '':
+            self._uxo.data[ANNOTATIONCOLOUR] = value
 
 
     @property
@@ -256,7 +259,8 @@ class Config:
 
     @confirmedcolour.setter
     def confirmedcolour(self, value):
-        self._uxo.data[CONFIRMEDCOLOUR] = value
+        if value != '':
+            self._uxo.data[CONFIRMEDCOLOUR] = value
 
 
     @property
@@ -266,7 +270,8 @@ class Config:
 
     @numbercolour.setter
     def numbercolour(self, value):
-        self._uxo.data[NUMBERCOLOUR] = value
+        if value != '':
+            self._uxo.data[NUMBERCOLOUR] = value
 
 
     @property
@@ -294,16 +299,26 @@ class Config:
     def __getitem__(self, name):
         if name in COLOURNAMES:
             return self._uxo.data[name]
+        raise Error(f'{self.__class__.__name__} ignored invalid colour '
+                    f'attribute name {name!r}')
 
 
     def __setitem__(self, name, value):
         if name in COLOURNAMES:
-            self._uxo.data[name] = value
+            if value != '':
+                self._uxo.data[name] = value
+        else:
+            raise Error(f'{self.__class__.__name__} can\'t set invalid '
+                        f'colour attribute name {name!r}')
 
 
 class Symbols(enum.IntEnum):
     DECIMAL = 1
     ROMAN = 2
+
+
+class Error(Exception):
+    pass
 
 
 INITIALLYVISIBLE = 'initiallyvisible'
@@ -319,5 +334,5 @@ CONFIRMEDCOLOUR = 'confirmedcolour'
 NUMBERCOLOUR = 'numbercolour'
 PAGENUMBER = 'pagenumber'
 GAMENUMBER = 'gamenumber'
-COLOURNAMES = {ANNOTATIONCOLOUR, CONFIRMEDCOLOUR, NUMBERCOLOUR, PAGENUMBER,
-               GAMENUMBER}
+COLOURNAMES = {BGCOLOUR1, BGCOLOUR2, ANNOTATIONCOLOUR, CONFIRMEDCOLOUR,
+               NUMBERCOLOUR, PAGENUMBER, GAMENUMBER}
