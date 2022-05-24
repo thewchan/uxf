@@ -133,15 +133,18 @@ representations to and from the actual types.
 
     uxf 1.0
     =Cmplx real_:real imag:real
-    =Light color:str
+    =TrafficLightGreen
+    =TrafficLightAmber
+    =TrafficLightRed
     [
       (Cmplx 1.4 9.8 -0.7 3.0 2.1 -6.3)
-      (Light <GREEN> <AMBER> <RED>)
+      (TrafficLightRed) (TrafficLightGreen) (TrafficLightAmber)
     ]
 
-This second approach uses two _ttypes_. For the first complex field name we
+This second approach uses four _ttypes_. For the first complex field name we
 had to use `real_` rather than `real`, since table (_ttype_) and field names
-may not be the same as any built-in type or constant.
+may not be the same as any built-in type or constant. For the enumeration we
+used three separate fieldness tables.
 
 Using tables gives us the advantage that we can represent any number of
 values of a particular _ttype_ in a single table (including just one, or
@@ -619,7 +622,7 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     CONTENT      ::= COMMENT? IMPORT* TTYPEDEF* (MAP | LIST | TABLE)
     IMPORT       ::= '!' /\s*/ IMPORT_FILE '\n' # See below for IMPORT_FILE
-    TTYPEDEF     ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)+ # IDENFIFIER is the ttype (i.e., the table name)
+    TTYPEDEF     ::= '=' COMMENT? OWS IDENFIFIER (RWS FIELD)* # IDENFIFIER is the ttype (i.e., the table name)
     FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is the field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
@@ -665,7 +668,8 @@ For a `table`, after the optional comment, there must be an identifier which
 is the table's _ttype_. This is followed by the table's values. There's no
 need to distinguish between one row and the next (although it is common to
 start new rows on new lines) since the number of fields indicate how many
-values each row has.
+values each row has. It is possible to create tables that have no fields;
+these might be used for representing enumerations.
 
 If a list value, map key, or table value's type is specified, then the UXF
 processor is expected to be able to check for (and if requested and

@@ -1,0 +1,10 @@
+uxf 1.0
+=Roman
+=Decimal
+=p x y
+[
+  (Roman)
+  (Decimal)
+  (Decimal)
+  [p (p 1 2)]
+]

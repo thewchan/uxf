@@ -1,13 +1,13 @@
 uxf 1.0
 #<More linting test data>
 =B b:bool
+=by b:bytes
 =D d:date
+=dt dt:datetime
 =I i:int
+=p a:int b:int
 =R r:real
 =S s:str
-=by b:bytes
-=dt dt:datetime
-=p a:int b:int
 [table
   (B
     yes

@@ -1,6 +1,6 @@
 uxf 1.0
-=IP4 A:int B:int C:int D:int
 =IntPair First:int Second:int
+=IP4 A:int B:int C:int D:int
 =RGB Red:int Green:int Blue:int
 [#<Unused TTypes produce warnings when converting from uxf to uxf.
 One way to avoid the warnings is to use them for empty tables.>

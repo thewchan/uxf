@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="Decimal"/>
+    <ttype name="p">
+      <field name="x"/>
+      <field name="y"/>
+    </ttype>
+    <ttype name="Roman"/>
+  </ttypes>
+  <list>
+    <table name="Roman"/>
+    <table name="Decimal"/>
+    <table name="Decimal"/>
+    <list vtype="p">
+      <table name="p">
+        <row>
+          <int v="1"/>
+          <int v="2"/>
+        </row>
+      </table>
+    </list>
+  </list>
+</uxf>

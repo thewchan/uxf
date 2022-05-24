@@ -153,14 +153,17 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
             new_uxt = uxf.dumps(uxo, use_true_false=use_true_false,
                                 on_error=on_error)
         new_uxo = uxf.loads(new_uxt, on_error=on_error)
-        if eq.eq(uxo, new_uxo):
-            ok += 1
-            if verbose:
-                print(f'loads()/dumps() • {name} OK')
-            elif not ok % 10:
-                print('.', end='', flush=True)
-        else:
-            print(f'{name} • FAIL (loads()/dumps())')
+        try:
+            if eq.eq(uxo, new_uxo):
+                ok += 1
+                if verbose:
+                    print(f'loads()/dumps() • {name} OK')
+                elif not ok % 10:
+                    print('.', end='', flush=True)
+            else:
+                print(f'{name} • FAIL (loads()/dumps())')
+        except uxf.Error as err:
+            print(f'{name} • FAIL (loads()/dumps()): {err}')
     return total, ok
 
 
@@ -193,14 +196,17 @@ def test_uxf_equal(uxffiles, total, ok, *, verbose, max_total):
             uxo2 = uxf.loads(uxt, on_error=on_error)
         except uxf.Error as err:
             print(f'eq() 2 • {expected} FAIL: {err}')
-        if eq.eq(uxo1, uxo2):
-            ok += 1
-            if verbose:
-                print(f'eq() • {name} OK')
-            elif not ok % 10:
-                print('.', end='', flush=True)
-        else:
-            print(f'{name} • FAIL (eq())')
+        try:
+            if eq.eq(uxo1, uxo2):
+                ok += 1
+                if verbose:
+                    print(f'eq() • {name} OK')
+                elif not ok % 10:
+                    print('.', end='', flush=True)
+            else:
+                print(f'{name} • FAIL (eq())')
+        except uxf.Error as err:
+            print(f'{name} • FAIL (loads()/dumps()): {err}')
     return total, ok
 
 

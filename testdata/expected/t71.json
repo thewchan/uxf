@@ -1,0 +1,73 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Decimal"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Roman"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "p",
+        "fields": {
+          "x": null,
+          "y": null
+        }
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "UXF^table": {
+        "name": "Roman",
+        "comment": null,
+        "fields": {},
+        "records": []
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Decimal",
+        "comment": null,
+        "fields": {},
+        "records": []
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Decimal",
+        "comment": null,
+        "fields": {},
+        "records": []
+      }
+    },
+    {
+      "UXF^list": {
+        "comment": null,
+        "vtype": "p",
+        "list": [
+          {
+            "UXF^table": {
+              "name": "p",
+              "comment": null,
+              "fields": {
+                "x": null,
+                "y": null
+              },
+              "records": [
+                [
+                  1,
+                  2
+                ]
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

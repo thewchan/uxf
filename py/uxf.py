@@ -74,8 +74,28 @@ class Uxf:
         self.custom = custom
         self.comment = comment
         # tclasses key=ttype value=TClass
+        self._tclasses = {}
         self.tclasses = tclasses if tclasses is not None else {}
         self.imports = {} # key=ttype value=import text
+
+
+    def add_tclass(self, tclass):
+        if tclass.ttype is None:
+            raise Error('#90:cannot add an unnamed TClass')
+        self.tclasses[tclass.ttype] = tclass
+
+
+    @property
+    def tclasses(self):
+        return self._tclasses
+
+
+    @tclasses.setter
+    def tclasses(self, tclasses):
+        for ttype, tclass in tclasses.items():
+            if ttype is None:
+                raise Error('#94:cannot set an unnamed TClass')
+            self._tclasses[ttype] = tclass
 
 
     @property
@@ -295,6 +315,7 @@ class _Lexer:
             self.check_in_tclass()
             self.add_token(_Kind.LIST_BEGIN)
         elif c == '=':
+            self.check_in_tclass() # allow for fieldless TClasses
             self.add_token(_Kind.TCLASS_BEGIN)
             self.in_tclass = True
         elif c == ']':
@@ -706,6 +727,11 @@ class TClass:
         self._ttype = ttype
 
 
+    @property
+    def fieldless(self):
+        return not bool(self.fields)
+
+
     def append(self, name_or_field, vtype=None):
         if isinstance(name_or_field, Field):
             self.fields.append(name_or_field)
@@ -715,10 +741,6 @@ class TClass:
 
     def set_vtype(self, index, vtype):
         self.fields[index].vtype = vtype
-
-
-    def __bool__(self):
-        return bool(self.ttype) and bool(self.fields)
 
 
     def __hash__(self):
@@ -738,8 +760,12 @@ class TClass:
 
 
     def __repr__(self):
-        fields = ', '.join(repr(field) for field in self.fields)
-        return (f'{self.__class__.__name__}({self.ttype!r}, {fields}, '
+        if self.fields:
+            fields = ', '.join(repr(field) for field in self.fields)
+            fields = f' {fields}, '
+        else:
+            fields = ''
+        return (f'{self.__class__.__name__}({self.ttype!r},{fields}'
                 f'comment={self.comment!r})')
 
 
@@ -782,11 +808,11 @@ def table(ttype, fields, *, comment=None):
 class Table:
     '''Used to store a UXF table.
 
-    A Table has a list of fields (name, optional type) and a records list
-    which is a list of lists of values, with each sublist having the same
-    number of items as the number of fields. It also has a .comment
-    attribute. (Note that the lists in a Table are plain lists not UXF
-    Lists.)
+    A Table has an optional list of fields (name, optional type) and (if it
+    has fields), a records list which is a list of lists of values, with
+    each sublist having the same number of items as the number of fields. It
+    also has a .comment attribute. (Note that the lists in a Table are plain
+    lists not UXF Lists.)
 
     Table's API is very similar to the list API, only it works in terms of
     whole records rather than individual values.
@@ -794,6 +820,8 @@ class Table:
     When a Table is iterated each record (row) is returned as a namedtuple,
     and in the process each record is converted from a list to a namedtuple
     if it isn't one already.
+
+    Some tables are fieldless, for example to represent enumerations.
     '''
 
     def __init__(self, tclass=None, *, records=None, comment=None):
@@ -834,12 +862,12 @@ class Table:
 
     @property
     def ttype(self):
-        return self.tclass.ttype if self.tclass else None
+        return self.tclass.ttype if self.tclass is not None else None
 
 
     @property
     def fields(self):
-        return self.tclass.fields if self.tclass else None
+        return self.tclass.fields if self.tclass is not None else []
 
 
     def field(self, column):
@@ -848,7 +876,7 @@ class Table:
 
     @property
     def _next_vtype(self):
-        if self.tclass:
+        if self.tclass is not None:
             if not self.records:
                 return self.tclass.fields[0].vtype
             else:
@@ -863,6 +891,8 @@ class Table:
         Use to append a value to the table. The value will be added to
         the last record (row) if that isn't full, or as the first value in a
         new record (row)'''
+        if not self.fields:
+            raise Error('#334:can\'t append to a fieldless table')
         if self.RecordClass is None:
             self._make_record_class()
         if not self.records or len(self.records[-1]) >= len(self.tclass):
@@ -957,6 +987,8 @@ class Table:
 
 
     def __iter__(self):
+        if not self.records:
+            return
         if self.RecordClass is None:
             self._make_record_class()
         try:
@@ -1080,6 +1112,8 @@ class _Parser:
         defined = set(self.tclasses.keys())
         unused = defined - self.used_tclasses
         unused -= imported # don't warn on unused imports
+        unused = {ttype for ttype in unused # don't warn on fieldless
+                  if not self.tclasses[ttype].fieldless}
         if unused:
             self._report_problem(unused, 422, 'unused ttype')
         undefined = self.used_tclasses - defined
@@ -1113,19 +1147,21 @@ class _Parser:
                  self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
             tclass = self.tclasses.get(token.value)
             if tclass is None:
-                self.error(444, f'expected map vtype, got {token}')
+                self.error(442, f'expected map vtype, got {token}')
+            elif tclass.ttype is None:
+                self.error(444, f'tclass without a ttype, got {token}')
             else:
                 parent.vtype = tclass.ttype
                 self.used_tclasses.add(tclass.ttype)
         elif self.tokens[i - 1].kind is _Kind.LIST_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
-            vtype = self.tclasses.get(token.value)
-            if vtype is None:
+            tclass = self.tclasses.get(token.value)
+            if tclass is None:
                 self.error(446, f'expected list vtype, got {token}')
             else:
-                parent.vtype = vtype.name
-                self.used_tclasses.add(vtype.name)
+                parent.vtype = tclass.ttype
+                self.used_tclasses.add(tclass.ttype)
         elif self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
@@ -1277,7 +1313,9 @@ class _Parser:
         for index, token in enumerate(self.tokens):
             self.lino = token.lino
             if token.kind is _Kind.TCLASS_BEGIN:
-                if tclass is not None and tclass.ttype is not None:
+                if tclass is not None:
+                    if tclass.ttype is None:
+                        self.error(520, 'TClass without ttype', fail=True)
                     self.tclasses[tclass.ttype] = tclass
                     self.lino_for_tclass[tclass.ttype] = self.lino
                 tclass = TClass(None)
@@ -1293,14 +1331,16 @@ class _Parser:
                     tclass.append(token.value)
             elif token.kind is _Kind.TYPE:
                 if not tclass:
-                    self.error(520, 'cannot use a built-in type name or '
+                    self.error(524, 'cannot use a built-in type name or '
                                f'constant as a tclass name, got {token}',
                                fail=True)
                 else:
                     vtype = token.value
                     tclass.set_vtype(-1, vtype)
             elif token.kind is _Kind.TCLASS_END:
-                if tclass is not None and bool(tclass):
+                if tclass is not None:
+                    if tclass.ttype is None:
+                        self.error(528, 'TClass without ttype', fail=True)
                     self.tclasses[tclass.ttype] = tclass
                     if tclass.ttype not in self.lino_for_tclass:
                         self.lino_for_tclass[tclass.ttype] = self.lino
@@ -1524,7 +1564,8 @@ class _Writer:
 
 
     def write_tclasses(self, tclasses, imports):
-        for ttype, tclass in sorted(tclasses.items()):
+        for ttype, tclass in sorted(tclasses.items(),
+                                    key=lambda t: t[0].upper()):
             if imports and ttype in imports:
                 continue # defined in an import
             self.file.write('=')
