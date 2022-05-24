@@ -696,6 +696,15 @@ def _check_name(name):
 
 def tclass(ttype, *fields, comment=None):
     '''Convenience function for creating a new tclass.
+    This is best to use when you want to pass fields separately, e.g.,
+
+        untyped_point_tclass = tclass('point', 'x', 'y')
+        typed_point_tclass = tclass('point', uxf.Field('x', 'int'),
+                                             uxf.Field('y', 'int'))
+    Or no fields at all:
+
+        fieldless_class = tclass('SomeEnumValue')
+
     See also the TClass constructor.'''
     return TClass(ttype, fields, comment=comment)
 
@@ -708,6 +717,15 @@ class TClass:
         name); it may not be the same as a built-in type name or constant
         .fields holds a sequence of field names or of fields of type Field
         .comment holds an optional comment
+
+        This is best to use when you want to pass a sequence of fields:
+
+            fields = [uxf.Field('x', 'int'), uxf.Field('y', 'int')]
+            point_tclass = TClass('point', fields)
+
+        Or no fields at all:
+
+            fieldless_class = TClass('SomeEnumValue')
 
         See also the tclass() convenience function.'''
         self.ttype = ttype
@@ -734,7 +752,7 @@ class TClass:
 
 
     @property
-    def fieldless(self):
+    def isfieldless(self):
         return not bool(self.fields)
 
 
@@ -883,6 +901,8 @@ class Table:
     @property
     def _next_vtype(self):
         if self.tclass is not None:
+            if self.tclass.isfieldless:
+                return None
             if not self.records:
                 return self.tclass.fields[0].vtype
             else:
@@ -1119,7 +1139,7 @@ class _Parser:
         unused = defined - self.used_tclasses
         unused -= imported # don't warn on unused imports
         unused = {ttype for ttype in unused # don't warn on fieldless
-                  if not self.tclasses[ttype].fieldless}
+                  if not self.tclasses[ttype].isfieldless}
         if unused:
             self._report_problem(unused, 422, 'unused ttype')
         undefined = self.used_tclasses - defined

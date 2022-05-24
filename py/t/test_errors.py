@@ -268,6 +268,32 @@ def main():
 
     try:
         total += 1
+        uxf.loads('''uxf 1.0
+=Fieldless
+=Single field
+[
+  (Single)
+  (Single 1)
+  (Fieldless)
+]''', on_error=on_error)
+        ok += 1 # Should succeed
+        total += 1
+        e = 334
+        uxf.loads('''uxf 1.0
+=Fieldless
+=Single field
+[
+  (Single)
+  (Single 1)
+  (Fieldless)
+  (Fieldless 1)
+]''', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
         e = 334
         _ = uxf.Table(uxf.tclass('test'), records=(1, 2))
         fail(f'test_errors • #{e} FAIL', regression)
