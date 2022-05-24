@@ -705,8 +705,10 @@ class TClass:
         '''The type of a Table
         .ttype holds the tclass's name (equivalent to a vtype or ktype
         name); it may not be the same as a built-in type name or constant
-        .fields holds a list of field names or of fields of type Field
-        .comment holds an optional comment'''
+        .fields holds a sequence of field names or of fields of type Field
+        .comment holds an optional comment
+
+        See also the tclass() convenience function.'''
         self.ttype = ttype
         self.fields = []
         self.comment = comment
