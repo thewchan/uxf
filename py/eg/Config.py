@@ -71,20 +71,12 @@ class Config:
             self._maybe_merge_comment(self._uxo, uxo)
             self._maybe_merge_comment(self._uxo.data, uxo.data)
             for name, value in uxo.data.items():
-                if name == GENERAL:
+                if name in COLOURNAMES:
+                    self[name] = value
+                elif name == GENERAL:
                     self._load_general(value)
                 elif name == FONTSIZE:
                     self.fontsize = value
-                elif name == BGCOLOUR1:
-                    self.bgcolour1 = value
-                elif name == BGCOLOUR2:
-                    self.bgcolour2 = value
-                elif name == ANNOTATIONCOLOUR:
-                    self.annotationcolour = value
-                elif name == CONFIRMEDCOLOUR:
-                    self.confirmedcolour = value
-                elif name == NUMBERCOLOUR:
-                    self.numbercolour = value
                 elif name == PAGENUMBER:
                     self.pagenumber = value
                 elif name == GAMENUMBER:
@@ -299,6 +291,16 @@ class Config:
             self._uxo.data[GAMENUMBER] = value
 
 
+    def __getitem__(self, name):
+        if name in COLOURNAMES:
+            return self._uxo.data[name]
+
+
+    def __setitem__(self, name, value):
+        if name in COLOURNAMES:
+            self._uxo.data[name] = value
+
+
 class Symbols(enum.IntEnum):
     DECIMAL = 1
     ROMAN = 2
@@ -317,3 +319,5 @@ CONFIRMEDCOLOUR = 'confirmedcolour'
 NUMBERCOLOUR = 'numbercolour'
 PAGENUMBER = 'pagenumber'
 GAMENUMBER = 'gamenumber'
+COLOURNAMES = {ANNOTATIONCOLOUR, CONFIRMEDCOLOUR, NUMBERCOLOUR, PAGENUMBER,
+               GAMENUMBER}
