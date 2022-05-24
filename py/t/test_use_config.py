@@ -30,6 +30,7 @@ def main():
 
     total += 1
     config = Config('use_config1.conf')
+    print(config.uxo.dumps())
 
     print(f'total={total} ok={ok}')
 
@@ -46,29 +47,46 @@ class Config:
         class' properties get and set using the appropriate format (e.g.,
         .symbols as a Symbols enum)'''
         self.filename = filename
-        initiallyvisible = uxf.TClass('initiallyvisible',
-                                      (uxf.Field('min', 'int'),
-                                       uxf.Field('max', 'int')))
-        decimal = uxf.TClass('Decimal')
-        roman = uxf.TClass('Roman')
-        size = uxf.TClass('size', (uxf.Field('width', 'int'),
-                                   uxf.Field('height', 'int')))
-        self.uxo = uxf.Uxf({})
+        tclasses = self._prepare_uxo()
+        self._set_defaults(tclasses)
+        if self.filename is not None:
+            self.load()
+
+
+    def _prepare_uxo(self):
+        initiallyvisible = uxf.tclass(
+            'initiallyvisible', uxf.Field('min', 'int'),
+            uxf.Field('max', 'int'))
+        decimal = uxf.tclass('Decimal')
+        roman = uxf.tclass('Roman')
+        size = uxf.tclass('size', uxf.Field('width', 'int'),
+                          uxf.Field('height', 'int'))
+        self.uxo = uxf.Uxf({}, custom='Sudoku')
+        self.uxo.comment = 'Sudoku Configuration'
         self.uxo.add_tclass(initiallyvisible)
         self.uxo.add_tclass(decimal)
         self.uxo.add_tclass(roman)
         self.uxo.add_tclass(size)
+        return initiallyvisible, decimal, roman, size
+
+
+    def _set_defaults(self, tclasses):
+        initiallyvisible, decimal, roman, size = tclasses
         general = uxf.List((
-            uxf.Table(initiallyvisible, records=(28, 32)),
-            uxf.Table(decimal), uxf.Table(size, records=(-1, -1))))
+            uxf.Table(initiallyvisible, records=(28, 32),
+                      comment='range 9-72'),
+            uxf.Table(decimal, comment='Decimal or Roman'),
+            uxf.Table(size, records=(-1, -1),
+                      comment='width and height >= -1')))
         general.vtype = 'table'
-        self.uxo.data = dict(
-            general=general, fontsize=18, bgcolour1='lightyellow',
+        self.uxo.data = uxf.Map(
+            fontsize=18, bgcolour1='lightyellow',
             bgcolour2='#FFE7FF', annotationcolour='red',
             confirmedcolour='blue', numbercolour='navy', pagenumber=1,
-            gamenumber=1)
-        if self.filename is not None:
-            self.load()
+            gamenumber=1, general=general)
+        self.uxo.data.comment = (
+            'fontsize range 8-36; colours HTML-style #HHHHHH or names; '
+            'don\'t edit pagenumber and gamenumber')
 
 
     def load(self, filename=None):
@@ -76,21 +94,11 @@ class Config:
             self.filename = filename
         try:
             uxo = uxf.load(self.filename)
+            self._maybe_merge_comment(self.uxo, uxo)
+            self._maybe_merge_comment(self.uxo.data, uxo.data)
             for name, value in uxo.data.items():
                 if name == 'general':
-                    for table in value:
-                        if table.ttype == 'initiallyvisible':
-                            record = table.first
-                            self.mininitiallyvisible = record.min
-                            self.maxinitiallyvisible = record.max
-                        elif table.ttype == 'size':
-                            record = table.first
-                            self.width = record.width
-                            self.height = record.ight
-                        elif table.ttype == 'Decimal':
-                            self.symbols = Symbols.DECIMAL
-                        elif table.ttype == 'Roman':
-                            self.symbols = Symbols.ROMAN
+                    self._load_general(value)
                 elif name == 'fontsize':
                     self.fontsize = value
                 elif name == 'bgcolour1':
@@ -110,6 +118,33 @@ class Config:
         except (uxf.Error, OSError) as err:
             print(f'Failed to load configuration file: {err}. '
                   'Will try to create a new one on exit.')
+
+
+    def _load_general(self, value):
+        for table in value:
+            if table.ttype == 'initiallyvisible':
+                record = table.first
+                self.mininitiallyvisible = record.min
+                self.maxinitiallyvisible = record.max
+            elif table.ttype == 'size':
+                record = table.first
+                self.width = record.width
+                self.height = record.height
+            elif table.ttype == 'Decimal':
+                self.symbols = Symbols.DECIMAL
+            elif table.ttype == 'Roman':
+                self.symbols = Symbols.ROMAN
+            if table.comment:
+                self._maybe_merge_comment(self._table_of(table.ttype),
+                                          table)
+
+
+    def _maybe_merge_comment(self, old, new):
+        if new.comment:
+            if not old.comment:
+                old.comment = new.comment
+            elif new.comment not in old.comment.splitlines():
+                old.comment += '\n' + new.comment
 
 
     def save(self, filename=None):
@@ -166,57 +201,61 @@ class Config:
 
     @property
     def width(self):
-        i = self._size_index()
-        return self.uxo.data['general'][i].first.width
+        return self._table_of('size').first.width
 
 
     @width.setter
     def width(self, value):
         if isinstance(value, int) and value >= -1:
-            i = self._size_index()
-            table = self.uxo.data['general'][i]
-            table[0] = (value, table[0][1])
+            table = self._table_of('size')
+            table[0] = (value, table[0].height)
 
 
-    def _size_index(self):
+    def _table_of(self, what):
+        i = self._index_of(what)
+        return self.uxo.data['general'][i] if i is not None else None
+
+
+    def _index_of(self, what):
         for i, value in enumerate(self.uxo.data['general']):
-            if value.ttype == 'size':
+            if value.ttype == what:
                 return i
 
 
     @property
     def height(self):
-        i = self._size_index()
-        return self.uxo.data['general'][i].first.height
+        return self._table_of('size').first.height
 
 
     @height.setter
     def height(self, value):
         if isinstance(value, int) and value >= -1:
-            i = self._size_index()
-            table = self.uxo.data['general'][i]
-            table[0] = (table[0][0], value)
+            table = self._table_of('size')
+            table[0] = (table[0].width, value)
 
 
     @property
     def mininitiallyvisible(self):
-        return self.uxo.data['mininitiallyvisible']
+        return self._table_of('initiallyvisible').first.min
 
 
     @mininitiallyvisible.setter
     def mininitiallyvisible(self, value):
         if isinstance(value, int) and 9 <= value <= 72:
-            self.uxo.data['mininitiallyvisible'] = value
+            table = self._table_of('initiallyvisible')
+            table[0] = (value, table[0].max)
+
 
     @property
     def maxinitiallyvisible(self):
-        return self.uxo.data['maxinitiallyvisible']
+        return self._table_of('initiallyvisible').first.max
 
 
     @maxinitiallyvisible.setter
     def maxinitiallyvisible(self, value):
         if isinstance(value, int) and 9 <= value <= 72:
-            self.uxo.data['maxinitiallyvisible'] = value
+            table = self._table_of('initiallyvisible')
+            table[0] = (table[0].min, value)
 
 
     @property

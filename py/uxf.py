@@ -23,9 +23,6 @@ except ImportError:
     isoparse = None
 
 
-__all__ = ('__version__', 'VERSION', 'load', 'loads', 'dump', 'dumps',
-           'naturalize', 'canonicalize', 'is_scalar', 'Uxf', 'List',
-           'Map', 'Table', 'TClass', 'Field')
 __version__ = '0.33.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
@@ -694,6 +691,12 @@ def _check_name(name):
         if not (c == '_' or c.isalnum()):
             raise Error('#310:names may only contain letters, digits, '
                         f'or underscores, got {name}')
+
+
+def tclass(ttype, *fields, comment=None):
+    '''Convenience function for creating a new tclass.
+    See also the TClass constructor.'''
+    return TClass(ttype, fields, comment=comment)
 
 
 class TClass:

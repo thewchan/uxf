@@ -28,7 +28,7 @@ def main():
     total = ok = 0
 
     t = uxf.Table()
-    t.tclass = uxf.TClass('point', ('x', 'y'))
+    t.tclass = uxf.tclass('point', 'x', 'y')
     # append
     t.append((1, -6))
     t.append((3, 21))

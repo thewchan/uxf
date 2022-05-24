@@ -261,7 +261,7 @@ def main():
     try:
         total += 1
         e = 334
-        _ = uxf.Table(uxf.TClass('test'), records=(1, 2))
+        _ = uxf.Table(uxf.tclass('test'), records=(1, 2))
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -269,7 +269,7 @@ def main():
     try:
         total += 1
         e = 334
-        _ = uxf.Table(uxf.TClass('test'), records=(1, 2))
+        _ = uxf.Table(uxf.tclass('test'), records=(1, 2))
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -286,7 +286,7 @@ def main():
     try:
         total += 1
         e = 334
-        t = uxf.Table(uxf.TClass('t1'))
+        t = uxf.Table(uxf.tclass('t1'))
         t._append(1)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
