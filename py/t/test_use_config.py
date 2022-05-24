@@ -31,6 +31,11 @@ def main():
     total += 1
     config = Config.Config('use_config1.conf')
     print(config._uxo.dumps())
+    # TODO
+    # - load from the file;
+    # - change various properties (plus some invalid changes)
+    # - check the valid changes have been applied
+    # - ?
 
     print(f'total={total} ok={ok}')
 

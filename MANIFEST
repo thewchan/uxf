@@ -1,3 +1,11 @@
+# TODO could I replace Table's namedtuples with a dynamically created
+# class that provides both property and index access e.g., .width and [0]
+# so that users can get/set individual fields within rows?
+# If so, update Config.py (& in sudoku.pyw) to use this feature.
+
+py/makeclass.py
+
+
 # TODO complete py/t/test_use_config.py
 # TODO update docs to mention eg/Config.py ?
 # TODO Add support for complex numbers?
