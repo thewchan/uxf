@@ -27,10 +27,8 @@ a plain text human readable optionally typed storage format.',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
-        'Topic :: Software Development :: Libraries',
-        ],
+        'Topic :: Software Development :: Libraries'],
     package_dir={'': '.'},
     py_modules=['uxf'],
     scripts=['uxfconvert.py'],
-    python_requires='>=3.8',
-    )
+    python_requires='>=3.8')

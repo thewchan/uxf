@@ -189,8 +189,7 @@ EXPECTED_ERRORS = [
     "uxf.py:i65.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'",
     "uxf.py:i66.uxi:1:#580:cannot do circular imports "
     "'/home/mark/app/uxf/testdata/i65.uxi'",
-    "uxf.py:i67.uxi:11:#422:unused ttype: 'dob'",
-    ]
+    "uxf.py:i67.uxi:11:#422:unused ttype: 'dob'"]
 
 
 if __name__ == '__main__':
