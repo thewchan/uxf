@@ -18,7 +18,7 @@ syn keyword uxfTodo TODO FIXME DELETE CHECK TEST XXX
 syn keyword uxfConst yes true no false
 syn match uxfNull /[?]/
 syn keyword uxfType bool int real date datetime str bytes list map table
-syn match uxfPunctuation /[][{}()=:!%]/
+syn match uxfPunctuation /[][{}()=:!]/
 syn match uxfIdentifier /\<\w\+\>/ 
 syn region uxfStr start="<" end=">"
 syn region uxfComment start="#<" end=">"
