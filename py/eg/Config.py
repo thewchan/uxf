@@ -132,8 +132,7 @@ class Config:
     def _symbol_and_index(self):
         self._symbol_for_name = {symbol.name.upper(): symbol
                                  for symbol in Symbols}
-        for i in range(len(self._uxo.data[GENERAL])):
-            value = self._uxo.data[GENERAL][i]
+        for i, value in enumerate(self._uxo.data[GENERAL]):
             ttype = value.ttype.upper()
             symbol = self._symbol_for_name.get(ttype)
             if symbol is not None:
@@ -173,8 +172,7 @@ class Config:
     @width.setter
     def width(self, value):
         if isinstance(value, int) and value >= -1:
-            table = self._table_of(SIZE)
-            table[0] = (value, table[0].height)
+            self._table_of(SIZE).first.width = value
 
 
     def _table_of(self, what):
@@ -191,8 +189,7 @@ class Config:
     @height.setter
     def height(self, value):
         if isinstance(value, int) and value >= -1:
-            table = self._table_of(SIZE)
-            table[0] = (table[0].width, value)
+            self._table_of(SIZE).first.height = value
 
 
     @property
@@ -203,8 +200,7 @@ class Config:
     @mininitiallyvisible.setter
     def mininitiallyvisible(self, value):
         if isinstance(value, int) and 9 <= value <= 72:
-            table = self._table_of(INITIALLYVISIBLE)
-            table[0] = (value, table[0].max)
+            self._table_of(INITIALLYVISIBLE).first.min = value
 
 
     @property
@@ -215,8 +211,7 @@ class Config:
     @maxinitiallyvisible.setter
     def maxinitiallyvisible(self, value):
         if isinstance(value, int) and 9 <= value <= 72:
-            table = self._table_of(INITIALLYVISIBLE)
-            table[0] = (table[0].min, value)
+            self._table_of(INITIALLYVISIBLE).first.max = value
 
 
     @property

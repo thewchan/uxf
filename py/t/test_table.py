@@ -37,57 +37,88 @@ def main():
     # insert
     t.insert(1, (-2, 19))
     total += 1
-    # __getitem__
-    p = t[3]
+    p = t.get_record(3)
     if p.x == -4 and p.y == 8:
         ok += 1
-    # __setitem__
-    t[1] = (-20, 191)
+    elif not regression:
+        print('fail #1')
+    t.set_record(1, (-20, 191))
     total += 1
+    # __getitem__
     p = t[1]
     if p.x == -20 and p.y == 191:
         ok += 1
+    elif not regression:
+        print('fail #2')
     # len()
     total += 1
     if len(t) == 5:
         ok += 1
-    # __delitem__
-    del t[3]
+    elif not regression:
+        print('fail #3')
+    t.delete_record(3)
     total += 1
     if len(t) == 4:
         ok += 1
+    elif not regression:
+        print('fail #4')
     # __iter__
     total += 1
     expected = [t.RecordClass(*p)
                 for p in [(1, -6), (-20, 191), (3, 21), (5, 17)]]
     if list(t) == expected:
         ok += 1
+    elif not regression:
+        print('fail #5')
     # properties
     total += 1
     if t.ttype == 'point':
         ok += 1
+    elif not regression:
+        print('fail #6')
     total += 1
     if t.fields == [uxf.Field('x'), uxf.Field('y')]:
         ok += 1
+    elif not regression:
+        print('fail #7')
+
+    total += 1
+    if t.first.totuple == (1, -6):
+        ok += 1
+    elif not regression:
+        print('fail #8')
+
+    total += 1
+    if t.second.totuple == (-20, 191):
+        ok += 1
+    elif not regression:
+        print('fail #9')
+
+    total += 1
+    if t.third.totuple == (3, 21):
+        ok += 1
+    elif not regression:
+        print('fail #10')
+
+    total += 1
+    if t.fourth.totuple == (5, 17):
+        ok += 1
+    elif not regression:
+        print('fail #11')
+
+    total += 1
+    if t.last.totuple == (5, 17):
+        ok += 1
+    elif not regression:
+        print('fail #12')
 
     # errors (see test_errors.py for 320 340
     try:
         total += 1
-        e = 370 # must preced 360
         t.append((-7, -8, -9))
-        fail(f'test_table • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
-    t._append(-99)
-
-    try:
-        total += 1
-        e = 360
-        t.append((-7, -8))
-        fail(f'test_table • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
+        fail('test_table • expected TypeError FAIL', regression)
+    except TypeError:
+        ok += 1
 
     print(f'total={total} ok={ok}')
 

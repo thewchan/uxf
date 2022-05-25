@@ -150,7 +150,8 @@ Using tables gives us the advantage that we can represent any number of
 values of a particular _ttype_ in a single table (including just one, or
 even none), thus cutting down on repetitive text. And some UXF processor
 libraries will be able to return table values as custom types. (For example,
-the [Python UXF library](py/README.md) would return these as namedtuples.)
+the [Python UXF library](py/README.md) would return these as custom class
+instances.)
 
 If many applications need to use the same _ttypes_, it _may_ make sense to
 create some shared _ttype_ definitions. See [Imports](#imports) for how to

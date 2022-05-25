@@ -125,11 +125,13 @@ See also the examples in the `eg` folder and the tests in the `t` folder.
 A [UXF](#uxf-class) object (called a `uxo` in these docs) has a `.data`
 attribute that is always a [List](#list-class) or [Map](#map-class) or
 [Table](#table-class). The first two have essentially the same APIs as
-`list` and `dict` respectively. The [Table](#table-class) API is very
-similar to a `list` except that it works in terms of whole records (i.e.,
-named tuples of field values), rather than individual values. The best way
-to append new records is to use the [Table](#table-class)'s `append()`
-method.
+`list` and `dict` respectively. The [Table](#table-class) API is a little
+similar to a `list`. Individual records can be accessed using `[]`, but to
+work with records or fields the API provides `get_record()`, `set_record()`,
+`get_field()`, `set_field()`, amongst others. For small tables, records can
+be accessed with the `first`, `second`, `third`, or `fourth` properties. The
+best way to append new records is to use the [Table](#table-class)'s
+`append()` method.
 
 The `uxf` module distinguishes between a _ttype_ (the name of a user-defined
 table) and a [TClass](#tclass-class) (the Python class which represents a

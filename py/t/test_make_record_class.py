@@ -92,12 +92,12 @@ def main():
         print('fail #7')
 
     total += 1
-    t = Record(-8, 17).totuple()
+    t = Record(-8, 17).totuple
     if (repr(t) == 'UXF_Record(width=-8, height=17)' and
             isinstance(t, tuple)):
         ok += 1
     elif not regression:
-        print('fail #8')
+        print(f'fail #8, got: {repr(t)}')
 
     print(f'total={total} ok={ok}')
 

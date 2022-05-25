@@ -30,7 +30,33 @@ def main():
 
     total += 1
     config = Config.Config('use_config1.conf')
-    print(config._uxo.dumps())
+    ok += 1
+    if not regression:
+        print(config._uxo.dumps())
+
+    total += 1
+    if config.width == 540:
+        ok += 1
+    elif not regression:
+        print('fail #1')
+
+    total += 1
+    config.width = 99
+    if config.width == 99:
+        ok += 1
+    elif not regression:
+        print('fail #2')
+
+    total += 1
+    config.symbols = Config.Symbols.ROMAN
+    config.fontsize = 19
+    config.bgcolour2 = 'magenta'
+    if (config.symbols is Config.Symbols.ROMAN and config.fontsize == 19 and
+            config.bgcolour2 == 'magenta'):
+        ok += 1
+    elif not regression:
+        print('fail #3')
+
     # TODO
     # - load from the file;
     # - change various properties (plus some invalid changes)

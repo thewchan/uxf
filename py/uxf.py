@@ -954,10 +954,18 @@ class Table:
             *[field.name for field in self.fields])
 
 
+    def _customize(self, row):
+        if self.RecordClass is None:
+            self._make_record_class()
+        record = self.records[row]
+        if not isinstance(record, self.RecordClass):
+            record = self.records[row] = self.RecordClass(*record)
+        return record
+
+
     def append(self, record):
         '''Add a record (either a RecordClass tuple or a sequence of fields)
         to the table'''
-        self._check_append_or_insert(record, 'append')
         if self.RecordClass is None:
             self._make_record_class()
         if not isinstance(record, self.RecordClass):
@@ -965,17 +973,7 @@ class Table:
         self.records.append(record)
 
 
-    def _check_append_or_insert(self, record, what):
-        if self.records and len(self.records[-1]) != len(self.tclass):
-            raise Error(f'#360:can\'t use {what} when the last record '
-                        'is incomplete')
-        if len(record) != len(self.tclass):
-            raise Error(f'#370:{what} expects {len(self.tclass)} '
-                        f'fields, got {len(record)}')
-
-
     def insert(self, index, record):
-        self._check_append_or_insert(record, 'insert')
         if self.RecordClass is None:
             self._make_record_class()
         if not isinstance(record, self.RecordClass):
@@ -990,23 +988,68 @@ class Table:
         # else return None
 
 
+    @property
+    def second(self):
+        if self.records:
+            return self[1]
+        # else return None
+
+
+    @property
+    def third(self):
+        if self.records:
+            return self[2]
+        # else return None
+
+
+    @property
+    def fourth(self):
+        if self.records:
+            return self[3]
+        # else return None
+
+
+    @property
+    def last(self):
+        if self.records:
+            return self[-1]
+        # else return None
+
+
     def __getitem__(self, row):
-        '''Return the row-th record as a namedtuple'''
-        record = self.records[row]
-        if not isinstance(record, self.RecordClass):
-            record = self.RecordClass(*record)
-        return record
+        '''Return the row-th record as a custom class'''
+        return self._customize(row)
 
 
-    def __setitem__(self, row, record):
-        self._check_append_or_insert(record, f'table[{row}] = …')
+    def get_record(self, row):
+        '''Return the row-th record as a custom class'''
+        return self._customize(row)
+
+
+    def set_record(self, row, record):
+        '''Replace the row-th record as a custom class'''
         if not isinstance(record, self.RecordClass):
             record = self.RecordClass(*record)
         self.records[row] = record
 
 
-    def __delitem__(self, row):
+    def delete_record(self, row):
         del self.records[row]
+
+
+    def get_field(self, row, name_or_index):
+        record = self._customize(row)
+        if isinstance(name_or_index, int):
+            return record[name_or_index]
+        return getattr(record, name_or_index)
+
+
+    def set_field(self, row, name_or_index, value):
+        record = self._customize(row)
+        if isinstance(name_or_index, int):
+            record[name_or_index] = value
+        else:
+            setattr(record, name_or_index, value)
 
 
     def __iter__(self):
@@ -1820,7 +1863,10 @@ def _make_record_class(classname, *fieldnames):
             setattr(self, name, args[i] if i < len(args) else None)
 
     def totuple(self):
-        Class = collections.namedtuple(f'UXF_{classname}', fieldnames)
+        nonlocal classname
+        if not classname.startswith('UXF_'):
+            classname = 'UXF_' + classname
+        Class = collections.namedtuple(classname, fieldnames)
         return Class(*iter(self))
 
     def repr(self):
@@ -1868,9 +1914,10 @@ def _make_record_class(classname, *fieldnames):
             return False
         return tuple(self) == tuple(other)
 
-    return type(classname, (), dict(__init__=init, totuple=totuple,
-                __repr__=repr, __getitem__=getitem, __setitem__=setitem,
-                __len__=length, __iter__=iter, __eq__=eq, **fields))
+    return type(classname, (), dict(__init__=init,
+                totuple=property(totuple), __repr__=repr,
+                __getitem__=getitem, __setitem__=setitem, __len__=length,
+                __iter__=iter, __eq__=eq, **fields))
 
 
 def append_to_parent(parent, value):

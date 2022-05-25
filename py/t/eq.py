@@ -44,9 +44,9 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                   debug=debug)
 
     if hasattr(a, 'totuple'):
-        a = a.totuple()
+        a = a.totuple
     if hasattr(b, 'totuple'):
-        b = b.totuple()
+        b = b.totuple
 
     if isinstance(a, uxf.Uxf):
         if not isinstance(b, uxf.Uxf):

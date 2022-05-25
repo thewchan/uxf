@@ -534,7 +534,7 @@ def _xml_add_tclasses(tree, root, tclasses):
 
 def _xml_add_value(tree, root, value):
     if hasattr(value, 'totuple'):
-        value = value.totuple()
+        value = value.totuple
     if (isinstance(value, tuple) and
             value.__class__.__name__.startswith('UXF')):
         _xml_add_list(tree, root, value, tag='row')

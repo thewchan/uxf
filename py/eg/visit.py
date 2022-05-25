@@ -88,7 +88,7 @@ def visit(function, value):
         pass # ignore
     else:
         if hasattr(value, 'totuple'):
-            visit(function, value.totuple())
+            visit(function, value.totuple)
         else:
             raise Error('can\'t visit values of type '
                         f'{value.__class__.__name__}: {value!r}')
