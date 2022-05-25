@@ -627,28 +627,28 @@ class _Kind(enum.Enum):
 
 class List(collections.UserList):
 
-    def __init__(self, *args, **kwargs):
-        '''Takes same arguments as list.
+    def __init__(self, seq=None, *, vtype=None, comment=None):
+        '''Takes an optional sequence (list, tuple, iterable)
         .data holds the actual list
         .comment holds an optional comment
         .vtype holds a UXF type name ('int', 'real', …)'''
-        super().__init__(*args, **kwargs)
-        self.comment = None
-        self.vtype = None
+        super().__init__(seq)
+        self.vtype = vtype
+        self.comment = comment
 
 
 class Map(collections.UserDict):
 
-    def __init__(self, *args, **kwargs):
-        '''Takes same arguments as dict.
+    def __init__(self, d=None, *, ktype=None, vtype=None, comment=None):
+        '''Takes an optional dict
         .data holds the actual dict
         .comment holds an optional comment
         .ktype and .vtype hold a UXF type name ('int', 'str', …);
         .ktype may only be int, str, bytes, date, or datetime'''
-        super().__init__(*args, **kwargs)
-        self.comment = None
-        self.ktype = None
-        self.vtype = None
+        super().__init__(d)
+        self.ktype = ktype
+        self.vtype = vtype
+        self.comment = comment
         self._pending_key = _MISSING
 
 

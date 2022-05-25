@@ -331,18 +331,14 @@ def _json_naturalize(d):
         return bytes.fromhex(d[JSON_BYTES])
     if JSON_LIST in d:
         jlist = d[JSON_LIST]
-        ls = uxf.List(jlist[LIST])
-        ls.comment = jlist[COMMENT]
-        ls.vtype = jlist[VTYPE]
-        return ls
+        return uxf.List(jlist[LIST], vtype=jlist[VTYPE],
+                        comment=jlist[COMMENT])
     if JSON_MAP in d:
         jmap = d[JSON_MAP]
         itype = jmap.get(ITYPE) # str or None
         itypes = jmap.get(ITYPES) # dict or None
-        m = uxf.Map()
-        m.comment = jmap[COMMENT]
-        m.ktype = jmap[KTYPE] # str or None
-        m.vtype = jmap[VTYPE] # str or None
+        m = uxf.Map(ktype=jmap[KTYPE], vtype=jmap[VTYPE],
+                    comment=jmap[COMMENT])
         for key, value in jmap[MAP].items():
             if itypes is not None:
                 itype = itypes.get(key)
@@ -670,15 +666,12 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
         elif name == 'field':
             self.tclass.append(d['name'], d.get('vtype'))
         elif name == 'map':
-            container = uxf.Map()
-            container.comment = d.get('comment')
-            container.ktype = d.get('ktype')
-            container.vtype = d.get('vtype')
+            container = uxf.Map(ktype=d.get('ktype'), vtype=d.get('vtype'),
+                                comment=d.get('comment'))
             self.start_container(container)
         elif name == 'list':
-            container = uxf.List()
-            container.comment = d.get('comment')
-            container.vtype = d.get('vtype')
+            container = uxf.List(vtype=d.get('vtype'),
+                                 comment=d.get('comment'))
             self.start_container(container)
         elif name == 'table':
             container = uxf.Table(uxf.TClass(d['name']),

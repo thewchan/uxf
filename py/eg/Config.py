@@ -51,13 +51,12 @@ class Config:
             uxf.Table(self._uxo.tclasses[DECIMAL],
                       comment='Decimal or Roman'),
             uxf.Table(self._uxo.tclasses['size'], records=(-1, -1),
-                      comment='width and height >= -1')))
-        general.vtype = 'table'
+                      comment='width and height >= -1')), vtype='table')
         self._uxo.data = uxf.Map(
-            fontsize=18, bgcolour1='lightyellow',
-            bgcolour2='#FFE7FF', annotationcolour='red',
-            confirmedcolour='blue', numbercolour='navy', pagenumber=1,
-            gamenumber=1, general=general)
+            dict(fontsize=18, bgcolour1='lightyellow',
+                 bgcolour2='#FFE7FF', annotationcolour='red',
+                 confirmedcolour='blue', numbercolour='navy', pagenumber=1,
+                 gamenumber=1, general=general))
         self._uxo.data.comment = (
             'fontsize range 8-36; colours HTML-style #HHHHHH or names; '
             'don\'t edit pagenumber and gamenumber')
