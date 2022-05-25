@@ -328,28 +328,6 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
-    # See test_table.py for 360 370
-    try:
-        total += 1
-        e = 380
-        t = uxf.table('t1', ('a', 'b'))
-        t._append(1)
-        r = t[0]
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
-    try:
-        total += 1
-        e = 390
-        t = uxf.table('t1', ('a', 'b'))
-        t._append(1)
-        for r in t:
-            pass
-        fail(f'test_errors • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
     try:
         total += 1
         e = 402

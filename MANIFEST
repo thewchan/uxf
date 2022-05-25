@@ -3,9 +3,6 @@
 # so that users can get/set individual fields within rows?
 # If so, update Config.py (& in sudoku.pyw) to use this feature.
 
-py/makeclass.py
-
-
 # TODO complete py/t/test_use_config.py
 # TODO update docs to mention eg/Config.py ?
 # TODO Add support for complex numbers?
@@ -42,8 +39,9 @@ py/t/test_errors.py
 py/t/test_lints.py
 py/t/test_imports.py
 py/t/test_merge.py
-py/t/test_include.py
+tpy/t/test_include.py
 py/t/test_use_config.py # TODO
+py/t/test_make_record_class.py
 py/t/eq.py
 py/eg/visit.py
 py/eg/slides1.py

@@ -89,22 +89,6 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
-    try:
-        total += 1
-        e = 380
-        t[-1]
-        fail(f'test_table • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
-    try:
-        total += 1
-        e = 390
-        list(t)
-        fail(f'test_table • #{e} FAIL', regression)
-    except uxf.Error as err:
-        ok += got_error(e, err, regression)
-
     print(f'total={total} ok={ok}')
 
 

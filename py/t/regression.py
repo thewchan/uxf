@@ -33,6 +33,8 @@ try:
     TEST_IMPORTS = os.path.join(PATH, '../t/test_imports.py')
     TEST_MERGE = os.path.join(PATH, '../t/test_merge.py')
     TEST_INCLUDE = os.path.join(PATH, '../t/test_include.py')
+    TEST_MAKE_RECORD_CLASS = os.path.join(PATH,
+                                          '../t/test_make_record_class.py')
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -46,33 +48,33 @@ def main():
                        if os.path.isfile(name) and name.endswith(
                            ('.uxf', '.uxf.gz'))),
                       key=by_number)
-    print('.', end='', flush=True)
+    print('0', end='', flush=True)
     total = ok = 0
     total, ok = test_uxf_files(uxffiles, verbose=verbose,
                                max_total=max_total)
-    print('r', end='', flush=True)
+    print('1', end='', flush=True)
     total, ok = test_uxf_loads_dumps(uxffiles, total, ok, verbose=verbose,
                                      max_total=max_total)
-    print('l', end='', flush=True)
+    print('2', end='', flush=True)
     total, ok = test_uxf_equal(uxffiles, total, ok, verbose=verbose,
                                max_total=max_total)
-    print('e', end='', flush=True)
+    print('3', end='', flush=True)
     total, ok = test_uxfconvert(uxffiles, total, ok, verbose=verbose,
                                 max_total=max_total)
-    print('c', end='', flush=True)
+    print('4', end='', flush=True)
     total, ok = test_table_is_scalar(total, ok, verbose=verbose)
-    print('t', end='', flush=True)
+    print('5', end='', flush=True)
     if total < max_total:
         total, ok = test_slides(SLIDES1, total, ok, verbose=verbose)
-        print('s', end='', flush=True)
+        print('6', end='', flush=True)
     if total < max_total:
         total, ok = test_slides(SLIDES2, total, ok, verbose=verbose)
-        print('S', end='', flush=True)
+        print('7', end='', flush=True)
     if total < max_total:
         total, ok = test_externals(
-            (('T', TEST_TABLE), ('q', TEST_SQLITE), ('E', TEST_ERRORS),
-             ('L', TEST_LINTS), ('i', TEST_IMPORTS), ('m', TEST_MERGE),
-             ('I', TEST_INCLUDE)), total, ok,
+            (('A', TEST_TABLE), ('B', TEST_SQLITE), ('C', TEST_ERRORS),
+             ('D', TEST_LINTS), ('E', TEST_IMPORTS), ('F', TEST_MERGE),
+             ('G', TEST_INCLUDE), ('H', TEST_MAKE_RECORD_CLASS)), total, ok,
             verbose=verbose, max_total=max_total)
     if ok == total and os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)

@@ -947,9 +947,9 @@ class Table:
             raise Error('#340:can\'t use an unnamed table')
         if not self.fields:
             raise Error('#350:can\'t create a table with no fields')
-        self.RecordClass = collections.namedtuple(
+        self.RecordClass = _make_record_class(
             f'UXF_{self.ttype}', # prefix avoids name clashes
-            [field.name for field in self.fields])
+            *[field.name for field in self.fields])
 
 
     def append(self, record):
@@ -990,15 +990,10 @@ class Table:
 
     def __getitem__(self, row):
         '''Return the row-th record as a namedtuple'''
-        try:
-            record = self.records[row]
-            if not isinstance(record, self.RecordClass):
-                record = self.RecordClass(*record)
-            return record
-        except TypeError as err:
-            if 'missing' in str(err):
-                err = '#380:table\'s ttype has fewer fields than in a row'
-                raise Error(err) from None
+        record = self.records[row]
+        if not isinstance(record, self.RecordClass):
+            record = self.RecordClass(*record)
+        return record
 
 
     def __setitem__(self, row, record):
@@ -1017,16 +1012,11 @@ class Table:
             return
         if self.RecordClass is None:
             self._make_record_class()
-        try:
-            for i in range(len(self.records)):
-                record = self.records[i]
-                if not isinstance(record, self.RecordClass):
-                    record = self.records[i] = self.RecordClass(*record)
-                yield record
-        except TypeError as err:
-            if 'missing' in str(err):
-                raise Error(
-                    '#390:table\'s ttype has fewer fields than in a row')
+        for i in range(len(self.records)):
+            record = self.records[i]
+            if not isinstance(record, self.RecordClass):
+                record = self.records[i] = self.RecordClass(*record)
+            yield record
 
 
     def __len__(self):
@@ -1815,6 +1805,70 @@ def _full_filename(filename, path=None):
 
 class _AlreadyImported(Exception):
     pass
+
+
+def _make_record_class(classname, *fieldnames):
+    fields = {name: None for name in fieldnames}
+
+    def init(self, *args):
+        if len(args) > len(fieldnames):
+            raise TypeError(f'{classname} accepts up to {len(fieldnames)} '
+                            f'positional args; got {len(args)}')
+        for i, name in enumerate(fieldnames):
+            setattr(self, name, args[i] if i < len(args) else None)
+
+    def totuple(self):
+        Class = collections.namedtuple(f'UXF_{classname}', fieldnames)
+        return Class(*iter(self))
+
+    def repr(self):
+        values = []
+        for name in fieldnames:
+            values.append(getattr(self, name))
+        values = ', '.join(f'{value!r}' for value in values)
+        return f'{classname}({values})'
+
+    def getitem(self, index):
+        if isinstance(index, slice):
+            if index.stop is not None or index.step is not None:
+                raise IndexError(
+                    f'{classname}: cannot get slices {index}')
+            index = index.start
+        if index < 0: # allow negative indexes, e.g., -1 for last
+            index += len(fieldnames)
+        if index >= len(fieldnames):
+            raise IndexError(
+                f'{classname}: no item to get at index {index}')
+        return getattr(self, fieldnames[index])
+
+    def setitem(self, index, value):
+        if isinstance(index, slice):
+            if index.stop is not None or index.step is not None:
+                raise IndexError(
+                    f'{classname}: cannot set slices {index}')
+            index = index.start
+        if index < 0:
+            index += len(fieldnames)
+        if index >= len(fieldnames):
+            raise IndexError(
+                f'{classname}: no item to set at index {index}')
+        setattr(self, fieldnames[index], value)
+
+    def length(self):
+        return len(fieldnames)
+
+    def iter(self):
+        for i in range(len(fieldnames)):
+            yield self[i]
+
+    def eq(self, other):
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
+        return tuple(self) == tuple(other)
+
+    return type(classname, (), dict(__init__=init, totuple=totuple,
+                __repr__=repr, __getitem__=getitem, __setitem__=setitem,
+                __len__=length, __iter__=iter, __eq__=eq, **fields))
 
 
 def append_to_parent(parent, value):

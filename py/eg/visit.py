@@ -40,6 +40,10 @@ TYPENAMES = frozenset(_ANY_VALUE_TYPES | {'null'})
 _MISSING = object()
 
 
+class Error(Exception):
+    pass
+
+
 def visit(function, value):
     '''Calls the given function for every every value in the Uxf object (or
     the list, List, dict, Map, or Table, value if given). The function is
@@ -80,7 +84,14 @@ def visit(function, value):
         function(ValueType.STR, value)
     elif isinstance(value, (bytes, bytearray)):
         function(ValueType.BYTES, value)
-    # else isinstance(value, TClass): pass # ignore
+    elif isinstance(value, uxf.TClass):
+        pass # ignore
+    else:
+        if hasattr(value, 'totuple'):
+            visit(function, value.totuple())
+        else:
+            raise Error('can\'t visit values of type '
+                        f'{value.__class__.__name__}: {value!r}')
 
 
 def _visit_uxf(function, uxo):
@@ -118,7 +129,7 @@ def _visit_table(function, table):
     function(ValueType.TABLE_BEGIN, info)
     for record in table:
         rtype = record.__class__.__name__
-        if rtype.startswith('UXF'):
+        if rtype.startswith('UXF_'):
             rtype = rtype[3:]
         tag = Tag(rtype)
         function(ValueType.ROW_BEGIN, tag)
