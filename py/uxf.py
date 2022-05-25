@@ -1858,60 +1858,62 @@ class _AlreadyImported(Exception):
 
 
 def _make_record_class(classname, *fieldnames):
-    fields = {name: None for name in fieldnames}
-
     def init(self, *args):
+        fieldnames = self.__class__.__slots__
         if len(args) > len(fieldnames):
-            raise TypeError(f'{classname} accepts up to {len(fieldnames)} '
-                            f'positional args; got {len(args)}')
+            raise TypeError(
+                f'{self.__class__.__name__} accepts up to '
+                f'{len(fieldnames)} positional args; got {len(args)}')
         for i, name in enumerate(fieldnames):
             setattr(self, name, args[i] if i < len(args) else None)
 
     def totuple(self):
-        nonlocal classname
+        classname = self.__class__.__name__
         if not classname.startswith('UXF_'):
             classname = 'UXF_' + classname
-        Class = collections.namedtuple(classname, fieldnames)
+        Class = collections.namedtuple(classname, self.__class__.__slots__)
         return Class(*iter(self))
 
     def repr(self):
         values = []
-        for name in fieldnames:
+        for name in self.__class__.__slots__:
             values.append(getattr(self, name))
         values = ', '.join(f'{value!r}' for value in values)
-        return f'{classname}({values})'
+        return f'{self.__class__.__name__}({values})'
 
     def getitem(self, index):
         if isinstance(index, slice):
             if index.stop is not None or index.step is not None:
                 raise IndexError(
-                    f'{classname}: cannot get slices {index}')
+                    f'{self.__class__.__name__}: cannot get slices {index}')
             index = index.start
+        fieldnames = self.__class__.__slots__
         if index < 0: # allow negative indexes, e.g., -1 for last
             index += len(fieldnames)
         if index >= len(fieldnames):
-            raise IndexError(
-                f'{classname}: no item to get at index {index}')
+            raise IndexError(f'{self.__class__.__name__}: get index '
+                             f'{index} out of range')
         return getattr(self, fieldnames[index])
 
     def setitem(self, index, value):
         if isinstance(index, slice):
             if index.stop is not None or index.step is not None:
-                raise IndexError(
-                    f'{classname}: cannot set slices {index}')
+                raise IndexError(f'{self.__class__.__name__}: cannot set '
+                                 f'slices {index}')
             index = index.start
+        fieldnames = self.__class__.__slots__
         if index < 0:
             index += len(fieldnames)
         if index >= len(fieldnames):
-            raise IndexError(
-                f'{classname}: no item to set at index {index}')
+            raise IndexError(f'{self.__class__.__name__}: set index '
+                             f'{index} out of range')
         setattr(self, fieldnames[index], value)
 
     def length(self):
-        return len(fieldnames)
+        return len(self.__class__.__slots__)
 
     def iter(self):
-        for i in range(len(fieldnames)):
+        for i in range(len(self.__class__.__slots__)):
             yield self[i]
 
     def eq(self, other):
@@ -1922,7 +1924,7 @@ def _make_record_class(classname, *fieldnames):
     return type(classname, (), dict(__init__=init,
                 totuple=property(totuple), __repr__=repr,
                 __getitem__=getitem, __setitem__=setitem, __len__=length,
-                __iter__=iter, __eq__=eq, **fields))
+                __iter__=iter, __eq__=eq, __slots__=fieldnames))
 
 
 def append_to_parent(parent, value):
