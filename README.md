@@ -33,7 +33,7 @@ UXF supports the following eleven built-indatatypes.
 |**Type**<a name="table-of-built-in-types"></a>|**Example(s)**|**Notes**|
 |-----------|----------------------|--|
 |`null`     |`?`|`?` is the UXF _null_ type's literal representation.|
-|`bool`     |`no` `false` `yes` `true`||
+|`bool`     |`no` `yes`|Use `no` for false and `yes` for true.|
 |`bytes`    |`(:20AC 65 66 48:)`|There must be an even number of case-insensitive hex digits; whitespace optional.|
 |`date`     |`2022-04-01`|Basic ISO8601 YYYY-MM-DD format.|
 |`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent).|
@@ -335,10 +335,9 @@ stages.
       )
     }
 
-UXF accepts both `no` and `false` for `bool` `false` and `yes` and `true`
-for `bool` `true`. We tend to use `no` and `yes` since they're shorter. (`0`
-and `1` cannot be used as ``bool``s since the UXF processor would interpret
-them as ``int``s.)
+UXF accepts `no` for `bool` `false` and `yes` for `bool` `true`. (`0` and
+`1` cannot be used as ``bool``s since the UXF processor would interpret them
+as ``int``s.)
 
 For configuration data it is often convenient to use ``map``s with name
 keys and data values. In this case the overall data is a `map` which
@@ -636,7 +635,7 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
     KEY          ::= INT | DATE | DATETIME | STR | BYTES
     VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
     NULL         ::= '?'
-    BOOL         ::= 'no' | 'false' | 'yes' | 'true'
+    BOOL         ::= 'no' | 'yes'
     INT          ::= /[-+]?\d+/
     REAL         ::= # standard or scientific notation
     DATE         ::= /\d\d\d\d-\d\d-\d\d/ # basic ISO8601 YYYY-MM-DD format

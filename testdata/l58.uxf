@@ -9,7 +9,7 @@ uxf 1.0
 =by b:bytes
 =p a:int b:int
 [table
-(B true false
+(B yes no
   <yes> <no> <t> <f> <true> <false> <duh>)
 (I -1 0 1 -0.1 -1.0 0.0 0.1 1.0
   <-1> <0> <1>

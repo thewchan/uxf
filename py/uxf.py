@@ -33,8 +33,8 @@ MAX_SHORT_LEN = 32
 _KEY_TYPES = frozenset({'int', 'date', 'datetime', 'str', 'bytes'})
 _VALUE_TYPES = frozenset(_KEY_TYPES | {'bool', 'real'})
 _ANY_VALUE_TYPES = frozenset(_VALUE_TYPES | {'list', 'map', 'table'})
-_BOOL_FALSE = frozenset({'no', 'false'})
-_BOOL_TRUE = frozenset({'yes', 'true'})
+_BOOL_FALSE = frozenset({'no'})
+_BOOL_TRUE = frozenset({'yes'})
 _CONSTANTS = frozenset(_BOOL_FALSE | _BOOL_TRUE)
 _BAREWORDS = frozenset(_ANY_VALUE_TYPES | _CONSTANTS)
 RESERVED_WORDS = frozenset(_ANY_VALUE_TYPES | {'null'} | _CONSTANTS)
@@ -128,18 +128,15 @@ class Uxf:
         self._data = data
 
 
-    def dump(self, filename_or_filelike, *, indent=2, use_true_false=False,
-             on_error=on_error):
+    def dump(self, filename_or_filelike, *, indent=2, on_error=on_error):
         '''Convenience method that wraps the module-level dump() function'''
-        dump(filename_or_filelike, self, indent=indent,
-             use_true_false=use_true_false, on_error=on_error)
+        dump(filename_or_filelike, self, indent=indent, on_error=on_error)
 
 
-    def dumps(self, *, indent=2, use_true_false=False, on_error=on_error):
+    def dumps(self, *, indent=2, on_error=on_error):
         '''Convenience method that wraps the module-level dumps()
         function'''
-        return dumps(self, indent=indent, use_true_false=use_true_false,
-                     on_error=on_error)
+        return dumps(self, indent=indent, on_error=on_error)
 
 
     def load(self, filename_or_filelike, *, on_error=on_error):
@@ -1255,9 +1252,14 @@ class _Parser:
                         self.error(
                             456, (f'expected table value of type {vtype}, '
                                   f'got value of type {tclass.ttype}'))
-        else: # should never happen
-            self.error(460, 'ttypes may only appear at the start of a '
-                       f'map (as the value type), list, or table, {token}')
+        else:
+            if token.value.upper() in {'TRUE', 'FALSE'}:
+                self.error(458,
+                           'boolean values are represented by yes or no')
+            else:
+                self.error(
+                    460, 'ttypes may only appear at the start of a '
+                    f'map (as the value type), list, or table, {token}')
 
 
     def _handle_type(self, i, token):
@@ -1549,8 +1551,7 @@ _TYPECHECK_CLASSES = dict(
 _BUILT_IN_NAMES = tuple(_TYPECHECK_CLASSES.keys())
 
 
-def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
-         on_error=on_error):
+def dump(filename_or_filelike, data, *, indent=2, on_error=on_error):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
@@ -1559,10 +1560,7 @@ def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
     data is a Uxf object, or a list, List, dict, Map, or Table, that this
     function will write to the filename_or_filelike in UXF format.
 
-    Set indent to 0 (and use_true_false to True) to minimize the file size.
-
-    If use_true_false is False (the default), bools are output as 'yes' or
-    'no'; but if use_true_false is True the are output as 'true' or 'false'.
+    Set indent to 0 to minimize the file size.
     '''
     pad = ' ' * indent
     close = False
@@ -1577,38 +1575,32 @@ def dump(filename_or_filelike, data, *, indent=2, use_true_false=False,
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer(file, data, pad, use_true_false, on_error)
+        _Writer(file, data, pad, on_error)
     finally:
         if close:
             file.close()
 
 
-def dumps(data, *, indent=2, use_true_false=False, on_error=on_error):
+def dumps(data, *, indent=2, on_error=on_error):
     '''
     data is a Uxf object, or a list, List, dict, Map, or Table that this
     function will write to a string in UXF format which will then be
     returned.
 
-    Set indent to 0 (and use_true_false to True) to minimize the string's
-    size.
-
-    If use_true_false is False (the default), bools are output as 'yes' or
-    'no'; but if use_true_false is True the are output as 'true' or 'false'.
+    Set indent to 0 to minimize the string's size.
     '''
     pad = ' ' * indent
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer(string, data, pad, use_true_false, on_error)
+    _Writer(string, data, pad, on_error)
     return string.getvalue()
 
 
 class _Writer:
 
-    def __init__(self, file, uxo, pad, use_true_false, on_error):
+    def __init__(self, file, uxo, pad, on_error):
         self.file = file
-        self.yes = 'true' if use_true_false else 'yes'
-        self.no = 'false' if use_true_false else 'no'
         self.on_error = on_error
         self.write_header(uxo.custom)
         if uxo.comment is not None:
@@ -1789,7 +1781,7 @@ class _Writer:
         if item is None:
             self.file.write('?')
         elif isinstance(item, bool):
-            self.file.write(self.yes if item else self.no)
+            self.file.write('yes' if item else 'no')
         elif isinstance(item, int):
             self.file.write(str(item))
         elif isinstance(item, float):

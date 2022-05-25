@@ -212,12 +212,12 @@ Convenience method that wraps the module-level [loads()](#loads-def)
 function.
 
 <a name="Uxf.dump-def"></a>
-##### .dump(filename\_or\_filelike, \*, use\_true\_false=False, on\_error=on\_error)
+##### .dump(filename\_or\_filelike, \*, on\_error=on\_error)
 
 Convenience method that wraps the module-level [dump()](#dump-def) function.
 
 <a name="Uxf.dumps-def"></a>
-##### .dumps(\*, use\_true\_false=False, on\_error=on\_error)
+##### .dumps(\*, on\_error=on\_error)
 
 Convenience method that wraps the module-level [dumps()](#dumps-def)
 function.
@@ -324,7 +324,7 @@ If given, the `filename` is used for error messages.
 For more on the other argument see [load()](#load-def).
 
 <a name="dump-def"></a>
-#### dump(filename\_or\_filelike, data, \*, use\_true\_false=False, on\_error=on\_error)
+#### dump(filename\_or\_filelike, data, \*, on\_error=on\_error)
 
 `filename_or_filelike` is `sys.stdout` or a filename or an open writable
 file (text mode UTF-8 encoded). If `filename_or_filelike` is a filename with
@@ -334,15 +334,12 @@ a `.gz` suffix then the output will be gzip-compressed.
 [Map](#map-class), or [Table](#table-class), that this function will write
 to the `filename_or_filelike` in UXF format.
 
-If `use_true_false` is `False` (the default), bools are output as 'yes' or
-'no'; but if `use_true_false` is `True` the are output as 'true' or 'false'.
-
 If the data contains values of types that aren't supported by UXF, they
 could either be transformed in advance (e.g., to a custom table type, a
 _ttype_).
 
 <a name="dumps-def"></a>
-#### dumps(data, \*, use\_true\_false=False, on\_error=on\_error)
+#### dumps(data, \*, on\_error=on\_error)
 
 `data` is a [Uxf](#uxf-class) object, or a list, [List](#list-class), dict,
 [Map](#map-class), or [Table](#table-class) that this function will write to

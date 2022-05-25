@@ -138,7 +138,6 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
         except UnicodeDecodeError:
             with gzip.open(name, 'rt', encoding='utf-8') as file:
                 uxt = file.read()
-        use_true_false = 'true' in uxt or 'false' in uxt
         on_error = functools.partial(uxf.on_error, verbose=verbose)
         try:
             if random.choice((0, 1)):
@@ -149,11 +148,9 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
         except uxf.Error as err:
             print(f'loads()/dumps() • {name} FAIL: {err}')
         if random.choice((0, 1)):
-            new_uxt = uxo.dumps(use_true_false=use_true_false,
-                                on_error=on_error)
+            new_uxt = uxo.dumps(on_error=on_error)
         else:
-            new_uxt = uxf.dumps(uxo, use_true_false=use_true_false,
-                                on_error=on_error)
+            new_uxt = uxf.dumps(uxo, on_error=on_error)
         new_uxo = uxf.loads(new_uxt, on_error=on_error)
         try:
             if eq.eq(uxo, new_uxo):

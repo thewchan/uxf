@@ -2,7 +2,7 @@ uxf 1.0 TLM Config
 = Files Kind Filename
 {
     <General> {
-        <saved> 2022-03-21 <autosave> true <historysize> -35 <volume> 0.7
+        <saved> 2022-03-21 <autosave> yes <historysize> -35 <volume> 0.7
         <files> (Files
             <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
             <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
