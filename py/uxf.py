@@ -839,11 +839,13 @@ class Table:
     lists not UXF Lists.)
 
     Table's API is very similar to the list API, only it works in terms of
-    whole records rather than individual values.
+    whole records rather than individual field values. However, field values
+    can be directly accessed using the field name or index.
 
-    When a Table is iterated each record (row) is returned as a namedtuple,
-    and in the process each record is converted from a list to a namedtuple
-    if it isn't one already.
+    When a Table is iterated each record (row) is returned as a custom class
+    instance, and in the process each record is converted from a list to a
+    custom class instance if it isn't one already. The custom class allows
+    fields to be accessed by name and by index.
 
     Some tables are fieldless, for example to represent enumerations.
     '''
@@ -857,7 +859,7 @@ class Table:
         of lists with each sublist being len(fields) long), or a list of
         lists in which case each list is _assumed_ to be len(fields) i.e.,
         len(tclass.fields), long
-        .RecordClass is a dynamically created namedtuple that is used when
+        .RecordClass is a dynamically created custom class that is used when
         accessing a single record via [] or when iterating a table's
         records.
 
