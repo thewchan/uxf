@@ -1867,13 +1867,6 @@ def _make_record_class(classname, *fieldnames):
         for i, name in enumerate(fieldnames):
             setattr(self, name, args[i] if i < len(args) else None)
 
-    def totuple(self):
-        classname = self.__class__.__name__
-        if not classname.startswith('UXF_'):
-            classname = 'UXF_' + classname
-        Class = collections.namedtuple(classname, self.__class__.__slots__)
-        return Class(*iter(self))
-
     def repr(self):
         values = []
         for name in self.__class__.__slots__:
@@ -1912,7 +1905,7 @@ def _make_record_class(classname, *fieldnames):
     def length(self):
         return len(self.__class__.__slots__)
 
-    def iter(self):
+    def iter(self): # implicitly supports tuple(obj) and list(obj)
         for i in range(len(self.__class__.__slots__)):
             yield self[i]
 
@@ -1926,8 +1919,7 @@ def _make_record_class(classname, *fieldnames):
             return False
         return tuple(self) < tuple(other)
 
-    return type(classname, (), dict(__init__=init,
-                totuple=property(totuple), __repr__=repr,
+    return type(classname, (), dict(__init__=init, __repr__=repr,
                 __getitem__=getitem, __setitem__=setitem, __len__=length,
                 __iter__=iter, __eq__=eq, __lt__=lt, __slots__=fieldnames))
 

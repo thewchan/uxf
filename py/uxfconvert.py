@@ -529,10 +529,7 @@ def _xml_add_tclasses(tree, root, tclasses):
 
 
 def _xml_add_value(tree, root, value):
-    if hasattr(value, 'totuple'):
-        value = value.totuple
-    if (isinstance(value, tuple) and
-            value.__class__.__name__.startswith('UXF')):
+    if value.__class__.__name__.startswith('UXF_'):
         _xml_add_list(tree, root, value, tag='row')
     elif isinstance(value, (set, frozenset, tuple, collections.deque, list,
                             uxf.List)):

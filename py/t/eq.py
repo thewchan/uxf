@@ -43,10 +43,10 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                   ignore_custom=ignore_custom, ignore_types=ignore_types,
                   debug=debug)
 
-    if hasattr(a, 'totuple'):
-        a = a.totuple
-    if hasattr(b, 'totuple'):
-        b = b.totuple
+    if a.__class__.__name__.startswith('UXF_'):
+        a = tuple(a)
+    if b.__class__.__name__.startswith('UXF_'):
+        b = tuple(b)
 
     if isinstance(a, uxf.Uxf):
         if not isinstance(b, uxf.Uxf):

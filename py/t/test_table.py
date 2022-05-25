@@ -83,31 +83,31 @@ def main():
         print('fail #7')
 
     total += 1
-    if t.first.totuple == (1, -6):
+    if tuple(t.first) == (1, -6):
         ok += 1
     elif not regression:
         print('fail #8')
 
     total += 1
-    if t.second.totuple == (-20, 191):
+    if tuple(t.second) == (-20, 191):
         ok += 1
     elif not regression:
         print('fail #9')
 
     total += 1
-    if t.third.totuple == (3, 21):
+    if list(t.third) == [3, 21]:
         ok += 1
     elif not regression:
         print('fail #10')
 
     total += 1
-    if t.fourth.totuple == (5, 17):
+    if list(t.fourth) == [5, 17]:
         ok += 1
     elif not regression:
         print('fail #11')
 
     total += 1
-    if t.last.totuple == (5, 17):
+    if tuple(t.last) == (5, 17):
         ok += 1
     elif not regression:
         print('fail #12')
