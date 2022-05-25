@@ -1921,10 +1921,15 @@ def _make_record_class(classname, *fieldnames):
             return False
         return tuple(self) == tuple(other)
 
+    def lt(self, other):
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False
+        return tuple(self) < tuple(other)
+
     return type(classname, (), dict(__init__=init,
                 totuple=property(totuple), __repr__=repr,
                 __getitem__=getitem, __setitem__=setitem, __len__=length,
-                __iter__=iter, __eq__=eq, __slots__=fieldnames))
+                __iter__=iter, __eq__=eq, __lt__=lt, __slots__=fieldnames))
 
 
 def append_to_parent(parent, value):
