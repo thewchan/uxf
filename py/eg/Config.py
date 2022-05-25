@@ -56,10 +56,9 @@ class Config:
             dict(fontsize=18, bgcolour1='lightyellow',
                  bgcolour2='#FFE7FF', annotationcolour='red',
                  confirmedcolour='blue', numbercolour='navy', pagenumber=1,
-                 gamenumber=1, general=general))
-        self._uxo.data.comment = (
-            'fontsize range 8-36; colours HTML-style #HHHHHH or names; '
-            'don\'t edit pagenumber and gamenumber')
+                 gamenumber=1, general=general),
+            comment='fontsize range 8-36; colours HTML-style #HHHHHH '
+            'or names; don\'t edit pagenumber and gamenumber')
 
 
     def load(self, filename=None):

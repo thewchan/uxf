@@ -10,13 +10,25 @@ See ../../testdata/use_config1.conf
 '''
 
 import os
+import random
+import shutil
 import sys
+import tempfile
 
 try:
     PATH = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(os.path.abspath(os.path.join(PATH, '../')))
-    sys.path.append(os.path.abspath(os.path.join(PATH, '../eg/')))
-    import Config
+    old = '/home/mark/bin/sudoku.pyw'
+    new = os.path.join(tempfile.gettempdir(), 't/sudoku.py')
+    if os.path.isfile(old) and random.choice((0, 1)):
+        os.makedirs(os.path.dirname(new), exist_ok=True)
+        shutil.copyfile(old, new)
+        sys.path.append(os.path.abspath(os.path.dirname(new)))
+        from sudoku import Config, Symbols
+        SUDOKU = True
+    else:
+        sys.path.append(os.path.abspath(os.path.join(PATH, '../eg/')))
+        from Config import Config, Symbols
+        SUDOKU = False
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -28,8 +40,11 @@ def main():
         regression = True
     total = ok = 0
 
+    if not regression:
+        print('using sudoku.Config' if SUDOKU else 'using eg/Config')
+
     total += 1
-    config = Config.Config('use_config1.conf')
+    config = Config('use_config1.conf')
     ok += 1
     if not regression:
         print(config._uxo.dumps())
@@ -48,10 +63,10 @@ def main():
         print('fail #2')
 
     total += 1
-    config.symbols = Config.Symbols.ROMAN
+    config.symbols = Symbols.ROMAN
     config.fontsize = 19
     config.bgcolour2 = 'magenta'
-    if (config.symbols is Config.Symbols.ROMAN and config.fontsize == 19 and
+    if (config.symbols is Symbols.ROMAN and config.fontsize == 19 and
             config.bgcolour2 == 'magenta'):
         ok += 1
     elif not regression:
