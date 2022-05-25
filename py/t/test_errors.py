@@ -176,7 +176,7 @@ def main():
 
     try:
         total += 1
-        e = 280
+        e = 290
         uxf.loads('uxf 1.0\n=p q\n{(p 1) 8}', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -188,7 +188,7 @@ def main():
 
     try:
         total += 1
-        e = 280
+        e = 290
         uxo.data._append(table)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -196,7 +196,7 @@ def main():
 
     try:
         total += 1
-        e = 290
+        e = 294
         uxf.loads('uxf 1.0\n{7.9 8}', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
@@ -204,7 +204,7 @@ def main():
 
     try:
         total += 1
-        e = 290
+        e = 294
         uxo.data._append(3.8)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:

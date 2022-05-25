@@ -644,12 +644,25 @@ class Map(collections.UserDict):
         .data holds the actual dict
         .comment holds an optional comment
         .ktype and .vtype hold a UXF type name ('int', 'str', …);
-        .ktype may only be int, str, bytes, date, or datetime'''
+        .ktype may only be bytes, date, datetime, int, or str'''
         super().__init__(d)
         self.ktype = ktype
         self.vtype = vtype
         self.comment = comment
         self._pending_key = _MISSING
+
+
+    @property
+    def ktype(self):
+        return self._ktype
+
+
+    @ktype.setter
+    def ktype(self, ktype):
+        if ktype is not None and ktype not in _KEY_TYPES:
+            raise Error('#280: ktype may only be bytes, date, datetime, '
+                        f'int, or str, got {ktype}')
+        self._ktype = ktype
 
 
     def _append(self, value):
@@ -663,10 +676,10 @@ class Map(collections.UserDict):
                 prefix = ('map keys may only be of type int, date, '
                           'datetime, str, or bytes, got ')
                 if isinstance(value, Table):
-                    raise Error(f'#280:{prefix}a Table ( … ), maybe bytes '
+                    raise Error(f'#290:{prefix}a Table ( … ), maybe bytes '
                                 '(: … :) was intended?')
                 else:
-                    raise Error(f'#290:{prefix}{value.__class__.__name__} '
+                    raise Error(f'#294:{prefix}{value.__class__.__name__} '
                                 f'{value!r}')
             self._pending_key = value
         else:
