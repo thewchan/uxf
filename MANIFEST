@@ -48,6 +48,7 @@ py/eg/merge.py
 py/eg/include.py
 py/eg/Config.py
 py/eg/tlm_uxf.py # TODO convert_to_tlm.py
+py/eg/tlm-eg.uxf.gz
 
 README.md
 

@@ -16,7 +16,9 @@ except ImportError: # needed for development
 def main():
     if len(sys.argv) != 3 or sys.argv[1] in {'-h', '--help'}:
         raise SystemExit('''
-usage: tlm_uxf.py <infile.{tlm,uxf,uxf.gz}> <outfile.{tlm,uxf,uxf.gz}>''')
+usage: tlm_uxf.py <infile.{tlm,uxf,uxf.gz}> <outfile.{tlm,uxf,uxf.gz}>
+
+e.g., tlm_uxf.py tlm-eg.uxf.gz test.tlm''')
     infilename = sys.argv[1]
     outfilename = sys.argv[2]
     try:
