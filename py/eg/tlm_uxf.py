@@ -2,6 +2,22 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+'''
+An example of using UXF as an exchange format for importing and exporting.
+'''
+
+# TODO
+# class Track (holds one track)
+# class TrackList (holds a sequence of Tracks and nested TrackLists)
+# class History (holds a sequence of history strings)
+# change convert_to_uxf() to
+#   - read all the tracks from a .tlm into a root TrackList and a History
+#   - create and populate a Uxf with all the data
+#   - dump the Uxf as a .uxf.gz
+# implement convert_to_tlm() to
+#   - read all the tracks from a .uxf{.gz} into a root TrackList and a History
+#   - save the root TrackList as a .tlm
+
 import gzip
 import os
 import sys
