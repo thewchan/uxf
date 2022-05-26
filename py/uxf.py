@@ -1909,8 +1909,9 @@ def editabletuple(classname, *fieldnames):
         return len(self.__class__.__slots__)
 
     def iter(self): # implicitly supports tuple(obj) and list(obj)
-        for i in range(len(self.__class__.__slots__)):
-            yield self[i]
+        fieldnames = self.__class__.__slots__
+        for i in range(len(fieldnames)):
+            yield getattr(self, fieldnames[i])
 
     def eq(self, other):
         if self.__class__.__name__ != other.__class__.__name__:
