@@ -9,15 +9,32 @@ import sys
 try:
     import uxf
 except ImportError: # needed for development
-    sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../py'))
+    sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
     import uxf
 
 
 def main():
-    if len(sys.argv) == 1 or sys.argv[1] in {'-h', '--help'}:
-        raise SystemExit('usage: tlm2uxf.py <filename.tlm>')
+    if len(sys.argv) != 3 or sys.argv[1] in {'-h', '--help'}:
+        raise SystemExit('''
+usage: tlm_uxf.py <infile.{tlm,uxf,uxf.gz}> <outfile.{tlm,uxf,uxf.gz}>''')
     infilename = sys.argv[1]
-    outfilename = infilename.replace('.tlm', '.uxf.gz')
+    outfilename = sys.argv[2]
+    try:
+        if os.path.samefile(infilename, outfilename):
+            raise SystemExit('can\'t overwrite infile with outfile')
+    except FileNotFoundError:
+        pass # fine if one doesn't exist
+    if os.path.splitext(infilename)[1] == os.path.splitext(outfilename)[1]:
+        raise SystemExit('can only convert to/from UXF from/to TLM')
+    elif infilename.endswith('.tlm'):
+        convert_to_uxf(infilename, outfilename)
+    elif infilename.endswith(('.uxf', '.uxf.gz')):
+        convert_to_tlm(infilename, outfilename)
+    else:
+        raise SystemExit('can only convert to/from .uxf{.gz} from/to .tlm')
+
+
+def convert_to_uxf(infilename, outfilename):
     infile = None
     try:
         infile = open_file(infilename, 'rt')
@@ -71,8 +88,13 @@ def open_file(filename, mode):
         return open(filename, mode, encoding='utf-8')
 
 
+def convert_to_tlm(infilename, outfilename):
+    print('convert_to_tlm', infilename, outfilename)
+
+
 ROOT = '__ROOT__'
 HISTORY = '__HISTORY__'
+
 
 if __name__ == '__main__':
     main()
