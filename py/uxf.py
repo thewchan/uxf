@@ -215,11 +215,15 @@ def _read_text(filename_or_filelike):
     if not isinstance(filename_or_filelike, (str, pathlib.Path)):
         return filename_or_filelike.read()
     try:
-        with gzip.open(filename_or_filelike, 'rt', encoding=UTF8) as file:
-            return file.read()
-    except gzip.BadGzipFile:
-        with open(filename_or_filelike, 'rt', encoding=UTF8) as file:
-            return file.read()
+        try:
+            with gzip.open(filename_or_filelike, 'rt',
+                           encoding=UTF8) as file:
+                return file.read()
+        except gzip.BadGzipFile:
+            with open(filename_or_filelike, 'rt', encoding=UTF8) as file:
+                return file.read()
+    except OSError as err:
+        raise Error(f'#102:failed to read UXF text: {err}')
 
 
 class _Lexer:
@@ -1461,7 +1465,8 @@ class _Parser:
         try:
             with urllib.request.urlopen(url) as file:
                 return file.read().decode('utf-8')
-        except (UnicodeDecodeError, urllib.error.HTTPError) as err:
+        except (UnicodeDecodeError, urllib.error.HTTPError,
+                urllib.error.URLError) as err:
             self.error(550, f'failed to import {url!r}: {err}')
             raise _AlreadyImported
         finally:
@@ -2055,5 +2060,5 @@ to allow later imports to override earlier ones.
                                      filename=outfile)
         if do_dump:
             dump(outfile, uxo, indent=indent, on_error=on_error)
-    except (IOError, Error) as err:
+    except (OSError, Error) as err:
         print(f'uxf.py:error:{err}', file=sys.stderr)

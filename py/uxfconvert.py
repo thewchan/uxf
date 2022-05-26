@@ -41,7 +41,7 @@ def main():
     converter = _get_converter()
     try:
         converter()
-    except (IOError, uxf.Error) as err:
+    except (OSError, uxf.Error) as err:
         print(f'uxfconvert:error:{err}', file=sys.stderr)
 
 

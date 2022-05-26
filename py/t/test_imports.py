@@ -23,9 +23,22 @@ def main():
 
     # good mixed imports
     filename = 't63.uxf'
-    actual_uxo = uxf.load(filename, on_error=on_error)
-    expected_uxo = uxf.loads(EXPECTED_UXT63,
-                             on_error=lambda *_a, **_k: None)
+    total += 1
+    actual_uxo = uxf.Uxf()
+    try:
+        actual_uxo = uxf.load(filename, on_error=on_error)
+        ok += 1
+    except uxf.Error as err:
+        if not regression:
+            print(err)
+    total += 1
+    try:
+        expected_uxo = uxf.loads(EXPECTED_UXT63,
+                                 on_error=lambda *_a, **_k: None)
+        ok += 1
+    except uxf.Error as err:
+        if not regression:
+            print(err)
     total, ok = test(total, ok, actual_uxo, expected_uxo,
                      EXPECTED_IMPORTS63, filename, regression)
 
@@ -55,9 +68,19 @@ def main():
 
     # good but dumplicate imports
     filename = 'i67.uxi'
-    actual_uxo = uxf.load(filename, on_error=on_error)
-    expected_uxo = uxf.loads(EXPECTED_UXT63,
-                             on_error=lambda *_a, **_k: None)
+    try:
+        actual_uxo = uxf.load(filename, on_error=on_error)
+        ok += 1
+    except uxf.Error as err:
+        if not regression:
+            print(err)
+    try:
+        expected_uxo = uxf.loads(EXPECTED_UXT63,
+                                 on_error=lambda *_a, **_k: None)
+        ok += 1
+    except uxf.Error as err:
+        if not regression:
+            print(err)
     total, ok = test(total, ok, actual_uxo, expected_uxo,
                      EXPECTED_IMPORTS67, filename, regression)
 

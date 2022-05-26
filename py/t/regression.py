@@ -150,7 +150,11 @@ def test_uxf_loads_dumps(uxffiles, total, ok, *, verbose, max_total):
             new_uxt = uxo.dumps(on_error=on_error)
         else:
             new_uxt = uxf.dumps(uxo, on_error=on_error)
-        new_uxo = uxf.loads(new_uxt, on_error=on_error)
+        try:
+            new_uxo = uxf.loads(new_uxt, on_error=on_error)
+        except uxf.Error as err:
+            print(f'{name} • FAIL (loads()/dumps()): {err}')
+            continue
         try:
             if eq.eq(uxo, new_uxo):
                 ok += 1

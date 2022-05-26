@@ -2,9 +2,6 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-# NOTE Can't work out how to produce:
-# 210 240 250 260 330 350 400 410 440 494 500 504 506 510 530 540
-
 import sys
 import os
 
