@@ -5,6 +5,9 @@
 #	COMPLEX ::= REAL [-+] REAL 'i'
 #      If this is done, replace doc complex, Cmplx, etc. egs. with
 #      =Point x:real y:real
+# -or- support number pairs int x int or real x real (real x int → real x real)
+#      Syntax? And why not triples or quads? So why not just stick to
+#      tables?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
