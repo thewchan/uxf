@@ -67,6 +67,7 @@ def main():
         ok += got_error(e, err, regression)
 
     # good but dumplicate imports
+    total += 1
     filename = 'i67.uxi'
     try:
         actual_uxo = uxf.load(filename, on_error=on_error)
@@ -74,6 +75,7 @@ def main():
     except uxf.Error as err:
         if not regression:
             print(err)
+    total += 1
     try:
         expected_uxo = uxf.loads(EXPECTED_UXT63,
                                  on_error=lambda *_a, **_k: None)
