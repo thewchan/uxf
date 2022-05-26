@@ -1880,20 +1880,14 @@ def editabletuple(classname, *fieldnames):
         return f'{self.__class__.__name__}({values})'
 
     def getitem(self, index):
-        if isinstance(index, slice):
-            if index.stop is not None or index.step is not None:
-                raise IndexError(
-                    f'{self.__class__.__name__}: cannot get slices {index}')
-            index = index.start
-        fieldnames = self.__class__.__slots__
-        if index < 0: # allow negative indexes, e.g., -1 for last
-            index += len(fieldnames)
-        if index >= len(fieldnames):
-            raise IndexError(f'{self.__class__.__name__}: get index '
-                             f'{index} out of range')
+        index = self._sanitize_index(index)
         return getattr(self, fieldnames[index])
 
     def setitem(self, index, value):
+        index = self._sanitize_index(index)
+        setattr(self, fieldnames[index], value)
+
+    def _sanitize_index(self, index):
         if isinstance(index, slice):
             if index.stop is not None or index.step is not None:
                 raise IndexError(f'{self.__class__.__name__}: cannot set '
@@ -1905,7 +1899,7 @@ def editabletuple(classname, *fieldnames):
         if index >= len(fieldnames):
             raise IndexError(f'{self.__class__.__name__}: set index '
                              f'{index} out of range')
-        setattr(self, fieldnames[index], value)
+        return index
 
     def asdict(self):
         return {name: value for name, value in zip(self.__slots__, self)}
@@ -1929,9 +1923,10 @@ def editabletuple(classname, *fieldnames):
         return tuple(self) < tuple(other)
 
     return type(classname, (), dict(__init__=init, __repr__=repr,
-                __getitem__=getitem, __setitem__=setitem,
-                asdict=property(asdict), __len__=length, __iter__=iter,
-                __eq__=eq, __lt__=lt, __slots__=fieldnames))
+                _sanitize_index=_sanitize_index, __getitem__=getitem,
+                __setitem__=setitem, asdict=property(asdict),
+                __len__=length, __iter__=iter, __eq__=eq, __lt__=lt,
+                __slots__=fieldnames))
 
 
 def append_to_parent(parent, value):
