@@ -1465,7 +1465,7 @@ class _Parser:
         try:
             with urllib.request.urlopen(url) as file:
                 return file.read().decode('utf-8')
-        except (UnicodeDecodeError, urllib.error.HTTPError,
+        except (UnicodeDecodeError, ConnectionError, urllib.error.HTTPError,
                 urllib.error.URLError) as err:
             self.error(550, f'failed to import {url!r}: {err}')
             raise _AlreadyImported

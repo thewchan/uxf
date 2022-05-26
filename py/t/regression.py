@@ -84,7 +84,7 @@ def main():
         print(f'{ok}/{total} All OK ({t:.3f} sec)')
         cleanup()
     else:
-        print(f' {ok}/{total} FAIL ({t:.3f} sec)')
+        print(f': {ok}/{total} • FAIL ({t:.3f} sec)')
 
 
 def get_config():

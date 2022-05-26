@@ -73,10 +73,11 @@ def main():
         print('fail #3')
 
     # TODO
-    # - load from the file;
-    # - change various properties (plus some invalid changes)
-    # - check the valid changes have been applied
-    # - ?
+    # - dumps config to uxt
+    # - loads from uxt & use eq() to compare: should be ==
+    # - create a new default config & use eq() to compare: should be !=
+    # - change all the config values back
+    # - compare with default & use eq(): should be ==
 
     print(f'total={total} ok={ok}')
 
