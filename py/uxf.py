@@ -1890,15 +1890,15 @@ def editabletuple(classname, *fieldnames):
     def _sanitize_index(self, index):
         if isinstance(index, slice):
             if index.stop is not None or index.step is not None:
-                raise IndexError(f'{self.__class__.__name__}: cannot set '
-                                 f'slices {index}')
+                raise IndexError(f'{self.__class__.__name__}: cannot '
+                                 f'use slices {index}')
             index = index.start
         fieldnames = self.__class__.__slots__
         if index < 0:
             index += len(fieldnames)
         if index >= len(fieldnames):
-            raise IndexError(f'{self.__class__.__name__}: set index '
-                             f'{index} out of range')
+            raise IndexError(f'{self.__class__.__name__}: index {index} '
+                             'out of range')
         return index
 
     def asdict(self):

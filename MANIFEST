@@ -1,13 +1,6 @@
 # TODO complete py/t/test_use_config.py
 # TODO complete py/eg/tlm_uxf.py
 # TODO update docs to mention eg/Config.py ?
-# TODO Add support for complex numbers?
-#	COMPLEX ::= REAL [-+] REAL 'i'
-#      If this is done, replace doc complex, Cmplx, etc. egs. with
-#      =Point x:real y:real
-# -or- support number pairs int x int or real x real (real x int → real x real)
-#      Syntax? And why not triples or quads? So why not just stick to
-#      tables?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
@@ -63,6 +56,7 @@ uxf.vim
 st.sh
 
 # NOTE IDEAS:
+# - 1.1 allow '.' in identifiers (excl. first char)?
 # - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Experiment with using uxf format to store various kinds of data,
 #   e.g., styled text (but see uxf2html notes), spreadsheet, graphics, etc.

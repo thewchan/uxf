@@ -35,13 +35,17 @@ class Config:
         initiallyvisible = uxf.tclass(
             INITIALLYVISIBLE, uxf.Field('min', 'int'),
             uxf.Field('max', 'int'))
-        decimal = uxf.tclass(DECIMAL)
-        roman = uxf.tclass(ROMAN)
+        decimal = uxf.tclass(DECIMAL, comment='Or Roman')
+        roman = uxf.tclass(ROMAN, comment='Or Decimal')
         size = uxf.tclass('size', uxf.Field('width', 'int'),
                           uxf.Field('height', 'int'))
+        numbers = uxf.tclass('numbers', uxf.Field('page', 'int'),
+                             uxf.Field('game', 'int'),
+                             comment='internal use')
         self._uxo = uxf.Uxf({}, custom='Sudoku')
         self._uxo.comment = 'Sudoku Configuration'
-        self._uxo.add_tclasses(initiallyvisible, decimal, roman, size)
+        self._uxo.add_tclasses(initiallyvisible, decimal, roman, size,
+                               numbers)
 
 
     def _set_defaults(self):
@@ -51,14 +55,16 @@ class Config:
             uxf.Table(self._uxo.tclasses[DECIMAL],
                       comment='Decimal or Roman'),
             uxf.Table(self._uxo.tclasses['size'], records=(-1, -1),
-                      comment='width and height >= -1')), vtype='table')
-        self._uxo.data = uxf.Map(
-            dict(fontsize=18, bgcolour1='lightyellow',
-                 bgcolour2='#FFE7FF', annotationcolour='red',
-                 confirmedcolour='blue', numbercolour='navy', pagenumber=1,
-                 gamenumber=1, general=general),
-            comment='fontsize range 8-36; colours HTML-style #HHHHHH '
-            'or names; don\'t edit pagenumber and gamenumber')
+                      comment='width and height >= -1'),
+            uxf.Table(self._uxo.tclasses['numbers'], records=(1, 1),
+                      comment='internal use: don\'t edit')), vtype='table')
+        colours = uxf.Map(dict(bg1='lightyellow', bg2='#FFE7FF',
+                               annotation='red', confirmed='blue',
+                               number='navy'), ktype='str', vtype='str',
+                          comment='colours HTML-style #HHHHHH or names')
+        self._uxo.data = uxf.Map(dict(fontsize=18, general=general,
+                                      colours=colours),
+                                 comment='fontsize range 8-36')
 
 
     def load(self, filename=None):
@@ -69,19 +75,21 @@ class Config:
             self._maybe_merge_comment(self._uxo, uxo)
             self._maybe_merge_comment(self._uxo.data, uxo.data)
             for name, value in uxo.data.items():
-                if name in COLOURNAMES:
-                    self[name] = value
+                if name == COLOURS:
+                    self._load_colours(value)
                 elif name == GENERAL:
                     self._load_general(value)
                 elif name == FONTSIZE:
                     self.fontsize = value
-                elif name == PAGENUMBER:
-                    self.pagenumber = value
-                elif name == GAMENUMBER:
-                    self.gamenumber = value
         except (uxf.Error, OSError) as err:
             print(f'Failed to load configuration file: {err}. '
                   'Will try to create a new one on exit.')
+
+
+    def _load_colours(self, value):
+        for name, colour in value.items():
+            if name in COLOURNAMES:
+                self[name] = colour
 
 
     def _load_general(self, value):
@@ -98,6 +106,10 @@ class Config:
                 self.symbols = Symbols.DECIMAL
             elif table.ttype == ROMAN:
                 self.symbols = Symbols.ROMAN
+            elif table.ttype == NUMBERS:
+                record = table.first
+                self.pagenumber = record.page
+                self.gamenumber = record.game
             if table.comment:
                 self._maybe_merge_comment(self._table_of(table.ttype),
                                           table)
@@ -213,93 +225,95 @@ class Config:
 
 
     @property
-    def bgcolour1(self):
-        return self._uxo.data[BGCOLOUR1]
-
-
-    @bgcolour1.setter
-    def bgcolour1(self, value):
-        if value != '':
-            self._uxo.data[BGCOLOUR1] = value
-
-
-    @property
-    def bgcolour2(self):
-        return self._uxo.data[BGCOLOUR2]
-
-
-    @bgcolour2.setter
-    def bgcolour2(self, value):
-        if value != '':
-            self._uxo.data[BGCOLOUR2] = value
-
-
-    @property
-    def annotationcolour(self):
-        return self._uxo.data[ANNOTATIONCOLOUR]
-
-
-    @annotationcolour.setter
-    def annotationcolour(self, value):
-        if value != '':
-            self._uxo.data[ANNOTATIONCOLOUR] = value
-
-
-    @property
-    def confirmedcolour(self):
-        return self._uxo.data[CONFIRMEDCOLOUR]
-
-
-    @confirmedcolour.setter
-    def confirmedcolour(self, value):
-        if value != '':
-            self._uxo.data[CONFIRMEDCOLOUR] = value
-
-
-    @property
-    def numbercolour(self):
-        return self._uxo.data[NUMBERCOLOUR]
-
-
-    @numbercolour.setter
-    def numbercolour(self, value):
-        if value != '':
-            self._uxo.data[NUMBERCOLOUR] = value
-
-
-    @property
     def pagenumber(self):
-        return self._uxo.data[PAGENUMBER]
+        return self._table_of(NUMBERS).first.page
 
 
     @pagenumber.setter
     def pagenumber(self, value):
         if isinstance(value, int):
-            self._uxo.data[PAGENUMBER] = value
+            self._table_of(NUMBERS).first.page = value
 
 
     @property
     def gamenumber(self):
-        return self._uxo.data[GAMENUMBER]
+        return self._table_of(NUMBERS).first.game
 
 
     @gamenumber.setter
     def gamenumber(self, value):
         if isinstance(value, int):
-            self._uxo.data[GAMENUMBER] = value
+            self._table_of(NUMBERS).first.game = value
+
+
+    @property
+    def bgcolour1(self):
+        return self._uxo.data[COLOURS][BGCOLOUR1]
+
+
+    @bgcolour1.setter
+    def bgcolour1(self, value):
+        if value != '':
+            self._uxo.data[COLOURS][BGCOLOUR1] = value
+
+
+    @property
+    def bgcolour2(self):
+        return self._uxo.data[COLOURS][BGCOLOUR2]
+
+
+    @bgcolour2.setter
+    def bgcolour2(self, value):
+        if value != '':
+            self._uxo.data[COLOURS][BGCOLOUR2] = value
+
+
+    @property
+    def annotationcolour(self):
+        return self._uxo.data[COLOURS][ANNOTATIONCOLOUR]
+
+
+    @annotationcolour.setter
+    def annotationcolour(self, value):
+        if value != '':
+            self._uxo.data[COLOURS][ANNOTATIONCOLOUR] = value
+
+
+    @property
+    def confirmedcolour(self):
+        return self._uxo.data[COLOURS][CONFIRMEDCOLOUR]
+
+
+    @confirmedcolour.setter
+    def confirmedcolour(self, value):
+        if value != '':
+            self._uxo.data[COLOURS][CONFIRMEDCOLOUR] = value
+
+
+    @property
+    def numbercolour(self):
+        return self._uxo.data[COLOURS][NUMBERCOLOUR]
+
+
+    @numbercolour.setter
+    def numbercolour(self, value):
+        if value != '':
+            self._uxo.data[COLOURS][NUMBERCOLOUR] = value
 
 
     def __getitem__(self, name):
-        if name in COLOURNAMES:
-            return self._uxo.data[name]
+        basename = name.replace('colour', '')
+        if basename in COLOURNAMES:
+            return self._uxo.data[COLOURS][basename]
         raise Error(f'{self.__class__.__name__} ignored invalid colour '
                     f'attribute name {name!r}')
 
 
     def __setitem__(self, name, value):
-        if name in COLOURNAMES:
+        basename = name.replace('colour', '')
+        if basename in COLOURNAMES:
             if value != '':
-                self._uxo.data[name] = value
+                self._uxo.data[COLOURS][basename] = value
         else:
             raise Error(f'{self.__class__.__name__} can\'t set invalid '
                         f'colour attribute name {name!r}')
@@ -320,12 +334,12 @@ ROMAN = 'Roman'
 GENERAL = 'general'
 FONTSIZE = 'fontsize'
 SIZE = 'size'
-BGCOLOUR1 = 'bgcolour1'
-BGCOLOUR2 = 'bgcolour2'
-ANNOTATIONCOLOUR = 'annotationcolour'
-CONFIRMEDCOLOUR = 'confirmedcolour'
-NUMBERCOLOUR = 'numbercolour'
-PAGENUMBER = 'pagenumber'
-GAMENUMBER = 'gamenumber'
+NUMBERS = 'numbers'
+COLOURS = 'colours'
+BGCOLOUR1 = 'bg1'
+BGCOLOUR2 = 'bg2'
+ANNOTATIONCOLOUR = 'annotation'
+CONFIRMEDCOLOUR = 'confirmed'
+NUMBERCOLOUR = 'number'
 COLOURNAMES = {BGCOLOUR1, BGCOLOUR2, ANNOTATIONCOLOUR, CONFIRMEDCOLOUR,
-               NUMBERCOLOUR, PAGENUMBER, GAMENUMBER}
+               NUMBERCOLOUR}
