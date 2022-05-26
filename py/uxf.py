@@ -959,7 +959,7 @@ class Table:
             raise Error('#340:can\'t use an unnamed table')
         if not self.fields:
             raise Error('#350:can\'t create a table with no fields')
-        self.RecordClass = _make_record_class(
+        self.RecordClass = editabletuple(
             f'UXF_{self.ttype}', # prefix avoids name clashes
             *[field.name for field in self.fields])
 
@@ -1857,7 +1857,7 @@ class _AlreadyImported(Exception):
     pass
 
 
-def _make_record_class(classname, *fieldnames):
+def editabletuple(classname, *fieldnames):
     def init(self, *args):
         fieldnames = self.__class__.__slots__
         if len(args) > len(fieldnames):
@@ -1902,6 +1902,9 @@ def _make_record_class(classname, *fieldnames):
                              f'{index} out of range')
         setattr(self, fieldnames[index], value)
 
+    def asdict(self):
+        return {name: value for name, value in zip(self.__slots__, self)}
+
     def length(self):
         return len(self.__class__.__slots__)
 
@@ -1920,8 +1923,9 @@ def _make_record_class(classname, *fieldnames):
         return tuple(self) < tuple(other)
 
     return type(classname, (), dict(__init__=init, __repr__=repr,
-                __getitem__=getitem, __setitem__=setitem, __len__=length,
-                __iter__=iter, __eq__=eq, __lt__=lt, __slots__=fieldnames))
+                __getitem__=getitem, __setitem__=setitem,
+                asdict=property(asdict), __len__=length, __iter__=iter,
+                __eq__=eq, __lt__=lt, __slots__=fieldnames))
 
 
 def append_to_parent(parent, value):

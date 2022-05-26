@@ -33,8 +33,7 @@ try:
     TEST_IMPORTS = os.path.join(PATH, '../t/test_imports.py')
     TEST_MERGE = os.path.join(PATH, '../t/test_merge.py')
     TEST_INCLUDE = os.path.join(PATH, '../t/test_include.py')
-    TEST_MAKE_RECORD_CLASS = os.path.join(PATH,
-                                          '../t/test_make_record_class.py')
+    TEST_EDITABLETUPLE = os.path.join(PATH, '../t/test_editabletuple.py')
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -74,7 +73,7 @@ def main():
         total, ok = test_externals(
             (('A', TEST_TABLE), ('B', TEST_SQLITE), ('C', TEST_ERRORS),
              ('D', TEST_LINTS), ('E', TEST_IMPORTS), ('F', TEST_MERGE),
-             ('G', TEST_INCLUDE), ('H', TEST_MAKE_RECORD_CLASS)), total, ok,
+             ('G', TEST_INCLUDE), ('H', TEST_EDITABLETUPLE)), total, ok,
             verbose=verbose, max_total=max_total)
     if ok == total and os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)

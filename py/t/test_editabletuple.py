@@ -20,7 +20,7 @@ def main():
     total = ok = 0
 
     fieldnames = ('width', 'height')
-    Record = uxf._make_record_class('Record', *fieldnames)
+    Record = uxf.editabletuple('Record', *fieldnames)
     r = Record(-7, 29)
 
     total += 1
@@ -96,6 +96,12 @@ def main():
         ok += 1
     elif not regression:
         print('fail #8')
+
+    total += 1
+    if Record(11, -23).asdict == dict(width=11, height=-23):
+        ok += 1
+    elif not regression:
+        print('fail #9')
 
     print(f'total={total} ok={ok}')
 

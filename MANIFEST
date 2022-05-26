@@ -36,7 +36,7 @@ py/t/test_imports.py
 py/t/test_merge.py
 tpy/t/test_include.py
 py/t/test_use_config.py # TODO
-py/t/test_make_record_class.py
+py/t/test_editabletuple.py
 py/t/eq.py
 py/eg/visit.py
 py/eg/slides1.py
