@@ -18,6 +18,7 @@ An example of using UXF as an exchange format for importing and exporting.
 #   - read all the tracks from a .uxf{.gz} into a root TrackList and a History
 #   - save the root TrackList as a .tlm
 
+import contextlib
 import gzip
 import os
 import sys
@@ -37,11 +38,9 @@ usage: tlm_uxf.py <infile.{tlm,uxf,uxf.gz}> <outfile.{tlm,uxf,uxf.gz}>
 e.g., tlm_uxf.py tlm-eg.uxf.gz test.tlm''')
     infilename = sys.argv[1]
     outfilename = sys.argv[2]
-    try:
+    with contextlib.suppress(FileNotFoundError):
         if os.path.samefile(infilename, outfilename):
             raise SystemExit('can\'t overwrite infile with outfile')
-    except FileNotFoundError:
-        pass # fine if one doesn't exist
     if os.path.splitext(infilename)[1] == os.path.splitext(outfilename)[1]:
         raise SystemExit('can only convert to/from UXF from/to TLM')
     elif infilename.endswith('.tlm'):

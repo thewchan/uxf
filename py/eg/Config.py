@@ -329,8 +329,8 @@ class Error(Exception):
 
 
 INITIALLYVISIBLE = 'initiallyvisible'
-DECIMAL = 'Decimal'
-ROMAN = 'Roman'
+DECIMAL = 'SymbolsDecimal'
+ROMAN = 'SymbolsRoman'
 GENERAL = 'general'
 FONTSIZE = 'fontsize'
 SIZE = 'size'

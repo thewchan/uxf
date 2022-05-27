@@ -5,10 +5,9 @@
 '''
 This test is to show a practical use case of saving and loading application
 config data.
-
-See ../../testdata/use_config1.conf
 '''
 
+import contextlib
 import os
 import random
 import shutil
@@ -17,6 +16,8 @@ import tempfile
 
 try:
     PATH = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(PATH + '/../t')
+    import eq
     old = '/home/mark/bin/sudoku.pyw'
     new = os.path.join(tempfile.gettempdir(), 't/sudoku.py')
     if os.path.isfile(old) and random.choice((0, 1)):
@@ -43,43 +44,99 @@ def main():
     if not regression:
         print('using sudoku.Config' if SUDOKU else 'using eg/Config')
 
+    original_file = os.path.join(tempfile.gettempdir(), 'sudoku.config')
+    with open(original_file, 'wt', encoding='utf-8') as file:
+        file.write(UXT)
+
     total += 1
-    config = Config('use_config1.conf')
+    config1 = Config(original_file) # original and kept as-is
+    config2 = Config(original_file) # original but edited
     ok += 1
+    uxt1 = config2._uxo.dumps()
     if not regression:
-        print(config._uxo.dumps())
+        print(uxt1)
 
     total += 1
-    if config.width == 540:
-        ok += 1
-    elif not regression:
-        print('fail #1')
-
-    total += 1
-    config.width = 99
-    if config.width == 99:
+    if config2.width == 540:
         ok += 1
     elif not regression:
         print('fail #2')
 
     total += 1
-    config.symbols = Symbols.ROMAN
-    config.fontsize = 19
-    config.bgcolor2 = 'magenta'
-    if (config.symbols is Symbols.ROMAN and config.fontsize == 19 and
-            config.bgcolor2 == 'magenta'):
+    config2.width = 99
+    if config2.width == 99:
         ok += 1
     elif not regression:
         print('fail #3')
 
-    # TODO
-    # - dumps config to uxt
-    # - loads from uxt & use eq() to compare: should be ==
-    # - create a new default config & use eq() to compare: should be !=
-    # - change all the config values back
-    # - compare with default & use eq(): should be ==
+    total += 1
+    config2.symbols = Symbols.ROMAN
+    config2.fontsize = 19
+    config2.bgcolor2 = 'magenta'
+    if (config2.symbols is Symbols.ROMAN and config2.fontsize == 19 and
+            config2.bgcolor2 == 'magenta'):
+        ok += 1
+    elif not regression:
+        print('fail #4')
+
+    total += 1
+    if not eq.eq(config1._uxo, config2._uxo, ignore_comments=True):
+        ok += 1
+    elif not regression:
+        print('fail #5')
+
+    edited_file = os.path.join(tempfile.gettempdir(), 'sudoku-ed.config')
+    config2.save(edited_file)
+
+    config3 = Config(edited_file) # edited but edited back to original
+    total += 1
+    if eq.eq(config2._uxo, config3._uxo, ignore_comments=True):
+        ok += 1
+    elif not regression:
+        print('fail #6')
+
+    # return to originals
+    config3.bgcolor2 = '#FFE7FF'
+    config3.fontsize = 22
+    config3.symbols = Symbols.DECIMAL
+    config3.width = 540
+    total += 1
+    if eq.eq(config1._uxo, config3._uxo, ignore_comments=True):
+        ok += 1
+    elif not regression:
+        print('fail #7')
+
+    if total == ok:
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(original_file)
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(edited_file)
 
     print(f'total={total} ok={ok}')
+
+
+UXT = '''uxf 1.0 Sudoku
+=initiallyvisible min:int max:int
+=SymbolsDecimal
+=SymbolsRoman
+=size width:int height:int
+=numbers page:int game:int
+{
+  <fontsize> 22
+  <general> [table
+    (initiallyvisible 28 32)
+    (SymbolsDecimal)
+    (size 540 550)
+    (numbers 372 743)
+  ]
+  <colors> {str str
+    <bg1> <lightyellow>
+    <bg2> <#FFE7FF>
+    <annotation> <red>
+    <confirmed> <blue>
+    <number> <navy>
+  }
+}'''
 
 
 if __name__ == '__main__':
