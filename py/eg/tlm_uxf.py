@@ -45,14 +45,15 @@ e.g., tlm_uxf.py tlm-eg.uxf.gz test.tlm''')
     if os.path.splitext(infilename)[1] == os.path.splitext(outfilename)[1]:
         raise SystemExit('can only convert to/from UXF from/to TLM')
     elif infilename.endswith('.tlm'):
-        convert_to_uxf(infilename, outfilename)
+        convert_to_uxf_old(infilename, outfilename)
     elif infilename.endswith(('.uxf', '.uxf.gz')):
         convert_to_tlm(infilename, outfilename)
     else:
         raise SystemExit('can only convert to/from .uxf{.gz} from/to .tlm')
 
 
-def convert_to_uxf(infilename, outfilename):
+def convert_to_uxf_old(infilename, outfilename):
+    print('convert_to_uxf_old', infilename, outfilename)
     infile = None
     try:
         infile = open_file(infilename, 'rt')
