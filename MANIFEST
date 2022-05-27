@@ -57,6 +57,8 @@ st.sh
 
 # NOTE IDEAS:
 # - 1.1 allow '.' in identifiers (excl. first char)?
+# - UxfParser an incremental parser that calls 'event' methods like
+#   HtmlParser
 # - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Experiment with using uxf format to store various kinds of data,
 #   e.g., styled text (but see uxf2html notes), spreadsheet, graphics, etc.

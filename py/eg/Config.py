@@ -35,8 +35,8 @@ class Config:
         initiallyvisible = uxf.tclass(
             INITIALLYVISIBLE, uxf.Field('min', 'int'),
             uxf.Field('max', 'int'))
-        decimal = uxf.tclass(DECIMAL, comment='Or Roman')
-        roman = uxf.tclass(ROMAN, comment='Or Decimal')
+        decimal = uxf.tclass(DECIMAL, comment='Or SymbolsRoman')
+        roman = uxf.tclass(ROMAN, comment='Or SymbolsDecimal')
         size = uxf.tclass('size', uxf.Field('width', 'int'),
                           uxf.Field('height', 'int'))
         numbers = uxf.tclass('numbers', uxf.Field('page', 'int'),
@@ -53,7 +53,7 @@ class Config:
             uxf.Table(self._uxo.tclasses[INITIALLYVISIBLE],
                       records=(28, 32), comment='range 9-72'),
             uxf.Table(self._uxo.tclasses[DECIMAL],
-                      comment='Decimal or Roman'),
+                      comment='Or SymbolsRoman'),
             uxf.Table(self._uxo.tclasses['size'], records=(-1, -1),
                       comment='width and height >= -1'),
             uxf.Table(self._uxo.tclasses['numbers'], records=(1, 1),
@@ -143,7 +143,7 @@ class Config:
         self._symbol_for_name = {symbol.name.upper(): symbol
                                  for symbol in Symbols}
         for i, value in enumerate(self._uxo.data[GENERAL]):
-            ttype = value.ttype.upper()
+            ttype = value.ttype.replace('Symbols', '').upper()
             symbol = self._symbol_for_name.get(ttype)
             if symbol is not None:
                 return symbol, i
@@ -159,7 +159,7 @@ class Config:
         if i == -1:
             i = len(self._uxo.data[GENERAL])
             self._uxo.data[GENERAL].append(None)
-        ttype = value.name.capitalize()
+        ttype = f'Symbols{value.name.capitalize()}'
         self._uxo.data[GENERAL][i] = uxf.Table(self._uxo.tclasses[ttype])
 
 
