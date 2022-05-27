@@ -56,8 +56,19 @@ st.sh
 
 # NOTE IDEAS:
 # - 1.1 allow '.' in identifiers (excl. first char)?
-# - UxfParser an incremental parser that calls 'event' methods like
-#   HtmlParser
+# - Uxf.loadi(raw, on_error=on_error) and loadi(raw, on_error=on_error)
+#   where raw is bytes, bytearray, a file opened in 'rb' mode, a str
+#   filename (which will be opened in 'rb' mode), or a memory map. This
+#   reads byte-by-byte incrementally populating a Uxf object.
+# - UxfParser an incremental parser that calls 'event' methods similar
+#   to HtmlParser (& maybe using some of the loadi code?). Most methods
+#   will have default implementations, that populate a Uxf, e.g.,
+#	def on_custom(self, custom:str):
+#	    self.custom = custom
+#	def on_import(self, filename:str):
+#	    self.do_import(filename) # adds to self.tclasses
+#   Users can override any on_* method and call the base class method or
+#   any do_* method & can add any methods that don't start on_ or do_.
 # - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Experiment with using uxf format to store various kinds of data,
 #   e.g., styled text (but see uxf2html notes), spreadsheet, graphics, etc.
