@@ -65,9 +65,9 @@ def main():
     total += 1
     config.symbols = Symbols.ROMAN
     config.fontsize = 19
-    config.bgcolour2 = 'magenta'
+    config.bgcolor2 = 'magenta'
     if (config.symbols is Symbols.ROMAN and config.fontsize == 19 and
-            config.bgcolour2 == 'magenta'):
+            config.bgcolor2 == 'magenta'):
         ok += 1
     elif not regression:
         print('fail #3')

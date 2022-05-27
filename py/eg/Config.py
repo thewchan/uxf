@@ -58,12 +58,12 @@ class Config:
                       comment='width and height >= -1'),
             uxf.Table(self._uxo.tclasses['numbers'], records=(1, 1),
                       comment='internal use: don\'t edit')), vtype='table')
-        colours = uxf.Map(dict(bg1='lightyellow', bg2='#FFE7FF',
-                               annotation='red', confirmed='blue',
-                               number='navy'), ktype='str', vtype='str',
-                          comment='colours HTML-style #HHHHHH or names')
+        colors = uxf.Map(dict(bg1='lightyellow', bg2='#FFE7FF',
+                              annotation='red', confirmed='blue',
+                              number='navy'), ktype='str', vtype='str',
+                         comment='colors HTML-style #HHHHHH or names')
         self._uxo.data = uxf.Map(dict(fontsize=18, general=general,
-                                      colours=colours),
+                                      colors=colors),
                                  comment='fontsize range 8-36')
 
 
@@ -75,8 +75,8 @@ class Config:
             self._maybe_merge_comment(self._uxo, uxo)
             self._maybe_merge_comment(self._uxo.data, uxo.data)
             for name, value in uxo.data.items():
-                if name == COLOURS:
-                    self._load_colours(value)
+                if name == COLORS:
+                    self._load_colors(value)
                 elif name == GENERAL:
                     self._load_general(value)
                 elif name == FONTSIZE:
@@ -86,10 +86,10 @@ class Config:
                   'Will try to create a new one on exit.')
 
 
-    def _load_colours(self, value):
-        for name, colour in value.items():
-            if name in COLOURNAMES:
-                self[name] = colour
+    def _load_colors(self, value):
+        for name, color in value.items():
+            if name in COLORNAMES:
+                self[name] = color
 
 
     def _load_general(self, value):
@@ -247,76 +247,76 @@ class Config:
 
 
     @property
-    def bgcolour1(self):
-        return self._uxo.data[COLOURS][BGCOLOUR1]
+    def bgcolor1(self):
+        return self._uxo.data[COLORS][BGCOLOR1]
 
 
-    @bgcolour1.setter
-    def bgcolour1(self, value):
+    @bgcolor1.setter
+    def bgcolor1(self, value):
         if value != '':
-            self._uxo.data[COLOURS][BGCOLOUR1] = value
+            self._uxo.data[COLORS][BGCOLOR1] = value
 
 
     @property
-    def bgcolour2(self):
-        return self._uxo.data[COLOURS][BGCOLOUR2]
+    def bgcolor2(self):
+        return self._uxo.data[COLORS][BGCOLOR2]
 
 
-    @bgcolour2.setter
-    def bgcolour2(self, value):
+    @bgcolor2.setter
+    def bgcolor2(self, value):
         if value != '':
-            self._uxo.data[COLOURS][BGCOLOUR2] = value
+            self._uxo.data[COLORS][BGCOLOR2] = value
 
 
     @property
-    def annotationcolour(self):
-        return self._uxo.data[COLOURS][ANNOTATIONCOLOUR]
+    def annotationcolor(self):
+        return self._uxo.data[COLORS][ANNOTATIONCOLOR]
 
 
-    @annotationcolour.setter
-    def annotationcolour(self, value):
+    @annotationcolor.setter
+    def annotationcolor(self, value):
         if value != '':
-            self._uxo.data[COLOURS][ANNOTATIONCOLOUR] = value
+            self._uxo.data[COLORS][ANNOTATIONCOLOR] = value
 
 
     @property
-    def confirmedcolour(self):
-        return self._uxo.data[COLOURS][CONFIRMEDCOLOUR]
+    def confirmedcolor(self):
+        return self._uxo.data[COLORS][CONFIRMEDCOLOR]
 
 
-    @confirmedcolour.setter
-    def confirmedcolour(self, value):
+    @confirmedcolor.setter
+    def confirmedcolor(self, value):
         if value != '':
-            self._uxo.data[COLOURS][CONFIRMEDCOLOUR] = value
+            self._uxo.data[COLORS][CONFIRMEDCOLOR] = value
 
 
     @property
-    def numbercolour(self):
-        return self._uxo.data[COLOURS][NUMBERCOLOUR]
+    def numbercolor(self):
+        return self._uxo.data[COLORS][NUMBERCOLOR]
 
 
-    @numbercolour.setter
-    def numbercolour(self, value):
+    @numbercolor.setter
+    def numbercolor(self, value):
         if value != '':
-            self._uxo.data[COLOURS][NUMBERCOLOUR] = value
+            self._uxo.data[COLORS][NUMBERCOLOR] = value
 
 
     def __getitem__(self, name):
-        basename = name.replace('colour', '')
-        if basename in COLOURNAMES:
-            return self._uxo.data[COLOURS][basename]
-        raise Error(f'{self.__class__.__name__} ignored invalid colour '
+        basename = name.replace('color', '')
+        if basename in COLORNAMES:
+            return self._uxo.data[COLORS][basename]
+        raise Error(f'{self.__class__.__name__} ignored invalid color '
                     f'attribute name {name!r}')
 
 
     def __setitem__(self, name, value):
-        basename = name.replace('colour', '')
-        if basename in COLOURNAMES:
+        basename = name.replace('color', '')
+        if basename in COLORNAMES:
             if value != '':
-                self._uxo.data[COLOURS][basename] = value
+                self._uxo.data[COLORS][basename] = value
         else:
             raise Error(f'{self.__class__.__name__} can\'t set invalid '
-                        f'colour attribute name {name!r}')
+                        f'color attribute name {name!r}')
 
 
 class Symbols(enum.IntEnum):
@@ -335,11 +335,11 @@ GENERAL = 'general'
 FONTSIZE = 'fontsize'
 SIZE = 'size'
 NUMBERS = 'numbers'
-COLOURS = 'colours'
-BGCOLOUR1 = 'bg1'
-BGCOLOUR2 = 'bg2'
-ANNOTATIONCOLOUR = 'annotation'
-CONFIRMEDCOLOUR = 'confirmed'
-NUMBERCOLOUR = 'number'
-COLOURNAMES = {BGCOLOUR1, BGCOLOUR2, ANNOTATIONCOLOUR, CONFIRMEDCOLOUR,
-               NUMBERCOLOUR}
+COLORS = 'colors'
+BGCOLOR1 = 'bg1'
+BGCOLOR2 = 'bg2'
+ANNOTATIONCOLOR = 'annotation'
+CONFIRMEDCOLOR = 'confirmed'
+NUMBERCOLOR = 'number'
+COLORNAMES = {BGCOLOR1, BGCOLOR2, ANNOTATIONCOLOR, CONFIRMEDCOLOR,
+              NUMBERCOLOR}
