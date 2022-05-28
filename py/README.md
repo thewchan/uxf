@@ -82,10 +82,10 @@ holds the table's `ttype` (i.e., its table type name), and the table's field
 names and (optional) types. In all cases a type of `None` signifies that any
 type valid for the context may be used.
 
-Non-UXF types can be represented using _ttypes_. For example, for complex
-numbers you could define a _ttype_ such as: `=Complex Real:real Imag:real`.
-Then you could include single complex values like `(Complex 1.5 7.2)`, or
-many of them such as `(Complex 1.5 7.2 8.3 -9.4 14.8 0.6)`.
+Non-UXF types can be represented using _ttypes_. For example, for points you
+could define a _ttype_ such as: `=point x:real y:real`. Then you could
+include single points like `(point 1.5 7.2)`, or many of them such as
+`(point 1.5 7.2 8.3 -9.4 14.8 0.6)`.
 
 Collection types such as `set`, `frozenset`, `tuple`, or `collections.deque`
 are automatically converted to a [List](#list-class) when they are
@@ -197,8 +197,8 @@ To create a `Uxf` programmatically (rather than by using, say,
 optionally, some _ttypes_.
 
     data = ... # a list, uxf.List, dict, uxf.Map, or uxf.Table
-    complex_ttype = uxf.TClass('complex', (uxf.Field('Real', 'real'), uxf.Field('Imag', 'real')))
-    uxo = uxf.Uxf(data, tclasses={complex_ttype.ttype: complex_ttype})
+    point_ttype = uxf.TClass('point', (uxf.Field('x', 'real'), uxf.Field('y', 'real')))
+    uxo = uxf.Uxf(data, tclasses={point_ttype.ttype: point_ttype})
 
 <a name="Uxf.load-def"></a>
 ##### .load(filename\_or\_filelike, \*, on\_error=on\_error)

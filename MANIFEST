@@ -19,7 +19,6 @@
 #   - uxf.cpp uxf.java uxf.rb ... ?
 
 py/uxf.py
-py/numbers.uxf
 py/uxfconvert.py
 py/uxflint.py
 py/uxfparser.py

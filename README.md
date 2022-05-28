@@ -132,18 +132,16 @@ reads such UXF data can recognize and convert to and from these
 representations to and from the actual types.
 
     uxf 1.0
-    =Complex Real:real Imag:real
+    =Point x:real y:real
     =TrafficLightGreen
     =TrafficLightAmber
     =TrafficLightRed
     [
-      (Complex 1.4 9.8 -0.7 3.0 2.1 -6.3)
+      (Point 1.4 9.8 -0.7 3.0 2.1 -6.3)
       (TrafficLightRed) (TrafficLightGreen) (TrafficLightAmber)
     ]
 
-This second approach uses four _ttypes_. Note that the Complex _ttype_ is
-available as an import, so we could replace `=Complex Real:real Image:real`
-with `!numbers` — see [Imports](#imports). For the enumeration we used three
+This second approach uses four _ttypes_. For the enumeration we used three
 separate fieldness tables.
 
 Using tables gives us the advantage that we can represent any number of
@@ -604,13 +602,15 @@ compressed. Any custom string, comments, or data the imported file may
 contain are ignored: only the _ttype_ definitions are used.
 
     uxf 1.0
-    !numbers
+    !complex
+    !fraction
     [(Complex 5.1 7.2 8e-2 -9.1e6 0.1 -11.2) <a string> (Fraction 22 7 355 113)]
 
-Here we've used the official system ``numbers``'s `Complex` and `Fraction`
-_ttypes_ without having to specify them explicitly. The data represented is
-a list consisting of three Complex numbers each holding two ``real``s each,
-a `str`, and two Fractions holding two ``int``s each.
+Here we've used the official system ``complex``'s `Complex` and
+``fraction``'s `Fraction` _ttypes_ without having to specify them
+explicitly. The data represented is a list consisting of three Complex
+numbers each holding two ``real``s each, a `str`, and two Fractions holding
+two ``int``s each.
 
 ## BNF
 
