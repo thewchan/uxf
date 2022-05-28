@@ -82,6 +82,15 @@ def main():
         expected_uxo = uxf.loads(EXPECTED_UXT63,
                                  on_error=lambda *_a, **_k: None)
         ok += 1
+        total += 1
+        if not expected_uxo.imports:
+            ok += 1
+        total += 1
+        if sorted(expected_uxo.tclasses) == [
+                'B', 'Complex', 'Fraction', 'IPv4', 'Slide', 'cmyk', 'h1',
+                'h2', 'i', 'img', 'm', 'nl', 'p', 'pair', 'point2d', 'pre',
+                'rgb', 'rgba', 'url']:
+            ok += 1
     except uxf.Error as err:
         if not regression:
             print(err)
@@ -170,27 +179,6 @@ EXPECTED_UXT63 = '''uxf 1.0
 '''
 
 EXPECTED_IMPORTS63 = {
-    'Slide': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'h1': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'h2': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'B': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'p': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'img': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'm': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'pre': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'i': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'url': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'nl': 'http://www.qtrac.eu/ttype-eg.uxf',
-    'IPv4': 'ttype-test',
-    'rgb': 'ttype-test',
-    'rgba': 'ttype-test',
-    'pair': 'ttype-test',
-    'Complex': 'complex',
-    'Fraction': 'fraction',
-    'cmyk': 't63.uxt',
-    'point2d': 't63.uxt'}
-
-EXPECTED_IMPORTS67 = {
     'Slide': 'http://www.qtrac.eu/ttype-eg.uxf',
     'h1': 'http://www.qtrac.eu/ttype-eg.uxf',
     'h2': 'http://www.qtrac.eu/ttype-eg.uxf',
