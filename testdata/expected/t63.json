@@ -2,6 +2,8 @@
   "UXF^imports": [
     "http://www.qtrac.eu/ttype-eg.uxf",
     "ttype-test",
+    "complex",
+    "fraction",
     "t63.uxt"
   ],
   "UXF^ttypes": [
@@ -12,6 +14,24 @@
           "content": null
         },
         "comment": "bullet item"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Complex",
+        "fields": {
+          "Real": "real",
+          "Imag": "real"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Fraction",
+        "fields": {
+          "numerator": "int",
+          "denominator": "int"
+        }
       }
     },
     {
@@ -315,6 +335,42 @@
           }
         },
         "itype": "uxf"
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Complex",
+        "comment": null,
+        "fields": {
+          "Real": "real",
+          "Imag": "real"
+        },
+        "records": [
+          [
+            3.9,
+            -1.4
+          ],
+          [
+            -170.0,
+            2e-05
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Fraction",
+        "comment": null,
+        "fields": {
+          "numerator": "int",
+          "denominator": "int"
+        },
+        "records": [
+          [
+            22,
+            7
+          ]
+        ]
       }
     }
   ]

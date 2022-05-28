@@ -28,7 +28,7 @@ def main():
            't15.uxf', 't16.uxf', 't19.uxf', 't47.uxf', 't63.uxf']
     total += 2
     done = check(cmd, regression, filename,
-                 "uxf.py:t63.uxf:12:#422:unused ttype: 'dob'")
+                 "uxf.py:t63.uxf:14:#422:unused ttype: 'dob'")
     if done:
         ok += 1
         ok += compare(filename, regression)
@@ -38,7 +38,7 @@ def main():
            't16.uxf', 't19.uxf', 't47.uxf', 't63.uxf']
     total += 2
     done = check(cmd, regression, filename,
-                 "uxf.py:t63.uxf:12:#422:unused ttype: 'dob'")
+                 "uxf.py:t63.uxf:14:#422:unused ttype: 'dob'")
     if done:
         ok += 1
         ok += compare(filename, regression)

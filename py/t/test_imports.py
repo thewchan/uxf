@@ -31,6 +31,7 @@ def main():
     except uxf.Error as err:
         if not regression:
             print(err)
+
     total += 1
     try:
         expected_uxo = uxf.loads(EXPECTED_UXT63,
@@ -40,7 +41,7 @@ def main():
         if not regression:
             print(err)
     total, ok = test(total, ok, actual_uxo, expected_uxo,
-                     EXPECTED_IMPORTS63, filename, regression)
+                     EXPECTED_IMPORTS63, filename, regression, 1)
 
     try: # attempt to import itself
         total += 1
@@ -66,7 +67,7 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
-    # good but dumplicate imports
+    # good but duplicate imports
     total += 1
     filename = 'i67.uxi'
     try:
@@ -75,6 +76,7 @@ def main():
     except uxf.Error as err:
         if not regression:
             print(err)
+
     total += 1
     try:
         expected_uxo = uxf.loads(EXPECTED_UXT63,
@@ -83,8 +85,6 @@ def main():
     except uxf.Error as err:
         if not regression:
             print(err)
-    total, ok = test(total, ok, actual_uxo, expected_uxo,
-                     EXPECTED_IMPORTS67, filename, regression)
 
     total += 1
     if on_error.errors == EXPECTED_ERRORS:
@@ -101,7 +101,7 @@ def main():
 
 
 def test(total, ok, actual_uxo, expected_uxo, expected_imports, filename,
-         regression):
+         regression, which):
     for ((attype, atclass), (ettype, etclass)) in zip(
             actual_uxo.tclasses.items(), expected_uxo.tclasses.items()):
         total += 1
@@ -118,7 +118,7 @@ def test(total, ok, actual_uxo, expected_uxo, expected_imports, filename,
     if actual_uxo.imports == expected_imports:
         ok += 1
     elif not regression:
-        print(f'{filename} imports {sorted(actual_uxo.imports)} '
+        print(f'#{which}:{filename} imports {sorted(actual_uxo.imports)} '
               f'!= {expected_imports}')
     return total, ok
 
@@ -162,6 +162,8 @@ EXPECTED_UXT63 = '''uxf 1.0
 =rgb red:int green:int blue:int
 =rgba red:int green:int blue:int alpha:int
 =pair first second
+=Complex Real:real Imag:real
+=Fraction numerator:int denominator:int
 =cmyk cyan:real magenta:real yellow:real black:real
 =point2d x:int y:int
 []
@@ -183,6 +185,8 @@ EXPECTED_IMPORTS63 = {
     'rgb': 'ttype-test',
     'rgba': 'ttype-test',
     'pair': 'ttype-test',
+    'Complex': 'complex',
+    'Fraction': 'fraction',
     'cmyk': 't63.uxt',
     'point2d': 't63.uxt'}
 
@@ -202,11 +206,13 @@ EXPECTED_IMPORTS67 = {
     'rgb': 'ttype-test',
     'rgba': 'ttype-test',
     'pair': 'ttype-test',
+    'Complex': 'complex',
+    'Fraction': 'fraction',
     'cmyk': 't63.uxt',
     'point2d': 't63.uxt'}
 
 EXPECTED_ERRORS = [
-    "uxf.py:t63.uxf:12:#422:unused ttype: 'dob'",
+    "uxf.py:t63.uxf:14:#422:unused ttype: 'dob'",
     "uxf.py:i64.uxi:1:#176:a UXF file cannot import itself",
     "uxf.py:i66.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'",
     "uxf.py:i65.uxi:1:#580:cannot do circular imports "

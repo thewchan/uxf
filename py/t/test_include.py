@@ -27,7 +27,7 @@ def main():
     filename = 'i68inc.uxf.gz'
     cmd = [INCLUDE_EXE, 'i68.uxi', f'actual/{filename}']
     ok += check(cmd, regression,
-                "uxf.py:t63.uxf:12:#422:unused ttype: 'dob'")
+                "uxf.py:t63.uxf:14:#422:unused ttype: 'dob'")
     total += 1
     ok += compare(filename, regression)
 

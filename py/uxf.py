@@ -262,12 +262,15 @@ class _Lexer:
         if i == -1:
             self.error(110, 'missing UXF file header or empty file',
                        fail=True)
+            return # in case user on_error doesn't raise
         self.pos = i
         parts = self.text[:i].split(None, 2)
         if len(parts) < 2:
             self.error(120, 'invalid UXF file header', fail=True)
+            return # in case user on_error doesn't raise
         if parts[0] != 'uxf':
             self.error(130, 'not a UXF file', fail=True)
+            return # in case user on_error doesn't raise
         try:
             version = float(parts[1])
             if version > VERSION:
@@ -361,6 +364,7 @@ class _Lexer:
             if this_file == _full_filename(value, path):
                 self.error(176, 'a UXF file cannot import itself',
                            fail=True)
+                return # in case user on_error doesn't raise
             else:
                 self.add_token(_Kind.IMPORT, value)
             if self.peek() == '!':
@@ -378,7 +382,8 @@ class _Lexer:
                            f'introducer, got {self.peek()!r}')
             self.pos += 1 # skip the leading <
             value = self.match_to('>', what='comment string')
-            self.add_token(_Kind.COMMENT, unescape(value))
+            if value:
+                self.add_token(_Kind.COMMENT, unescape(value))
         else:
             self.error(190, 'comments may only occur at the start of '
                        'Lists, Maps, Tables, and TClasses')
@@ -1124,6 +1129,7 @@ class _Parser:
             filename = _full_filename(filename)
             if filename in self.imported:
                 self.error(400, f'already imported {filename}', fail=True)
+                return # in case user on_error doesn't raise
             self.imported.add(filename)
 
 
@@ -1215,6 +1221,9 @@ class _Parser:
 
 
     def _handle_identifier(self, i, token):
+        if not self.stack:
+            self.error(441, 'invalid UXF data')
+            return # in case user on_error doesn't raise
         parent = self.stack[-1]
         if (self.tokens[i - 1].kind is _Kind.TYPE and
             (self.tokens[i - 2].kind is _Kind.MAP_BEGIN or
@@ -1244,6 +1253,7 @@ class _Parser:
             if tclass is None:
                 self.error(450, f'expected table ttype, got {token}',
                            fail=True) # A table with no tclass is invalid
+                return # in case user on_error doesn't raise
             else:
                 parent.tclass = tclass
                 self.used_tclasses.add(tclass.ttype)
@@ -1267,6 +1277,9 @@ class _Parser:
 
 
     def _handle_type(self, i, token):
+        if not self.stack:
+            self.error(469, 'invalid UXF data')
+            return # in case user on_error doesn't raise
         parent = self.stack[-1]
         if isinstance(parent, List):
             if parent.vtype is not None:
@@ -1298,6 +1311,9 @@ class _Parser:
                 value = new_value
             else:
                 self.error(488, message)
+        if not self.stack:
+            self.error(489, 'invalid UXF data')
+            return # in case user on_error doesn't raise
         append_to_parent(self.stack[-1], value)
 
 
@@ -1315,6 +1331,9 @@ class _Parser:
                 value = v
             else:
                 self.error(500, message)
+        if not self.stack:
+            self.error(501, 'invalid UXF data')
+            return # in case user on_error doesn't raise
         append_to_parent(self.stack[-1], value)
 
 
@@ -1396,6 +1415,7 @@ class _Parser:
                 if tclass is not None:
                     if tclass.ttype is None:
                         self.error(520, 'TClass without ttype', fail=True)
+                        return # in case user on_error doesn't raise
                     self.tclasses[tclass.ttype] = tclass
                     self.lino_for_tclass[tclass.ttype] = self.lino
                 tclass = TClass(None)
@@ -1405,6 +1425,7 @@ class _Parser:
                 if tclass is None:
                     self.error(518, 'missing ttype; is an `=` missing?',
                                fail=True)
+                    return # in case user on_error doesn't raise
                 elif tclass.ttype is None:
                     tclass.ttype = token.value
                 else:
@@ -1414,6 +1435,7 @@ class _Parser:
                     self.error(524, 'cannot use a built-in type name or '
                                f'constant as a tclass name, got {token}',
                                fail=True)
+                    return # in case user on_error doesn't raise
                 else:
                     vtype = token.value
                     tclass.set_vtype(-1, vtype)
@@ -1421,6 +1443,7 @@ class _Parser:
                 if tclass is not None:
                     if tclass.ttype is None:
                         self.error(528, 'TClass without ttype', fail=True)
+                        return # in case user on_error doesn't raise
                     self.tclasses[tclass.ttype] = tclass
                     if tclass.ttype not in self.lino_for_tclass:
                         self.lino_for_tclass[tclass.ttype] = self.lino
@@ -1452,6 +1475,9 @@ class _Parser:
                 self.error(540, 'there are no ttype definitions to import '
                            f'{value!r} ({filename!r})')
                 return # should never get here
+            if uxo is None:
+                self.error(541, 'invalid UXF data')
+                return # in case user on_error doesn't raise
             for ttype, tclass in uxo.tclasses.items():
                 self.tclasses[ttype] = tclass
                 self.imports[ttype] = value
@@ -1494,6 +1520,7 @@ class _Parser:
             if fullname in self.imported:
                 self.error(580, f'cannot do circular imports {fullname!r}',
                            fail=True)
+                return # in case user on_error doesn't raise
             else:
                 self.error(586, f'failed to import {fullname!r}: {err}')
             raise _AlreadyImported # couldn't import
@@ -1529,6 +1556,9 @@ class _Parser:
 
 
     def typecheck(self, value):
+        if not self.stack:
+            self.error(590, 'invalid UXF data')
+            return None, None # in case user on_error doesn't raise
         parent = self.stack[-1]
         if isinstance(parent, Map):
             vtype = parent.ktype if parent._next_is_key else parent.vtype
@@ -1791,7 +1821,7 @@ class _Writer:
             self.file.write(str(item))
         elif isinstance(item, float):
             text = str(item)
-            if '.' not in text:
+            if '.' not in text and 'e' not in text and 'E' not in text:
                 text += '.0'
             self.file.write(text)
         elif isinstance(item, (datetime.date, datetime.datetime)):
@@ -1804,6 +1834,7 @@ class _Writer:
             self.error(561, 'unexpected item of type '
                        f'{item.__class__.__name__}: {item!r};'
                        'consider using a ttype', fail=True)
+            return # in case user on_error doesn't raise
         return False
 
 

@@ -1,5 +1,5 @@
 # TODO complete py/eg/tlm_uxf.py
-# TODO update docs to mention eg/Config.py ?
+# TODO update docs to mention eg/Config.py & tlm_uxf.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
@@ -11,6 +11,7 @@
 # TODO review & improve README.md and py/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
+# TODO py/uxfparser.py
 # TODO UXF libraries:
 #   - for .js use Dart or TypeScript or similar that can output JS?
 #   - uxf.rs (just before this, create misc/tlmuxf2fltk.py to produce
@@ -18,7 +19,10 @@
 #   - uxf.cpp uxf.java uxf.rb ... ?
 
 py/uxf.py
+py/numbers.uxf
 py/uxfconvert.py
+py/uxflint.py
+py/uxfparser.py
 py/README.md
 py/ttype-test.uxf
 py/setup.py
@@ -30,7 +34,7 @@ py/t/test_errors.py
 py/t/test_lints.py
 py/t/test_imports.py
 py/t/test_merge.py
-tpy/t/test_include.py
+py/t/test_include.py
 py/t/test_use_config.py
 py/t/test_editabletuple.py
 py/t/eq.py
@@ -56,19 +60,6 @@ st.sh
 
 # NOTE IDEAS:
 # - 1.1 allow '.' in identifiers (excl. first char)?
-# - Uxf.loadi(raw, on_error=on_error) and loadi(raw, on_error=on_error)
-#   where raw is bytes, bytearray, a file opened in 'rb' mode, a str
-#   filename (which will be opened in 'rb' mode), or a memory map. This
-#   reads byte-by-byte incrementally populating a Uxf object.
-# - UxfParser an incremental parser that calls 'event' methods similar
-#   to HtmlParser (& maybe using some of the loadi code?). Most methods
-#   will have default implementations, that populate a Uxf, e.g.,
-#	def on_custom(self, custom:str):
-#	    self.custom = custom
-#	def on_import(self, filename:str):
-#	    self.do_import(filename) # adds to self.tclasses
-#   Users can override any on_* method and call the base class method or
-#   any do_* method & can add any methods that don't start on_ or do_.
 # - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Experiment with using uxf format to store various kinds of data,
 #   e.g., styled text (but see uxf2html notes), spreadsheet, graphics, etc.
