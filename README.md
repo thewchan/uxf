@@ -116,14 +116,24 @@ point and an enumeration.
 
     uxf 1.0
     [
-      {<Point> 1.4 9.8} {<Point> -0.7 3.0} {<Point> 2.1 -6.3}
-      <Light: GREEN> <Light: AMBER> <Light: RED>
+      {<Point> [1.4 9.8]} {<Point> [-0.7 3.0]} {<Point> [2.1 -6.3]}
+      <TrafficLightGreen> <TrafficLightAmber> <TrafficLightRed>
     ]
 
-This first approach shows three points, each represented by a map with a
-`str` indicating the type and using ``real``s for the real and imaginary
-parts of the number. The example also shows a traffic light enumeration each
-represented by a `str` with internal structure.
+This first approach shows three points, each represented by a `map` with a
+`str` indicating the type and using ``list``s of two ``real``s for the real
+and imaginary parts of the number. The example also shows a traffic light
+enumeration each represented by a `str`.
+
+    uxf 1.0
+    [
+      {<Point> [1.4 9.8 -0.7 3.0 2.1 -6.3]}
+      <TrafficLightGreen> <TrafficLightAmber> <TrafficLightRed>
+    ]
+
+Since we have multiple points we've changed to a `map` with a `list` of
+point values. This is more compact but assumes that the reading application
+knows that points come in pairs.
 
 A UXF processor has no knowledge of these representations of points or
 enumerations, but will handle both seamlessly since they are both
@@ -141,8 +151,9 @@ representations to and from the actual types.
       (TrafficLightRed) (TrafficLightGreen) (TrafficLightAmber)
     ]
 
-This second approach uses four _ttypes_. For the enumeration we used three
-separate fieldness tables.
+This second approach uses four _ttypes_. For the Point we specify it as
+having two real fields (so the processor now knows that Point values come in
+twos). And for the enumeration we used three separate fieldness tables.
 
 Using tables gives us the advantage that we can represent any number of
 values of a particular _ttype_ in a single table (including just one, or
