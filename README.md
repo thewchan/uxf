@@ -239,10 +239,11 @@ then a type (here only names are given).
 Both table and field names are user chosen and consist of 1-60 letters,
 digits, or underscores, starting with a letter or underscore. No table or
 field name may be the same as any built-in type name, so no table or field
-can be called `null`, `int`, `date`, `datetime`, `str`, `bytes`, `bool`,
-`real`, `list`, `map`, or `table`. (But `Date` and `DateTime` are fine,
-since names are case-sensitive.) If whitespace is wanted one convention is
-to use underscores in their place.
+can be called `bool`, `bytes`, `date`, `datetime`, `int`, `list`, `map`,
+`null`, `real`, `str`, or `table`. (But `Date`, `DateTime`, and `Real` or
+`real_` are fine, since names are case-sensitive and none of the built-in
+types contains an underscore.) If whitespace is wanted one convention is to
+use underscores in their place.
 
 Once we have defined a _ttype_ we can use it.
 
