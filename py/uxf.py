@@ -142,14 +142,14 @@ class Uxf:
 
 
     def load(self, filename_or_filelike, *, on_error=on_error,
-             replace_imports=False):
+             drop_unused=False, replace_imports=False):
         '''Convenience method that wraps the module-level load()
         function'''
         filename = (filename_or_filelike if isinstance(filename_or_filelike,
                     (str, pathlib.Path)) else '-')
         data, custom, tclasses, imports, comment = _loads(
             _read_text(filename_or_filelike), filename, on_error=on_error,
-            replace_imports=replace_imports)
+            drop_unused=drop_unused, replace_imports=replace_imports)
         self.data = data
         self.custom = custom
         self.tclasses = tclasses
@@ -157,11 +157,11 @@ class Uxf:
 
 
     def loads(self, uxt, filename='-', *, on_error=on_error,
-              replace_imports=False):
+              drop_unused=False, replace_imports=False):
         '''Convenience method that wraps the module-level loads()
         function'''
         data, custom, tclasses, imports, comment = _loads(
-            uxt, filename, on_error=on_error,
+            uxt, filename, on_error=on_error, drop_unused=drop_unused,
             replace_imports=replace_imports)
         self.data = data
         self.custom = custom
@@ -169,8 +169,8 @@ class Uxf:
         self.comment = comment
 
 
-def load(filename_or_filelike, *, on_error=on_error, replace_imports=False,
-         _imported=None, _is_import=False):
+def load(filename_or_filelike, *, on_error=on_error, drop_unused=False,
+         replace_imports=False, _imported=None, _is_import=False):
     '''
     Returns a Uxf object.
 
@@ -181,6 +181,22 @@ def load(filename_or_filelike, *, on_error=on_error, replace_imports=False,
                 (str, pathlib.Path)) else '-')
     data, custom, tclasses, imports, comment = _loads(
         _read_text(filename_or_filelike), filename, on_error=on_error,
+        drop_unused=drop_unused, replace_imports=replace_imports,
+        _imported=_imported, _is_import=_is_import)
+    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo.imports = imports
+    return uxo
+
+
+def loads(uxt, filename='-', *, on_error=on_error, drop_unused=False,
+          replace_imports=False, _imported=None, _is_import=False):
+    '''
+    Returns a Uxf object.
+
+    uxt must be a string of UXF data.
+    '''
+    data, custom, tclasses, imports, comment = _loads(
+        uxt, filename, on_error=on_error, drop_unused=drop_unused,
         replace_imports=replace_imports, _imported=_imported,
         _is_import=_is_import)
     uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
@@ -188,26 +204,11 @@ def load(filename_or_filelike, *, on_error=on_error, replace_imports=False,
     return uxo
 
 
-def loads(uxt, filename='-', *, on_error=on_error, replace_imports=False,
-          _imported=None, _is_import=False):
-    '''
-    Returns a Uxf object.
-
-    uxt must be a string of UXF data.
-    '''
-    data, custom, tclasses, imports, comment = _loads(
-        uxt, filename, on_error=on_error, replace_imports=replace_imports,
-        _imported=_imported, _is_import=_is_import)
-    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
-    uxo.imports = imports
-    return uxo
-
-
-def _loads(uxt, filename='-', *, on_error=on_error, replace_imports=False,
-           _imported=None, _is_import=False):
+def _loads(uxt, filename='-', *, on_error=on_error, drop_unused=False,
+           replace_imports=False, _imported=None, _is_import=False):
     tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
     data, comment, tclasses, imports = _parse(
-        tokens, filename, on_error=on_error,
+        tokens, filename, on_error=on_error, drop_unused=drop_unused,
         replace_imports=replace_imports, _imported=_imported,
         _is_import=_is_import)
     return data, custom, tclasses, imports, comment
@@ -1129,9 +1130,9 @@ class Table:
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, filename='-', *, on_error=on_error,
+def _parse(tokens, filename='-', *, on_error=on_error, drop_unused=False,
            replace_imports=False, _imported=None, _is_import=False):
-    parser = _Parser(filename, on_error=on_error,
+    parser = _Parser(filename, on_error=on_error, drop_unused=drop_unused,
                      replace_imports=replace_imports, _imported=_imported,
                      _is_import=_is_import)
     data, comment = parser.parse(tokens)
@@ -1140,11 +1141,12 @@ def _parse(tokens, filename='-', *, on_error=on_error,
 
 class _Parser:
 
-    def __init__(self, filename, *, on_error=on_error,
+    def __init__(self, filename, *, on_error=on_error, drop_unused=False,
                  replace_imports=False, _imported=None, _is_import=False):
         self.filename = filename
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
+        self.drop_unused = drop_unused
         self.replace_imports = replace_imports
         self._is_import = _is_import
         self.clear()
@@ -1216,12 +1218,10 @@ class _Parser:
     def _check_tclasses(self):
         imported = set(self.imports.keys())
         if self.replace_imports:
-            for ttype in imported:
-                if ttype not in self.used_tclasses:
-                    del self.tclasses[ttype] # drop unused imported ttype
-            self.imports.clear()
-            imported.clear()
+            self._replace_imports(imported)
         defined = set(self.tclasses.keys())
+        if self.drop_unused:
+            self._drop_unused(defined)
         unused = defined - self.used_tclasses
         unused -= imported # don't warn on unused imports
         unused = {ttype for ttype in unused # don't warn on fieldless
@@ -1231,6 +1231,31 @@ class _Parser:
         undefined = self.used_tclasses - defined
         if undefined:
             self._report_problem(undefined, 424, 'undefined ttype')
+
+
+    def _replace_imports(self, imported):
+        for ttype in imported:
+            if ttype not in self.used_tclasses:
+                del self.tclasses[ttype] # drop unused imported ttype
+        self.imports.clear()
+        imported.clear()
+
+
+    def _drop_unused(self, defined):
+        ttypes_for_filename = collections.defaultdict(set)
+        for ttype, filename in self.imports.items():
+            ttypes_for_filename[filename].add(ttype)
+        for ttype in list(self.tclasses): # drop unused ttype defs
+            if ttype not in self.used_tclasses:
+                del self.tclasses[ttype]
+                defined.discard(ttype)
+                for filename in list(ttypes_for_filename):
+                    ttypes_for_filename[filename].discard(ttype)
+        for filename, ttypes in ttypes_for_filename.items():
+            if not ttypes:
+                for ttype, ifilename in list(self.imports.items()):
+                    if filename == ifilename:
+                        del self.imports[ttype] # drop unused import
 
 
     def _report_problem(self, diff, code, what):
@@ -2082,14 +2107,16 @@ canonicalize.count = 1 # noqa: E305
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py [-l|--lint] [-r|--replaceimports] [-iN|--indent=N] \
-<infile.uxf[.gz]> [<outfile.uxf[.gz]>]
+usage: uxf.py [-l|--lint] [-d|--dropunused] [-r|--replaceimports] \
+[-iN|--indent=N] <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
 If an outfile is specified and ends .gz it will be gzip-compressed.
 If outfile is - output will be to stdout.
 If you just want linting either don't specify an outfile at all or \
 use -l or --lint. Lint errors and fixes go to stderr.
+
+Use -d or --dropunused to drop unused ttype definitions and imports.
 
 Use -r or --replaceimports to replace imports with ttype definitions \
 to make the outfile standalone (i.e., not dependent on any imports).
@@ -2111,14 +2138,14 @@ to allow later imports to override earlier ones.
     args = sys.argv[1:]
     infile = outfile = None
     lint = None
-    replace_imports = False
+    drop_unused = replace_imports = False
     for arg in args:
         if arg in {'-l', '--lint'}:
             lint = True
         elif arg in {'-r', '--replaceimports'}:
             replace_imports = True
-        elif arg in {'-rl', '-lr'}:
-            lint = replace_imports = True
+        elif arg in {'-d', '--dropunused'}:
+            drop_unused = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
                 indent = int(arg[2:])
@@ -2138,7 +2165,7 @@ to allow later imports to override earlier ones.
         on_error = functools.partial(on_error, verbose=lint,
                                      filename=infile)
         uxo = load(infile, on_error=on_error,
-                   replace_imports=replace_imports)
+                   drop_unused=drop_unused, replace_imports=replace_imports)
         do_dump = outfile is not None
         outfile = sys.stdout if outfile == '-' else outfile
         on_error = functools.partial(on_error, verbose=lint,
