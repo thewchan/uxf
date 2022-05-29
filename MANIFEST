@@ -1,3 +1,5 @@
+# TODO add t72.uxi & add to test_imports.py to test drop unused imports
+# & ttype defs
 # TODO complete py/eg/tlm_uxf.py
 # TODO update docs to mention eg/Config.py & tlm_uxf.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure

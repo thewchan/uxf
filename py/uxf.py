@@ -1245,9 +1245,9 @@ class _Parser:
         ttypes_for_filename = collections.defaultdict(set)
         for ttype, filename in self.imports.items():
             ttypes_for_filename[filename].add(ttype)
-        for ttype in list(self.tclasses): # drop unused ttype defs
+        for ttype in list(self.tclasses):
             if ttype not in self.used_tclasses:
-                del self.tclasses[ttype]
+                del self.tclasses[ttype] # drop unused ttype def
                 defined.discard(ttype)
                 for filename in list(ttypes_for_filename):
                     ttypes_for_filename[filename].discard(ttype)
