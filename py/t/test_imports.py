@@ -77,6 +77,24 @@ def main():
         if not regression:
             print(err)
 
+    # good but duplicate imports
+    total += 1
+    filename = 'pairimportd.uxi'
+    try:
+        uxf.load(filename, on_error=on_error)
+        ok += 1
+    except uxf.Error as err:
+        if not regression:
+            print(err)
+
+    try: # conflicting duplicate imports
+        total += 1
+        e = 544
+        uxf.load('pairimportc.uxi', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
     total += 1
     try:
         expected_uxo = uxf.loads(EXPECTED_UXT63,
@@ -208,7 +226,8 @@ EXPECTED_ERRORS = [
     "uxf.py:i65.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'",
     "uxf.py:i66.uxi:1:#580:cannot do circular imports "
     "'/home/mark/app/uxf/testdata/i65.uxi'",
-    "uxf.py:i67.uxi:11:#422:unused ttype: 'dob'"]
+    "uxf.py:i67.uxi:11:#422:unused ttype: 'dob'",
+    "uxf.py:pairimportc.uxi:1:#544:conflicting ttype definitions for pair"]
 
 
 if __name__ == '__main__':

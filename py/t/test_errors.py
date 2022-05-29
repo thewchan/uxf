@@ -512,7 +512,7 @@ def main():
 
     try:
         total += 1
-        e = 518
+        e = 522
         uxf.loads('uxf 1.0\np a b\n(p 1 2)', on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:

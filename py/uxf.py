@@ -74,13 +74,15 @@ class Uxf:
         self._tclasses = {}
         self.tclasses = tclasses if tclasses is not None else {}
         self.imports = {} # key=ttype value=import text
+        self.on_error = functools.partial(on_error, filename='')
 
 
     def add_tclasses(self, tclass, *tclasses):
         for tclass in (tclass,) + tclasses:
             if tclass.ttype is None:
                 raise Error('#90:cannot add an unnamed TClass')
-            self.tclasses[tclass.ttype] = tclass
+            _add_to_tclasses(self.tclasses, tclass, lino=0, code=90,
+                             error=self.on_error)
 
 
     @property
@@ -790,6 +792,21 @@ class TClass:
         return hash(self.ttype)
 
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        uttype = self.ttype.upper()
+        uother = other.ttype.upper()
+        if uttype != uother:
+            return False
+        if len(self.fields) != len(other.fields):
+            return False
+        for f1, f2 in zip(self.fields, other.fields):
+            if f1 != f2:
+                return False
+        return True
+
+
     def __lt__(self, other): # case-insensitive when possible
         uttype = self.ttype.upper()
         uother = other.ttype.upper()
@@ -1414,16 +1431,17 @@ class _Parser:
             if token.kind is _Kind.TCLASS_BEGIN:
                 if tclass is not None:
                     if tclass.ttype is None:
-                        self.error(520, 'TClass without ttype', fail=True)
+                        self.error(518, 'TClass without ttype', fail=True)
                         return # in case user on_error doesn't raise
-                    self.tclasses[tclass.ttype] = tclass
+                    _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
+                                     code=520, on_error=self.on_error)
                     self.lino_for_tclass[tclass.ttype] = self.lino
                 tclass = TClass(None)
             elif token.kind is _Kind.COMMENT:
                 tclass.comment = token.value
             elif token.kind is _Kind.IDENTIFIER:
                 if tclass is None:
-                    self.error(518, 'missing ttype; is an `=` missing?',
+                    self.error(522, 'missing ttype; is an `=` missing?',
                                fail=True)
                     return # in case user on_error doesn't raise
                 elif tclass.ttype is None:
@@ -1442,9 +1460,10 @@ class _Parser:
             elif token.kind is _Kind.TCLASS_END:
                 if tclass is not None:
                     if tclass.ttype is None:
-                        self.error(528, 'TClass without ttype', fail=True)
+                        self.error(526, 'TClass without ttype', fail=True)
                         return # in case user on_error doesn't raise
-                    self.tclasses[tclass.ttype] = tclass
+                    _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
+                                     code=528, on_error=self.on_error)
                     if tclass.ttype not in self.lino_for_tclass:
                         self.lino_for_tclass[tclass.ttype] = self.lino
                 offset = index + 1
@@ -1479,8 +1498,9 @@ class _Parser:
                 self.error(541, 'invalid UXF data')
                 return # in case user on_error doesn't raise
             for ttype, tclass in uxo.tclasses.items():
-                self.tclasses[ttype] = tclass
-                self.imports[ttype] = value
+                if _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
+                                    code=544, on_error=self.on_error):
+                    self.imports[ttype] = value
         except _AlreadyImported:
             pass # don't reimport & errors already handled
 
@@ -1577,6 +1597,20 @@ class _Parser:
                            f'{value.__class__.__name__} {value}')
                 return vtype, message
         return None, None
+
+
+def _add_to_tclasses(tclasses, tclass, *, lino, code, on_error):
+    first_tclass = tclasses.get(tclass.ttype)
+    if first_tclass is None: # this is the first definition of this ttype
+        tclasses[tclass.ttype] = tclass
+        return True
+    if first_tclass == tclass:
+        return True # ignore duplicate definitions (e.g., multiple imports)
+    else:
+        on_error(lino, code,
+                 f'conflicting ttype definitions for {tclass.ttype}',
+                 fail=True)
+    return False
 
 
 _TYPECHECK_CLASSES = dict(

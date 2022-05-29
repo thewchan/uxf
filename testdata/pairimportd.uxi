@@ -1,0 +1,7 @@
+uxf 1.0
+!pair1.uxt
+=Fraction numerator:int denominator:int
+[
+  (pair)
+  (Fraction)
+]

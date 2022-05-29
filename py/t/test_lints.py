@@ -2,6 +2,7 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+import glob
 import os
 import re
 import subprocess
@@ -10,6 +11,7 @@ import sys
 try:
     PATH = os.path.abspath(os.path.dirname(__file__))
     UXF_EXE = os.path.join(PATH, '../uxf.py')
+    UXFLINT_EXE = os.path.join(PATH, '../uxflint.py')
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -18,6 +20,7 @@ finally:
 ERROR_FILES = {'t13.uxf', 't14.uxf', 't28.uxf', 't33.uxf', 't54.uxf',
                't55.uxf', 'l56.uxf', 'l57.uxf', 'l58.uxf', 'l59.uxf',
                'l60.uxf', 't63.uxf'}
+ALL_LINTS = 'uxflint.txt'
 
 
 def main():
@@ -39,6 +42,7 @@ def main():
     for name in bad_files:
         total += 1
         ok += check_bad(name, regression)
+    total, ok = check_all(total, ok, regression)
     if not regression:
         result = 'OK' if total == ok else 'FAIL'
         print(f'{ok}/{total} {result}')
@@ -97,6 +101,35 @@ def check_bad(name, regression):
                       f'ACTUAL   {actual[:60]!r}…')
         return 0
     return 1
+
+
+def check_all(total, ok, regression):
+    total += 1
+    cmd = [UXFLINT_EXE] + sorted(glob.glob('*.uxf'))
+    reply = subprocess.run(cmd, capture_output=True, text=True)
+    cmd = ' '.join(cmd)
+    if reply.returncode != 0:
+        if not regression:
+            print(f'{cmd} • (all) FAIL terminated in error')
+        return total, ok
+    else:
+        ok += 1 # ran
+        actual = reply.stdout
+        with open(f'actual/{ALL_LINTS}', 'wt', encoding='utf-8') as file:
+            file.write(actual)
+        actual = actual.strip()
+        total += 1
+        filename = f'expected/{ALL_LINTS}'
+        if os.path.isfile(filename):
+            with open(filename, 'rt', encoding='utf-8') as file:
+                expected = file.read().strip()
+        else:
+            return total, ok
+        ok += 1 # read expected
+        total += 1
+        if actual == expected:
+            ok += 1
+    return total, ok
 
 
 def by_number(s):
