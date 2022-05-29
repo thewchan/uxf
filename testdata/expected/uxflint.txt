@@ -91,3 +91,4 @@ uxflint.py:t33.uxf:10:#456:expected table value of type map, got value of type G
 uxflint.py:t54.uxf:4:#422:unused ttype: 'Pair'
 uxflint.py:t55.uxf:4:#422:unused ttype: 'Pair'
 uxflint.py:t63.uxf:14:#422:unused ttype: 'dob'
+uxflint.py:t63r.uxf:29:#422:unused ttype: 'dob'

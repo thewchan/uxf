@@ -580,10 +580,12 @@ UXF files are normally completely self-contained. However, in some cases it
 may be desirable to share a set of _ttype_ definitions amongst a bunch of
 UXF files.
 
-The _disadvantage_ of doing this is that the relevant UXF files become
-dependent on one or more external dependencies. (However, this disadvantage
-doesn't apply if all the dependencies are provided by the UXF processor
-itself, i.e., are system imports.)
+The _disadvantages_ of doing this are first that the relevant UXF files become
+dependent on one or more external dependencies and second it is possible to
+have import conflicts (i.e., two _ttypes_ with the same name but different
+definitions. (However, the first disadvantage doesn't apply if all the
+dependencies are provided by the UXF processor itself, i.e., are system
+imports.)
 
 The _advantage_ of importing _ttype_ definitions is that for UXF's that have
 lots of _ttypes_, only the import(s) and the data need be in the file,
@@ -623,6 +625,10 @@ Here we've used the official system ``complex``'s `Complex` and
 explicitly. The data represented is a list consisting of three Complex
 numbers each holding two ``real``s each, a `str`, and two Fractions holding
 two ``int``s each.
+
+We recommend avoiding imports and using stand-alone `.uxf` files. Some UXF
+processors can do UXF to UXF conversions that will replace imports with
+(actually used) _ttype_ definitions.
 
 ## BNF
 

@@ -19,7 +19,7 @@ finally:
 
 ERROR_FILES = {'t13.uxf', 't14.uxf', 't28.uxf', 't33.uxf', 't54.uxf',
                't55.uxf', 'l56.uxf', 'l57.uxf', 'l58.uxf', 'l59.uxf',
-               'l60.uxf', 't63.uxf'}
+               'l60.uxf', 't63.uxf', 't63r.uxf'}
 ALL_LINTS = 'uxflint.txt'
 
 
@@ -77,7 +77,7 @@ def check_bad(name, regression):
     actual = reply.stderr.strip()
     expected = None
     if name in ERROR_FILES:
-        match = re.fullmatch(r'\D+(?P<n>\d+)\.uxf', name)
+        match = re.fullmatch(r'\D+(?P<n>\d+r?)\.uxf', name)
         if match:
             with open(f'expected/e{match.group("n")}.txt', 'rt',
                       encoding='utf-8') as file:

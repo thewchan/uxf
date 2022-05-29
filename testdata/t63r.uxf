@@ -1,0 +1,29 @@
+uxf 1.0
+=cmyk cyan:real magenta:real yellow:real black:real
+=Complex Real:real Imag:real
+=dob dob:date
+=Fraction numerator:int denominator:int
+=#<italic> i content
+=#<image> img content image:bytes
+=#<a pair of any two values> pair first second
+=point3d x:int y:int z:int
+=#<0-255 per component> rgb red:int green:int blue:int
+[
+  (img (rgb 0 0 127) (:DECADE:))
+  (i <is this oblique?>)
+  {
+    10 (point3d
+      3 4 5
+      5 12 13
+      8 15 17
+      7 24 25
+    )
+    20 (cmyk 0.9 0.9 0.5 0.0)
+    30 (pair <one> 2)
+  }
+  (Complex
+    3.9 -1.4
+    -170.0 2e-05
+  )
+  (Fraction 22 7)
+]

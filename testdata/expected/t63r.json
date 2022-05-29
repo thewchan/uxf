@@ -1,0 +1,257 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Complex",
+        "fields": {
+          "Real": "real",
+          "Imag": "real"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Fraction",
+        "fields": {
+          "numerator": "int",
+          "denominator": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "cmyk",
+        "fields": {
+          "cyan": "real",
+          "magenta": "real",
+          "yellow": "real",
+          "black": "real"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "dob",
+        "fields": {
+          "dob": "date"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "i",
+        "fields": {
+          "content": null
+        },
+        "comment": "italic"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "img",
+        "fields": {
+          "content": null,
+          "image": "bytes"
+        },
+        "comment": "image"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "pair",
+        "fields": {
+          "first": null,
+          "second": null
+        },
+        "comment": "a pair of any two values"
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "point3d",
+        "fields": {
+          "x": "int",
+          "y": "int",
+          "z": "int"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "rgb",
+        "fields": {
+          "red": "int",
+          "green": "int",
+          "blue": "int"
+        },
+        "comment": "0-255 per component"
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "UXF^table": {
+        "name": "img",
+        "comment": null,
+        "fields": {
+          "content": null,
+          "image": "bytes"
+        },
+        "records": [
+          [
+            {
+              "UXF^table": {
+                "name": "rgb",
+                "comment": null,
+                "fields": {
+                  "red": "int",
+                  "green": "int",
+                  "blue": "int"
+                },
+                "records": [
+                  [
+                    0,
+                    0,
+                    127
+                  ]
+                ]
+              }
+            },
+            {
+              "UXF^bytes": "DECADE"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "i",
+        "comment": null,
+        "fields": {
+          "content": null
+        },
+        "records": [
+          [
+            "is this oblique?"
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": null,
+        "ktype": null,
+        "vtype": null,
+        "map": {
+          "10": {
+            "UXF^table": {
+              "name": "point3d",
+              "comment": null,
+              "fields": {
+                "x": "int",
+                "y": "int",
+                "z": "int"
+              },
+              "records": [
+                [
+                  3,
+                  4,
+                  5
+                ],
+                [
+                  5,
+                  12,
+                  13
+                ],
+                [
+                  8,
+                  15,
+                  17
+                ],
+                [
+                  7,
+                  24,
+                  25
+                ]
+              ]
+            }
+          },
+          "20": {
+            "UXF^table": {
+              "name": "cmyk",
+              "comment": null,
+              "fields": {
+                "cyan": "real",
+                "magenta": "real",
+                "yellow": "real",
+                "black": "real"
+              },
+              "records": [
+                [
+                  0.9,
+                  0.9,
+                  0.5,
+                  0.0
+                ]
+              ]
+            }
+          },
+          "30": {
+            "UXF^table": {
+              "name": "pair",
+              "comment": null,
+              "fields": {
+                "first": null,
+                "second": null
+              },
+              "records": [
+                [
+                  "one",
+                  2
+                ]
+              ]
+            }
+          }
+        },
+        "itype": "uxf"
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Complex",
+        "comment": null,
+        "fields": {
+          "Real": "real",
+          "Imag": "real"
+        },
+        "records": [
+          [
+            3.9,
+            -1.4
+          ],
+          [
+            -170.0,
+            2e-05
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Fraction",
+        "comment": null,
+        "fields": {
+          "numerator": "int",
+          "denominator": "int"
+        },
+        "records": [
+          [
+            22,
+            7
+          ]
+        ]
+      }
+    }
+  ]
+}

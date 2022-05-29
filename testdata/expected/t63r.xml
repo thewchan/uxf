@@ -1,0 +1,131 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="cmyk">
+      <field name="cyan" vtype="real"/>
+      <field name="magenta" vtype="real"/>
+      <field name="yellow" vtype="real"/>
+      <field name="black" vtype="real"/>
+    </ttype>
+    <ttype name="Complex">
+      <field name="Real" vtype="real"/>
+      <field name="Imag" vtype="real"/>
+    </ttype>
+    <ttype name="dob">
+      <field name="dob" vtype="date"/>
+    </ttype>
+    <ttype name="Fraction">
+      <field name="numerator" vtype="int"/>
+      <field name="denominator" vtype="int"/>
+    </ttype>
+    <ttype name="i" comment="italic">
+      <field name="content"/>
+    </ttype>
+    <ttype name="img" comment="image">
+      <field name="content"/>
+      <field name="image" vtype="bytes"/>
+    </ttype>
+    <ttype name="pair" comment="a pair of any two values">
+      <field name="first"/>
+      <field name="second"/>
+    </ttype>
+    <ttype name="point3d">
+      <field name="x" vtype="int"/>
+      <field name="y" vtype="int"/>
+      <field name="z" vtype="int"/>
+    </ttype>
+    <ttype name="rgb" comment="0-255 per component">
+      <field name="red" vtype="int"/>
+      <field name="green" vtype="int"/>
+      <field name="blue" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="img">
+      <row>
+        <table name="rgb">
+          <row>
+            <int v="0"/>
+            <int v="0"/>
+            <int v="127"/>
+          </row>
+        </table>
+        <bytes>DECADE</bytes>
+      </row>
+    </table>
+    <table name="i">
+      <row>
+        <str>is this oblique?</str>
+      </row>
+    </table>
+    <map>
+      <key>
+        <int v="10"/>
+      </key>
+      <value>
+        <table name="point3d">
+          <row>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+          </row>
+          <row>
+            <int v="5"/>
+            <int v="12"/>
+            <int v="13"/>
+          </row>
+          <row>
+            <int v="8"/>
+            <int v="15"/>
+            <int v="17"/>
+          </row>
+          <row>
+            <int v="7"/>
+            <int v="24"/>
+            <int v="25"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <int v="20"/>
+      </key>
+      <value>
+        <table name="cmyk">
+          <row>
+            <real v="0.9"/>
+            <real v="0.9"/>
+            <real v="0.5"/>
+            <real v="0.0"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <int v="30"/>
+      </key>
+      <value>
+        <table name="pair">
+          <row>
+            <str>one</str>
+            <int v="2"/>
+          </row>
+        </table>
+      </value>
+    </map>
+    <table name="Complex">
+      <row>
+        <real v="3.9"/>
+        <real v="-1.4"/>
+      </row>
+      <row>
+        <real v="-170.0"/>
+        <real v="2e-05"/>
+      </row>
+    </table>
+    <table name="Fraction">
+      <row>
+        <int v="22"/>
+        <int v="7"/>
+      </row>
+    </table>
+  </list>
+</uxf>

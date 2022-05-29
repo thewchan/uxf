@@ -32,6 +32,22 @@ def main():
         if not regression:
             print(err)
 
+    # make standalone
+    filename = 't63.uxf'
+    try:
+        total += 1
+        uxo1 = uxf.load(filename, on_error=on_error, replace_imports=True)
+        ok += 1
+        total += 1
+        uxo2 = uxf.load('t63r.uxf', on_error=on_error)
+        ok += 1
+        total += 1
+        if eq.eq(uxo1, uxo2):
+            ok += 1
+    except uxf.Error as err:
+        if not regression:
+            print(err)
+
     total += 1
     try:
         expected_uxo = uxf.loads(EXPECTED_UXT63,
@@ -217,17 +233,20 @@ EXPECTED_IMPORTS63 = {
     'cmyk': 't63.uxt',
     'point2d': 't63.uxt'}
 
-EXPECTED_ERRORS = [
-    "uxf.py:t63.uxf:14:#422:unused ttype: 'dob'",
-    "uxf.py:i64.uxi:1:#176:a UXF file cannot import itself",
-    "uxf.py:i66.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'",
-    "uxf.py:i65.uxi:1:#580:cannot do circular imports "
-    "'/home/mark/app/uxf/testdata/i66.uxi'",
-    "uxf.py:i65.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'",
-    "uxf.py:i66.uxi:1:#580:cannot do circular imports "
-    "'/home/mark/app/uxf/testdata/i65.uxi'",
-    "uxf.py:i67.uxi:11:#422:unused ttype: 'dob'",
-    "uxf.py:pairimportc.uxi:1:#544:conflicting ttype definitions for pair"]
+EXPECTED_ERRORS = '''\
+uxf.py:t63.uxf:14:#422:unused ttype: 'dob'
+uxf.py:t63.uxf:14:#422:unused ttype: 'dob'
+uxf.py:t63r.uxf:29:#422:unused ttype: 'dob'
+uxf.py:i64.uxi:1:#176:a UXF file cannot import itself
+uxf.py:i66.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'
+uxf.py:i65.uxi:1:#580:cannot do circular imports \
+'/home/mark/app/uxf/testdata/i66.uxi'
+uxf.py:i65.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'
+uxf.py:i66.uxi:1:#580:cannot do circular imports \
+'/home/mark/app/uxf/testdata/i65.uxi'
+uxf.py:i67.uxi:11:#422:unused ttype: 'dob'
+uxf.py:pairimportc.uxi:1:#544:conflicting ttype definitions for pair\
+'''.splitlines()
 
 
 if __name__ == '__main__':

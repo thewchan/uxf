@@ -30,15 +30,15 @@ will use _dateutil_ if available.
 Using `uxf` as an executable (e.g., `python3 -m uxf ...`) provides a means
 of doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress or to
 use the standard pretty print format). The executable can also be used for
-linting.
+linting and for replacing imports to ensure that UXF files are stand-alone.
 
-Installed alongside `uxf.py` is `uxfconvert.py` which might prove useful to
-see how to use `uxf`. For example, `uxfconvert.py` can losslessly convert
-`.uxf` to `.json` or `.xml` and back. It can also do some simple conversions
-to and from `.csv`, to `.ini`, and to and from `.sqlite`, but these are
-really to illustrate use of the uxf APIs. And also see the UXF test files in
-the `../testdata` folder, the Python examples in the `eg` folder, and the
-Python tests in the `t` folder.
+Installed alongside `uxf.py` are `uxflint.py`, and `uxfconvert.py` which
+might prove useful to see how to use `uxf`. For example, `uxfconvert.py` can
+losslessly convert `.uxf` to `.json` or `.xml` and back. It can also do some
+simple conversions to and from `.csv`, to `.ini`, and to and from `.sqlite`,
+but these are really to illustrate use of the uxf APIs. And also see the UXF
+test files in the `../testdata` folder, the Python examples in the `eg`
+folder, and the Python tests in the `t` folder.
 
 If you just want to create a small standalone `.pyz`, you could simply copy
 `py/uxf.py` as `uxf.py` into your project folder and include it in your

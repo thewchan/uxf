@@ -80,7 +80,7 @@ class Uxf:
     def add_tclasses(self, tclass, *tclasses):
         for tclass in (tclass,) + tclasses:
             if tclass.ttype is None:
-                raise Error('#90:cannot add an unnamed TClass')
+                raise Error('#200:cannot add an unnamed TClass')
             _add_to_tclasses(self.tclasses, tclass, lino=0, code=90,
                              error=self.on_error)
 
@@ -141,32 +141,36 @@ class Uxf:
         return dumps(self, indent=indent, on_error=on_error)
 
 
-    def load(self, filename_or_filelike, *, on_error=on_error):
+    def load(self, filename_or_filelike, *, on_error=on_error,
+             replace_imports=False):
         '''Convenience method that wraps the module-level load()
         function'''
         filename = (filename_or_filelike if isinstance(filename_or_filelike,
                     (str, pathlib.Path)) else '-')
         data, custom, tclasses, imports, comment = _loads(
-            _read_text(filename_or_filelike), filename, on_error=on_error)
+            _read_text(filename_or_filelike), filename, on_error=on_error,
+            replace_imports=replace_imports)
         self.data = data
         self.custom = custom
         self.tclasses = tclasses
         self.comment = comment
 
 
-    def loads(self, uxt, filename='-', *, on_error=on_error):
+    def loads(self, uxt, filename='-', *, on_error=on_error,
+              replace_imports=False):
         '''Convenience method that wraps the module-level loads()
         function'''
-        data, custom, tclasses, imports, comment = _loads(uxt, filename,
-                                                          on_error=on_error)
+        data, custom, tclasses, imports, comment = _loads(
+            uxt, filename, on_error=on_error,
+            replace_imports=replace_imports)
         self.data = data
         self.custom = custom
         self.tclasses = tclasses
         self.comment = comment
 
 
-def load(filename_or_filelike, *, on_error=on_error, _imported=None,
-         _is_import=False):
+def load(filename_or_filelike, *, on_error=on_error, replace_imports=False,
+         _imported=None, _is_import=False):
     '''
     Returns a Uxf object.
 
@@ -177,32 +181,34 @@ def load(filename_or_filelike, *, on_error=on_error, _imported=None,
                 (str, pathlib.Path)) else '-')
     data, custom, tclasses, imports, comment = _loads(
         _read_text(filename_or_filelike), filename, on_error=on_error,
-        _imported=_imported, _is_import=_is_import)
-    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
-    uxo.imports = imports
-    return uxo
-
-
-def loads(uxt, filename='-', *, on_error=on_error, _imported=None,
-          _is_import=False):
-    '''
-    Returns a Uxf object.
-
-    uxt must be a string of UXF data.
-    '''
-    data, custom, tclasses, imports, comment = _loads(
-        uxt, filename, on_error=on_error, _imported=_imported,
+        replace_imports=replace_imports, _imported=_imported,
         _is_import=_is_import)
     uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
     return uxo
 
 
-def _loads(uxt, filename='-', *, on_error=on_error, _imported=None,
-           _is_import=False):
+def loads(uxt, filename='-', *, on_error=on_error, replace_imports=False,
+          _imported=None, _is_import=False):
+    '''
+    Returns a Uxf object.
+
+    uxt must be a string of UXF data.
+    '''
+    data, custom, tclasses, imports, comment = _loads(
+        uxt, filename, on_error=on_error, replace_imports=replace_imports,
+        _imported=_imported, _is_import=_is_import)
+    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo.imports = imports
+    return uxo
+
+
+def _loads(uxt, filename='-', *, on_error=on_error, replace_imports=False,
+           _imported=None, _is_import=False):
     tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
     data, comment, tclasses, imports = _parse(
-        tokens, filename, on_error=on_error, _imported=_imported,
+        tokens, filename, on_error=on_error,
+        replace_imports=replace_imports, _imported=_imported,
         _is_import=_is_import)
     return data, custom, tclasses, imports, comment
 
@@ -1123,9 +1129,10 @@ class Table:
                 f'records={self.records!r}, comment={self.comment!r})')
 
 
-def _parse(tokens, filename='-', *, on_error=on_error, _imported=None,
-           _is_import=False):
-    parser = _Parser(filename, on_error=on_error, _imported=_imported,
+def _parse(tokens, filename='-', *, on_error=on_error,
+           replace_imports=False, _imported=None, _is_import=False):
+    parser = _Parser(filename, on_error=on_error,
+                     replace_imports=replace_imports, _imported=_imported,
                      _is_import=_is_import)
     data, comment = parser.parse(tokens)
     return data, comment, parser.tclasses, parser.imports
@@ -1133,11 +1140,12 @@ def _parse(tokens, filename='-', *, on_error=on_error, _imported=None,
 
 class _Parser:
 
-    def __init__(self, filename, *, on_error=on_error, _imported=None,
-                 _is_import=False):
+    def __init__(self, filename, *, on_error=on_error,
+                 replace_imports=False, _imported=None, _is_import=False):
         self.filename = filename
         self.on_error = functools.partial(
             on_error, filename=os.path.basename(filename))
+        self.replace_imports = replace_imports
         self._is_import = _is_import
         self.clear()
         if _imported is not None:
@@ -1207,6 +1215,12 @@ class _Parser:
 
     def _check_tclasses(self):
         imported = set(self.imports.keys())
+        if self.replace_imports:
+            for ttype in imported:
+                if ttype not in self.used_tclasses:
+                    del self.tclasses[ttype] # drop unused imported ttype
+            self.imports.clear()
+            imported.clear()
         defined = set(self.tclasses.keys())
         unused = defined - self.used_tclasses
         unused -= imported # don't warn on unused imports
@@ -1605,7 +1619,9 @@ def _add_to_tclasses(tclasses, tclass, *, lino, code, on_error):
         tclasses[tclass.ttype] = tclass
         return True
     if first_tclass == tclass:
-        return True # ignore duplicate definitions (e.g., multiple imports)
+        if tclass.comment and tclass.comment != first_tclass.comment:
+            first_tclass.comment = tclass.comment # last comment wins
+        return True # harmless duplicate
     else:
         on_error(lino, code,
                  f'conflicting ttype definitions for {tclass.ttype}',
@@ -2066,7 +2082,7 @@ canonicalize.count = 1 # noqa: E305
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
-usage: uxf.py [-l|--lint] [-iN|--indent=N] \
+usage: uxf.py [-l|--lint] [-r|--replaceimports] [-iN|--indent=N] \
 <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
@@ -2074,6 +2090,9 @@ If an outfile is specified and ends .gz it will be gzip-compressed.
 If outfile is - output will be to stdout.
 If you just want linting either don't specify an outfile at all or \
 use -l or --lint. Lint errors and fixes go to stderr.
+
+Use -r or --replaceimports to replace imports with ttype definitions \
+to make the outfile standalone (i.e., not dependent on any imports).
 
 Indent defaults to 2 and accepts a range of 0-8. \
 The default is silently used if an out of range value is given.
@@ -2092,9 +2111,14 @@ to allow later imports to override earlier ones.
     args = sys.argv[1:]
     infile = outfile = None
     lint = None
+    replace_imports = False
     for arg in args:
         if arg in {'-l', '--lint'}:
             lint = True
+        elif arg in {'-r', '--replaceimports'}:
+            replace_imports = True
+        elif arg in {'-rl', '-lr'}:
+            lint = replace_imports = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
                 indent = int(arg[2:])
@@ -2113,7 +2137,8 @@ to allow later imports to override earlier ones.
         lint = lint or (lint is None and outfile is None)
         on_error = functools.partial(on_error, verbose=lint,
                                      filename=infile)
-        uxo = load(infile, on_error=on_error)
+        uxo = load(infile, on_error=on_error,
+                   replace_imports=replace_imports)
         do_dump = outfile is not None
         outfile = sys.stdout if outfile == '-' else outfile
         on_error = functools.partial(on_error, verbose=lint,
