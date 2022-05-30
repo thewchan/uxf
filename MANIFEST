@@ -1,5 +1,5 @@
-# TODO complete py/eg/tlm_uxf.py
-# TODO update docs to mention eg/Config.py & tlm_uxf.py?
+# TODO complete py/eg/tlm.py
+# TODO update docs to mention eg/Config.py & tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
@@ -7,7 +7,7 @@
 # and then regression test against expected/vN.txt
 #
 # TODO review _Writer output & see if it can be improved, experiment in
-# py/eg/writer.py & be sure to test on the output of misc/tlm_uxf.py
+# py/eg/writer.py & be sure to test on the output of misc/tlm.py
 # TODO review & improve README.md and py/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
@@ -45,7 +45,7 @@ py/eg/slides.sld
 py/eg/merge.py
 py/eg/include.py
 py/eg/Config.py
-py/eg/tlm_uxf.py # TODO
+py/eg/tlm.py # TODO
 py/eg/tlm-eg.uxf.gz
 
 README.md

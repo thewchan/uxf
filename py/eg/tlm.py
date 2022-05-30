@@ -4,30 +4,34 @@
 
 '''
 An example of using UXF as an exchange format for importing and exporting.
+The main class, Tlm holds a track list and a list of history strings.
+The Tlm can load and save in its native .tlm format, and also supports UXF
+import and export.
 '''
 
 # TODO
-# - implement class Tracks (holds the root TrackList and a list of history strs)
+# - implement class Tlm (holds the root TrackList and a list of history
+#   strs)
 # - implement class TrackList (holds a sequence of Tracks and nested TrackLists)
 # - implement class Track (holds one track)
-# - implement Tracks.load(tlmfilename) to
+# - implement Tlm.load(tlmfilename) to
 #   - delete the root and history
 #   - read all the tracks from a .tlm to populate the root and history
-# - implement Tracks.save(tlmfilename) to
+# - implement Tlm.save(tlmfilename) to
 #   - write all the tracks and history to a .tlm
-# - implement Tracks.export_uxf(uxffilename) to
+# - implement Tlm.export_uxf(uxffilename) to
 #   - create and populate a Uxf with all the data and dump the Uxf as a .uxf.gz
-# - implement Tracks.import_uxf(uxffilename) to
+# - implement Tlm.import_uxf(uxffilename) to
 #   - delete the root and history
-#   - read all the tracks from a .uxf{.gz} into a Tracks to populate the
+#   - read all the tracks from a .uxf{.gz} into a Tlm to populate the
 #     root and history
 # - implement convert_to_uxf(tlmfilename, uxffilename):
-#   tracks = Tracks(tlmfilename) # if tlmfilename is not None calls .load()
-#   tracks.export_uxf(uxffilename)
+#   tlm = Tlm(tlmfilename) # if tlmfilename is not None calls .load()
+#   tlm.export_uxf(uxffilename)
 # - implement convert_to_tlm(uxffilename, tlmfilename)
-#   tracks = Tracks() # empty
-#   tracks.import_uxf(uxffilename)
-#   tracks.save(tlmfilename)
+#   tlm = Tlm() # empty
+#   tlm.import_uxf(uxffilename)
+#   tlm.save(tlmfilename)
 
 import contextlib
 import gzip
