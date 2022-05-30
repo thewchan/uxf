@@ -111,6 +111,43 @@ def main():
     except uxf.Error as err:
         ok += got_error(e, err, regression)
 
+    try:
+        total += 1
+        uxo1 = uxf.load('t72.uxi', on_error=on_error)
+        uxo2 = uxf.load('expected/t72l.uxf', on_error=on_error)
+        if eq.eq(uxo1, uxo2):
+            ok += 1
+    except uxf.Error as err:
+        print(f'unexpected error: {err}')
+
+    try:
+        total += 1
+        uxo1 = uxf.load('t72.uxi', on_error=on_error, replace_imports=True)
+        uxo2 = uxf.load('expected/t72r.uxf', on_error=on_error)
+        if eq.eq(uxo1, uxo2):
+            ok += 1
+    except uxf.Error as err:
+        print(f'unexpected error: {err}')
+
+    try:
+        total += 1
+        uxo1 = uxf.load('t72.uxi', on_error=on_error, drop_unused=True)
+        uxo2 = uxf.load('expected/t72d.uxf', on_error=on_error)
+        if eq.eq(uxo1, uxo2):
+            ok += 1
+    except uxf.Error as err:
+        print(f'unexpected error: {err}')
+
+    try:
+        total += 1
+        uxo1 = uxf.load('t72.uxi', on_error=on_error, drop_unused=True,
+                        replace_imports=True)
+        uxo2 = uxf.load('expected/t72d.uxf', on_error=on_error)
+        if eq.eq(uxo1, uxo2):
+            ok += 1
+    except uxf.Error as err:
+        print(f'unexpected error: {err}')
+
     total += 1
     try:
         expected_uxo = uxf.loads(EXPECTED_UXT63,
@@ -245,7 +282,11 @@ uxf.py:i65.uxi:4:#450:expected table ttype, got 4:IDENTIFIER='img'
 uxf.py:i66.uxi:1:#580:cannot do circular imports \
 '/home/mark/app/uxf/testdata/i65.uxi'
 uxf.py:i67.uxi:11:#422:unused ttype: 'dob'
-uxf.py:pairimportc.uxi:1:#544:conflicting ttype definitions for pair\
+uxf.py:pairimportc.uxi:1:#544:conflicting ttype definitions for pair
+uxf.py:t72.uxi:12:#422:unused ttypes: 'dob', 'point3d'
+uxf.py:t72l.uxf:12:#422:unused ttypes: 'dob', 'point3d'
+uxf.py:t72.uxi:12:#422:unused ttypes: 'dob', 'point3d'
+uxf.py:t72r.uxf:12:#422:unused ttypes: 'dob', 'point3d'
 '''.splitlines()
 
 

@@ -1,0 +1,17 @@
+uxf 1.0
+!http://www.qtrac.eu/ttype-eg.uxf
+!ttype-test
+!complex
+!fraction
+!t63.uxt
+=point3d x:int y:int z:int
+=dob dob:date
+[
+  (:DECADE:)
+  <is that so?>
+  {
+      10 [3 4 5]
+      20 0.9
+      30 <A one>
+  }
+]

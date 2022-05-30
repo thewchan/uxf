@@ -1,0 +1,12 @@
+uxf 1.0
+=dob dob:date
+=point3d x:int y:int z:int
+[
+  (:DECADE:)
+  <is that so?>
+  {
+    10 [3 4 5]
+    20 0.9
+    30 <A one>
+  }
+]

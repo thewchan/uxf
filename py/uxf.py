@@ -2121,6 +2121,8 @@ Use -d or --dropunused to drop unused ttype definitions and imports.
 Use -r or --replaceimports to replace imports with ttype definitions \
 to make the outfile standalone (i.e., not dependent on any imports).
 
+(-d, -l, and -r may be grouped, e.g., -ldr, -dl, etc.)
+
 Indent defaults to 2 and accepts a range of 0-8. \
 The default is silently used if an out of range value is given.
 
@@ -2146,6 +2148,14 @@ to allow later imports to override earlier ones.
             replace_imports = True
         elif arg in {'-d', '--dropunused'}:
             drop_unused = True
+        elif arg in {'-dr', '-rd'}:
+            drop_unused = replace_imports = True
+        elif arg in {'-ld', '-dl'}:
+            lint = drop_unused = True
+        elif arg in {'-lr', '-rl'}:
+            lint = replace_imports = True
+        elif arg in {'-ldr', '-lrd', '-dlr', '-drl', '-rld', '-rdl'}:
+            lint = replace_imports = drop_unused = True
         elif arg.startswith(('-i', '--indent=')):
             if arg[1] == 'i':
                 indent = int(arg[2:])
