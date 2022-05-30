@@ -12,7 +12,8 @@ import and export.
 # TODO
 # - implement class Tlm (holds the root TrackList and a list of history
 #   strs)
-# - implement class TrackList (holds a sequence of Tracks and nested TrackLists)
+# - implement class TrackList (holds a sequence of Tracks and nested
+#   TrackLists)
 # - implement class Track (holds one track)
 # - implement Tlm.load(tlmfilename) to
 #   - delete the root and history
