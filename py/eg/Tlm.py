@@ -36,7 +36,7 @@ except ImportError: # needed for development
 def main():
     if len(sys.argv) != 3 or sys.argv[1] in {'-h', '--help'}:
         raise SystemExit('''
-usage: Tlm.py <infile.{tlm,uxf,uxf}> <outfile.{tlm,uxf,uxf}>
+usage: Tlm.py <infile.{tlm,uxf,uxf.gz}> <outfile.{tlm,uxf,uxf.gz}>
 
 Converts between TLM and UXF TLM formats.
 e.g., Tlm.py tlm-eg.uxf test.tlm''')
@@ -207,7 +207,9 @@ class Model:
         stack = [uxo.data] # root is Map
         self._write_tree_uxf(stack, self.tree)
         uxo.data[UXF_HISTORY] = self.history
-        with open(self._filename, 'wt', encoding='utf-8') as file:
+        opener = (gzip.open if self._filename.upper().endswith('.GZ') else
+                  open)
+        with opener(self._filename, 'wt', encoding='utf-8') as file:
             file.write(uxo.dumps())
 
 
