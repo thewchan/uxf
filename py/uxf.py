@@ -2105,7 +2105,7 @@ canonicalize.count = 1 # noqa: E305
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
+    if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help'}:
         raise SystemExit('''\
 usage: uxf.py [-l|--lint] [-d|--dropunused] [-r|--replaceimports] \
 [-iN|--indent=N] <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
