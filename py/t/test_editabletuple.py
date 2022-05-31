@@ -24,7 +24,7 @@ def main():
     r = Record(-7, 29)
 
     total += 1
-    if repr(r) == 'Record(-7, 29)':
+    if repr(r) == 'Record(width=-7, height=29)':
         ok += 1
     elif not regression:
         print('fail #1')
@@ -38,7 +38,7 @@ def main():
     r[1] -= 3
 
     total += 1
-    if repr(r) == 'Record(14, 26)':
+    if repr(r) == 'Record(width=14, height=26)':
         ok += 1
     elif not regression:
         print('fail #3')
@@ -74,19 +74,19 @@ def main():
         ok += 1
 
     total += 1
-    if repr(Record()) == 'Record(None, None)':
+    if repr(Record()) == 'Record(width=None, height=None)':
         ok += 1
     elif not regression:
         print('fail #5')
 
     total += 1
-    if repr(Record(2)) == 'Record(2, None)':
+    if repr(Record(2)) == 'Record(width=2, height=None)':
         ok += 1
     elif not regression:
         print('fail #6')
 
     total += 1
-    if repr(Record(2, 3)) == 'Record(2, 3)':
+    if repr(Record(2, 3)) == 'Record(width=2, height=3)':
         ok += 1
     elif not regression:
         print('fail #7')

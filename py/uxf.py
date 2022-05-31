@@ -1969,21 +1969,23 @@ class _AlreadyImported(Exception):
 
 
 def editabletuple(classname, *fieldnames):
-    def init(self, *args):
+    def init(self, *args, **kwargs):
         fieldnames = self.__class__.__slots__
-        if len(args) > len(fieldnames):
+        if len(args) + len(kwargs) > len(fieldnames):
             raise TypeError(
                 f'{self.__class__.__name__} accepts up to '
                 f'{len(fieldnames)} positional args; got {len(args)}')
         for i, name in enumerate(fieldnames):
             setattr(self, name, args[i] if i < len(args) else None)
+        for name, value in kwargs.items():
+            setattr(self, name, value)
 
     def repr(self):
-        values = []
+        pairs = []
         for name in self.__class__.__slots__:
-            values.append(getattr(self, name))
-        values = ', '.join(f'{value!r}' for value in values)
-        return f'{self.__class__.__name__}({values})'
+            pairs.append((name, getattr(self, name)))
+        kwargs = ', '.join(f'{name}={value!r}' for name, value in pairs)
+        return f'{self.__class__.__name__}({kwargs})'
 
     def getitem(self, index):
         index = self._sanitize_index(index)
