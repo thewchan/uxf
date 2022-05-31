@@ -2105,79 +2105,80 @@ canonicalize.count = 1 # noqa: E305
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help'}:
-        raise SystemExit('''\
+    import argparse
+    import contextlib
+    import shutil
+    import textwrap
+
+    def get_usage(text):
+        try:
+            term_width = shutil.get_terminal_size()[0]
+        except AttributeError:
+            term_width = 80
+        return '\n\n'.join('\n'.join(
+            textwrap.wrap(para.strip(), term_width))
+            for para in text.strip().split('\n\n') if para.strip())
+
+    parser = argparse.ArgumentParser(usage=get_usage('''\
 usage: uxf.py [-l|--lint] [-d|--dropunused] [-r|--replaceimports] \
 [-iN|--indent=N] <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
 If an outfile is specified and ends .gz it will be gzip-compressed.
 If outfile is - output will be to stdout.
-If you just want linting either don't specify an outfile at all or \
+If you just want linting either don't specify an outfile at all or
 use -l or --lint. Lint errors and fixes go to stderr.
 
 Use -d or --dropunused to drop unused ttype definitions and imports.
 
-Use -r or --replaceimports to replace imports with ttype definitions \
+Use -r or --replaceimports to replace imports with ttype definitions
 to make the outfile standalone (i.e., not dependent on any imports).
 
 (-d, -l, and -r may be grouped, e.g., -ldr, -dl, etc.)
 
-Indent defaults to 2 and accepts a range of 0-8. \
+Indent defaults to 2 and accepts a range of 0-8.
 The default is silently used if an out of range value is given.
 
 To get an uncompressed .uxf file run: `uxf.py infile.uxf.gz outfile.uxf` or
 simply `gunzip infile.uxf.gz`.
 
-To produce a compressed and compact .uxf file run: \
+To produce a compressed and compact .uxf file run:
 `uxf.py -i0 infile.uxf outfile.uxf.gz`
 
 Converting uxf to uxf will alphabetically order any ttypes.
-However, the order of imports is preserved (with any duplicates removed) \
+However, the order of imports is preserved (with any duplicates removed)
 to allow later imports to override earlier ones.
-''')
-    indent = 2
-    args = sys.argv[1:]
-    infile = outfile = None
-    lint = None
-    drop_unused = replace_imports = False
-    for arg in args:
-        if arg in {'-l', '--lint'}:
-            lint = True
-        elif arg in {'-r', '--replaceimports'}:
-            replace_imports = True
-        elif arg in {'-d', '--dropunused'}:
-            drop_unused = True
-        elif arg in {'-dr', '-rd'}:
-            drop_unused = replace_imports = True
-        elif arg in {'-ld', '-dl'}:
-            lint = drop_unused = True
-        elif arg in {'-lr', '-rl'}:
-            lint = replace_imports = True
-        elif arg in {'-ldr', '-lrd', '-dlr', '-drl', '-rld', '-rdl'}:
-            lint = replace_imports = drop_unused = True
-        elif arg.startswith(('-i', '--indent=')):
-            indent = int(arg[2:]) if arg[1] == 'i' else int(arg[9:])
-            if not 0 <= indent <= 9:
-                indent = 2
-        elif infile is None:
-            infile = arg
-        else:
-            outfile = arg
+'''))
+    parser.add_argument('-l', '--lint', action='store_true',
+                        help='show lint errors')
+    parser.add_argument('-d', '--dropunused', action='store_true',
+                        help='drop unused imports and ttypes')
+    parser.add_argument('-r', '--replaceimports', action='store_true',
+                        help='replace imports with their used ttypes')
+    parser.add_argument('-i', '--indent', type=int, default=2,
+                        help='default: 2, range 0-8')
+    parser.add_argument('infile', nargs=1, help='required UXF infile')
+    parser.add_argument('outfile', nargs='?', help='optional UXF outfile')
+    config = parser.parse_args()
+    if not (0 <= config.indent <= 8):
+        config.indent = 2 # sanitize rather than complain
+    infile = config.infile[0]
+    outfile = config.outfile
+    if outfile is not None:
+        with contextlib.suppress(FileNotFoundError):
+            if os.path.samefile(infile, outfile):
+                parser.error(f'won\'t overwrite {outfile}')
     try:
-        if (outfile is not None and os.path.abspath(infile) ==
-                os.path.abspath(outfile)):
-            raise Error('won\'t overwrite {outfile}')
-        lint = lint or (lint is None and outfile is None)
-        on_error = functools.partial(on_error, verbose=lint,
+        lint = config.lint or (config.lint is None and outfile is None)
+        on_error = functools.partial(on_error, verbose=config.lint,
                                      filename=infile)
-        uxo = load(infile, on_error=on_error, drop_unused=drop_unused,
-                   replace_imports=replace_imports)
+        uxo = load(infile, on_error=on_error, drop_unused=config.dropunused,
+                   replace_imports=config.replaceimports)
         do_dump = outfile is not None
         outfile = sys.stdout if outfile == '-' else outfile
-        on_error = functools.partial(on_error, verbose=lint,
+        on_error = functools.partial(on_error, verbose=config.lint,
                                      filename=outfile)
         if do_dump:
-            dump(outfile, uxo, indent=indent, on_error=on_error)
+            dump(outfile, uxo, indent=config.indent, on_error=on_error)
     except (OSError, Error) as err:
-        print(f'uxf.py:error:{err}', file=sys.stderr)
+        parser.error(f'uxf.py:error:{err}')
