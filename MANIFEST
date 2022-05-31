@@ -1,4 +1,4 @@
-# TODO complete py/eg/Tlm.py
+# TODO add py/t/test_tlm.py
 # TODO update docs to mention eg/Config.py & Tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests

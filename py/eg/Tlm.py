@@ -3,10 +3,14 @@
 # License: GPLv3
 
 '''
-An example of using UXF as both a "native" file formand and as an exchange
+An example of using UXF as both a "native" file format and as an exchange
 format for importing and exporting. The main class, Tlm holds a track list
-and a list of history strings. The Tlm can load and save in its own .tlm
+and a list of history strings. The Tlm can load and save in its own TLM
 format, and also seamlessly, UXF format.
+
+Loading needs ~60 lines for TLM and ~23 lines for UXF.
+This is because the uxf module does most of the parsing.
+Saving needs ~18 lines for TLM and for UXF.
 '''
 
 import collections
@@ -32,100 +36,17 @@ except ImportError: # needed for development
 def main():
     if len(sys.argv) != 3 or sys.argv[1] in {'-h', '--help'}:
         raise SystemExit('''
-usage: Tlm.py <infile.{tlm,uxf,uxf.gz}> <outfile.{tlm,uxf,uxf.gz}>
+usage: Tlm.py <infile.{tlm,uxf,uxf}> <outfile.{tlm,uxf,uxf}>
 
-e.g., Tlm.py tlm-eg.uxf.gz test.tlm''')
+Converts between TLM and UXF TLM formats.
+e.g., Tlm.py tlm-eg.uxf test.tlm''')
     infilename = sys.argv[1]
     outfilename = sys.argv[2]
     with contextlib.suppress(FileNotFoundError):
         if os.path.samefile(infilename, outfilename):
             raise SystemExit('can\'t overwrite infile with outfile')
-    inext = os.path.splitext(infilename)[1].upper()
-    outext = os.path.splitext(outfilename)[1].upper()
-    if inext == outext or (inext != '.TLM' and outext != '.TLM'):
-        # the extensions must be different from each other and one must be
-        # .tlm
-        raise SystemExit('can only convert to/from UXF from/to TLM')
-    model = Model(infilename) # this will load from infilename
-    model.save(outfilename) # this will save to outfilename
-
-# TODO Update class Model to seamlessly load/save UXF as well as TLM
-
-#class Tlm:
-#
-#    def __init__(self, filename=None):
-#        self.clear()
-#        if filename is not None:
-#            self.load(filename)
-#
-#
-#    def clear(self):
-#        self.tracklist = TrackList()
-#        self.history = [] # list of str
-#        self.dirty = False
-#
-#
-#    def load(self, filename=None):
-#        if filename is not None:
-#            self.filename = filename
-#        if not self.filename:
-#            raise Error('no filename to load')
-#        try:
-#            try:
-#                with gzip.open(filename, 'rt', encoding='utf-8') as file:
-#                    data = file.read()
-#            except gzip.BadGzipFile:
-#                with open(filename, 'rt', encoding='utf-8') as file:
-#                    data = file.read()
-#        except OSError as err:
-#            raise Error(f'failed to read {filename}: {err}')
-#        self.clear()
-#        if data.startswith('uxf 1.0'):
-#            return self._read_uxf(data)
-#        else:
-#            return self._read_tlm(data)
-#
-#
-#    def _read_tlm(self, data):
-#        # TODO read TLM data directly to populate self.tracklist
-#        # Copy & adapt convert_to_uxf_old() from below
-#        self.dirty = False
-#        return True
-#
-#
-#    def _read_uxf(self, data):
-#        uxo = uxf.loads(data)
-#        # TODO read uxo.data to populate self.tracklist and self.history
-#        self.dirty = False
-#        return True
-#
-#
-#    def save(self, filename=None):
-#        if filename is not None:
-#            self.filename = filename
-#        if not self.filename:
-#            raise Error('no filename to save to')
-#        if self.filename.upper().endswith('.TLM'):
-#            return self._save_tlm()
-#        else:
-#            return self._save_uxf()
-#
-#
-#    def _save_tlm(self):
-#        with gzip.open(self.filename, 'wt', encoding='utf-8') as file:
-#            pass
-#            # TODO save the tracklist and history in TLM format (gzipped
-#            # since by default .tlm files are gzipped)
-#        self.dirty = False
-#        return True
-#
-#
-#    def _save_uxf(self):
-#        uxo = uxf.Uxf({}, custom='TLM 1.1')
-#        # TODO copy the tracklist and history into the uxo
-#        uxo.dump(self.filename)
-#        self.dirty = False
-#        return True
+    model = Model(infilename)
+    model.save(filename=outfilename)
 
 
 class Error(Exception):
@@ -161,9 +82,16 @@ class Model:
     def load(self, filename=None):
         if filename is not None:
             self._filename = filename
-        magics = {TLM_MAGIC.encode('ascii'), UXF_MAGIC.encode('ascii')}
+        try:
+            uxo = uxf.load(self._filename)
+            self._populate_from_uxo(uxo)
+        except uxf.Error:
+            self._load_tlm()
+
+
+    def _load_tlm(self):
         with open(self._filename, 'rb') as file:
-            opener = open if file.read(4) in magics else gzip.open
+            opener = open if file.read(4) == TLM_MAGIC else gzip.open
         self.clear()
         stack = [self.tree]
         prev_indent = 0
@@ -178,7 +106,7 @@ class Model:
                 elif state is _State.WANT_MAGIC:
                     if not line.startswith(TLM_MAGIC):
                         raise Error(f'error:{lino}: not a .tlm file')
-                    # NOTE We ignore the version for now
+                    # We're ignoring the version
                     state = _State.WANT_TRACK_HEADER
                 elif state is _State.WANT_TRACK_HEADER:
                     if line != '\fTRACKS':
@@ -222,14 +150,46 @@ class Model:
             raise Error(f'error:{lino}: failed to read track: {err}')
 
 
+    def _populate_from_uxo(self, uxo):
+        stack = [self.tree]
+        for group, kids in uxo.data.items():
+            if group == UXF_HISTORY:
+                for history in kids:
+                    self.history.append(history)
+            else:
+                self._populate_tree_from_uxo(stack, group, kids)
+
+
+    def _populate_tree_from_uxo(self, stack, group, kids):
+        parent = stack[-1]
+        group = Group(group)
+        parent.append(group)
+        for name, value in kids.items():
+            if isinstance(value, (dict, uxf.Map)):
+                stack.append(group)
+                self._populate_tree_from_uxo(stack, name, value)
+                stack.pop()
+            else:
+                group.append(Track(name, value))
+
+
     def save(self, *, filename=None, compress=True):
         if filename is not None:
             self._filename = filename
+        if self._filename.upper().endswith('.TLM'):
+            self._save_as_tlm(compress)
+        else:
+            self._save_as_uxf()
+
+
+    def _save_as_tlm(self, compress):
         opener = gzip.open if compress else open
         with opener(self._filename, 'wt', encoding='utf-8') as file:
             file.write('\fTLM\t100\n\fTRACKS\n')
             self._write_tree(file, self.tree)
             file.write('\fHISTORY\n')
+            for history in self.history:
+                file.write(f'{history}\n')
 
 
     def _write_tree(self, file, tree, depth=1):
@@ -240,6 +200,27 @@ class Model:
                 self._write_tree(file, kid, depth + 1)
             else:
                 file.write(f'{kid.filename}\t{kid.secs:.03f}\n')
+
+
+    def _save_as_uxf(self):
+        uxo = uxf.Uxf({}, custom='TLM 1.1')
+        stack = [uxo.data] # root is Map
+        self._write_tree_uxf(stack, self.tree)
+        uxo.data[UXF_HISTORY] = self.history
+        with open(self._filename, 'wt', encoding='utf-8') as file:
+            file.write(uxo.dumps())
+
+
+    def _write_tree_uxf(self, stack, tree):
+        parent = stack[-1]
+        for kid in tree.kids:
+            if isinstance(kid, Group):
+                child = parent[kid.name] = {}
+                stack.append(child)
+                self._write_tree_uxf(stack, kid)
+                stack.pop()
+            else:
+                parent[kid.filename] = kid.secs
 
 
     def paths(self):
@@ -395,67 +376,8 @@ class Track:
         return self._number
 
 
-###### TODO delete
-
-def convert_to_uxf_old(infilename, outfilename):
-    print('convert_to_uxf_old', infilename, outfilename)
-    infile = None
-    try:
-        infile = open_file(infilename, 'rt')
-        uxo = uxf.Uxf({}, custom='TLM 1.1')
-        intracks = True
-        stack = [UXF_ROOT]
-        prevlistname = None
-        for line in infile:
-            if line.startswith(('\fTLM', '\fTRACKS')):
-                pass
-            elif line.startswith('\fHISTORY'):
-                intracks = False
-            elif line.startswith('\v'):
-                depth = line.count('\v')
-                listname = '_' + line.lstrip('\v').rstrip()
-                if depth > len(stack):
-                    stack.append(prevlistname)
-                else:
-                    while depth < len(stack):
-                        stack.pop()
-                prevlistname = listname
-                parent = find_parent(uxo, stack)
-                parent[listname] = uxf.Map()
-            elif intracks:
-                filename, seconds = line.rstrip().split('\t')
-                if listname not in parent:
-                    parent[listname] = uxf.Map()
-                parent[listname][filename] = float(seconds)
-            else: # history
-                if UXF_HISTORY not in uxo.data:
-                    uxo.data[UXF_HISTORY] = uxf.List()
-                uxo.data[UXF_HISTORY].append(line.strip())
-        uxo.dump(outfilename)
-        print('wrote', outfilename)
-    finally:
-        if infile is not None:
-            infile.close()
-
-
-def find_parent(uxo, stack):
-    parent = None
-    for name in stack:
-        parent = uxo.data if name == UXF_ROOT else parent[name]
-    return parent
-
-
-def open_file(filename, mode):
-    try:
-        return gzip.open(filename, mode, encoding='utf-8')
-    except gzip.BadGzipFile:
-        return open(filename, mode, encoding='utf-8')
-
-
 TLM_MAGIC = '\fTLM\t'
 INDENT = '\v'
-UXF_MAGIC = 'uxf 1.0'
-UXF_ROOT = '__ROOT__'
 UXF_HISTORY = '__HISTORY__'
 
 
