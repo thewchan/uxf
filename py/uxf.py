@@ -2157,10 +2157,7 @@ to allow later imports to override earlier ones.
         elif arg in {'-ldr', '-lrd', '-dlr', '-drl', '-rld', '-rdl'}:
             lint = replace_imports = drop_unused = True
         elif arg.startswith(('-i', '--indent=')):
-            if arg[1] == 'i':
-                indent = int(arg[2:])
-            else:
-                indent = int(arg[9:])
+            indent = int(arg[2:]) if arg[1] == 'i' else int(arg[9:])
             if not 0 <= indent <= 9:
                 indent = 2
         elif infile is None:
@@ -2174,8 +2171,8 @@ to allow later imports to override earlier ones.
         lint = lint or (lint is None and outfile is None)
         on_error = functools.partial(on_error, verbose=lint,
                                      filename=infile)
-        uxo = load(infile, on_error=on_error,
-                   drop_unused=drop_unused, replace_imports=replace_imports)
+        uxo = load(infile, on_error=on_error, drop_unused=drop_unused,
+                   replace_imports=replace_imports)
         do_dump = outfile is not None
         outfile = sys.stdout if outfile == '-' else outfile
         on_error = functools.partial(on_error, verbose=lint,
