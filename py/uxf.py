@@ -1970,12 +1970,11 @@ class _AlreadyImported(Exception):
 
 def editabletuple(classname, *fieldnames):
     def init(self, *args, **kwargs):
-        fieldnames = self.__class__.__slots__
-        if len(args) + len(kwargs) > len(fieldnames):
-            raise TypeError(
-                f'{self.__class__.__name__} accepts up to '
-                f'{len(fieldnames)} positional args; got {len(args)}')
-        for i, name in enumerate(fieldnames):
+        fields = self.__class__.__slots__
+        if len(args) + len(kwargs) > len(fields):
+            raise TypeError(f'{self.__class__.__name__} accepts up to '
+                            f'{len(fields)} args; got {len(args)}')
+        for i, name in enumerate(fields):
             setattr(self, name, args[i] if i < len(args) else None)
         for name, value in kwargs.items():
             setattr(self, name, value)
@@ -1989,11 +1988,11 @@ def editabletuple(classname, *fieldnames):
 
     def getitem(self, index):
         index = self._sanitize_index(index)
-        return getattr(self, fieldnames[index])
+        return getattr(self, self.__class__.__slots__[index])
 
     def setitem(self, index, value):
         index = self._sanitize_index(index)
-        setattr(self, fieldnames[index], value)
+        setattr(self, self.__class__.__slots__[index], value)
 
     def _sanitize_index(self, index):
         if isinstance(index, slice):
@@ -2001,10 +2000,10 @@ def editabletuple(classname, *fieldnames):
                 raise IndexError(f'{self.__class__.__name__}: cannot '
                                  f'use slices {index}')
             index = index.start
-        fieldnames = self.__class__.__slots__
+        length = len(self.__class__.__slots__)
         if index < 0:
-            index += len(fieldnames)
-        if index >= len(fieldnames):
+            index += length
+        if index >= length:
             raise IndexError(f'{self.__class__.__name__}: index {index} '
                              'out of range')
         return index
@@ -2016,9 +2015,9 @@ def editabletuple(classname, *fieldnames):
         return len(self.__class__.__slots__)
 
     def iter(self): # implicitly supports tuple(obj) and list(obj)
-        fieldnames = self.__class__.__slots__
-        for i in range(len(fieldnames)):
-            yield getattr(self, fieldnames[i])
+        fields = self.__class__.__slots__
+        for i in range(len(fields)):
+            yield getattr(self, fields[i])
 
     def eq(self, other):
         if self.__class__.__name__ != other.__class__.__name__:

@@ -1,5 +1,5 @@
 # TODO add py/t/test_tlm.py
-# TODO update docs to mention eg/Config.py & Tlm.py?
+# TODO update docs to mention eg/Config.py & py/eg/Tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
