@@ -82,10 +82,7 @@ class Model:
     def load(self, filename=None):
         if filename is not None:
             self._filename = filename
-        try:
-            uxo = uxf.load(self._filename)
-            self._populate_from_uxo(uxo)
-        except uxf.Error:
+        if not self._load_uxf():
             self._load_tlm()
 
 
@@ -150,14 +147,19 @@ class Model:
             raise Error(f'error:{lino}: failed to read track: {err}')
 
 
-    def _populate_from_uxo(self, uxo):
-        stack = [self.tree]
-        for group, kids in uxo.data.items():
-            if group == UXF_HISTORY:
-                for history in kids:
-                    self.history.append(history)
-            else:
-                self._populate_tree_from_uxo(stack, group, kids)
+    def _load_uxf(self):
+        try:
+            uxo = uxf.load(self._filename)
+            stack = [self.tree]
+            for group, kids in uxo.data.items():
+                if group == UXF_HISTORY:
+                    for history in kids:
+                        self.history.append(history)
+                else:
+                    self._populate_tree_from_uxo(stack, group, kids)
+            return True
+        except uxf.Error:
+            return False
 
 
     def _populate_tree_from_uxo(self, stack, group, kids):
