@@ -22,6 +22,10 @@ try:
 except ImportError:
     isoparse = None
 
+try:
+    from editabletuple import editabletuple
+except ImportError:
+    editabletuple = None
 
 __version__ = '0.34.0' # uxf module version
 VERSION = 1.0 # uxf file format version
@@ -1968,7 +1972,8 @@ class _AlreadyImported(Exception):
     pass
 
 
-def editabletuple(classname, *fieldnames):
+# cut-down local version of editabletuple.editabletuple().
+def _editabletuple(classname, *fieldnames):
     def init(self, *args, **kwargs):
         fields = self.__class__.__slots__
         if len(args) + len(kwargs) > len(fields):
@@ -2103,6 +2108,10 @@ def canonicalize(name):
         canonicalize.count += 1
     return name[:MAX_IDENTIFIER_LEN]
 canonicalize.count = 1 # noqa: E305
+
+
+if editabletuple is None:
+    editabletuple = _editabletuple
 
 
 if __name__ == '__main__':
