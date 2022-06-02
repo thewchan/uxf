@@ -31,4 +31,5 @@ a plain text human readable optionally typed storage format.',
     package_dir={'': '.'},
     py_modules=['uxf'],
     scripts=['uxfconvert.py'],
-    python_requires='>=3.8')
+    python_requires='>=3.8',
+    install_requires=['editabletuple'])

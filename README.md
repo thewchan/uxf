@@ -580,11 +580,11 @@ UXF files are normally completely self-contained. However, in some cases it
 may be desirable to share a set of _ttype_ definitions amongst a bunch of
 UXF files.
 
-The _disadvantages_ of doing this are first that the relevant UXF files become
-dependent on one or more external dependencies and second it is possible to
-have import conflicts (i.e., two _ttypes_ with the same name but different
-definitions. (However, the first disadvantage doesn't apply if all the
-dependencies are provided by the UXF processor itself, i.e., are system
+The _disadvantages_ of doing this are first that the relevant UXF files
+become dependent on one or more external dependencies and second it is
+possible to have import conflicts (i.e., two _ttypes_ with the same name but
+different definitions. (However, the first disadvantage doesn't apply if all
+the dependencies are provided by the UXF processor itself, i.e., are system
 imports.)
 
 The _advantage_ of importing _ttype_ definitions is that for UXF's that have

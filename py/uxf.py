@@ -17,15 +17,13 @@ import urllib.error
 import urllib.request
 from xml.sax.saxutils import escape, unescape
 
+from editabletuple import editabletuple
+
 try:
     from dateutil.parser import isoparse
 except ImportError:
     isoparse = None
 
-try:
-    from editabletuple import editabletuple
-except ImportError:
-    editabletuple = None
 
 __version__ = '0.35.0' # uxf module version
 VERSION = 1.0 # uxf file format version
@@ -1972,75 +1970,6 @@ class _AlreadyImported(Exception):
     pass
 
 
-# cut-down local version of editabletuple.editabletuple().
-def _editabletuple(classname, *fieldnames):
-    def init(self, *args, **kwargs):
-        fields = self.__class__.__slots__
-        if len(args) + len(kwargs) > len(fields):
-            raise TypeError(f'{self.__class__.__name__} accepts up to '
-                            f'{len(fields)} args; got {len(args)}')
-        for i, name in enumerate(fields):
-            setattr(self, name, args[i] if i < len(args) else None)
-        for name, value in kwargs.items():
-            setattr(self, name, value)
-
-    def repr(self):
-        pairs = []
-        for name in self.__class__.__slots__:
-            pairs.append((name, getattr(self, name)))
-        kwargs = ', '.join(f'{name}={value!r}' for name, value in pairs)
-        return f'{self.__class__.__name__}({kwargs})'
-
-    def getitem(self, index):
-        index = self._sanitize_index(index)
-        return getattr(self, self.__class__.__slots__[index])
-
-    def setitem(self, index, value):
-        index = self._sanitize_index(index)
-        setattr(self, self.__class__.__slots__[index], value)
-
-    def _sanitize_index(self, index):
-        if isinstance(index, slice):
-            if index.stop is not None or index.step is not None:
-                raise IndexError(f'{self.__class__.__name__}: cannot '
-                                 f'use slices {index}')
-            index = index.start
-        length = len(self.__class__.__slots__)
-        if index < 0:
-            index += length
-        if index >= length:
-            raise IndexError(f'{self.__class__.__name__}: index {index} '
-                             'out of range')
-        return index
-
-    def asdict(self):
-        return {name: value for name, value in zip(self.__slots__, self)}
-
-    def length(self):
-        return len(self.__class__.__slots__)
-
-    def iter(self): # implicitly supports tuple(obj) and list(obj)
-        fields = self.__class__.__slots__
-        for i in range(len(fields)):
-            yield getattr(self, fields[i])
-
-    def eq(self, other):
-        if self.__class__.__name__ != other.__class__.__name__:
-            return False
-        return tuple(self) == tuple(other)
-
-    def lt(self, other):
-        if self.__class__.__name__ != other.__class__.__name__:
-            return False
-        return tuple(self) < tuple(other)
-
-    return type(classname, (), dict(__init__=init, __repr__=repr,
-                _sanitize_index=_sanitize_index, __getitem__=getitem,
-                __setitem__=setitem, asdict=property(asdict),
-                __len__=length, __iter__=iter, __eq__=eq, __lt__=lt,
-                __slots__=fieldnames))
-
-
 def append_to_parent(parent, value):
     '''Utility for UXF processors; see uxf.py and uxfconvert.py for examples
     of use.'''
@@ -2108,10 +2037,6 @@ def canonicalize(name):
         canonicalize.count += 1
     return name[:MAX_IDENTIFIER_LEN]
 canonicalize.count = 1 # noqa: E305
-
-
-if editabletuple is None:
-    editabletuple = _editabletuple
 
 
 if __name__ == '__main__':

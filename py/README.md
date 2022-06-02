@@ -20,10 +20,10 @@ Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
 
 ## Introduction
 
-The Python `uxf` library works out of the box with the standard library,
-although it will use [_dateutil_](https://pypi.org/project/python-dateutil/)
-and [_editabletuple_](https://github.com/mark-summerfield/editabletuple) if
-available.
+The Python `uxf` library works out of the box with the standard library, and
+one dependency,
+[_editabletuple_](https://github.com/mark-summerfield/editabletuple). And it
+will use [_dateutil_](https://pypi.org/project/python-dateutil/) available.
 
 - Install: `python3 -m pip install uxf`
 - Run: `python3 -m uxf -h` _# this shows the command line help_
