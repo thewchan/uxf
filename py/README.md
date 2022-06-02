@@ -26,8 +26,8 @@ one dependency,
 will use [dateutil](https://pypi.org/project/python-dateutil/) if it's
 available.
 
-- Install: `python3 -m pip install uxf editabletuple` (or download the
-  wheel (`.whl`) files and do `python -m pip install uxf....whl
+- Install: `python3 -m pip install uxf` (or download the wheel `.whl`
+  files and do `python -m pip install uxf....whl
   editabletuple...whl` where ... varies)
 - Run: `python3 -m uxf -h` _# this shows the command line help_
 - Use: `import uxf` _# see the `uxf.py` module docs for the API_
