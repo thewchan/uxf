@@ -3,7 +3,6 @@
 # License: GPLv3
 
 import os
-import subprocess
 import sys
 
 try:
