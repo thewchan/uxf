@@ -1,4 +1,3 @@
-# TODO add py/t/test_tlm.py
 # TODO update docs to mention eg/Config.py & py/eg/Tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
@@ -36,6 +35,7 @@ py/t/test_merge.py
 py/t/test_include.py
 py/t/test_use_config.py
 py/t/test_editabletuple.py
+py/t/test_tlm.py
 py/t/eq.py
 py/eg/README.md
 py/eg/visit.py
@@ -45,8 +45,7 @@ py/eg/slides.sld
 py/eg/merge.py
 py/eg/include.py
 py/eg/Config.py
-py/eg/Tlm.py # TODO
-py/eg/tlm-eg.uxf.gz
+py/eg/Tlm.py
 
 README.md
 
