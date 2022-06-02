@@ -85,8 +85,8 @@ class Uxf:
         for tclass in (tclass,) + tclasses:
             if tclass.ttype is None:
                 raise Error('#200:cannot add an unnamed TClass')
-            _add_to_tclasses(self.tclasses, tclass, lino=0, code=90,
-                             error=self.on_error)
+            _add_to_tclasses(self.tclasses, tclass, lino=0, code=690,
+                             on_error=self.on_error)
 
 
     @property
@@ -98,7 +98,7 @@ class Uxf:
     def tclasses(self, tclasses):
         for ttype, tclass in tclasses.items():
             if ttype is None:
-                raise Error('#94:cannot set an unnamed TClass')
+                raise Error('#694:cannot set an unnamed TClass')
             self._tclasses[ttype] = tclass
 
 
