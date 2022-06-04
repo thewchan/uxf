@@ -29,11 +29,11 @@ __version__ = '0.39.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
-MAX_IDENTIFIER_LEN = 60
-MAX_LIST_IN_LINE = 10
-MAX_FIELDS_IN_LINE = 5
-WRAP_WIDTH = 80 # set to 0 or None for no wrap
-MAX_SHORT_LEN = 32
+_MAX_IDENTIFIER_LEN = 60
+_MAX_LIST_IN_LINE = 10
+_MAX_FIELDS_IN_LINE = 5
+_MAX_SHORT_LEN = 32
+_WRAP_WIDTH = 80 # set to 0 or None for no wrap
 _KEY_TYPES = frozenset({'int', 'date', 'datetime', 'str', 'bytes'})
 _VALUE_TYPES = frozenset(_KEY_TYPES | {'bool', 'real'})
 _ANY_VALUE_TYPES = frozenset(_VALUE_TYPES | {'list', 'map', 'table'})
@@ -553,7 +553,7 @@ class _Lexer:
                     self.text[self.pos] != '_'):
                 break
             self.pos += 1
-        identifier = self.text[start:self.pos][:MAX_IDENTIFIER_LEN]
+        identifier = self.text[start:self.pos][:_MAX_IDENTIFIER_LEN]
         if identifier:
             return identifier
         text = self.text[start:start + 10]
@@ -1781,8 +1781,8 @@ class _Writer:
             self.write_close(text, ']')
             return
         text = self.write_open(text)
-        if len(item) == 1 or (len(item) <= MAX_LIST_IN_LINE and
-                              _are_short_len(*item[:MAX_LIST_IN_LINE + 1])):
+        if len(item) == 1 or (len(item) <= _MAX_LIST_IN_LINE and
+                              _are_short(*item[:_MAX_LIST_IN_LINE + 1])):
             sep = ' ' if prefix and not text.endswith(' ') else ''
             self._write_short_list(sep, item)
         else:
@@ -1820,11 +1820,8 @@ class _Writer:
         text = self.write_open(text)
         if len(item) == 1:
             self._write_single_item_map(item)
-        elif (len(item) <= MAX_FIELDS_IN_LINE and
-                _are_short_len(
-                    *list(item.keys())[:MAX_LIST_IN_LINE + 1]) and
-                _are_short_len(
-                    *list(item.values())[:MAX_LIST_IN_LINE + 1])):
+        elif len(item) <= _MAX_FIELDS_IN_LINE and _are_short(
+                *list(item.values())[:_MAX_LIST_IN_LINE + 1]):
             sep = ' ' if prefix and not text.endswith(' ') else ''
             self._write_short_map(sep, item)
         else:
@@ -1859,7 +1856,7 @@ class _Writer:
         for key, value in item.items():
             self.write_nl_one('')
             self.write_scalar(key)
-            if is_scalar(value):
+            if _is_short(value):
                 self.write_one(' ')
                 self.write_value(value)
             else:
@@ -1941,7 +1938,7 @@ class _Writer:
 
 
     def write_sep_or_nl(self, sep):
-        if WRAP_WIDTH and self.column > WRAP_WIDTH:
+        if _WRAP_WIDTH and self.column > _WRAP_WIDTH:
             self.write_nl_one('')
             return sep
         self.write_one(sep)
@@ -1957,7 +1954,8 @@ class _Writer:
 
     def write_one(self, one):
         if (not one or one == self.prev == '\n') or (
-                self.prev_last_line == one == '\n' and
+                self.prev_last_line not in ']})' and
+                not self.prev_last_line.endswith(':)') and one == '\n' and
                 self.last_line.isspace()):
             return
         self.file.write(one)
@@ -2031,10 +2029,23 @@ def _is_key_type(x):
                           bytes))
 
 
-def _are_short_len(*items):
+def _is_short(value):
+    if is_scalar(value) or len(value) == 1:
+        return True
+    if isinstance(value, (list, List)) and (
+            len(value) <= _MAX_LIST_IN_LINE and
+            _are_short(*value[:_MAX_LIST_IN_LINE + 1])):
+        return True
+    if (isinstance(value, (dict, Map)) and len(value) <= _MAX_FIELDS_IN_LINE
+            and _are_short(*list(value.values())[:_MAX_LIST_IN_LINE + 1])):
+        return True
+    return False
+
+
+def _are_short(*items):
     for x in items:
         if isinstance(x, (str, bytes, bytearray)):
-            if len(x) > MAX_SHORT_LEN:
+            if len(x) > _MAX_SHORT_LEN:
                 return False
         elif x is not None and not isinstance(
                 x, (bool, int, float, datetime.date, datetime.datetime)):
@@ -2121,7 +2132,7 @@ def canonicalize(name):
     if name == prefix:
         name += str(canonicalize.count)
         canonicalize.count += 1
-    return name[:MAX_IDENTIFIER_LEN]
+    return name[:_MAX_IDENTIFIER_LEN]
 canonicalize.count = 1 # noqa: E305
 
 

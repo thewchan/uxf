@@ -4,8 +4,7 @@ uxf 1.0
 =RGB Red:int Green:int Blue:int
 [#<Unused TTypes produce warnings when converting from uxf to uxf.
 One way to avoid the warnings is to use them for empty tables.> 
-  (IntPair) 
-  (IP4
+  (IntPair) (IP4
     168 1 4 29
     192 0 18 27
   ) 

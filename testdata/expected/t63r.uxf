@@ -9,8 +9,7 @@ uxf 1.0
 =point3d x:int y:int z:int
 =#<0-255 per component> rgb red:int green:int blue:int
 [
-  (img 
-  (rgb 0 0 127) (:DECADE:)) 
+  (img (rgb 0 0 127) (:DECADE:)) 
   (i <is this oblique?>) 
   {
     10
@@ -20,10 +19,8 @@ uxf 1.0
         8 15 17
         7 24 25
       )
-    20
-      (cmyk 0.9 0.9 0.5 0.0)
-    30
-      (pair <one> 2)
+    20 (cmyk 0.9 0.9 0.5 0.0)
+    30 (pair <one> 2)
   } 
   (Complex
     3.9 -1.4

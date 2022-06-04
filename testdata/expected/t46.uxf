@@ -8,67 +8,49 @@ uxf 1.0 TLM Config
 {
   <General>
     {
-      <empty map 0>
-        {}
+      <empty map 0> {}
       <saved> 2022-03-21
       <autosave> yes
       <historysize> -35
       <volume> 0.7
-      <empty map 1>
-        {}
+      <empty map 1> {}
       <files>
         (Files
           <current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
           <recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>
           <recent2> </home/mark/data/playlists-all.tlm>
         )
-      <empty map 2>
-        {}
+      <empty map 2> {}
     }
   <Window>
     {
-      <pos>
-        [383 124]
-      <size>
-        [590 536]
+      <pos> [383 124]
+      <size> [590 536]
       <scale> 1.1
     }
   <More Tests>
-    [#<A list of name value pairs; normally would be a map> <empty table 0> 
-      (RGBA) <one> 
-      (IPv4 141 179 19 9) <empty table 1> 
-      (RGBA) <many> 
-      (IPv4
+    [#<A list of name value pairs; normally would be a map> <empty table 0> (RGBA)
+      <one> (IPv4 141 179 19 9) <empty table 1> (RGBA) <many> (IPv4
         172 16 254 1
         192 0 2 235
         127 0 0 1
-      ) <red> 
-      (RGB 255 0 0) <semi-transparent blue> 
-      (RGBA 0 0 255 80) <empty table 2> 
+      ) <red> (RGB 255 0 0) <semi-transparent blue> (RGBA 0 0 255 80) <empty table 2>
       (RGBA)
     ]
   <Magic> (:1F8B:)
   <Nested Map>
     {
-      <empty list 0>
-        []
-      <Classical>
-        [5 yes]
-      <empty list 1>
-        []
-      <Modern Instrumental>
-        [4 no]
-      <New Acquistions>
-        [1 no]
-      <empty list 2>
-        []
+      <empty list 0> []
+      <Classical> [5 yes]
+      <empty list 1> []
+      <Modern Instrumental> [4 no]
+      <New Acquistions> [1 no]
+      <empty list 2> []
       <Nested List of Lists>
         [
-          [] 
-          [5 <Classical> yes] 
+          [] [5 <Classical> yes] 
           [4 <Modern Instrumental> no] 
-          [] 
-          [1 <New Acquistions> no] 
+          [] [1 <New Acquistions> no] 
           []
         ]
       <Nested Table>
@@ -83,8 +65,7 @@ uxf 1.0 TLM Config
         )
       <Nested List of Tables>
         [
-          (Categories) 
-          (Categories
+          (Categories) (Categories
             5 <Classical> yes
             4 <Modern Instrumental> no
             1 <New Acquistions> no
@@ -93,9 +74,7 @@ uxf 1.0 TLM Config
             7 <Uncategorized> no
             6 <Unpopular Pop> no
           ) 
-          (Categories) 
-          (Playlists) 
-          (Playlists
+          (Categories) (Playlists) (Playlists
             4 <ABBA> 2 no
             38 <Bach> 5 no
             39 <Bartok> 5 no

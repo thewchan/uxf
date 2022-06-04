@@ -4,7 +4,5 @@ uxf 1.0
 =p content
 [
   (p <first para>) 
-  (p 
-  (img 
-  (b <bold caption>) (:B445:)))
+  (p (img (b <bold caption>) (:B445:)))
 ]

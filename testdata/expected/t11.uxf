@@ -21,32 +21,24 @@ uxf 1.0 TLM Config
     }
   <Window>
     {
-      <pos>
-        [383 124]
-      <size>
-        [590 536]
+      <pos> [383 124]
+      <size> [590 536]
       <scale> 1.1
     }
   <More Tests>
-    [#<A list of name value pairs; normally would be a map> <one> 
-      (IPv4 141 179 19 9) <many> 
-      (IPv4
+    [#<A list of name value pairs; normally would be a map> <one> (IPv4 141 179 19
+      9) <many> (IPv4
         172 16 254 1
         192 0 2 235
         127 0 0 1
-      ) <red> 
-      (rgb 255 0 0) <semi-transparent blue> 
-      (rgba 0 0 255 80)
+      ) <red> (rgb 255 0 0) <semi-transparent blue> (rgba 0 0 255 80)
     ]
   <Magic> (:1F8B:)
   <Nested Map>
     {
-      <Classical>
-        [5 yes]
-      <Modern Instrumental>
-        [4 no]
-      <New Acquistions>
-        [1 no]
+      <Classical> [5 yes]
+      <Modern Instrumental> [4 no]
+      <New Acquistions> [1 no]
       <Nested List of Lists>
         [
           [5 <Classical> yes] 

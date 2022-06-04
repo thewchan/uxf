@@ -10,8 +10,7 @@ uxf 1.0 MyApp 1.2.0 Config
       <Files>
         {str
           <current> <test1.uxf>
-          <recent>
-            [#<From most to least recent> str </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
+          <recent> [#<From most to least recent> str </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
     }
   <Windows>
@@ -28,7 +27,6 @@ uxf 1.0 MyApp 1.2.0 Config
           140 81
           89 22
         )
-      <scale>
-        [1.1 1.0 0.5]
+      <scale> [1.1 1.0 0.5]
     }
 }
