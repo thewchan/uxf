@@ -1818,11 +1818,11 @@ class _Writer:
             self.write_close(text, '}')
             return
         text = self.write_open(text)
+        sep = ' ' if prefix and not text.endswith(' ') else ''
         if len(item) == 1:
-            self._write_single_item_map(item)
+            self._write_single_item_map(sep, item)
         elif len(item) <= _MAX_FIELDS_IN_LINE and _are_short(
                 *list(item.values())[:_MAX_LIST_IN_LINE + 1]):
-            sep = ' ' if prefix and not text.endswith(' ') else ''
             self._write_short_map(sep, item)
         else:
             self.indent += 1
@@ -1833,8 +1833,10 @@ class _Writer:
             self.write_nl_one('}')
 
 
-    def _write_single_item_map(self, item):
+    def _write_single_item_map(self, sep, item):
         key, value = list(item.items())[0]
+        if sep:
+            self.write_one(sep)
         self.write_scalar(key)
         self.write_one(' ')
         self.write_value(value)

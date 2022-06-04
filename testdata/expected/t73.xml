@@ -1,0 +1,136 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <ttypes>
+    <ttype name="T">
+      <field name="a"/>
+      <field name="b"/>
+      <field name="c"/>
+      <field name="d"/>
+      <field name="e"/>
+      <field name="f"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <map>
+      <key>
+        <str>one</str>
+      </key>
+      <value>
+        <int v="1"/>
+      </value>
+    </map>
+    <map ktype="str">
+      <key>
+        <str>two</str>
+      </key>
+      <value>
+        <int v="2"/>
+      </value>
+    </map>
+    <map ktype="str">
+      <key>
+        <str>a</str>
+      </key>
+      <value>
+        <table name="T">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <str>b</str>
+      </key>
+      <value>
+        <table name="T">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <str>c</str>
+      </key>
+      <value>
+        <table name="T">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+      </value>
+    </map>
+    <map ktype="str" vtype="int">
+      <key>
+        <str>three</str>
+      </key>
+      <value>
+        <int v="3"/>
+      </value>
+    </map>
+    <map ktype="str" vtype="T">
+      <key>
+        <str>a</str>
+      </key>
+      <value>
+        <table name="T">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <str>b</str>
+      </key>
+      <value>
+        <table name="T">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+      </value>
+      <key>
+        <str>c</str>
+      </key>
+      <value>
+        <table name="T">
+          <row>
+            <int v="1"/>
+            <int v="2"/>
+            <int v="3"/>
+            <int v="4"/>
+            <int v="5"/>
+            <int v="6"/>
+          </row>
+        </table>
+      </value>
+    </map>
+    <list vtype="str">
+      <str>one</str>
+    </list>
+  </list>
+</uxf>

@@ -1,0 +1,213 @@
+{
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "T",
+        "fields": {
+          "a": null,
+          "b": null,
+          "c": null,
+          "d": null,
+          "e": null,
+          "f": null
+        }
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "one": 1
+    },
+    {
+      "UXF^map": {
+        "comment": null,
+        "ktype": "str",
+        "vtype": null,
+        "map": {
+          "two": 2
+        }
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": null,
+        "ktype": "str",
+        "vtype": null,
+        "map": {
+          "a": {
+            "UXF^table": {
+              "name": "T",
+              "comment": null,
+              "fields": {
+                "a": null,
+                "b": null,
+                "c": null,
+                "d": null,
+                "e": null,
+                "f": null
+              },
+              "records": [
+                [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+                ]
+              ]
+            }
+          },
+          "b": {
+            "UXF^table": {
+              "name": "T",
+              "comment": null,
+              "fields": {
+                "a": null,
+                "b": null,
+                "c": null,
+                "d": null,
+                "e": null,
+                "f": null
+              },
+              "records": [
+                [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+                ]
+              ]
+            }
+          },
+          "c": {
+            "UXF^table": {
+              "name": "T",
+              "comment": null,
+              "fields": {
+                "a": null,
+                "b": null,
+                "c": null,
+                "d": null,
+                "e": null,
+                "f": null
+              },
+              "records": [
+                [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": null,
+        "ktype": "str",
+        "vtype": "int",
+        "map": {
+          "three": 3
+        }
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": null,
+        "ktype": "str",
+        "vtype": "T",
+        "map": {
+          "a": {
+            "UXF^table": {
+              "name": "T",
+              "comment": null,
+              "fields": {
+                "a": null,
+                "b": null,
+                "c": null,
+                "d": null,
+                "e": null,
+                "f": null
+              },
+              "records": [
+                [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+                ]
+              ]
+            }
+          },
+          "b": {
+            "UXF^table": {
+              "name": "T",
+              "comment": null,
+              "fields": {
+                "a": null,
+                "b": null,
+                "c": null,
+                "d": null,
+                "e": null,
+                "f": null
+              },
+              "records": [
+                [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+                ]
+              ]
+            }
+          },
+          "c": {
+            "UXF^table": {
+              "name": "T",
+              "comment": null,
+              "fields": {
+                "a": null,
+                "b": null,
+                "c": null,
+                "d": null,
+                "e": null,
+                "f": null
+              },
+              "records": [
+                [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "UXF^list": {
+        "comment": null,
+        "vtype": "str",
+        "list": [
+          "one"
+        ]
+      }
+    }
+  ]
+}
