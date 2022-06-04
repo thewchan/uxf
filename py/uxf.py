@@ -1859,8 +1859,13 @@ class _Writer:
         for key, value in item.items():
             self.write_nl_one('')
             self.write_scalar(key)
-            self.write_one(' ')
-            self.write_value(value)
+            if is_scalar(value):
+                self.write_one(' ')
+                self.write_value(value)
+            else:
+                self.indent += 1
+                self.write_value(value)
+                self.indent -= 1
 
 
     def write_table(self, item):
