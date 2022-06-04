@@ -51,8 +51,6 @@ def _get_converter():
                         help='drop unused imports and ttypes')
     parser.add_argument('-r', '--replaceimports', action='store_true',
                         help='replace imports with their used ttypes')
-    parser.add_argument('-i', '--indent', type=int, default=2,
-                        help='default: 2, range 0-8')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument(
         '-f', '--fieldnames', action='store_true',
@@ -75,8 +73,6 @@ def _get_usage():
 
 
 def _prepare_converter(parser, config):
-    if not (0 <= config.indent <= 8):
-        config.indent = 2 # sanitize rather than complain
     if len(config.file) < 2:
         parser.error('least two filenames are required')
     config.convert = None
@@ -788,9 +784,9 @@ VTYPE = 'vtype'
 
 PREFIX = '''
 uxfconvert.py <infile.uxf[.gz]> <outfile.{csv,json,sqlite,xml}>
-uxfconvert.py [-d|--dropunused] [-r|--replaceimports] [-i|--indent=N] \
+uxfconvert.py [-d|--dropunused] [-r|--replaceimports] \
 [-f|--fieldnames] <infile.{csv,ini,json,sqlite,xml}> <outfile.uxf[.gz]>
-uxfconvert.py [-d|--dropunused] [-r|--replaceimports] [-i|--indent=N] \
+uxfconvert.py [-d|--dropunused] [-r|--replaceimports] \
 [-f|--fieldnames] <infile1.csv> [infile2.csv ... infileM.csv] \
 <outfile.uxf[.gz]>
 
@@ -839,8 +835,8 @@ whitespace differences in strings).
 
 Support for uxf to uxf conversions is provided by the uxf.py module itself,
 which can be run directly or via python, e.g., `uxf.py infile.uxf
-outfile.uxf` or `python3 -m uxf infile.uxf outfile.uxf` with the same indent
-and compression options as here, plus additional options (use uxf.py's -h or
+outfile.uxf` or `python3 -m uxf infile.uxf outfile.uxf` with the same
+compression option as here, plus additional options (use uxf.py's -h or
 --help for details).'''
 
 

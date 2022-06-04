@@ -3,8 +3,9 @@ uxf 1.0
 =p x y
 =Roman
 [
-  (Roman)
-  (Decimal)
-  (Decimal)
-  [p (p 1 2)]
+  (Roman) 
+  (Decimal) 
+  (Decimal) 
+  [p 
+  (p 1 2)]
 ]

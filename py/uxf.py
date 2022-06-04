@@ -31,6 +31,8 @@ VERSION = 1.0 # uxf file format version
 UTF8 = 'utf-8'
 MAX_IDENTIFIER_LEN = 60
 MAX_LIST_IN_LINE = 10
+MAX_FIELDS_IN_LINE = 5
+WRAP_WIDTH = 80 # set to 0 or None for no wrap
 MAX_SHORT_LEN = 32
 _KEY_TYPES = frozenset({'int', 'date', 'datetime', 'str', 'bytes'})
 _VALUE_TYPES = frozenset(_KEY_TYPES | {'bool', 'real'})
@@ -132,15 +134,15 @@ class Uxf:
         self._data = data
 
 
-    def dump(self, filename_or_filelike, *, indent=2, on_error=on_error):
+    def dump(self, filename_or_filelike, *, on_error=on_error):
         '''Convenience method that wraps the module-level dump() function'''
-        dump(filename_or_filelike, self, indent=indent, on_error=on_error)
+        dump(filename_or_filelike, self, on_error=on_error)
 
 
-    def dumps(self, *, indent=2, on_error=on_error):
+    def dumps(self, *, on_error=on_error):
         '''Convenience method that wraps the module-level dumps()
         function'''
-        return dumps(self, indent=indent, on_error=on_error)
+        return dumps(self, on_error=on_error)
 
 
     def load(self, filename_or_filelike, *, on_error=on_error,
@@ -1663,7 +1665,7 @@ _TYPECHECK_CLASSES = dict(
 _BUILT_IN_NAMES = tuple(_TYPECHECK_CLASSES.keys())
 
 
-def dump(filename_or_filelike, data, *, indent=2, on_error=on_error):
+def dump(filename_or_filelike, data, *, on_error=on_error):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
@@ -1671,10 +1673,7 @@ def dump(filename_or_filelike, data, *, indent=2, on_error=on_error):
 
     data is a Uxf object, or a list, List, dict, Map, or Table, that this
     function will write to the filename_or_filelike in UXF format.
-
-    Set indent to 0 to minimize the file size.
     '''
-    pad = ' ' * indent
     close = False
     if isinstance(filename_or_filelike, (str, pathlib.Path)):
         filename_or_filelike = str(filename_or_filelike)
@@ -1687,33 +1686,36 @@ def dump(filename_or_filelike, data, *, indent=2, on_error=on_error):
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer(file, data, pad, on_error)
+        _Writer(file, data, on_error)
     finally:
         if close:
             file.close()
 
 
-def dumps(data, *, indent=2, on_error=on_error):
+def dumps(data, *, on_error=on_error):
     '''
     data is a Uxf object, or a list, List, dict, Map, or Table that this
     function will write to a string in UXF format which will then be
     returned.
-
-    Set indent to 0 to minimize the string's size.
     '''
-    pad = ' ' * indent
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer(string, data, pad, on_error)
+    _Writer(string, data, on_error)
     return string.getvalue()
 
 
 class _Writer:
 
-    def __init__(self, file, uxo, pad, on_error):
+    def __init__(self, file, uxo, on_error):
         self.file = file
         self.on_error = on_error
+        self.prev = '\n'
+        self.column = 0
+        self.indent = 0
+        self.closed = ''
+        self.last_line = '\n'
+        self.prev_last_line = '\n'
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
@@ -1721,7 +1723,8 @@ class _Writer:
             self.write_imports(uxo.import_filenames)
         if uxo.tclasses:
             self.write_tclasses(uxo.tclasses, uxo.imports)
-        if not self.write_value(uxo.data, pad=pad):
+        self.write_value(uxo.data)
+        if self.prev != '\n':
             self.file.write('\n')
 
 
@@ -1757,162 +1760,240 @@ class _Writer:
             self.file.write('\n')
 
 
-    def write_value(self, item, indent=0, *, pad, is_map_value=False):
+    def write_value(self, item):
         if isinstance(item, (set, frozenset, tuple, collections.deque)):
             item = List(item)
         if isinstance(item, (list, List)):
-            return self.write_list(item, indent, pad=pad,
-                                   is_map_value=is_map_value)
-        if isinstance(item, (dict, Map)):
-            return self.write_map(item, indent, pad=pad,
-                                  is_map_value=is_map_value)
-        if isinstance(item, Table):
-            return self.write_table(item, indent, pad=pad,
-                                    is_map_value=is_map_value)
-        return self.write_scalar(item, indent=indent, pad=pad,
-                                 is_map_value=is_map_value)
+            self.write_list(item)
+        elif isinstance(item, (dict, Map)):
+            self.write_map(item)
+        elif isinstance(item, Table):
+            self.write_table(item)
+        else:
+            self.write_scalar(item)
 
 
-    def write_list(self, item, indent=0, *, pad, is_map_value=False):
-        tab = '' if is_map_value else pad * indent
+    def write_list(self, item):
+        closed = self.write_nl_if_closed()
         prefix = self.collection_prefix(item)
+        text = f'{self.tab}[{prefix}'
         if len(item) == 0:
-            self.file.write(f'{tab}[{prefix}]')
-            return False
-        self.file.write(f'{tab}[{prefix}')
+            self.write_close(text, ']')
+            return
+        text = self.write_open(text)
         if len(item) == 1 or (len(item) <= MAX_LIST_IN_LINE and
                               _are_short_len(*item[:MAX_LIST_IN_LINE + 1])):
-            return self._write_short_list(' ' if prefix else '', item)
-        return self._write_list(item, indent, pad)
+            sep = ' ' if prefix and not text.endswith(' ') else ''
+            self._write_short_list(sep, item)
+        else:
+            if not closed:
+                self.write_one('\n')
+            self._write_list(item)
 
 
     def _write_short_list(self, sep, item):
         for value in item:
-            self.file.write(sep)
-            self.write_value(value, pad='')
+            if sep:
+                self.write_one(sep)
+            self.write_value(value)
             sep = ' '
-        self.file.write(']')
-        return False
+        self.write_one(']')
 
 
-    def _write_list(self, item, indent, pad):
-        self.file.write('\n')
-        indent += 1
-        for value in item:
-            if not self.write_value(value, indent, pad=pad):
-                self.file.write('\n')
-        tab = pad * (indent - 1)
-        self.file.write(f'{tab}]\n')
-        return True
+    def _write_list(self, item):
+        self.indent += 1
+        sep = ''
+        for i, value in enumerate(item):
+            sep = self.write_sep_or_nl(sep)
+            self.write_value(value)
+        self.indent -= 1
+        self.write_nl_one(']')
 
 
-    def write_map(self, item, indent=0, *, pad, is_map_value=False):
-        tab = '' if is_map_value else pad * indent
+    def write_map(self, item):
+        closed = self.write_nl_if_closed()
         prefix = self.collection_prefix(item)
+        text = f'{self.tab}{{{prefix}'
         if len(item) == 0:
-            self.file.write(f'{tab}{{{prefix}}}')
-            return False
+            self.write_close(text, '}')
+            return
+        text = self.write_open(text)
         if len(item) == 1:
-            return self._write_single_item_map(tab, prefix, item)
-        return self._write_map(tab, prefix, item, indent, pad, is_map_value)
+            self._write_single_item_map(item)
+        elif (len(item) <= MAX_FIELDS_IN_LINE and
+                _are_short_len(
+                    *list(item.keys())[:MAX_LIST_IN_LINE + 1]) and
+                _are_short_len(
+                    *list(item.values())[:MAX_LIST_IN_LINE + 1])):
+            sep = ' ' if prefix and not text.endswith(' ') else ''
+            self._write_short_map(sep, item)
+        else:
+            self.indent += 1
+            if not closed:
+                self.write_nl_one(self.tab)
+            self._write_map(item)
+            self.indent -= 1
+            self.write_nl_one('}')
 
 
-    def _write_single_item_map(self, tab, prefix, item):
-        self.file.write(f'{tab}{{{prefix}')
+    def _write_single_item_map(self, item):
         key, value = list(item.items())[0]
-        self.write_scalar(key, 1, pad=' ')
-        self.file.write(' ')
-        if self.write_value(value, 1, pad=' ', is_map_value=True):
-            self.file.write(tab)
-        self.file.write('}')
-        if is_scalar(value):
-            return False
-        self.file.write('\n')
-        return True
+        self.write_scalar(key)
+        self.write_one(' ')
+        self.write_value(value)
+        self.write_one('}')
 
 
-    def _write_map(self, tab, prefix, item, indent, pad, is_map_value):
-        self.file.write(f'{tab}{{{prefix}\n')
-        indent += 1
+    def _write_short_map(self, sep, item):
         for key, value in item.items():
-            self.write_scalar(key, indent, pad=pad)
-            self.file.write(' ')
-            if not self.write_value(value, indent, pad=pad,
-                                    is_map_value=True):
-                self.file.write('\n')
-        tab = pad * (indent - 1)
-        self.file.write(f'{tab}}}\n')
-        return True
+            if sep:
+                self.write_one(sep)
+            self.write_scalar(key)
+            self.write_one(' ')
+            self.write_value(value)
+            sep = ' '
+        self.write_one('}')
 
 
-    def write_table(self, item, indent=0, *, pad, is_map_value=False):
-        tab = '' if is_map_value else pad * indent
+    def _write_map(self, item):
+        for key, value in item.items():
+            self.write_nl_one('')
+            self.write_scalar(key)
+            self.write_one(' ')
+            self.write_value(value)
+
+
+    def write_table(self, item):
+        closed = self.write_nl_if_closed()
         prefix = self.collection_prefix(item)
-        self.file.write(f'{tab}({prefix}')
+        text = f'{self.tab}({prefix}'
         if len(item) == 0:
-            self.file.write(')')
-            return False
+            self.write_close(text, ')')
+            return
+        text = self.write_open(text)
         if len(item) == 1:
-            return self._write_single_record_table(item[0], is_map_value)
-        return self._write_table(tab, item, indent, pad, is_map_value)
+            sep = ' ' if prefix and not text.endswith(' ') else ''
+            self._write_single_record_table(item[0], sep)
+        else:
+            self.indent += 1
+            if not closed:
+                self.write_one('\n')
+            self._write_table(item)
+            self.indent -= 1
+            self.write_nl_one(')')
 
 
-    def _write_single_record_table(self, record, is_map_value):
-        self.file.write(' ')
-        self.write_record(record, is_map_value)
-        self.file.write(')')
-        return False
+    def _write_single_record_table(self, record, sep):
+        self.write_one(sep)
+        self.write_record(record)
+        self.write_one(')')
 
 
-    def _write_table(self, tab, item, indent, pad, is_map_value):
-        self.file.write('\n')
-        indent += 1
-        tab = pad * indent
+    def _write_table(self, item):
         for record in item:
-            self.file.write(tab)
-            if not self.write_record(record, is_map_value):
-                self.file.write('\n')
-        tab = pad * (indent - 1)
-        self.file.write(f'{tab})\n')
-        return True
+            self.write_nl_one('')
+            self.write_record(record)
 
 
-    def write_record(self, record, is_map_value):
+    def write_record(self, record):
         sep = ''
         for value in record:
-            self.file.write(sep)
-            nl = self.write_value(value, 0, pad='',
-                                  is_map_value=is_map_value)
-            sep = ' '
-        return nl
+            sep = self.write_sep_or_nl(sep)
+            self.write_value(value)
 
 
-    def write_scalar(self, item, indent=0, *, pad, is_map_value=False):
-        if not is_map_value:
-            self.file.write(pad * indent)
+    def write_scalar(self, item):
         if item is None:
-            self.file.write('?')
+            self.write_one('?')
         elif isinstance(item, bool):
-            self.file.write('yes' if item else 'no')
+            self.write_one('yes' if item else 'no')
         elif isinstance(item, int):
-            self.file.write(str(item))
+            self.write_one(str(item))
         elif isinstance(item, float):
             text = str(item)
             if '.' not in text and 'e' not in text and 'E' not in text:
                 text += '.0'
-            self.file.write(text)
+            self.write_one(text)
         elif isinstance(item, (datetime.date, datetime.datetime)):
-            self.file.write(item.isoformat())
+            self.write_one(item.isoformat())
         elif isinstance(item, str):
-            self.file.write(f'<{escape(item)}>')
+            self.write_one(f'<{escape(item)}>')
         elif isinstance(item, (bytes, bytearray)):
-            self.file.write(f'(:{item.hex().upper()}:)')
+            self.write_one(f'(:{item.hex().upper()}:)')
         else:
             self.error(561, 'unexpected item of type '
                        f'{item.__class__.__name__}: {item!r};'
                        'consider using a ttype', fail=True)
             return # in case user on_error doesn't raise
         return False
+
+
+    @property
+    def tab(self):
+        if self.prev == '\n':
+            return '  ' * self.indent
+        return '' if self.prev.isspace() else ' '
+
+
+    def write_sep_or_nl(self, sep):
+        if WRAP_WIDTH and self.column > WRAP_WIDTH:
+            self.write_nl_one('')
+            return sep
+        self.write_one(sep)
+        return ' '
+
+
+    def write_nl_one(self, one):
+        self.write_one('\n')
+        if self.tab:
+            self.write_one(self.tab)
+        self.write_one(one)
+
+
+    def write_one(self, one):
+        if (not one or one == self.prev == '\n') or (
+                self.prev_last_line == one == '\n' and
+                self.last_line.isspace()):
+            return
+        self.file.write(one)
+        self.prev = one[-1]
+        self._update(one)
+        one = one.rstrip()
+        if not one.endswith(':)') and one.endswith((']', '}', ')')):
+            self.closed = one[-1]
+        elif not self.prev.isspace():
+            self.closed = ''
+
+
+    def write_open(self, text):
+        if text.endswith('>'):
+            text += ' ' # opening ended with a comment
+        self.write_one(text)
+        return text
+
+
+    def write_close(self, text, close):
+        text += close
+        self.write_one(text)
+
+
+    def _update(self, text):
+        i = text.rfind('\n')
+        if i == -1:
+            self.column += len(text)
+        else:
+            self.column = len(text[i + 1:])
+            text = text[i:]
+        self.prev_last_line = self.last_line
+        self.last_line = text
+
+
+    def write_nl_if_closed(self):
+        closed = False
+        if self.closed in ']})':
+            self.write_one('\n')
+            closed = True
+        return closed
 
 
     def collection_prefix(self, item):
@@ -2056,7 +2137,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(usage=get_usage('''\
 usage: uxf.py [-l|--lint] [-d|--dropunused] [-r|--replaceimports] \
-[-iN|--indent=N] <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
+<infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
 If an outfile is specified and ends .gz it will be gzip-compressed.
@@ -2090,13 +2171,9 @@ to allow later imports to override earlier ones.
                         help='drop unused imports and ttypes')
     parser.add_argument('-r', '--replaceimports', action='store_true',
                         help='replace imports with their used ttypes')
-    parser.add_argument('-i', '--indent', type=int, default=2,
-                        help='default: 2, range 0-8')
     parser.add_argument('infile', nargs=1, help='required UXF infile')
     parser.add_argument('outfile', nargs='?', help='optional UXF outfile')
     config = parser.parse_args()
-    if not (0 <= config.indent <= 8):
-        config.indent = 2 # sanitize rather than complain
     infile = config.infile[0]
     outfile = config.outfile
     if outfile is not None:
@@ -2114,6 +2191,6 @@ to allow later imports to override earlier ones.
         on_error = functools.partial(on_error, verbose=config.lint,
                                      filename=outfile)
         if do_dump:
-            dump(outfile, uxo, indent=config.indent, on_error=on_error)
+            dump(outfile, uxo, on_error=on_error)
     except (OSError, Error) as err:
         parser.error(f'uxf.py:error:{err}')
