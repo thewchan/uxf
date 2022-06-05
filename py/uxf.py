@@ -1775,13 +1775,13 @@ class _Writer:
 
 
     def write_list(self, item):
-        closed = self.write_nl_if_closed()
-        prefix = self.collection_prefix(item)
+        closed = self._write_nl_if_closed()
+        prefix = self._collection_prefix(item)
         text = f'{self.tab}[{prefix}'
         if len(item) == 0:
-            self.write_close(text, ']')
+            self._write_close(text, ']')
             return
-        text = self.write_open(text)
+        text = self._write_open(text)
         if len(item) == 1 or (len(item) <= _MAX_LIST_IN_LINE and
                               _are_short(*item[:_MAX_LIST_IN_LINE + 1])):
             sep = ' ' if prefix and not text.endswith(' ') else ''
@@ -1789,34 +1789,34 @@ class _Writer:
         else:
             self.indent += 1
             if not closed or self.prev != '\n':
-                self.write_one(f'\n{_INDENT * self.indent}')
+                self._write_one(f'\n{_INDENT * self.indent}')
             self._write_list(item)
             self.indent -= 1
-            self.write_nl(']')
+            self._write_nl(']')
 
 
     def _write_short_list(self, sep, item):
         for value in item:
-            self.write_one_value(value, sep)
+            self._write_one_value(value, sep)
             sep = ' '
-        self.write_one(']')
+        self._write_one(']')
 
 
     def _write_list(self, item):
         sep = ''
         for i, value in enumerate(item):
-            self.write_one_value(value, sep)
+            self._write_one_value(value, sep)
             sep = ' '
 
 
     def write_map(self, item):
-        closed = self.write_nl_if_closed()
-        prefix = self.collection_prefix(item)
+        closed = self._write_nl_if_closed()
+        prefix = self._collection_prefix(item)
         text = f'{self.tab}{{{prefix}'
         if len(item) == 0:
-            self.write_close(text, '}')
+            self._write_close(text, '}')
             return
-        text = self.write_open(text)
+        text = self._write_open(text)
         sep = ' ' if prefix and not text.endswith(' ') else ''
         if len(item) == 1:
             self._write_single_item_map(sep, item)
@@ -1826,108 +1826,108 @@ class _Writer:
         else:
             self.indent += 1
             if not closed:
-                self.write_one(f'\n{_INDENT * self.indent}')
+                self._write_one(f'\n{_INDENT * self.indent}')
             self._write_map(item)
             self.indent -= 1
-            self.write_nl('}')
+            self._write_nl('}')
 
 
     def _write_single_item_map(self, sep, item):
         key, value = list(item.items())[0]
         if sep:
-            self.write_one(sep)
+            self._write_one(sep)
         self.write_scalar(key)
-        self.write_one_value(value)
-        self.write_one('}')
+        self._write_one_value(value)
+        self._write_one('}')
 
 
     def _write_short_map(self, sep, item):
         for key, value in item.items():
             if sep:
-                self.write_one(sep)
+                self._write_one(sep)
             self.write_scalar(key)
-            self.write_one_value(value)
+            self._write_one_value(value)
             sep = ' '
-        self.write_one('}')
+        self._write_one('}')
 
 
     def _write_map(self, item):
         for key, value in item.items():
-            self.write_pre_item_nl('')
+            self._write_pre_item_nl('')
             self.write_scalar(key)
             scalar = is_scalar(value)
             if not scalar:
                 self.indent += 1
-            self.write_one_value(value)
+            self._write_one_value(value)
             if not scalar:
                 self.indent -= 1
 
 
-    def write_one_value(self, value, sep=' '):
+    def _write_one_value(self, value, sep=' '):
         if sep and not self.prev.isspace() and (
                 is_scalar(value) or _is_short(value)):
-            self.write_one(sep)
+            self._write_one(sep)
         self.write_value(value)
 
 
     def write_table(self, item):
-        closed = self.write_nl_if_closed()
-        prefix = self.collection_prefix(item)
+        closed = self._write_nl_if_closed()
+        prefix = self._collection_prefix(item)
         text = f'{self.tab}({prefix}'
         if len(item) == 0:
-            self.write_close(text, ')')
+            self._write_close(text, ')')
             return
-        text = self.write_open(text)
+        text = self._write_open(text)
         if len(item) == 1:
             sep = ' ' if prefix and not text.endswith(' ') else ''
             self._write_single_record_table(item[0], sep)
         else:
             self.indent += 1
             if not closed:
-                self.write_one(f'\n{_INDENT * self.indent}')
+                self._write_one(f'\n{_INDENT * self.indent}')
             self._write_table(item)
             self.indent -= 1
-            self.write_nl(')')
+            self._write_nl(')')
 
 
     def _write_single_record_table(self, record, sep):
-        self.write_one(sep)
-        self.write_record(record)
-        self.write_one(')')
+        self._write_one(sep)
+        self._write_record(record)
+        self._write_one(')')
 
 
     def _write_table(self, item):
         for record in item:
-            self.write_pre_item_nl('')
-            self.write_record(record)
+            self._write_pre_item_nl('')
+            self._write_record(record)
 
 
-    def write_record(self, record):
+    def _write_record(self, record):
         sep = ''
         for value in record:
-            self.write_one(sep)
-            self.write_one_value(value, sep)
+            self._write_one(sep)
+            self._write_one_value(value, sep)
             sep = ' '
 
 
     def write_scalar(self, item):
         if item is None:
-            self.write_one('?')
+            self._write_one('?')
         elif isinstance(item, bool):
-            self.write_one('yes' if item else 'no')
+            self._write_one('yes' if item else 'no')
         elif isinstance(item, int):
-            self.write_one(str(item))
+            self._write_one(str(item))
         elif isinstance(item, float):
             text = str(item)
             if '.' not in text and 'e' not in text and 'E' not in text:
                 text += '.0'
-            self.write_one(text)
+            self._write_one(text)
         elif isinstance(item, (datetime.date, datetime.datetime)):
-            self.write_one(item.isoformat())
+            self._write_one(item.isoformat())
         elif isinstance(item, str):
-            self.write_one(f'<{escape(item)}>')
+            self._write_one(f'<{escape(item)}>')
         elif isinstance(item, (bytes, bytearray)):
-            self.write_one(f'(:{item.hex().upper()}:)')
+            self._write_one(f'(:{item.hex().upper()}:)')
         else:
             self.error(561, 'unexpected item of type '
                        f'{item.__class__.__name__}: {item!r};'
@@ -1943,21 +1943,21 @@ class _Writer:
         return '' if self.prev.isspace() else ' '
 
 
-    def write_nl(self, one):
-        self.write_one('\n')
+    def _write_nl(self, one):
+        self._write_one('\n')
         if self.tab:
-            self.write_one(self.tab)
-        self.write_one(one)
+            self._write_one(self.tab)
+        self._write_one(one)
 
 
-    def write_pre_item_nl(self, one):
-        self.write_one('\n')
+    def _write_pre_item_nl(self, one):
+        self._write_one('\n')
         if self.tab:
-            self.write_one(self.tab)
-        self.write_one(one)
+            self._write_one(self.tab)
+        self._write_one(one)
 
 
-    def write_one(self, one):
+    def _write_one(self, one):
         if (not one or one == self.prev == '\n') or (
                 self.prev_last_line not in ']})' and
                 not self.prev_last_line.endswith(':)') and one == '\n' and
@@ -1994,27 +1994,27 @@ class _Writer:
         self.last_line = text
 
 
-    def write_open(self, text):
+    def _write_open(self, text):
         if text.endswith('>'):
             text += ' ' # opening ended with a comment
-        self.write_one(text)
+        self._write_one(text)
         return text
 
 
-    def write_close(self, text, close):
+    def _write_close(self, text, close):
         text += close
-        self.write_one(text)
+        self._write_one(text)
 
 
-    def write_nl_if_closed(self):
+    def _write_nl_if_closed(self):
         closed = False
         if self.closed in ']})':
-            self.write_one('\n')
+            self._write_one('\n')
             closed = True
         return closed
 
 
-    def collection_prefix(self, item):
+    def _collection_prefix(self, item):
         comment = getattr(item, 'comment', None)
         ktype = getattr(item, 'ktype', None)
         vtype = getattr(item, 'vtype', None)
