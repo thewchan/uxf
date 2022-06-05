@@ -29,7 +29,8 @@ uxf 1.0 TLM Config
       <scale> 1.1
     }
   <More Tests>
-    [#<A list of name value pairs; normally would be a map> <empty table 0>
+    [#<A list of name value pairs; normally would be a map> 
+      <empty table 0>
       (RGBA) <one> (IPv4 141 179 19 9) <empty table 1>
       (RGBA) <many>
       (IPv4

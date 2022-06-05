@@ -1788,8 +1788,8 @@ class _Writer:
             self._write_short_list(sep, item)
         else:
             self.indent += 1
-            if not closed:
-                self.write_one('\n')
+            if self.prev != '\n':
+                self.write_one(f'\n{_INDENT * self.indent}')
             self._write_list(item)
             self.indent -= 1
             self.write_nl(']')
@@ -1907,7 +1907,7 @@ class _Writer:
         for value in record:
             self.write_one(sep)
             self.write_one_value(value, sep)
-            sep = ' ' if _is_short(value) else ''
+            sep = ' '
 
 
     def write_scalar(self, item):

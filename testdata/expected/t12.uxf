@@ -27,7 +27,8 @@ uxf 1.0 TLM Config
       <scale> 1.1
     }
   <UXF Type Tests>
-    [<one> (IPv4 141 179 19 9) <many>
+    [
+      <one> (IPv4 141 179 19 9) <many>
       (IPv4
         172 16 254 1
         192 0 2 235
@@ -43,7 +44,8 @@ uxf 1.0 TLM Config
       <Nested List of Lists>
         [#<Just a little list> 
           [5 <Classical> yes]
-          [4 <Modern Instrumental &amp; &lt;Experimental&gt;> no
+          [
+            4 <Modern Instrumental &amp; &lt;Experimental&gt;> no
           ] 
           [1 <New Acquistions> no]
         ]
