@@ -1792,7 +1792,7 @@ class _Writer:
                 self.write_one('\n')
             self._write_list(item)
             self.indent -= 1
-            self.write_nl_one(']')
+            self.write_nl(']')
 
 
     def _write_short_list(self, sep, item):
@@ -1826,10 +1826,10 @@ class _Writer:
         else:
             self.indent += 1
             if not closed:
-                self.write_nl_one(self.tab)
+                self.write_nl(self.tab)
             self._write_map(item)
             self.indent -= 1
-            self.write_nl_one('}')
+            self.write_nl('}')
 
 
     def _write_single_item_map(self, sep, item):
@@ -1853,7 +1853,7 @@ class _Writer:
 
     def _write_map(self, item):
         for key, value in item.items():
-            self.write_nl_one('')
+            self.write_pre_item_nl('')
             self.write_scalar(key)
             scalar = is_scalar(value)
             if not scalar:
@@ -1887,7 +1887,7 @@ class _Writer:
                 self.write_one('\n')
             self._write_table(item)
             self.indent -= 1
-            self.write_nl_one(')')
+            self.write_nl(')')
 
 
     def _write_single_record_table(self, record, sep):
@@ -1898,7 +1898,7 @@ class _Writer:
 
     def _write_table(self, item):
         for record in item:
-            self.write_nl_one('')
+            self.write_pre_item_nl('')
             self.write_record(record)
 
 
@@ -1943,15 +1943,14 @@ class _Writer:
         return '' if self.prev.isspace() else ' '
 
 
-    def write_sep_or_nl(self, sep):
-        if _WRAP_WIDTH and self.column > _WRAP_WIDTH:
-            self.write_nl_one('')
-            return sep
-        self.write_one(sep)
-        return ' '
+    def write_nl(self, one):
+        self.write_one('\n')
+        if self.tab:
+            self.write_one(self.tab)
+        self.write_one(one)
 
 
-    def write_nl_one(self, one):
+    def write_pre_item_nl(self, one):
         self.write_one('\n')
         if self.tab:
             self.write_one(self.tab)
@@ -1965,13 +1964,15 @@ class _Writer:
                 self.last_line.isspace()):
             return
         if (len(one) < _WRAP_WIDTH and not one.isspace() and
-                self.column + len(one) > _WRAP_WIDTH):
+                self.column + len(one) > _WRAP_WIDTH and
+                not ('\n' in self.prev_last_line and
+                     self.last_line.isspace())):
             self.file.write('\n')
             tab = _INDENT * self.indent
             self.file.write(tab)
             self.column = len(tab)
             self.prev_last_line = self.last_line
-            self.last_line = tab
+            self.last_line = f'\n{tab}'
         self.file.write(one)
         self.prev = one[-1]
         self._update(one)
