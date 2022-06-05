@@ -1788,7 +1788,7 @@ class _Writer:
             self._write_short_list(sep, item)
         else:
             self.indent += 1
-            if self.prev != '\n':
+            if not closed or self.prev != '\n':
                 self.write_one(f'\n{_INDENT * self.indent}')
             self._write_list(item)
             self.indent -= 1
@@ -1826,7 +1826,7 @@ class _Writer:
         else:
             self.indent += 1
             if not closed:
-                self.write_nl(self.tab)
+                self.write_one(f'\n{_INDENT * self.indent}')
             self._write_map(item)
             self.indent -= 1
             self.write_nl('}')
@@ -1884,7 +1884,7 @@ class _Writer:
         else:
             self.indent += 1
             if not closed:
-                self.write_one('\n')
+                self.write_one(f'\n{_INDENT * self.indent}')
             self._write_table(item)
             self.indent -= 1
             self.write_nl(')')
