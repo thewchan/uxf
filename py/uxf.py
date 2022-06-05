@@ -1711,7 +1711,6 @@ class _Writer:
     def __init__(self, file, uxo, on_error):
         self.file = file
         self.on_error = on_error
-        self.prev = '\n'
         self.column = 0
         self.indent = 0
         self.closed = ''
@@ -1731,6 +1730,16 @@ class _Writer:
 
     def error(self, code, message, *, fail=False):
         self.on_error(0, code, message, fail=fail)
+
+
+    @property
+    def prev(self):
+        return self.last_line[-1] if self.last_line else '\0'
+
+
+    @property
+    def had_space(self):
+        return self.last_line.isspace()
 
 
     def write_header(self, custom):
@@ -1959,12 +1968,11 @@ class _Writer:
         if (not one or one == self.prev == '\n') or (
                 self.prev_last_line not in ']})' and
                 not self.prev_last_line.endswith(':)') and one == '\n' and
-                self.last_line.isspace()):
+                self.had_space):
             return
         if (len(one) < _WRAP_WIDTH and not one.isspace() and
                 self.column + len(one) > _WRAP_WIDTH and
-                not ('\n' in self.prev_last_line and
-                     self.last_line.isspace())):
+                not ('\n' in self.prev_last_line and self.had_space)):
             self._write_pending('\n')
             tab = _INDENT * self.indent
             self._write_pending(tab)
@@ -1972,7 +1980,6 @@ class _Writer:
             self.prev_last_line = self.last_line
             self.last_line = f'\n{tab}'
         self._write_pending(one)
-        self.prev = one[-1]
         self._update(one)
         one = one.rstrip()
         if not one.endswith(':)') and one.endswith((']', '}', ')')):
