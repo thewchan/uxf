@@ -8,7 +8,7 @@ uxf 1.0
 =point3d x:int y:int z:int
 [
   (img (rgb 0 0 127) (:DECADE:)) 
-  (i <is this oblique?>) 
+  (i <is this oblique?>)
   {
     10
       (point3d
@@ -19,7 +19,7 @@ uxf 1.0
       )
     20 (cmyk 0.9 0.9 0.5 0.0)
     30 (pair <one> 2)
-  } 
+  }
   (Complex
     3.9 -1.4
     -170.0 2e-05

@@ -1,7 +1,8 @@
 uxf 1.0
 =Categories CID:int Title:str Selected:bool
 =Playlists PID:int Title:str CID:int Selected:bool
-{<Nested Map> {
+{<Nested Map>
+{
   <Classical> [5 yes]
   <Modern Instrumental> [4 no]
   <New Acquistions> [1 no]
@@ -31,7 +32,7 @@ uxf 1.0
         3 <Punk> no
         7 <Uncategorized> no
         6 <Unpopular Pop> no
-      ) 
+      )
       (Playlists
         4 <ABBA> 2 no
         38 <Bach> 5 no

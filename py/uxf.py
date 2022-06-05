@@ -33,7 +33,8 @@ _MAX_IDENTIFIER_LEN = 60
 _MAX_LIST_IN_LINE = 10
 _MAX_FIELDS_IN_LINE = 5
 _MAX_SHORT_LEN = 32
-_WRAP_WIDTH = 80 # set to 0 or None for no wrap
+_WRAP_WIDTH = 96 # set to 0 or None for no wrap
+_INDENT = '  '
 _KEY_TYPES = frozenset({'int', 'date', 'datetime', 'str', 'bytes'})
 _VALUE_TYPES = frozenset(_KEY_TYPES | {'bool', 'real'})
 _ANY_VALUE_TYPES = frozenset(_VALUE_TYPES | {'list', 'map', 'table'})
@@ -1786,28 +1787,26 @@ class _Writer:
             sep = ' ' if prefix and not text.endswith(' ') else ''
             self._write_short_list(sep, item)
         else:
+            self.indent += 1
             if not closed:
                 self.write_one('\n')
             self._write_list(item)
+            self.indent -= 1
+            self.write_nl_one(']')
 
 
     def _write_short_list(self, sep, item):
         for value in item:
-            if sep:
-                self.write_one(sep)
-            self.write_value(value)
+            self.write_one_value(value, sep)
             sep = ' '
         self.write_one(']')
 
 
     def _write_list(self, item):
-        self.indent += 1
         sep = ''
         for i, value in enumerate(item):
-            sep = self.write_sep_or_nl(sep)
-            self.write_value(value)
-        self.indent -= 1
-        self.write_nl_one(']')
+            self.write_one_value(value, sep)
+            sep = ' '
 
 
     def write_map(self, item):
@@ -1838,8 +1837,7 @@ class _Writer:
         if sep:
             self.write_one(sep)
         self.write_scalar(key)
-        self.write_one(' ')
-        self.write_value(value)
+        self.write_one_value(value)
         self.write_one('}')
 
 
@@ -1848,8 +1846,7 @@ class _Writer:
             if sep:
                 self.write_one(sep)
             self.write_scalar(key)
-            self.write_one(' ')
-            self.write_value(value)
+            self.write_one_value(value)
             sep = ' '
         self.write_one('}')
 
@@ -1858,13 +1855,19 @@ class _Writer:
         for key, value in item.items():
             self.write_nl_one('')
             self.write_scalar(key)
-            if _is_short(value):
-                self.write_one(' ')
-                self.write_value(value)
-            else:
+            scalar = is_scalar(value)
+            if not scalar:
                 self.indent += 1
-                self.write_value(value)
+            self.write_one_value(value)
+            if not scalar:
                 self.indent -= 1
+
+
+    def write_one_value(self, value, sep=' '):
+        if sep and not self.prev.isspace() and (
+                is_scalar(value) or _is_short(value)):
+            self.write_one(sep)
+        self.write_value(value)
 
 
     def write_table(self, item):
@@ -1902,8 +1905,9 @@ class _Writer:
     def write_record(self, record):
         sep = ''
         for value in record:
-            sep = self.write_sep_or_nl(sep)
-            self.write_value(value)
+            self.write_one(sep)
+            self.write_one_value(value, sep)
+            sep = ' ' if _is_short(value) else ''
 
 
     def write_scalar(self, item):
@@ -1935,7 +1939,7 @@ class _Writer:
     @property
     def tab(self):
         if self.prev == '\n':
-            return '  ' * self.indent
+            return _INDENT * self.indent
         return '' if self.prev.isspace() else ' '
 
 
@@ -1960,6 +1964,14 @@ class _Writer:
                 not self.prev_last_line.endswith(':)') and one == '\n' and
                 self.last_line.isspace()):
             return
+        if (len(one) < _WRAP_WIDTH and not one.isspace() and
+                self.column + len(one) > _WRAP_WIDTH):
+            self.file.write('\n')
+            tab = _INDENT * self.indent
+            self.file.write(tab)
+            self.column = len(tab)
+            self.prev_last_line = self.last_line
+            self.last_line = tab
         self.file.write(one)
         self.prev = one[-1]
         self._update(one)
@@ -1968,6 +1980,17 @@ class _Writer:
             self.closed = one[-1]
         elif not self.prev.isspace():
             self.closed = ''
+
+
+    def _update(self, text):
+        i = text.rfind('\n')
+        if i == -1:
+            self.column += len(text)
+        else:
+            self.column = len(text[i + 1:])
+            text = text[i:]
+        self.prev_last_line = self.last_line
+        self.last_line = text
 
 
     def write_open(self, text):
@@ -1980,17 +2003,6 @@ class _Writer:
     def write_close(self, text, close):
         text += close
         self.write_one(text)
-
-
-    def _update(self, text):
-        i = text.rfind('\n')
-        if i == -1:
-            self.column += len(text)
-        else:
-            self.column = len(text[i + 1:])
-            text = text[i:]
-        self.prev_last_line = self.last_line
-        self.last_line = text
 
 
     def write_nl_if_closed(self):
@@ -2032,6 +2044,8 @@ def _is_key_type(x):
 
 
 def _is_short(value):
+    if isinstance(value, (bytes, bytearray, str)):
+        return len(value) <= _MAX_SHORT_LEN
     if is_scalar(value) or len(value) == 1:
         return True
     if isinstance(value, (list, List)) and (
@@ -2046,7 +2060,7 @@ def _is_short(value):
 
 def _are_short(*items):
     for x in items:
-        if isinstance(x, (str, bytes, bytearray)):
+        if isinstance(x, (bytes, bytearray, str)):
             if len(x) > _MAX_SHORT_LEN:
                 return False
         elif x is not None and not isinstance(

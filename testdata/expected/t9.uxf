@@ -1,7 +1,8 @@
 uxf 1.0 TLM Config
 =Categories CID Title Selected
 =Playlists PID Title CID Selected
-{<Nested List of Tables> [
+{<Nested List of Tables>
+[
   (Categories
     5 <Classical> yes
     4 <Modern Instrumental> no
@@ -10,7 +11,7 @@ uxf 1.0 TLM Config
     3 <Punk> no
     7 <Uncategorized> no
     6 <Unpopular Pop> no
-  ) 
+  )
   (Playlists
     4 <ABBA> 2 no
     38 <Bach> 5 no

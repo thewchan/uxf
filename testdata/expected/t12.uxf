@@ -27,7 +27,8 @@ uxf 1.0 TLM Config
       <scale> 1.1
     }
   <UXF Type Tests>
-    [<one> (IPv4 141 179 19 9) <many> (IPv4
+    [<one> (IPv4 141 179 19 9) <many>
+      (IPv4
         172 16 254 1
         192 0 2 235
         127 0 0 1
@@ -41,7 +42,7 @@ uxf 1.0 TLM Config
       <New Acquistions> [1 no]
       <Nested List of Lists>
         [#<Just a little list> 
-          [5 <Classical> yes] 
+          [5 <Classical> yes]
           [4 <Modern Instrumental &amp; &lt;Experimental&gt;> no
           ] 
           [1 <New Acquistions> no]
@@ -67,7 +68,7 @@ show what can be done.> Categories
             3 <Punk> no
             7 <Uncategorized> no
             6 <Unpopular Pop> no
-          ) 
+          )
           (#<Comments may appear at the beginning of any list, map or table> Playlists
             4 <ABBA> 2 no
             38 <Bach> 5 no
