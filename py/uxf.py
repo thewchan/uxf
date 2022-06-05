@@ -1804,7 +1804,7 @@ class _Writer:
 
     def _write_list(self, item):
         sep = ''
-        for i, value in enumerate(item):
+        for value in item:
             self._write_one_value(value, sep)
             sep = ' '
 
@@ -1945,15 +1945,13 @@ class _Writer:
 
     def _write_nl(self, one):
         self._write_one('\n')
-        if self.tab:
-            self._write_one(self.tab)
+        self._write_one(_INDENT * self.indent)
         self._write_one(one)
 
 
     def _write_pre_item_nl(self, one):
         self._write_one('\n')
-        if self.tab:
-            self._write_one(self.tab)
+        self._write_one(_INDENT * self.indent)
         self._write_one(one)
 
 
