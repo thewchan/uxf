@@ -1968,7 +1968,7 @@ class _Writer:
             self._write_pending('\n')
             tab = _INDENT * self.indent
             self._write_pending(tab)
-            self.column = len(tab)
+            self.column = len(tab) # calling _update() won't work here
             self.prev_last_line = self.last_line
             self.last_line = f'\n{tab}'
         self._write_pending(one)
@@ -1999,7 +1999,9 @@ class _Writer:
             self.pending.append(text)
             force = True
         if force:
-            self.file.write(''.join(self.pending))
+            text = ''.join(self.pending)
+            self.file.write(text)
+            self._update(text)
             self.pending.clear()
         else:
             self.pending.append(text)
