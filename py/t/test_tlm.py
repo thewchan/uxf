@@ -61,7 +61,6 @@ def main():
     if uxo1.dumps().rstrip() == uxt3:
         ok += 1
     elif not regression:
-        uxo1.dump('/tmp/1.uxf.gz')
         print('unequal text formats')
 
     print(f'total={total} ok={ok}')

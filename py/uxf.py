@@ -1973,12 +1973,11 @@ class _Writer:
         if (len(one) < _WRAP_WIDTH and not one.isspace() and
                 self.column + len(one) > _WRAP_WIDTH and
                 not ('\n' in self.prev_last_line and self.had_space)):
+
             self._write_pending('\n')
             tab = _INDENT * self.indent
             self._write_pending(tab)
-            self.column = len(tab) # calling _update() won't work here
-            self.prev_last_line = self.last_line
-            self.last_line = f'\n{tab}'
+            self._update(f'\n{tab}')
         self._write_pending(one)
         self._update(one)
         one = one.rstrip()
