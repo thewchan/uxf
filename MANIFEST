@@ -54,7 +54,6 @@ uxf.vim
 st.sh
 
 # NOTE IDEAS:
-# - create a new uxf._Writer that never leaves spurious spaces after ']'s
 # - 1.1 allow '.' in identifiers (excl. first char)?
 # - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Experiment with using uxf format to store various kinds of data,

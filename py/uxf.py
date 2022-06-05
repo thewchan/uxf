@@ -1717,6 +1717,7 @@ class _Writer:
         self.closed = ''
         self.last_line = '\n'
         self.prev_last_line = '\n'
+        self.pending = []
         self.write_header(uxo.custom)
         if uxo.comment is not None:
             self.file.write(f'#<{escape(uxo.comment)}>\n')
@@ -1725,8 +1726,7 @@ class _Writer:
         if uxo.tclasses:
             self.write_tclasses(uxo.tclasses, uxo.imports)
         self.write_value(uxo.data)
-        if self.prev != '\n':
-            self.file.write('\n')
+        self._write_pending('\n' if self.prev != '\n' else '', force=True)
 
 
     def error(self, code, message, *, fail=False):
@@ -1965,13 +1965,13 @@ class _Writer:
                 self.column + len(one) > _WRAP_WIDTH and
                 not ('\n' in self.prev_last_line and
                      self.last_line.isspace())):
-            self.file.write('\n')
+            self._write_pending('\n')
             tab = _INDENT * self.indent
-            self.file.write(tab)
+            self._write_pending(tab)
             self.column = len(tab)
             self.prev_last_line = self.last_line
             self.last_line = f'\n{tab}'
-        self.file.write(one)
+        self._write_pending(one)
         self.prev = one[-1]
         self._update(one)
         one = one.rstrip()
@@ -1990,6 +1990,19 @@ class _Writer:
             text = text[i:]
         self.prev_last_line = self.last_line
         self.last_line = text
+
+
+    def _write_pending(self, text, *, force=False):
+        if text.endswith('\n'):
+            while self.pending and self.pending[-1].isspace():
+                self.pending.pop() # discard spurious spaces before newline
+            self.pending.append(text)
+            force = True
+        if force:
+            self.file.write(''.join(self.pending))
+            self.pending.clear()
+        else:
+            self.pending.append(text)
 
 
     def _write_open(self, text):
