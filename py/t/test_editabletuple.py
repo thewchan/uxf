@@ -20,7 +20,7 @@ def main():
     total = ok = 0
 
     fieldnames = ('width', 'height')
-    Record = uxf.editabletuple('Record', *fieldnames)
+    Record = uxf.editabletuple.editabletuple('Record', *fieldnames)
     r = Record(-7, 29)
 
     total += 1

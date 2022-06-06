@@ -17,7 +17,7 @@ import urllib.error
 import urllib.request
 from xml.sax.saxutils import escape, unescape
 
-from editabletuple import editabletuple
+import editabletuple
 
 try:
     from dateutil.parser import isoparse
@@ -30,11 +30,6 @@ VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
 _MAX_IDENTIFIER_LEN = 60
-_MAX_LIST_IN_LINE = 10
-_MAX_FIELDS_IN_LINE = 5
-_MAX_SHORT_LEN = 32
-_WRAP_WIDTH = 96 # set to 0 or None for no wrap
-_INDENT = '  '
 _KEY_TYPES = frozenset({'int', 'date', 'datetime', 'str', 'bytes'})
 _VALUE_TYPES = frozenset(_KEY_TYPES | {'bool', 'real'})
 _ANY_VALUE_TYPES = frozenset(_VALUE_TYPES | {'list', 'map', 'table'})
@@ -60,6 +55,35 @@ def on_error(lino, code, message, *, filename='-', fail=False,
         raise Error(text)
     if verbose:
         print(text, file=sys.stderr)
+
+
+def _validate_format(name, value): # If invalid we return the valid default
+    if name == 'indent':
+        if value == '' or (value.isspace() and len(value) < 33):
+            return value
+        return '  '
+    if name == 'wrap_width':
+        if value is None or value == 0 or 40 <= value <= 240:
+            return value
+        return 96
+    if name == 'max_list_in_line':
+        if 1 <= value <= 120:
+            return value
+        return 10
+    if name == 'max_fields_in_line':
+        if 1 <= value <= 120:
+            return value
+        return 5
+    if name == 'max_short_len':
+        if 24 <= value <= 60:
+            return value
+        return 32
+
+
+Format = editabletuple.editableobject(
+    'Format', 'indent', 'wrap_width', 'max_list_in_line',
+    'max_fields_in_line', 'max_short_len', defaults=('  ', 96, 10, 5, 32),
+    validator=_validate_format)
 
 
 class Uxf:
@@ -135,15 +159,16 @@ class Uxf:
         self._data = data
 
 
-    def dump(self, filename_or_filelike, *, on_error=on_error):
+    def dump(self, filename_or_filelike, *, on_error=on_error,
+             format=Format()):
         '''Convenience method that wraps the module-level dump() function'''
-        dump(filename_or_filelike, self, on_error=on_error)
+        dump(filename_or_filelike, self, on_error=on_error, format=format)
 
 
-    def dumps(self, *, on_error=on_error):
+    def dumps(self, *, on_error=on_error, format=Format()):
         '''Convenience method that wraps the module-level dumps()
         function'''
-        return dumps(self, on_error=on_error)
+        return dumps(self, on_error=on_error, format=format)
 
 
     def load(self, filename_or_filelike, *, on_error=on_error,
@@ -997,7 +1022,7 @@ class Table:
             raise Error('#340:can\'t use an unnamed table')
         if not self.fields:
             raise Error('#350:can\'t create a table with no fields')
-        self.RecordClass = editabletuple(
+        self.RecordClass = editabletuple.editabletuple(
             f'UXF_{self.ttype}', # prefix avoids name clashes
             *[field.name for field in self.fields])
 
@@ -1666,7 +1691,7 @@ _TYPECHECK_CLASSES = dict(
 _BUILT_IN_NAMES = tuple(_TYPECHECK_CLASSES.keys())
 
 
-def dump(filename_or_filelike, data, *, on_error=on_error):
+def dump(filename_or_filelike, data, *, on_error=on_error, format=Format()):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded). If filename_or_filelike is a filename
@@ -1687,13 +1712,13 @@ def dump(filename_or_filelike, data, *, on_error=on_error):
     try:
         if not isinstance(data, Uxf):
             data = Uxf(data)
-        _Writer(file, data, on_error)
+        _Writer(file, data, on_error, format)
     finally:
         if close:
             file.close()
 
 
-def dumps(data, *, on_error=on_error):
+def dumps(data, *, on_error=on_error, format=Format()):
     '''
     data is a Uxf object, or a list, List, dict, Map, or Table that this
     function will write to a string in UXF format which will then be
@@ -1702,15 +1727,16 @@ def dumps(data, *, on_error=on_error):
     string = io.StringIO()
     if not isinstance(data, Uxf):
         data = Uxf(data)
-    _Writer(string, data, on_error)
+    _Writer(string, data, on_error, format)
     return string.getvalue()
 
 
 class _Writer:
 
-    def __init__(self, file, uxo, on_error):
+    def __init__(self, file, uxo, on_error, format):
         self.file = file
         self.on_error = on_error
+        self.format = format
         self.column = 0
         self.indent = 0
         self.closed = ''
@@ -1791,14 +1817,16 @@ class _Writer:
             self._write_close(text, ']')
             return
         text = self._write_open(text)
-        if len(item) == 1 or (len(item) <= _MAX_LIST_IN_LINE and
-                              _are_short(*item[:_MAX_LIST_IN_LINE + 1])):
+        max_list_in_line = self.format.max_list_in_line
+        if len(item) == 1 or (len(item) <= max_list_in_line and
+                              _are_short(self.format.max_short_len,
+                                         *item[:max_list_in_line + 1])):
             sep = ' ' if prefix and not text.endswith(' ') else ''
             self._write_short_list(sep, item)
         else:
             self.indent += 1
             if not closed or self.prev != '\n':
-                self._write_one(f'\n{_INDENT * self.indent}')
+                self._write_one(f'\n{self.format.indent * self.indent}')
             self._write_list(item)
             self.indent -= 1
             self._write_nl(']')
@@ -1829,13 +1857,15 @@ class _Writer:
         sep = ' ' if prefix and not text.endswith(' ') else ''
         if len(item) == 1:
             self._write_single_item_map(sep, item)
-        elif len(item) <= _MAX_FIELDS_IN_LINE and _are_short(
-                *list(item.values())[:_MAX_LIST_IN_LINE + 1]):
+
+        elif len(item) <= self.format.max_fields_in_line and _are_short(
+                self.format.max_short_len,
+                *list(item.values())[:self.format.max_list_in_line + 1]):
             self._write_short_map(sep, item)
         else:
             self.indent += 1
             if not closed:
-                self._write_one(f'\n{_INDENT * self.indent}')
+                self._write_one(f'\n{self.format.indent * self.indent}')
             self._write_map(item)
             self.indent -= 1
             self._write_nl('}')
@@ -1874,7 +1904,8 @@ class _Writer:
 
     def _write_one_value(self, value, sep=' '):
         if sep and not self.prev.isspace() and (
-                is_scalar(value) or _is_short(value)):
+                is_scalar(value) or
+                _is_short(value, self.format)):
             self._write_one(sep)
         self.write_value(value)
 
@@ -1893,7 +1924,7 @@ class _Writer:
         else:
             self.indent += 1
             if not closed:
-                self._write_one(f'\n{_INDENT * self.indent}')
+                self._write_one(f'\n{self.format.indent * self.indent}')
             self._write_table(item)
             self.indent -= 1
             self._write_nl(')')
@@ -1948,19 +1979,19 @@ class _Writer:
     @property
     def tab(self):
         if self.prev == '\n':
-            return _INDENT * self.indent
+            return self.format.indent * self.indent
         return '' if self.prev.isspace() else ' '
 
 
     def _write_nl(self, one):
         self._write_one('\n')
-        self._write_one(_INDENT * self.indent)
+        self._write_one(self.format.indent * self.indent)
         self._write_one(one)
 
 
     def _write_pre_item_nl(self, one):
         self._write_one('\n')
-        self._write_one(_INDENT * self.indent)
+        self._write_one(self.format.indent * self.indent)
         self._write_one(one)
 
 
@@ -1970,11 +2001,12 @@ class _Writer:
                 not self.prev_last_line.endswith(':)') and one == '\n' and
                 self.had_space):
             return
-        if (len(one) < _WRAP_WIDTH and not one.isspace() and
-                self.column + len(one) > _WRAP_WIDTH and
+        wrap_width = self.format.wrap_width
+        if (wrap_width and len(one) < wrap_width and not one.isspace() and
+                self.column + len(one) > wrap_width and
                 not ('\n' in self.prev_last_line and self.had_space)):
             self._write_pending('\n')
-            tab = _INDENT * self.indent
+            tab = self.format.indent * self.indent
             self._write_pending(tab)
             self._update(f'\n{tab}')
         self._write_pending(one)
@@ -2062,25 +2094,29 @@ def _is_key_type(x):
                           bytes))
 
 
-def _is_short(value):
+def _is_short(value, format):
     if isinstance(value, (bytes, bytearray, str)):
-        return len(value) <= _MAX_SHORT_LEN
+        return len(value) <= format.max_short_len
     if is_scalar(value) or len(value) == 1:
         return True
     if isinstance(value, (list, List)) and (
-            len(value) <= _MAX_LIST_IN_LINE and
-            _are_short(*value[:_MAX_LIST_IN_LINE + 1])):
+            len(value) <= format.max_list_in_line and
+            _are_short(format.max_short_len,
+                       *value[:format.max_list_in_line + 1])):
         return True
-    if (isinstance(value, (dict, Map)) and len(value) <= _MAX_FIELDS_IN_LINE
-            and _are_short(*list(value.values())[:_MAX_LIST_IN_LINE + 1])):
+    if (isinstance(value, (dict, Map)) and
+            len(value) <= format.max_fields_in_line and
+            _are_short(
+                format.max_short_len,
+                *list(value.values())[:format.max_list_in_line + 1])):
         return True
     return False
 
 
-def _are_short(*items):
+def _are_short(max_short_len, *items):
     for x in items:
         if isinstance(x, (bytes, bytearray, str)):
-            if len(x) > _MAX_SHORT_LEN:
+            if len(x) > max_short_len:
                 return False
         elif x is not None and not isinstance(
                 x, (bool, int, float, datetime.date, datetime.datetime)):

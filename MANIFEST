@@ -1,3 +1,4 @@
+# TODO update Py API docs to cover the Format class
 # TODO update docs to mention eg/Config.py & py/eg/Tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
