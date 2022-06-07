@@ -2224,7 +2224,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(usage=get_usage('''\
 usage: uxf.py [-l|--lint] [-d|--dropunused] [-r|--replaceimports] \
-<infile.uxf[.gz]> [<outfile.uxf[.gz]>]
+[-iI|--indent=I] [-wW|--wrapwidth=W] <infile.uxf[.gz]> [<outfile.uxf[.gz]>]
    or: python3 -m uxf ...same options as above...
 
 If an outfile is specified and ends .gz it will be gzip-compressed.
@@ -2239,14 +2239,18 @@ to make the outfile standalone (i.e., not dependent on any imports).
 
 (-d, -l, and -r may be grouped, e.g., -ldr, -dl, etc.)
 
-Indent defaults to 2 and accepts a range of 0-8.
-The default is silently used if an out of range value is given.
+Indent defaults to 2 and accepts a range of 0-32.
+
+Wrapwidth defaults to 96 and accepts 0 (no wrapping) or a range of 40-240.
+
+For indent and wrapwidth the default is silently used if an out of range
+value is given.
 
 To get an uncompressed .uxf file run: `uxf.py infile.uxf.gz outfile.uxf` or
 simply `gunzip infile.uxf.gz`.
 
 To produce a compressed and compact .uxf file run:
-`uxf.py -i0 infile.uxf outfile.uxf.gz`
+`uxf.py -i0 -w0 infile.uxf outfile.uxf.gz`
 
 Converting uxf to uxf will alphabetically order any ttypes.
 However, the order of imports is preserved (with any duplicates removed)
@@ -2258,9 +2262,14 @@ to allow later imports to override earlier ones.
                         help='drop unused imports and ttypes')
     parser.add_argument('-r', '--replaceimports', action='store_true',
                         help='replace imports with their used ttypes')
+    parser.add_argument('-i', '--indent', type=int, default=2,
+                        help='indent (0-32; default 2)')
+    parser.add_argument('-w', '--wrapwidth', type=int, default=96,
+                        help='wrapwidth (0 or 40-240; default 96)')
     parser.add_argument('infile', nargs=1, help='required UXF infile')
     parser.add_argument('outfile', nargs='?', help='optional UXF outfile')
     config = parser.parse_args()
+    config.indent = ' ' * config.indent # change to spaces
     infile = config.infile[0]
     outfile = config.outfile
     if outfile is not None:
@@ -2278,6 +2287,8 @@ to allow later imports to override earlier ones.
         on_error = functools.partial(on_error, verbose=config.lint,
                                      filename=outfile)
         if do_dump:
-            dump(outfile, uxo, on_error=on_error)
+            format = Format(indent=config.indent,
+                            wrap_width=config.wrapwidth)
+            dump(outfile, uxo, on_error=on_error, format=format)
     except (OSError, Error) as err:
         parser.error(f'uxf.py:error:{err}')

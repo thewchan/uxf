@@ -1,11 +1,13 @@
 # TODO update Py API docs to cover the Format class
+# TODO review existing API docs to make sure they're accurate (e.g.,
+# indent and wrap width, etc.)
 # TODO update docs to mention eg/Config.py & py/eg/Tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
 # everything visited to actual/vN.txt # (N=13 63 for t13.uxf t63.uxf)
 # and then regression test against expected/vN.txt
-# TODO review & improve README.md and py/README.md
+# TODO review & improve README.md, py/README.md, and py/eg/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
 # TODO py/uxfparser.py

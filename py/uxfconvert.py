@@ -51,6 +51,10 @@ def _get_converter():
                         help='drop unused imports and ttypes')
     parser.add_argument('-r', '--replaceimports', action='store_true',
                         help='replace imports with their used ttypes')
+    parser.add_argument('-i', '--indent', type=int, default=2,
+                        help='indent (0-32; default 2)')
+    parser.add_argument('-w', '--wrapwidth', type=int, default=96,
+                        help='wrapwidth (0 or 40-240; default 96)')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument(
         '-f', '--fieldnames', action='store_true',
@@ -59,6 +63,7 @@ def _get_converter():
     parser.add_argument('file', nargs='+',
                         help='infile(s) and outfile as shown above')
     config = parser.parse_args()
+    config.indent = ' ' * config.indent # change to spaces
     return _prepare_converter(parser, config)
 
 
@@ -91,9 +96,10 @@ def _get_mulit_csv_converter(parser, config):
     for name in config.file[:-1]:
         if not name.upper().endswith(DOT_CSV):
             parser.error('multiple infiles may only be .csv files')
-    return lambda: multi_csv_to_uxf(config.file[:-1], config.file[-1],
-                                    fieldnames=config.fieldnames,
-                                    verbose=config.verbose)
+    return lambda: multi_csv_to_uxf(
+        config.file[:-1], config.file[-1], fieldnames=config.fieldnames,
+        indent=config.indent, wrap_width=config.wrapwidth,
+        verbose=config.verbose)
 
 
 def _get_other_converter(parser, config):
@@ -106,7 +112,8 @@ def _get_other_converter(parser, config):
         parser.error('cannot convert uxf to uxf, instead use: '
                      'python3 -m uxf infile.uxf outfile.uxf')
     kwargs = dict(verbose=config.verbose, drop_unused=config.dropunused,
-                  replace_imports=config.replaceimports)
+                  replace_imports=config.replaceimports,
+                  indent=config.indent, wrap_width=config.wrapwidth)
     if not uoutfile.endswith((DOT_CSV, DOT_INI, DOT_JSN, DOT_JSON,
                               DOT_SQLITE, DOT_XML)):
         if uinfile.endswith(DOT_CSV):
@@ -135,7 +142,7 @@ def _get_other_converter(parser, config):
 
 
 def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
-               drop_unused=False):
+               drop_unused=False, indent='  ', wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = uxf.load(infile, on_error=on_error, drop_unused=drop_unused,
                    replace_imports=replace_imports)
@@ -160,11 +167,13 @@ def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
 
 
 def csv_to_uxf(infile, outfile, *, fieldnames=False, verbose=True,
-               replace_imports=False, drop_unused=False):
+               replace_imports=False, drop_unused=False, indent='  ',
+               wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     data, filename, tclasses = _read_csv_to_data(infile, fieldnames)
     uxf.dump(outfile, uxf.Uxf(data, custom=filename, tclasses=tclasses),
-             on_error=on_error)
+             on_error=on_error,
+             format=uxf.Format(indent=indent, wrap_width=wrap_width))
 
 
 def _read_csv_to_data(infile, fieldnames):
@@ -187,7 +196,8 @@ def _read_csv_to_data(infile, fieldnames):
 
 
 def multi_csv_to_uxf(infiles, outfile, *, fieldnames=False, verbose=True,
-                     replace_imports=False, drop_unused=False):
+                     replace_imports=False, drop_unused=False, indent='  ',
+                     wrap_width=96):
     data = []
     tclasses = {}
     for infile in infiles:
@@ -198,11 +208,12 @@ def multi_csv_to_uxf(infiles, outfile, *, fieldnames=False, verbose=True,
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxf.dump(outfile,
              uxf.Uxf(data, custom=' '.join(infiles), tclasses=tclasses),
-             on_error=on_error)
+             on_error=on_error,
+             format=uxf.Format(indent=indent, wrap_width=wrap_width))
 
 
 def uxf_to_json(infile, outfile, *, verbose=True, replace_imports=False,
-                drop_unused=False):
+                drop_unused=False, indent='  ', wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = uxf.load(infile, on_error=on_error, drop_unused=drop_unused,
                    replace_imports=replace_imports)
@@ -218,7 +229,7 @@ def uxf_to_json(infile, outfile, *, verbose=True, replace_imports=False,
                                   key=lambda t: t.ttype)
     d[JSON_DATA] = uxo.data
     with open(outfile, 'wt', encoding=UTF8) as file:
-        json.dump(d, file, cls=_JsonEncoder, indent=2)
+        json.dump(d, file, cls=_JsonEncoder, indent=len(indent))
 
 
 class _JsonEncoder(json.JSONEncoder):
@@ -289,7 +300,7 @@ def _json_encode_map(obj):
 
 
 def json_to_uxf(infile, outfile, *, verbose=True, replace_imports=False,
-                drop_unused=False):
+                drop_unused=False, indent='  ', wrap_width=96):
     with open(infile, 'rt', encoding=UTF8) as file:
         d = json.load(file, object_hook=_json_naturalize)
     custom = d.get(JSON_CUSTOM)
@@ -306,7 +317,8 @@ def json_to_uxf(infile, outfile, *, verbose=True, replace_imports=False,
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = uxf.Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
-    uxf.dump(outfile, uxo, on_error=on_error)
+    uxf.dump(outfile, uxo, on_error=on_error,
+             format=uxf.Format(indent=indent, wrap_width=wrap_width))
 
 
 def _json_naturalize(d):
@@ -352,7 +364,7 @@ def _json_naturalize(d):
 
 
 def ini_to_uxf(infile, outfile, *, verbose=True, replace_imports=False,
-               drop_unused=False):
+               drop_unused=False, indent='  ', wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     ini = configparser.ConfigParser()
     ini.read(infile)
@@ -363,11 +375,12 @@ def ini_to_uxf(infile, outfile, *, verbose=True, replace_imports=False,
             m = data[section] = uxf.Map()
             for key, value in d.items():
                 m[uxf.naturalize(key)] = uxf.naturalize(value)
-    uxf.dump(outfile, uxf.Uxf(data, custom=infile), on_error=on_error)
+    uxf.dump(outfile, uxf.Uxf(data, custom=infile), on_error=on_error,
+             format=uxf.Format(indent=indent, wrap_width=wrap_width))
 
 
 def uxf_to_sqlite(infile, outfile, *, verbose=True, replace_imports=False,
-                  drop_unused=False):
+                  drop_unused=False, indent='  ', wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = uxf.load(infile, on_error=on_error, drop_unused=drop_unused,
                    replace_imports=replace_imports)
@@ -430,10 +443,11 @@ def _populate_table(db, table, ttype):
 
 
 def sqlite_to_uxf(infile, outfile, *, verbose=True, replace_imports=False,
-                  drop_unused=False):
+                  drop_unused=False, indent='  ', wrap_width=96):
     uxo = _sqlite_to_uxf(infile)
     on_error = functools.partial(uxf.on_error, verbose=verbose)
-    uxo.dump(outfile, on_error=on_error)
+    uxo.dump(outfile, on_error=on_error,
+             format=uxf.Format(indent=indent, wrap_width=wrap_width))
 
 
 def _sqlite_to_uxf(infile):
@@ -470,14 +484,14 @@ def _sqlite_to_uxf(infile):
 
 
 def uxf_to_xml(infile, outfile, *, verbose=True, replace_imports=False,
-               drop_unused=False):
+               drop_unused=False, indent='  ', wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = uxf.load(infile, on_error=on_error, drop_unused=drop_unused,
                    replace_imports=replace_imports)
-    _uxf_to_xml(uxo, outfile)
+    _uxf_to_xml(uxo, outfile, indent=indent)
 
 
-def _uxf_to_xml(uxo, outfile):
+def _uxf_to_xml(uxo, outfile, indent):
     dom = xml.dom.minidom.getDOMImplementation()
     tree = dom.createDocument(None, 'uxf', None)
     root = tree.documentElement
@@ -492,7 +506,7 @@ def _uxf_to_xml(uxo, outfile):
         _xml_add_tclasses(tree, root, uxo.tclasses)
     _xml_add_value(tree, root, uxo.data)
     with open(outfile, 'wt', encoding='utf-8') as file:
-        file.write(tree.toprettyxml(indent='  '))
+        file.write(tree.toprettyxml(indent=indent))
 
 
 def _xml_add_imports(tree, root, import_filenames):
@@ -615,10 +629,11 @@ def _xml_add_scalar(tree, root, value):
 
 
 def xml_to_uxf(infile, outfile, *, verbose=True, replace_imports=False,
-               drop_unused=False):
+               drop_unused=False, indent='  ', wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = _xml_to_uxf(infile)
-    uxo.dump(outfile, on_error=on_error)
+    uxo.dump(outfile, on_error=on_error,
+             format=uxf.Format(indent=indent, wrap_width=wrap_width))
 
 
 def _xml_to_uxf(infile):
@@ -784,11 +799,12 @@ VTYPE = 'vtype'
 
 PREFIX = '''
 uxfconvert.py <infile.uxf[.gz]> <outfile.{csv,json,sqlite,xml}>
-uxfconvert.py [-d|--dropunused] [-r|--replaceimports] \
-[-f|--fieldnames] <infile.{csv,ini,json,sqlite,xml}> <outfile.uxf[.gz]>
-uxfconvert.py [-d|--dropunused] [-r|--replaceimports] \
-[-f|--fieldnames] <infile1.csv> [infile2.csv ... infileM.csv] \
+uxfconvert.py [-d|--dropunused] [-r|--replaceimports] [-f|--fieldnames] \
+[-iI|--indent=I] [-wW|--wrapwidth=W] <infile.{csv,ini,json,sqlite,xml}> \
 <outfile.uxf[.gz]>
+uxfconvert.py [-d|--dropunused] [-r|--replaceimports] [-f|--fieldnames] \
+[-iI|--indent=I] [-wW|--wrapwidth=W] <infile1.csv> [infile2.csv ... \
+infileM.csv] <outfile.uxf[.gz]>
 
 '''
 
@@ -796,12 +812,18 @@ USAGE = '''Converts to and from uxf format.
 
 If the outfile is .uxf.gz, the output will be gzip compressed UXF.
 
-Indent defaults to 2 (uxf's default); but can be set to any value 0-8.
-
 Use -d or --dropunused to drop unused ttype definitions and imports.
 
 Use -r or --replaceimports to replace imports with ttype definitions
 to make the outfile standalone (i.e., not dependent on any imports).
+
+Indent defaults to 2 and accepts a range of 0-32.
+
+Wrapwidth defaults to 96 and accepts 0 (no wrapping) or a range of 40-240.
+
+For indent and wrapwidth the default is silently used if an out of range
+value is given. Indent applies when converting to JSON, UXF, and XML;
+wrapwidth applies when converting to UXF.
 
 If fieldnames is set and the infile(s) is(are) csv the first row of each
 infile will be read as field (column) names; otherwise all rows will be
