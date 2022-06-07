@@ -59,25 +59,17 @@ def on_error(lino, code, message, *, filename='-', fail=False,
 
 def _validate_format(name, value): # If invalid we return the valid default
     if name == 'indent':
-        if value == '' or (value.isspace() and len(value) < 33):
-            return value
-        return '  '
+        return value if (value == '' or (
+                         value.isspace() and len(value) < 33)) else '  '
     if name == 'wrap_width':
-        if value is None or value == 0 or 40 <= value <= 240:
-            return value
-        return 96
+        return value if (value is None or value == 0 or
+                         40 <= value <= 240) else 96
     if name == 'max_list_in_line':
-        if 1 <= value <= 120:
-            return value
-        return 10
+        return value if 1 <= value <= 120 else 10
     if name == 'max_fields_in_line':
-        if 1 <= value <= 120:
-            return value
-        return 5
+        return value if 1 <= value <= 120 else 5
     if name == 'max_short_len':
-        if 24 <= value <= 60:
-            return value
-        return 32
+        return value if 24 <= value <= 60 else 32
 
 
 Format = editabletuple.editableobject(
