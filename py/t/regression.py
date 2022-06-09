@@ -97,7 +97,7 @@ def get_config():
             raise SystemExit('usage: regression.py [-v|--verbose] [max]')
         elif arg in {'-v', '--verbose'}:
             verbose = True
-        elif arg.isascii() and arg.isdigit():
+        elif isasciidigit(arg):
             max_total = int(arg)
     return max_total, verbose
 
@@ -407,6 +407,12 @@ def by_number(s):
     if match is not None:
         return match['name'], int(match['max_total'])
     return s, 0
+
+
+def isasciidigit(s):
+    '''Returns True if s matches /^[0-9]+$/.'''
+    return s.isascii() and s.isdigit()
+
 
 
 if __name__ == '__main__':
