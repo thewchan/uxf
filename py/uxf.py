@@ -369,10 +369,10 @@ class _Lexer:
             self.read_string()
         elif c == ':':
             self.read_field_vtype()
-        elif c == '-' and self.peek().isdecimal():
+        elif c == '-' and isasciidigit(self.peek()):
             c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
-        elif c.isdecimal():
+        elif isasciidigit(c):
             self.read_positive_number_or_date(c)
         elif c.isalpha():
             self.read_name()
@@ -436,7 +436,7 @@ class _Lexer:
     def read_negative_number(self, c):
         is_real = False
         start = self.pos - 1
-        while not self.at_end() and (c in '.eE' or c.isdecimal()):
+        while not self.at_end() and (c in '.eE' or isasciidigit(c)):
             if c in '.eE':
                 is_real = True
             c = self.text[self.pos]
@@ -474,7 +474,7 @@ class _Lexer:
     def read_number_or_date_chars(self, c):
         is_real = is_datetime = False
         hyphens = 0
-        while not self.at_end() and (c in '-+.:eETZ' or c.isdecimal()):
+        while not self.at_end() and (c in '-+.:eETZ' or isasciidigit(c)):
             if c in '.eE':
                 is_real = True
             elif c == '-':
@@ -732,7 +732,7 @@ class Map(collections.UserDict):
 def _check_name(name):
     if not name:
         raise Error('#298:fields and tables must have nonempty names')
-    if name[0].isdigit():
+    if isasciidigit(name[0]):
         raise Error('#300:names must start with a letter or '
                     f'underscore, got {name}')
     if name in RESERVED_WORDS:
@@ -2197,6 +2197,11 @@ def canonicalize(name):
         canonicalize.count += 1
     return name[:_MAX_IDENTIFIER_LEN]
 canonicalize.count = 1 # noqa: E305
+
+
+def isasciidigit(s):
+    '''Returns True if s matches /^[0-9]+$/.'''
+    return s.isascii() and s.isdigit()
 
 
 if __name__ == '__main__':

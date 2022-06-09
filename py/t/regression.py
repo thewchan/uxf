@@ -97,7 +97,7 @@ def get_config():
             raise SystemExit('usage: regression.py [-v|--verbose] [max]')
         elif arg in {'-v', '--verbose'}:
             verbose = True
-        elif arg.isdecimal():
+        elif arg.isascii() and arg.isdigit():
             max_total = int(arg)
     return max_total, verbose
 
