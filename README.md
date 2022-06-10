@@ -626,6 +626,9 @@ explicitly. The data represented is a list consisting of three Complex
 numbers each holding two ``real``s each, a `str`, and two Fractions holding
 two ``int``s each.
 
+If you choose to use imports we recommed that UXF files intended for import
+_either_ contain a single _ttype_ definition _or_ two or more imports.
+
 We recommend avoiding imports and using stand-alone `.uxf` files. Some UXF
 processors can do UXF to UXF conversions that will replace imports with
 (actually used) _ttype_ definitions.
