@@ -9,7 +9,6 @@
 # and then regression test against expected/vN.txt
 # TODO review & improve README.md, py/README.md, and py/eg/README.md
 # TODO code review & improvement
-# TODO test with Py 3.7 and 3.6 update setup.py if either or both work
 # TODO release py 1.0.0
 # TODO py/uxfparser.py
 # TODO UXF libraries:
