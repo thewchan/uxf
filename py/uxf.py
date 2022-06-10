@@ -1571,7 +1571,7 @@ class _Parser:
             raise _AlreadyImported # don't reimport
         try:
             with urllib.request.urlopen(url) as file:
-                return file.read().decode('utf-8')
+                return file.read().decode()
         except (UnicodeDecodeError, ConnectionError, urllib.error.HTTPError,
                 urllib.error.URLError) as err:
             self.error(550, f'failed to import {url!r}: {err}')
