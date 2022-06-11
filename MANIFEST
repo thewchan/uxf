@@ -57,10 +57,17 @@ uxf.vim
 st.sh
 
 # NOTE IDEAS:
-# - 1.1 allow '.' in identifiers (excl. first char)?
-# - Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
+# - Language: allow '.' in identifiers (excl. first char)?
+# - Documentation:
+#   . shorter README.md with shorter & pithier egs
+#   . complete manual with egs and use cases
+#   . Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
+# - Verification suite: create files (valid & invalid UXF etc) &
+#   language/library-neutral scripts for validating a UXF processor's
+#   conformance.
 # - Experiment with using uxf format to store various kinds of data,
-#   e.g., styled text (but see uxf2html notes), spreadsheet, graphics, etc.
+#   e.g., styled text (but see uxf2html notes), spreadsheet, graphics,
+#   etc., & equivalents to other formats, e.g., geojson, etc.
 # NOTE Rejected Ideas
 # - Union types.
 
