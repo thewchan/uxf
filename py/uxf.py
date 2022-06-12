@@ -30,6 +30,7 @@ VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
 _MAX_IDENTIFIER_LEN = 60
+_SEP = ' '
 _KEY_TYPES = frozenset({'int', 'date', 'datetime', 'str', 'bytes'})
 _VALUE_TYPES = frozenset(_KEY_TYPES | {'bool', 'real'})
 _ANY_VALUE_TYPES = frozenset(_VALUE_TYPES | {'list', 'map', 'table'})
@@ -1813,7 +1814,7 @@ class _Writer:
         if len(item) == 1 or (len(item) <= max_list_in_line and
                               _are_short(self.format.max_short_len,
                                          *item[:max_list_in_line + 1])):
-            sep = ' ' if prefix and not text.endswith(' ') else ''
+            sep = _SEP if prefix and not text.endswith(_SEP) else ''
             self._write_short_list(sep, item)
         else:
             self.indent += 1
@@ -1827,7 +1828,7 @@ class _Writer:
     def _write_short_list(self, sep, item):
         for value in item:
             self._write_one_value(value, sep)
-            sep = ' '
+            sep = _SEP
         self._write_one(']')
 
 
@@ -1835,7 +1836,7 @@ class _Writer:
         sep = ''
         for value in item:
             self._write_one_value(value, sep)
-            sep = ' '
+            sep = _SEP
 
 
     def write_map(self, item):
@@ -1846,7 +1847,7 @@ class _Writer:
             self._write_close(text, '}')
             return
         text = self._write_open(text)
-        sep = ' ' if prefix and not text.endswith(' ') else ''
+        sep = _SEP if prefix and not text.endswith(_SEP) else ''
         if len(item) == 1:
             self._write_single_item_map(sep, item)
 
@@ -1878,7 +1879,7 @@ class _Writer:
                 self._write_one(sep)
             self.write_scalar(key)
             self._write_one_value(value)
-            sep = ' '
+            sep = _SEP
         self._write_one('}')
 
 
@@ -1894,7 +1895,7 @@ class _Writer:
                 self.indent -= 1
 
 
-    def _write_one_value(self, value, sep=' '):
+    def _write_one_value(self, value, sep=_SEP):
         if sep and not self.prev.isspace() and (
                 is_scalar(value) or
                 _is_short(value, self.format)):
@@ -1911,7 +1912,7 @@ class _Writer:
             return
         text = self._write_open(text)
         if len(item) == 1:
-            sep = ' ' if prefix and not text.endswith(' ') else ''
+            sep = _SEP if prefix and not text.endswith(_SEP) else ''
             self._write_single_record_table(item[0], sep)
         else:
             self.indent += 1
@@ -1939,7 +1940,7 @@ class _Writer:
         for value in record:
             self._write_one(sep)
             self._write_one_value(value, sep)
-            sep = ' '
+            sep = _SEP
 
 
     def write_scalar(self, item):
@@ -1972,7 +1973,7 @@ class _Writer:
     def tab(self):
         if self.prev == '\n':
             return self.format.indent * self.indent
-        return '' if self.prev.isspace() else ' '
+        return '' if self.prev.isspace() else _SEP
 
 
     def _write_nl(self, one):
@@ -2038,7 +2039,7 @@ class _Writer:
 
     def _write_open(self, text):
         if text.endswith('>'):
-            text += ' ' # opening ended with a comment
+            text += _SEP # opening ended with a comment
         self._write_one(text)
         return text
 
@@ -2070,7 +2071,7 @@ class _Writer:
             parts.append(vtype)
         if tclass is not None:
             parts.append(tclass.ttype)
-        return ' '.join(parts) if parts else ''
+        return _SEP.join(parts) if parts else ''
 
 
 def is_scalar(x):
