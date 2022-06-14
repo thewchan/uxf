@@ -148,7 +148,7 @@ def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
                    replace_imports=replace_imports)
     data = uxo.data
     if isinstance(data, uxf.Table):
-        with open(outfile, 'w') as file:
+        with open(outfile, 'w', newline='') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             writer.writerow((field.name for field in data.fields))
             for row in data:
@@ -157,7 +157,7 @@ def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
             isinstance(data[0], (list, uxf.List)) and data[0] and not
             isinstance(data[0][0], (dict, list, uxf.Map, uxf.List,
                                     uxf.Table))):
-        with open(outfile, 'w') as file:
+        with open(outfile, 'w', newline='') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             for row in data:
                 writer.writerow(row)
@@ -179,7 +179,7 @@ def csv_to_uxf(infile, outfile, *, fieldnames=False, verbose=True,
 def _read_csv_to_data(infile, fieldnames):
     tclasses = {}
     data = None
-    with open(infile) as file:
+    with open(infile, newline='') as file:
         reader = csv.reader(file)
         for row in reader:
             if data is None:
