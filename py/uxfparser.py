@@ -3,8 +3,10 @@
 # License: GPLv3
 
 # If this turns out to be faster/more memory efficient than the current
-# uxf._Parser, drop it in as a replacement; otherwise merge it into uxf.py
-# as an additional API.
+# uxf._Parser, drop it in as a replacement, in which case there'd need to be
+# a UxfBuilder(UxfParser) subclass that accepted all the events and used
+# them to build a Uxf object; otherwise merge it into uxf.py as an
+# additional API.
 
 '''
 - UxfParser an incremental parser that calls 'event' methods similar
