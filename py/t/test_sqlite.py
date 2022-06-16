@@ -50,9 +50,9 @@ def check(total, ok, name, regression):
                                                                 '.sqlite'))
     with contextlib.suppress(FileNotFoundError):
         os.remove(filename)
-    if isinstance(uxo1.data, uxf.Table):
-        uxo1.data = [uxo1.data]
-    uxfconvert._uxf_to_sqlite(filename, uxo1.data)
+    if isinstance(uxo1.value, uxf.Table):
+        uxo1.value = [uxo1.value]
+    uxfconvert._uxf_to_sqlite(filename, uxo1.value)
     uxo2 = uxfconvert._sqlite_to_uxf(filename)
     total += 1
     if eq.eq(uxo1, uxo2, ignore_custom=True, ignore_comments=True,

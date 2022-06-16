@@ -62,7 +62,7 @@ class Config:
                               annotation='red', confirmed='blue',
                               number='navy'), ktype='str', vtype='str',
                          comment='colors HTML-style #HHHHHH or names')
-        self._uxo.data = uxf.Map(dict(fontsize=18, general=general,
+        self._uxo.value = uxf.Map(dict(fontsize=18, general=general,
                                       colors=colors),
                                  comment='fontsize range 8-36')
 
@@ -73,8 +73,8 @@ class Config:
         try:
             uxo = uxf.load(self.filename)
             self._maybe_merge_comment(self._uxo, uxo)
-            self._maybe_merge_comment(self._uxo.data, uxo.data)
-            for name, value in uxo.data.items():
+            self._maybe_merge_comment(self._uxo.value, uxo.value)
+            for name, value in uxo.value.items():
                 if name == COLORS:
                     self._load_colors(value)
                 elif name == GENERAL:
@@ -134,7 +134,7 @@ class Config:
         symbol, _ = self._symbol_and_index()
         if symbol is not None:
             return symbol
-        self._uxo.data[GENERAL].append(
+        self._uxo.value[GENERAL].append(
             uxf.Table(self._uxo.tclasses[DECIMAL]))
         return Symbols.DECIMAL
 
@@ -142,7 +142,7 @@ class Config:
     def _symbol_and_index(self):
         self._symbol_for_name = {symbol.name.upper(): symbol
                                  for symbol in Symbols}
-        for i, value in enumerate(self._uxo.data[GENERAL]):
+        for i, value in enumerate(self._uxo.value[GENERAL]):
             ttype = value.ttype.replace('Symbols', '').upper()
             symbol = self._symbol_for_name.get(ttype)
             if symbol is not None:
@@ -157,21 +157,21 @@ class Config:
             if symbol is value:
                 return # unchanged
         if i == -1:
-            i = len(self._uxo.data[GENERAL])
-            self._uxo.data[GENERAL].append(None)
+            i = len(self._uxo.value[GENERAL])
+            self._uxo.value[GENERAL].append(None)
         ttype = f'Symbols{value.name.capitalize()}'
-        self._uxo.data[GENERAL][i] = uxf.Table(self._uxo.tclasses[ttype])
+        self._uxo.value[GENERAL][i] = uxf.Table(self._uxo.tclasses[ttype])
 
 
     @property
     def fontsize(self):
-        return self._uxo.data[FONTSIZE]
+        return self._uxo.value[FONTSIZE]
 
 
     @fontsize.setter
     def fontsize(self, value):
         if isinstance(value, int) and 8 <= value <= 36:
-            self._uxo.data[FONTSIZE] = value
+            self._uxo.value[FONTSIZE] = value
 
 
     @property
@@ -186,9 +186,9 @@ class Config:
 
 
     def _table_of(self, what):
-        for i, table in enumerate(self._uxo.data[GENERAL]):
+        for i, table in enumerate(self._uxo.value[GENERAL]):
             if table.ttype == what:
-                return self._uxo.data[GENERAL][i]
+                return self._uxo.value[GENERAL][i]
 
 
     @property
@@ -248,63 +248,63 @@ class Config:
 
     @property
     def bgcolor1(self):
-        return self._uxo.data[COLORS][BGCOLOR1]
+        return self._uxo.value[COLORS][BGCOLOR1]
 
 
     @bgcolor1.setter
     def bgcolor1(self, value):
         if value != '':
-            self._uxo.data[COLORS][BGCOLOR1] = value
+            self._uxo.value[COLORS][BGCOLOR1] = value
 
 
     @property
     def bgcolor2(self):
-        return self._uxo.data[COLORS][BGCOLOR2]
+        return self._uxo.value[COLORS][BGCOLOR2]
 
 
     @bgcolor2.setter
     def bgcolor2(self, value):
         if value != '':
-            self._uxo.data[COLORS][BGCOLOR2] = value
+            self._uxo.value[COLORS][BGCOLOR2] = value
 
 
     @property
     def annotationcolor(self):
-        return self._uxo.data[COLORS][ANNOTATIONCOLOR]
+        return self._uxo.value[COLORS][ANNOTATIONCOLOR]
 
 
     @annotationcolor.setter
     def annotationcolor(self, value):
         if value != '':
-            self._uxo.data[COLORS][ANNOTATIONCOLOR] = value
+            self._uxo.value[COLORS][ANNOTATIONCOLOR] = value
 
 
     @property
     def confirmedcolor(self):
-        return self._uxo.data[COLORS][CONFIRMEDCOLOR]
+        return self._uxo.value[COLORS][CONFIRMEDCOLOR]
 
 
     @confirmedcolor.setter
     def confirmedcolor(self, value):
         if value != '':
-            self._uxo.data[COLORS][CONFIRMEDCOLOR] = value
+            self._uxo.value[COLORS][CONFIRMEDCOLOR] = value
 
 
     @property
     def numbercolor(self):
-        return self._uxo.data[COLORS][NUMBERCOLOR]
+        return self._uxo.value[COLORS][NUMBERCOLOR]
 
 
     @numbercolor.setter
     def numbercolor(self, value):
         if value != '':
-            self._uxo.data[COLORS][NUMBERCOLOR] = value
+            self._uxo.value[COLORS][NUMBERCOLOR] = value
 
 
     def __getitem__(self, name):
         basename = name.replace('color', '')
         if basename in COLORNAMES:
-            return self._uxo.data[COLORS][basename]
+            return self._uxo.value[COLORS][basename]
         raise Error(f'{self.__class__.__name__} ignored invalid color '
                     f'attribute name {name!r}')
 
@@ -313,7 +313,7 @@ class Config:
         basename = name.replace('color', '')
         if basename in COLORNAMES:
             if value != '':
-                self._uxo.data[COLORS][basename] = value
+                self._uxo.value[COLORS][basename] = value
         else:
             raise Error(f'{self.__class__.__name__} can\'t set invalid '
                         f'color attribute name {name!r}')

@@ -29,7 +29,7 @@ def main():
     os.mkdir(outdir)
     uxo = uxf.load(infile)
     titles = []
-    slides = uxo.data
+    slides = uxo.value
     for index, slide in enumerate(slides, 1):
         titles.append(write_slide(outdir, index, slide, len(slides)))
     index += 1

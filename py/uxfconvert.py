@@ -146,20 +146,20 @@ def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = uxf.load(infile, on_error=on_error, drop_unused=drop_unused,
                    replace_imports=replace_imports)
-    data = uxo.data
-    if isinstance(data, uxf.Table):
+    value = uxo.value
+    if isinstance(value, uxf.Table):
         with open(outfile, 'w', newline='') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
-            writer.writerow((field.name for field in data.fields))
-            for row in data:
+            writer.writerow((field.name for field in value.fields))
+            for row in value:
                 writer.writerow(row)
-    elif (isinstance(data, (list, uxf.List)) and data and
-            isinstance(data[0], (list, uxf.List)) and data[0] and not
-            isinstance(data[0][0], (dict, list, uxf.Map, uxf.List,
+    elif (isinstance(value, (list, uxf.List)) and value and
+            isinstance(value[0], (list, uxf.List)) and value[0] and not
+            isinstance(value[0][0], (dict, list, uxf.Map, uxf.List,
                                     uxf.Table))):
         with open(outfile, 'w', newline='') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
-            for row in data:
+            for row in value:
                 writer.writerow(row)
     else:
         raise SystemExit('can only convert a UXF containing a single table '
@@ -170,8 +170,8 @@ def csv_to_uxf(infile, outfile, *, fieldnames=False, verbose=True,
                replace_imports=False, drop_unused=False, indent='  ',
                wrap_width=96):
     on_error = functools.partial(uxf.on_error, verbose=verbose)
-    data, filename, tclasses = _read_csv_to_data(infile, fieldnames)
-    uxf.dump(outfile, uxf.Uxf(data, custom=filename, tclasses=tclasses),
+    value, filename, tclasses = _read_csv_to_data(infile, fieldnames)
+    uxf.dump(outfile, uxf.Uxf(value, custom=filename, tclasses=tclasses),
              on_error=on_error,
              format=uxf.Format(indent=indent, wrap_width=wrap_width))
 
@@ -227,7 +227,7 @@ def uxf_to_json(infile, outfile, *, verbose=True, replace_imports=False,
     if uxo.tclasses: # sorted helps round-trip regression tests
         d[JSON_TCLASSES] = sorted(uxo.tclasses.values(),
                                   key=lambda t: t.ttype)
-    d[JSON_DATA] = uxo.data
+    d[JSON_DATA] = uxo.value
     with open(outfile, 'wt', encoding=UTF8) as file:
         json.dump(d, file, cls=_JsonEncoder, indent=len(indent))
 
@@ -384,11 +384,11 @@ def uxf_to_sqlite(infile, outfile, *, verbose=True, replace_imports=False,
     on_error = functools.partial(uxf.on_error, verbose=verbose)
     uxo = uxf.load(infile, on_error=on_error, drop_unused=drop_unused,
                    replace_imports=replace_imports)
-    if isinstance(uxo.data, uxf.Table):
-        _uxf_to_sqlite(outfile, [uxo.data])
-    elif (isinstance(uxo.data, (list, uxf.List)) and uxo.data and
-            all(isinstance(v, uxf.Table) for v in uxo.data)):
-        _uxf_to_sqlite(outfile, uxo.data)
+    if isinstance(uxo.value, uxf.Table):
+        _uxf_to_sqlite(outfile, [uxo.value])
+    elif (isinstance(uxo.value, (list, uxf.List)) and uxo.value and
+            all(isinstance(v, uxf.Table) for v in uxo.value)):
+        _uxf_to_sqlite(outfile, uxo.value)
     else:
         raise SystemExit('can only convert a UXF containing a single table '
                          'or a single list of Tables to SQLite')
@@ -476,7 +476,7 @@ def _sqlite_to_uxf(infile):
                     [uxf.naturalize(value) if isinstance(value, str) else
                      value for value in row])
             uxo.tclasses[table.ttype] = table.tclass
-            uxo.data.append(table)
+            uxo.value.append(table)
         return uxo
     finally:
         if db is not None:
@@ -504,7 +504,7 @@ def _uxf_to_xml(uxo, outfile, indent):
         _xml_add_imports(tree, root, uxo.import_filenames)
     if uxo.tclasses:
         _xml_add_tclasses(tree, root, uxo.tclasses)
-    _xml_add_value(tree, root, uxo.data)
+    _xml_add_value(tree, root, uxo.value)
     with open(outfile, 'wt', encoding='utf-8') as file:
         file.write(tree.toprettyxml(indent=indent))
 
@@ -739,7 +739,7 @@ class _UxfSaxHandler(xml.sax.handler.ContentHandler):
 
     def start_container(self, container):
         if self.stack is None:
-            self.uxo.data = container
+            self.uxo.value = container
             self.stack = [container]
         elif self.stack:
             _append_to_parent(self.stack, container)

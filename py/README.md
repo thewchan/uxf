@@ -127,7 +127,7 @@ See also the examples in the `eg` folder and the tests in the `t` folder.
 
 ### API Notes
 
-A [UXF](#uxf-class) object (called a `uxo` in these docs) has a `.data`
+A [UXF](#uxf-class) object (called a `uxo` in these docs) has a `.value`
 attribute that is always a [List](#list-class) or [Map](#map-class) or
 [Table](#table-class). The first two have essentially the same APIs as
 `list` and `dict` respectively. The [Table](#table-class) API is a little
@@ -178,7 +178,7 @@ functions, [load()](#load-def) or [loads()](#loads-def). Of course, you can
 also create ``Uxf``s programatically (as shown in many of the examples and
 tests).
 
-The `.data` attribute holds a [List](#list-class), [Map](#map-class), or
+The `.value` attribute holds a [List](#list-class), [Map](#map-class), or
 [Table](#table-class). Since these classes can nest, a `Uxf` can represent
 any arbitrary data structure.
 
@@ -201,9 +201,9 @@ To create a `Uxf` programmatically (rather than by using, say,
 [load()](#load-def), you can either create it empty, or with some data and
 optionally, some _ttypes_.
 
-    data = ... # a list, uxf.List, dict, uxf.Map, or uxf.Table
+    value = ... # a list, uxf.List, dict, uxf.Map, or uxf.Table
     point_ttype = uxf.TClass('point', (uxf.Field('x', 'real'), uxf.Field('y', 'real')))
-    uxo = uxf.Uxf(data, tclasses={point_ttype.ttype: point_ttype})
+    uxo = uxf.Uxf(value, tclasses={point_ttype.ttype: point_ttype})
 
 <a name="Uxf.load-def"></a>
 ##### .load(filename\_or\_filelike, \*, on\_error=on\_error)

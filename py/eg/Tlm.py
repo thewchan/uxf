@@ -151,7 +151,7 @@ class Model:
         try:
             uxo = uxf.load(self._filename)
             stack = [self.tree]
-            for group, kids in uxo.data.items():
+            for group, kids in uxo.value.items():
                 if group == UXF_HISTORY:
                     for history in kids:
                         self.history.append(history)
@@ -206,9 +206,9 @@ class Model:
 
     def _save_as_uxf(self):
         uxo = uxf.Uxf({}, custom='TLM 1.1')
-        stack = [uxo.data] # root is Map
+        stack = [uxo.value] # root is Map
         self._write_tree_uxf(stack, self.tree)
-        uxo.data[UXF_HISTORY] = self.history
+        uxo.value[UXF_HISTORY] = self.history
         opener = (gzip.open if self._filename.upper().endswith('.GZ') else
                   open)
         with opener(self._filename, 'wt', encoding='utf-8') as file:

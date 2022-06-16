@@ -290,7 +290,7 @@ def test_table_is_scalar(total, ok, *, verbose):
         total += 1
         on_error = functools.partial(uxf.on_error, verbose=verbose)
         uxo = uxf.load(filename, on_error=on_error)
-        if is_scalar == uxo.data.is_scalar:
+        if is_scalar == uxo.value.is_scalar:
             ok += 1
             if verbose:
                 print(f'{filename} • (Table.is_scalar) OK')

@@ -83,9 +83,9 @@ def merge(file1, file2, *files, asmap):
                 uxo.comment += '\n' + new_uxo.comment
         merge_ttypes(uxo, new_uxo, filename)
         if asmap:
-            uxo.data[filename] = new_uxo.data
+            uxo.value[filename] = new_uxo.value
         else:
-            uxo.data.append(new_uxo.data) # value for map or list
+            uxo.value.append(new_uxo.value) # value for map or list
     return uxo
 
 

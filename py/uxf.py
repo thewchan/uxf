@@ -81,15 +81,15 @@ Format = editabletuple.editableobject(
 
 class Uxf:
 
-    def __init__(self, data=None, *, custom='', tclasses=None,
+    def __init__(self, value=None, *, custom='', tclasses=None,
                  comment=None):
-        '''data may be a list, List, tuple, dict, Map, or Table and will
+        '''value may be a list, List, tuple, dict, Map, or Table and will
         default to a List if not specified; if given tclasses must be a dict
         whose values are TClasses and whose corresponding keys are the
         TClasses' ttypes (i.e., their names); if given the comment is a
         file-level comment that follows the uxf header and precedes any
-        TClasses and data'''
-        self.data = data
+        TClasses and the value'''
+        self.value = value
         self.custom = custom
         self.comment = comment
         # tclasses key=ttype value=TClass
@@ -132,24 +132,24 @@ class Uxf:
 
 
     @property
-    def data(self):
-        return self._data
+    def value(self):
+        return self._value
 
 
-    @data.setter
-    def data(self, data):
-        if data is None:
-            data = List()
-        elif isinstance(data, list):
-            data = List(data)
-        elif isinstance(data, dict):
-            data = Map(data)
-        elif isinstance(data, (set, frozenset, tuple, collections.deque)):
-            data = List()
-        if not _is_uxf_collection(data):
-            raise Error('#100:Uxf data must be a list, List, dict, Map, or '
-                        f'Table, got {data.__class__.__name__}')
-        self._data = data
+    @value.setter
+    def value(self, value):
+        if value is None:
+            value = List()
+        elif isinstance(value, list):
+            value = List(value)
+        elif isinstance(value, dict):
+            value = Map(value)
+        elif isinstance(value, (set, frozenset, tuple, collections.deque)):
+            value = List()
+        if not _is_uxf_collection(value):
+            raise Error('#100:Uxf value must be a list, List, dict, Map, '
+                        f'or Table, got {value.__class__.__name__}')
+        self._value = value
 
 
     def dump(self, filename_or_filelike, *, on_error=on_error,
@@ -170,10 +170,10 @@ class Uxf:
         function'''
         filename = (filename_or_filelike if isinstance(filename_or_filelike,
                     (str, pathlib.Path)) else '-')
-        data, custom, tclasses, imports, comment = _loads(
+        value, custom, tclasses, imports, comment = _loads(
             _read_text(filename_or_filelike), filename, on_error=on_error,
             drop_unused=drop_unused, replace_imports=replace_imports)
-        self.data = data
+        self.value = value
         self.custom = custom
         self.tclasses = tclasses
         self.comment = comment
@@ -183,10 +183,10 @@ class Uxf:
               drop_unused=False, replace_imports=False):
         '''Convenience method that wraps the module-level loads()
         function'''
-        data, custom, tclasses, imports, comment = _loads(
+        value, custom, tclasses, imports, comment = _loads(
             uxt, filename, on_error=on_error, drop_unused=drop_unused,
             replace_imports=replace_imports)
-        self.data = data
+        self.value = value
         self.custom = custom
         self.tclasses = tclasses
         self.comment = comment
@@ -202,11 +202,11 @@ def load(filename_or_filelike, *, on_error=on_error, drop_unused=False,
     '''
     filename = (filename_or_filelike if isinstance(filename_or_filelike,
                 (str, pathlib.Path)) else '-')
-    data, custom, tclasses, imports, comment = _loads(
+    value, custom, tclasses, imports, comment = _loads(
         _read_text(filename_or_filelike), filename, on_error=on_error,
         drop_unused=drop_unused, replace_imports=replace_imports,
         _imported=_imported, _is_import=_is_import)
-    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo = Uxf(value, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
     return uxo
 
@@ -218,11 +218,11 @@ def loads(uxt, filename='-', *, on_error=on_error, drop_unused=False,
 
     uxt must be a string of UXF data.
     '''
-    data, custom, tclasses, imports, comment = _loads(
+    value, custom, tclasses, imports, comment = _loads(
         uxt, filename, on_error=on_error, drop_unused=drop_unused,
         replace_imports=replace_imports, _imported=_imported,
         _is_import=_is_import)
-    uxo = Uxf(data, custom=custom, tclasses=tclasses, comment=comment)
+    uxo = Uxf(value, custom=custom, tclasses=tclasses, comment=comment)
     uxo.imports = imports
     return uxo
 
@@ -230,11 +230,11 @@ def loads(uxt, filename='-', *, on_error=on_error, drop_unused=False,
 def _loads(uxt, filename='-', *, on_error=on_error, drop_unused=False,
            replace_imports=False, _imported=None, _is_import=False):
     tokens, custom, text = _tokenize(uxt, filename, on_error=on_error)
-    data, comment, tclasses, imports = _parse(
+    value, comment, tclasses, imports = _parse(
         tokens, filename, on_error=on_error, drop_unused=drop_unused,
         replace_imports=replace_imports, _imported=_imported,
         _is_import=_is_import)
-    return data, custom, tclasses, imports, comment
+    return value, custom, tclasses, imports, comment
 
 
 def _tokenize(uxt, filename='-', *, on_error=on_error):
@@ -1743,7 +1743,7 @@ class _Writer:
             self.write_imports(uxo.import_filenames)
         if uxo.tclasses:
             self.write_tclasses(uxo.tclasses, uxo.imports)
-        self.write_value(uxo.data)
+        self.write_value(uxo.value)
         self._write_pending('\n' if self.prev != '\n' else '', force=True)
 
 

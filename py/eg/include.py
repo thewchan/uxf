@@ -33,7 +33,7 @@ def main():
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help'}:
         raise SystemExit('usage: include.py <include.uxf> [<outfile.uxf>]')
     include_uxo = uxf.load(sys.argv[1])
-    filenames = [record.filename for record in include_uxo.data]
+    filenames = [record.filename for record in include_uxo.value]
     uxo = merge.merge(*filenames, asmap=False)
     if len(sys.argv) > 2:
         uxo.dump(sys.argv[2])

@@ -55,7 +55,7 @@ def visit(function, value):
         u = uxf.load('file.uxf')
         visit.visit(print, u)
         # -or-
-        for value in u.data: # if u's data is a List or Table
+        for value in u.value: # if u's value is a List or Table
             visit.visit(print, value)
 
     See also the ValueType enum.
@@ -96,7 +96,7 @@ def visit(function, value):
 def _visit_uxf(function, uxo):
     info = UxfInfo(uxo.custom, uxo.comment, uxo.tclasses)
     function(ValueType.UXF_BEGIN, info)
-    visit(function, uxo.data)
+    visit(function, uxo.value)
     function(ValueType.UXF_END, Tag(info.custom))
 
 

@@ -181,12 +181,12 @@ def main():
 
     table = uxf.table('Pair', ('first', 'second'))
     uxo = uxf.Uxf({})
-    uxo.data['key'] = 'value'
+    uxo.value['key'] = 'value'
 
     try:
         total += 1
         e = 290
-        uxo.data._append(table)
+        uxo.value._append(table)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -202,7 +202,7 @@ def main():
     try:
         total += 1
         e = 294
-        uxo.data._append(3.8)
+        uxo.value._append(3.8)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)
@@ -547,7 +547,7 @@ def main():
         total += 1
         e = 561
         uxo = uxf.Uxf()
-        uxo.data = [3+2j] # noqa: E226
+        uxo.value = [3+2j] # noqa: E226
         _ = uxo.dumps(on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:

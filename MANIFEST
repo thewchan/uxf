@@ -69,6 +69,7 @@ st.sh
 #   etc., & equivalents to other formats, e.g., geojson, etc.
 # - Language: allow '.' in identifiers (excl. first char)?
 # NOTE Rejected Ideas
+# - Replace yes and no bools with built-in fieldless tables, (Y) (N)
 # - Union types.
 
 # vim: syn=yaml

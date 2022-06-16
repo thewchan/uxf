@@ -70,9 +70,9 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                 if debug:
                     _fail('Uxf.imports', a.imports, b.imports)
                 return False
-        if not eq(a.data, b.data, **kwargs):
+        if not eq(a.value, b.value, **kwargs):
             if debug:
-                _fail('Uxf.data', a.data, b.data)
+                _fail('Uxf.value', a.value, b.value)
             return False
         return True
     if isinstance(a, uxf.List):
