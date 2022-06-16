@@ -63,8 +63,8 @@ class Config:
                               number='navy'), ktype='str', vtype='str',
                          comment='colors HTML-style #HHHHHH or names')
         self._uxo.value = uxf.Map(dict(fontsize=18, general=general,
-                                      colors=colors),
-                                 comment='fontsize range 8-36')
+                                       colors=colors),
+                                  comment='fontsize range 8-36')
 
 
     def load(self, filename=None):

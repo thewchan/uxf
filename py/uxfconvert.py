@@ -156,7 +156,7 @@ def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
     elif (isinstance(value, (list, uxf.List)) and value and
             isinstance(value[0], (list, uxf.List)) and value[0] and not
             isinstance(value[0][0], (dict, list, uxf.Map, uxf.List,
-                                    uxf.Table))):
+                                     uxf.Table))):
         with open(outfile, 'w', newline='') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             for row in value:
