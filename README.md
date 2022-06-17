@@ -38,7 +38,7 @@ UXF supports the following eleven built-indatatypes.
 |`date`     |`2022-04-01`|Basic ISO8601 YYYY-MM-DD format.|
 |`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent).|
 |`int`      |`-192` `+234` `7891409`||
-|`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific with at least one digit before and after the point.|
+|`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific notation.|
 |`str`      |`<Some text which may include newlines>`|For &, <, >, use \&amp;, \&lt;, \&gt; respectively.|
 |`list`     |`[value1 value2 ... valueN]`|A list of values of any type.|
 |`list`     |`[vtype value1 value2 ... valueN]`|A list of values of type _vtype_.|
