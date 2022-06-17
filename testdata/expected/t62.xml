@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <uxf version="1.0" custom="TLM Config">
   <imports>
-    <import filename="ttype-test"/>
+    <import filename="ttype-test.uxi"/>
   </imports>
   <ttypes>
     <ttype name="Files">

@@ -605,7 +605,8 @@ defintion of the same name.
 
 |**Import**|**Notes**|
 |----------|---------|
-|`! ttype-test`|These imports are provided by the UXF processor itself|
+|`! complex`|These imports are provided by the UXF processor itself|
+|`! fraction`|These imports are provided by the UXF processor itself|
 |`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the current folder (or from a folder in the `UXF_PATH`)|
 |`! /path/to/shared.uxf`|Import the _ttypes_ from the given file|
 |`! http://www.qtrac.eu/ttype-eg.uxf`|Import from the given URL|
@@ -671,9 +672,9 @@ Note that a UXF file _must_ contain a single list, map, or table, even if
 it is empty.
 
 An `IMPORT_FILE` may be a filename which does _not_ contain a `.` (i.e.,
-doesn't have a file suffix), in which case it is a “system” UXF file
-provided by the UXF processor itself. (Currently there is just one system
-file, `ttype-test`, purely for testing.) Or it may be a filename with a
+doesn't have a file suffix), in which case it is a “system” UXF
+provided by the UXF processor itself. (Currently there are just two system
+UXFs, `complex` and `fraction`.) Or it may be a filename with a
 relative or absolute path (or no path and taken to be in the same folder as
 the `.uxf` file that refers to it) or in a folder in the `UXF_PATH`. Or it
 may be a URL referring to an external UXF file. For non-system files a

@@ -1,6 +1,6 @@
 uxf 1.0
 !http://www.qtrac.eu/ttype-eg.uxf
-!ttype-test
+!ttype-test.uxi
 !i65.uxi
 =point3d x:int y:int z:int
 =dob dob:date

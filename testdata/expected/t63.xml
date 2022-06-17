@@ -2,7 +2,7 @@
 <uxf version="1.0">
   <imports>
     <import filename="http://www.qtrac.eu/ttype-eg.uxf"/>
-    <import filename="ttype-test"/>
+    <import filename="ttype-test.uxi"/>
     <import filename="complex"/>
     <import filename="fraction"/>
     <import filename="t63.uxt"/>

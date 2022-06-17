@@ -72,8 +72,20 @@ def compare(filename, regression):
         pass
 
     try:
-        actual_uxo = uxf.load(f'actual/{filename}', on_error=error)
-        expected_uxo = uxf.load(f'expected/{filename}', on_error=error)
+        name = f'actual/{filename}'
+        actual_uxo = uxf.load(name, on_error=error)
+    except uxf.Error as err:
+        if not regression:
+            print(f'compare • FAIL {name!r}: {err}')
+        return 0
+    try:
+        name = f'expected/{filename}'
+        expected_uxo = uxf.load(name, on_error=error)
+    except uxf.Error as err:
+        if not regression:
+            print(f'compare • FAIL {name!r}: {err}')
+        return 0
+    try:
         if eq.eq(actual_uxo, expected_uxo):
             return 1
         if not regression:

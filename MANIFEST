@@ -29,7 +29,6 @@ py/uxfconvert.py
 py/uxflint.py
 py/uxfparser.py
 py/README.md
-py/ttype-test.uxf
 py/setup.py
 py/pypi.sh
 py/t/regression.py

@@ -1,7 +1,7 @@
 {
   "UXF^custom": "TLM Config",
   "UXF^imports": [
-    "ttype-test"
+    "ttype-test.uxi"
   ],
   "UXF^ttypes": [
     {

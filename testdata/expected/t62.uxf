@@ -1,5 +1,5 @@
 uxf 1.0 TLM Config
-!ttype-test
+!ttype-test.uxi
 =Files Kind Filename
 =point x:int y:int z:int
 {
