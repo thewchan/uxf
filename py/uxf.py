@@ -25,7 +25,7 @@ except ImportError:
     isoparse = None
 
 
-__version__ = '0.43.0' # uxf module version
+__version__ = '0.44.0' # uxf module version
 VERSION = 1.0 # uxf file format version
 
 UTF8 = 'utf-8'
