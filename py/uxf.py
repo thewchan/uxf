@@ -1539,8 +1539,8 @@ class _Parser:
         try:
             if value.startswith(('http://', 'https://')):
                 text = self._url_import(value)
-            elif '.' not in value: # system import
-                filename = self._system_import(value)
+            elif '.' not in value:
+                return self._system_import(value)
             else:
                 filename = value
             if filename is not None:
@@ -1582,13 +1582,23 @@ class _Parser:
 
 
     def _system_import(self, value):
-        filename = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                f'{value}.uxf'))
-        if os.path.isfile(filename):
-            return filename
-        self.error(560, 'there is no system ttype definition '
-                   f'file {value!r} ({filename!r})')
-        raise _AlreadyImported
+        ttype = None
+        if value == 'complex':
+            ttype = 'Complex'
+            tclass_ = tclass(ttype, Field('Real', 'real'),
+                             Field('Imag', 'real'))
+        elif value == 'fraction':
+            ttype = 'Fraction'
+            tclass_ = tclass(ttype, Field('numerator', 'int'),
+                             Field('denominator', 'int'))
+        if ttype is not None:
+            if _add_to_tclasses(self.tclasses, tclass_, lino=self.lino,
+                                code=558, on_error=self.on_error):
+                self.imports[ttype] = value
+        else:
+            self.error(560, 'there is no system ttype import called '
+                       f'{value!r}')
+            raise _AlreadyImported
 
 
     def _load_import(self, filename):
