@@ -121,9 +121,9 @@ point and an enumeration.
     ]
 
 This first approach shows three points, each represented by a `map` with a
-`str` indicating the type and using ``list``s of two ``real``s for the real
-and imaginary parts of the number. The example also shows a traffic light
-enumeration each represented by a `str`.
+`str` indicating the type and using ``list``s of two ``real``s for the _x_
+and _y_ coordinates. The example also shows a traffic light enumeration each
+represented by a `str`.
 
     uxf 1.0
     [
@@ -155,12 +155,12 @@ This second approach uses four _ttypes_. For the Point we specify it as
 having two real fields (so the processor now knows that Point values come in
 twos). And for the enumeration we used three separate fieldness tables.
 
-Using tables gives us the advantage that we can represent any number of
-values of a particular _ttype_ in a single table (including just one, or
-even none), thus cutting down on repetitive text. And some UXF processor
-libraries will be able to return table values as custom types. (For example,
-the [Python UXF library](py/README.md) would return these as custom class
-instances—as “editable tuples”.)
+Using tables has the advantage that we can represent any number of values of
+a particular _ttype_ in a single table (including just one, or even none),
+thus cutting down on repetitive text. And some UXF processor libraries will
+be able to return table values as custom types. (For example, the [Python
+UXF library](py/README.md) would return these as custom class instances—as
+“editable tuples”.)
 
 If many applications need to use the same _ttypes_, it _may_ make sense to
 create some shared _ttype_ definitions. See [Imports](#imports) for how to
