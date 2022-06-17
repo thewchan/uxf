@@ -1,3 +1,8 @@
+# TODO create py/t/test_perf.py:
+# read in t5.uxf & tlm-eg.uxx.gz & t12.uxf & create new uxo with 20
+# copies so it is > 1MB; then dumps to a str; then (i) time loads (ii)
+# time dumps & output the 2 timings to give me a baseline for how fast
+# these two operations are
 # TODO update Py API docs to cover the Format class
 # TODO review existing API docs to make sure they're accurate (e.g.,
 # indent and wrap width, etc.)
