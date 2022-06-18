@@ -1,9 +1,9 @@
-# TODO create py/t/genmock.py [size (default 1000)]
+# TODO create py/t/makeuxf.py [size (default 1000)]
 # use random with a fixed seed to generate a UXF string of "size" items
 # spanning all 11 datatypes
 # TODO create py/t/test_perf.py [size]
-#   import genmock
-#   uxt1 = genmock.generate(size) # make size big enough to make > 1MB str
+#   import makeuxf
+#   uxt1 = makeuxf.make(size) # make size big enough to make > 1MB str
 #   # loads time #1:
 #   uxo1 = uxf.loads(uxt1)
 #   # dumps time #2:
