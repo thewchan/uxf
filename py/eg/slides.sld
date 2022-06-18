@@ -11,7 +11,7 @@ See slides[12].py for examples of converting this format to HTML.>
 = #<monospace block> pre content
 = #<italic> i content
 = url content link
-= #<newline with no content> nl empty
+= #<newline with no content> nl
 (Slide
 
 (h1 <The Uniform eXchange Format>)

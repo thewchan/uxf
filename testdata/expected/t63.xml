@@ -50,9 +50,7 @@
     <ttype name="m" comment="monospace inline">
       <field name="content"/>
     </ttype>
-    <ttype name="nl" comment="newline with no content">
-      <field name="empty"/>
-    </ttype>
+    <ttype name="nl" comment="newline with no content"/>
     <ttype name="p" comment="para">
       <field name="content"/>
     </ttype>

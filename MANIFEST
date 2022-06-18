@@ -1,8 +1,19 @@
-# TODO create py/t/test_perf.py:
-# read in t5.uxf & tlm-eg.uxx.gz & t12.uxf & create new uxo with 20
-# copies so it is > 1MB; then dumps to a str; then (i) time loads (ii)
-# time dumps & output the 2 timings to give me a baseline for how fast
-# these two operations are
+# TODO create py/t/genmock.py [size (default 1000)]
+# use random with a fixed seed to generate a UXF string of "size" items
+# spanning all 11 datatypes
+# TODO create py/t/test_perf.py [size]
+#   import genmock
+#   uxt1 = genmock.generate(size) # make size big enough to make > 1MB str
+#   # loads time #1:
+#   uxo1 = uxf.loads(uxt1)
+#   # dumps time #2:
+#   uxt2 = uxo1.dumps()
+#   # verify
+#   uxo2 = uxf.loads(uxt2)
+#   if not eq.eq(uxo1, uxo2): ...
+#   print(loads time and dumps time) # to provide a speed baseline
+# Add to regression.py but with a smaller size so its target total time
+# is 1-2 sec
 # TODO update Py API docs to cover the Format class
 # TODO review existing API docs to make sure they're accurate (e.g.,
 # indent and wrap width, etc.)

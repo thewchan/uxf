@@ -39,8 +39,7 @@ def main():
     total = ok = 0
     for name in SUITABLE:
         total, ok = check(total, ok, name, regression)
-    if regression:
-        print(f'total={total} ok={ok}')
+    print(f'total={total} ok={ok}')
 
 
 def check(total, ok, name, regression):

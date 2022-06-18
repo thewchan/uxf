@@ -32,15 +32,15 @@ class Config:
 
 
     def _prepare_uxo(self):
-        initiallyvisible = uxf.tclass(
-            INITIALLYVISIBLE, uxf.Field('min', 'int'),
-            uxf.Field('max', 'int'))
-        decimal = uxf.tclass(DECIMAL, comment='Or SymbolsRoman')
-        roman = uxf.tclass(ROMAN, comment='Or SymbolsDecimal')
-        size = uxf.tclass('size', uxf.Field('width', 'int'),
-                          uxf.Field('height', 'int'))
-        numbers = uxf.tclass('numbers', uxf.Field('page', 'int'),
-                             uxf.Field('game', 'int'),
+        initiallyvisible = uxf.TClass(
+            INITIALLYVISIBLE, (uxf.Field('min', 'int'),
+                               uxf.Field('max', 'int')))
+        decimal = uxf.TClass(DECIMAL, comment='Or SymbolsRoman')
+        roman = uxf.TClass(ROMAN, comment='Or SymbolsDecimal')
+        size = uxf.TClass('size', (uxf.Field('width', 'int'),
+                                   uxf.Field('height', 'int')))
+        numbers = uxf.TClass('numbers', (uxf.Field('page', 'int'),
+                                         uxf.Field('game', 'int')),
                              comment='internal use')
         self._uxo = uxf.Uxf({}, custom='Sudoku')
         self._uxo.comment = 'Sudoku Configuration'

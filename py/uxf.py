@@ -745,21 +745,6 @@ def _check_name(name):
                         f'or underscores, got {name}')
 
 
-def tclass(ttype, *fields, comment=None):
-    '''Convenience function for creating a new tclass.
-    This is best to use when you want to pass fields separately, e.g.,
-
-        untyped_point_tclass = tclass('point', 'x', 'y')
-        typed_point_tclass = tclass('point', uxf.Field('x', 'int'),
-                                             uxf.Field('y', 'int'))
-    Or no fields at all:
-
-        fieldless_class = tclass('SomeEnumValue')
-
-    See also the TClass constructor.'''
-    return TClass(ttype, fields, comment=comment)
-
-
 class TClass:
 
     def __init__(self, ttype, fields=None, *, comment=None):
@@ -777,8 +762,7 @@ class TClass:
         Or no fields at all:
 
             fieldless_class = TClass('SomeEnumValue')
-
-        See also the tclass() convenience function.'''
+        '''
         self.ttype = ttype
         self.fields = []
         self.comment = comment
@@ -1575,6 +1559,8 @@ class _Parser:
                 return file.read().decode()
         except (UnicodeDecodeError, ConnectionError, urllib.error.HTTPError,
                 urllib.error.URLError) as err:
+            if url == 'http://www.qtrac.eu/ttype-eg.uxf':
+                return _TTYPE_EG_UXF # Let tests work w/o internet connect'n
             self.error(550, f'failed to import {url!r}: {err}')
             raise _AlreadyImported
         finally:
@@ -1582,23 +1568,23 @@ class _Parser:
 
 
     def _system_import(self, value):
-        ttype = None
         if value == 'complex':
-            ttype = 'Complex'
-            tclass_ = tclass(ttype, Field('Real', 'real'),
-                             Field('Imag', 'real'))
+            self._system_import_tclass(_ComplexTClass, value)
         elif value == 'fraction':
-            ttype = 'Fraction'
-            tclass_ = tclass(ttype, Field('numerator', 'int'),
-                             Field('denominator', 'int'))
-        if ttype is not None:
-            if _add_to_tclasses(self.tclasses, tclass_, lino=self.lino,
-                                code=558, on_error=self.on_error):
-                self.imports[ttype] = value
+            self._system_import_tclass(_FractionTClass, value)
+        # elif value == 'numeric': # Don't use: just to see how to do multis
+        #    self._system_import_tclass(_ComplexTClass, value)
+        #    self._system_import_tclass(_FractionTClass, value)
         else:
-            self.error(560, 'there is no system ttype import called '
-                       f'{value!r}')
+            self.error(560,
+                       f'there is no system ttype import called {value!r}')
             raise _AlreadyImported
+
+
+    def _system_import_tclass(self, tclass, name):
+        if _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
+                            code=570, on_error=self.on_error):
+            self.imports[tclass.ttype] = name
 
 
     def _load_import(self, filename):
@@ -2213,6 +2199,30 @@ canonicalize.count = 1 # noqa: E305
 def isasciidigit(s):
     '''Returns True if s matches /^[0-9]+$/.'''
     return s.isascii() and s.isdigit()
+
+
+_ComplexTClass = TClass('Complex', (Field('Real', 'real'),
+                                    Field('Imag', 'real')))
+
+_FractionTClass = TClass('Fraction', (Field('numerator', 'int'),
+                                      Field('denominator', 'int')))
+
+_TTYPE_EG_UXF = '''uxf 1.0 Slides 0.1.0
+#<This is a simple example of an application-specific use of UXF.
+See slides[12].py for examples of converting this format to HTML.>
+= Slide title body
+= #<title> h1 content
+= #<subtitle> h2 content
+= #<bullet item> B content
+= #<para> p content
+= #<image> img content image:bytes
+= #<monospace inline> m content
+= #<monospace block> pre content
+= #<italic> i content
+= url content link
+= #<newline with no content> nl
+[]
+'''
 
 
 if __name__ == '__main__':

@@ -122,9 +122,6 @@
     {
       "UXF^ttype": {
         "name": "nl",
-        "fields": {
-          "empty": null
-        },
         "comment": "newline with no content"
       }
     },
