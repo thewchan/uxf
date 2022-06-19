@@ -12,7 +12,9 @@
 - UxfParser an incremental parser that calls 'event' methods similar
   to HtmlParser.
 
-  class UxfParser:
+- Copy _Lexer & instead of returning or yielding tokens call on_* methods
+
+  class Parser:
 
     def __init__(raw, on_error=uxf.on_error, populate_uxo=True):
         # raw is bytes, bytearray, a file opened in 'rb' mode, a str
@@ -37,5 +39,5 @@
   implement all the methods you care about to do what you want.
 
 - Uxf.loadi(raw, on_error=on_error) and loadi(raw, on_error=on_error)
-  These use UxfParser under the hood.
+  These use Parser under the hood.
 '''
