@@ -28,12 +28,12 @@
 # TODO release py 1.0.0
 # TODO py/uxfparser.py
 # TODO UXF libraries:
-#   - if I do an ANSI C implementation I'd need an insertion-ordered
-#     hashtable algorithm:
-#     https://troydhanson.github.io/uthash/userguide.html
 #   - for .js use Dart or TypeScript or similar that can output JS?
 #   - uxf.rs (including .tlm eg)
 #   - uxf.cpp uxf.java uxf.rb ... ?
+#   - if I do an ANSI C implementation I'd need an insertion-ordered
+#     hashtable algorithm:
+#     https://troydhanson.github.io/uthash/userguide.html
 
 py/uxf.py
 py/uxfconvert.py
