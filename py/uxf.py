@@ -13,7 +13,6 @@ import io
 import os
 import pathlib
 import sys
-import urllib.error
 import urllib.request
 from xml.sax.saxutils import escape, unescape
 
@@ -1557,8 +1556,7 @@ class _Parser:
         try:
             with urllib.request.urlopen(url) as file:
                 return file.read().decode()
-        except (UnicodeDecodeError, ConnectionError, urllib.error.HTTPError,
-                urllib.error.URLError) as err:
+        except (UnicodeDecodeError, OSError) as err:
             if url == 'http://www.qtrac.eu/ttype-eg.uxf':
                 return _TTYPE_EG_UXF # Let tests work w/o internet connect'n
             self.error(550, f'failed to import {url!r}: {err}')
