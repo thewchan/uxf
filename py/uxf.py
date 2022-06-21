@@ -2291,7 +2291,7 @@ to allow later imports to override earlier ones.
     if outfile is not None:
         with contextlib.suppress(FileNotFoundError):
             if os.path.samefile(infile, outfile):
-                parser.error(f'won\'t overwrite {outfile}')
+                raise SystemExit(f'uxf.py:error:won\'t overwrite {outfile}')
     try:
         lint = config.lint or (config.lint is None and outfile is None)
         on_error = functools.partial(on_error, verbose=config.lint,
@@ -2307,4 +2307,7 @@ to allow later imports to override earlier ones.
                             wrap_width=config.wrapwidth)
             dump(outfile, uxo, on_error=on_error, format=format)
     except (OSError, Error) as err:
-        parser.error(f'uxf.py:error:{err}')
+        message = str(err)
+        if not message.startswith('uxf.py'):
+            message = f'uxf.py:error:{message}'
+        print(message, file=sys.stderr)
