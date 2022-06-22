@@ -153,7 +153,7 @@ representations to and from the actual types.
 
 This second approach uses four _ttypes_. For the Point we specify it as
 having two real fields (so the processor now knows that Point values come in
-twos). And for the enumeration we used three separate fieldness tables.
+twos). And for the enumeration we used three separate fieldless tables.
 
 Using tables has the advantage that we can represent any number of values of
 a particular _ttype_ in a single table (including just one, or even none),
