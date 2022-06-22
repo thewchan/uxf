@@ -5,6 +5,63 @@
 '''
 This shows a practical use case of saving and loading application
 configuration data, preserving comments, providing defaults, and validating.
+
+The configuration file looks like this:
+
+    uxf 1.0 Sudoku
+    #<Sudoku Configuration>
+    =initiallyvisible min:int max:int
+    =#<internal use> numbers page:int game:int
+    =size width:int height:int
+    =#<Or SymbolsRoman> SymbolsDecimal
+    =#<Or SymbolsDecimal> SymbolsRoman
+    {#<fontsize range 8-36>
+    <fontsize> 22
+    <general>
+        [table
+        (#<range 9-72> initiallyvisible 28 32)
+        (#<Or SymbolsRoman> SymbolsDecimal)
+        (#<width and height &gt;= -1> size 540 550)
+        (#<internal use: don't edit> numbers 385 769)
+        ]
+    <colors> {#<colors HTML-style #HHHHHH or names> str str
+              <bg1> <lightyellow>
+              <bg2> <#FFE7FF>
+              <annotation> <red>
+              <confirmed> <blue>
+              <number> <navy>}
+    }
+
+But this Config module lets its users ignore the structure entirely (while
+preserving it) to provide simple attribute-based access:
+
+    size = config.fontsize * 0.5
+    config.gamenumber += 1
+    config.pagenumber += 1
+    color = config.bgcolor1
+    colors = dict(bgcolor1=config.bgcolor1,
+                  bgcolor2=config.bgcolor2,
+                  annotationcolor=config.annotationcolor,
+                  confirmedcolor=config.confirmedcolor,
+                  numbercolor=config.numbercolor)
+
+And for colors name access is also supported:
+
+    for name, color in colors.items():
+        config[name] = color
+
+It would be perfectly possible (and easiest) to operate directly on the Uxf
+object loaded from file, e.g.,
+
+    uxo['colors']['bg1'] = 'red'
+    uxo['general']['numbers'].first.game = 19
+    # -or- any of these
+    # uxo['general']['numbers'][0].game = 19
+    # uxo['general']['numbers'].set_field(0, 'game') = 19
+    # uxo['general']['numbers'].set_field(0, 1) = 19
+
+Providing a wrapper class (like Config), allows for a well-structured UXF
+file and at the same time easy access to the loaded data.
 '''
 
 import enum

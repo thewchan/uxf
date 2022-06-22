@@ -1,9 +1,17 @@
-# TODO create py/t/genuxf.py [size (default 1000)]
-# use random with a fixed seed to generate a UXF string of "size" items
-# spanning all 11 datatypes
-# TODO create py/t/benchmark.py [size]
+# TODO create py/t/genuxf.py [magnitude (default 1)] [outfile]
+# use random with a fixed seed to generate a uxt spanning all 11
+# datatypes and proportional in size to magnitude
+#   def generate(magnitude, seed=None):
+#	if seed is not None:
+#	    random.seed(seed) # for reproducible tests
+#	...
+#	return uxt
+#   def save(uxt, outfile):
+#	...
+#	
+# TODO create py/t/benchmark.py [magnitude]
 #   import genuxf
-#   uxt1 = genuxf.generate(size) # make size big enough to make > 1MB str
+#   uxt1 = genuxf.generate(magnitude) # make big enough to make > 1MB uxt
 #   # loads time #1:
 #   uxo1 = uxf.loads(uxt1)
 #   # dumps time #2:
@@ -14,10 +22,11 @@
 #   print(loads time and dumps time) # to provide a speed baseline
 # Add to regression.py but with a smaller size so its target total time
 # is 1-2 sec
+#
 # TODO update Py API docs to cover the Format class
 # TODO review existing API docs to make sure they're accurate (e.g.,
 # indent and wrap width, etc.)
-# TODO update docs to mention eg/Config.py & py/eg/Tlm.py?
+# TODO update docs to mention py/eg/Config.py & py/eg/Tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output
@@ -85,6 +94,9 @@ st.sh
 #   e.g., styled text (but see uxf2html notes), spreadsheet, graphics,
 #   etc., & equivalents to other formats, e.g., geojson, etc.
 # - Language: allow '.' in identifiers (excl. first char)?
+# - Python: load(), loads(), etc., accept listclass=List, mapclass=Map,
+#   tableclass=Table, & uses these rather than List, Map, and Table, so
+#   the user can use their own subclasses
 # NOTE Rejected Ideas
 # - Replace yes and no bools with built-in fieldless tables, (Y) (N)
 # - Union types.
