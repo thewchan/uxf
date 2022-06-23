@@ -44,10 +44,8 @@ def main():
     max_total, verbose = get_config()
     cleanup()
     t = time.monotonic()
-    uxffiles = sorted((name for name in os.listdir('.')
-                       if os.path.isfile(name) and name.endswith(
-                           ('.uxf', '.uxf.gz'))),
-                      key=by_number)
+    uxffiles = sorted((name for name in next(os.walk('.'))[-1]
+                      if name.endswith(('.uxf', '.uxf.gz'))), key=by_number)
     print('0', end='', flush=True)
     total = ok = 0
     total, ok = test_uxf_files(uxffiles, verbose=verbose,

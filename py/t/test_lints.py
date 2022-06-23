@@ -29,9 +29,8 @@ def main():
         regression = True
     total = ok = 0
 
-    good_files = {name for name in os.listdir('.')
-                  if os.path.isfile(name) and name.endswith(('.uxf',
-                                                             '.uxf.gz'))}
+    good_files = {name for name in next(os.walk('.'))[-1]
+                  if name.endswith(('.uxf', '.uxf.gz'))}
     bad_files = ERROR_FILES
     good_files -= bad_files
     good_files = sorted(good_files, key=by_number)
