@@ -148,7 +148,7 @@ def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
                    replace_imports=replace_imports)
     value = uxo.value
     if isinstance(value, uxf.Table):
-        with open(outfile, 'w', newline='') as file:
+        with open(outfile, 'w', encoding=UTF8, newline='') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             writer.writerow((field.name for field in value.fields))
             for row in value:
@@ -157,7 +157,7 @@ def uxf_to_csv(infile, outfile, *, verbose=True, replace_imports=False,
             isinstance(value[0], (list, uxf.List)) and value[0] and not
             isinstance(value[0][0], (dict, list, uxf.Map, uxf.List,
                                      uxf.Table))):
-        with open(outfile, 'w', newline='') as file:
+        with open(outfile, 'w', encoding=UTF8, newline='') as file:
             writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
             for row in value:
                 writer.writerow(row)
@@ -179,7 +179,7 @@ def csv_to_uxf(infile, outfile, *, fieldnames=False, verbose=True,
 def _read_csv_to_data(infile, fieldnames):
     tclasses = {}
     data = None
-    with open(infile, newline='') as file:
+    with open(infile, encoding=UTF8, newline='') as file:
         reader = csv.reader(file)
         for row in reader:
             if data is None:
@@ -505,7 +505,7 @@ def _uxf_to_xml(uxo, outfile, indent):
     if uxo.tclasses:
         _xml_add_tclasses(tree, root, uxo.tclasses)
     _xml_add_value(tree, root, uxo.value)
-    with open(outfile, 'wt', encoding='utf-8') as file:
+    with open(outfile, 'wt', encoding=UTF8) as file:
         file.write(tree.toprettyxml(indent=indent))
 
 
