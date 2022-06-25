@@ -552,23 +552,11 @@ the container, something like:
         ]
     }
 
-### Mixed Example
+### Additional Examples
 
-    uxf 1.0
-    =Pair First Second
-    =Triple First Second Third
-    [#<Nested tables>
-      (Pair (Pair 17 21) (Pair 98 65))
-      (Triple
-        (Pair <a> <b>) (Triple 2020-01-17 2020-02-18 2021-12-05) (Pair ? no)
-        1 2 3
-        <x> <y> (Pair)
-      )
-    ]
-
-This rather abstract example gives a flavor of what's possible.
-Here we have a list of tables, with some tables nested inside others. For
-the last triple we have two ``str``s ("x” and "y”), and an _empty_ Pair.
+See the `testdata` folder for more examples of `.uxf` files (some with other
+suffixes). See also the `t` folder in each language-specific library (e.g.,
+`py/t`) for additional examples.
 
 ## Libraries
 
@@ -597,27 +585,27 @@ without having to repeat all the _ttype_ definitions.
 
 Imports go at the start of the file _after_ the header and _after_ any
 file-level comment, and _before_ any _ttype_ definitions. Each import must
-be on its own line and may not span lines.
+be on its own line and may not span lines, nor have comments.
 
 If a filename import has no path or a relative path, the import attempt will
-be made relative to the importing `.uxf` file, and failing that relative to
-each path in  the `UXF_PATH` environment variable (if it exists and is
-nonempty), and failing all that relative to the current folder.
+be made relative to the importing `.uxf` file, and failing that, relative to
+the current folder, and failing those, relative to each path in the
+`UXF_PATH` environment variable (if it exists and is nonempty).
 
 Any _ttype_ definition that follows an import will redefine any imported
 defintion of the same name.
 
 |**Import**|**Notes**|
 |----------|---------|
-|`! complex`|These imports are provided by the UXF processor itself|
-|`! fraction`|These imports are provided by the UXF processor itself|
-|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the importing `.uxf` file's folder, or from current folder, or from a folder in the `UXF_PATH`|
+|`! complex`|Imports with no suffix are provided by the UXF processor itself|
+|`! fraction`||
+|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the importing `.uxf` file's folder, or from the current folder, or from a folder in the `UXF_PATH`|
 |`! /path/to/shared.uxf`|Import the _ttypes_ from the given file|
 |`! http://www.qtrac.eu/ttype-eg.uxf`|Import from the given URL|
 
 The imported file must be a valid UXF file. It need not have a `.uxf` suffix
-(e.g., you might prefer `.uxt`), but must have a `.gz` suffix if gzip
-compressed. Any custom string, comments, or data the imported file may
+(e.g., you might prefer `.uxt` or `.uxi`), but must have a `.gz` suffix if
+gzip compressed. Any custom string, comments, or data the imported file may
 contain are ignored: only the _ttype_ definitions are used.
 
     uxf 1.0
@@ -634,9 +622,9 @@ two ``int``s each.
 If you choose to use imports we recommed that UXF files intended for import
 _either_ contain a single _ttype_ definition _or_ two or more imports.
 
-We recommend avoiding imports and using stand-alone `.uxf` files. Some UXF
-processors can do UXF to UXF conversions that will replace imports with
-(actually used) _ttype_ definitions.
+We recommend avoiding imports and using stand-alone `.uxf` files wherever
+possible. Some UXF processors can do UXF to UXF conversions that will
+replace imports with (actually used) _ttype_ definitions.
 
 ## BNF
 
@@ -675,15 +663,15 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
 Note that a UXF file _must_ contain a single list, map, or table, even if
 it is empty.
 
-An `IMPORT_FILE` may be a filename which does _not_ contain a `.` (i.e.,
-doesn't have a file suffix), in which case it is a “system” UXF
-provided by the UXF processor itself. (Currently there are just two system
-UXFs, `complex` and `fraction`.) Or it may be a filename with a
-relative or absolute path (or no path and taken to be in the same folder as
-the `.uxf` file that refers to it) or in a folder in the `UXF_PATH`. Or it
-may be a URL referring to an external UXF file. For non-system files a
-suffixe is required, but any suffix is acceptable (e.g., `.uxf`, `.uxt`,
-`.mysuffix`).
+An `IMPORT_FILE` may be a filename which does _not_  have a file suffix, in
+which case it is assumed to be a “system” UXF provided by the UXF processor
+itself. (Currently there are just two system UXFs, `complex` and
+`fraction`.) Or it may be a filename with an absolute or relative path. In
+the latter case the import is searched for in the importing `.uxf` file's
+folder, or the currend folder, or a folder in the `UXF_PATH` until it is
+found—or not). Or it may be a URL referring to an external UXF file. For
+non-system files a suffix is required, but any suffix is acceptable (e.g.,
+`.uxf`, `.uxt`, `.uxi`, `.mysuffix`).
 
 To indicate any type valid for the context, simply omit the type name.
 
@@ -700,7 +688,7 @@ these might be used for representing enumerations.
 If a list value, map key, or table value's type is specified, then the UXF
 processor is expected to be able to check for (and if requested and
 possible, correct) any mistyped values. UXF readers and writers are expected
-to preserve map items in the original reading order (first to last) (i.e.,
+to preserve map items in the original reading order (first to last, i.e.,
 in insertion order).
 
 For ``datetime``s, support may vary across different UXF libraries and
