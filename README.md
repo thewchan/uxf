@@ -27,7 +27,7 @@ UXF-based formats are very easy to adapt to future requirements
 
 ## Datatypes
 
-UXF supports the following eleven built-indatatypes.
+UXF supports the following eleven built-in datatypes.
 
 
 |**Type**<a name="table-of-built-in-types"></a>|**Example(s)**|**Notes**|
@@ -65,14 +65,14 @@ types](#custom-types).
     uxf 1.0
     []
 
-Every UXF file consists of a header line (starting `uxf 1.0`). This may be
-followed by an optional file-level comment, then any _ttype_ (table type)
-imports, then any _ttype_ definitions. After this comes the data in the form
-of a single `list`, `map`, or `table` in which all the values are stored.
-The data must be present even if it is merely an empty list (as here), an
-empty map (e.g., `{}`), or an empty table. Since ``list``s, ``map``s, and
-``table``s can be nested inside each other, the UXF format is extremely
-flexible.
+Every UXF file consists of a single header line (starting `uxf 1.0`,
+optionally followed by custom text). This may be followed by an optional
+file-level comment, then any _ttype_ (table type) imports, then any _ttype_
+definitions. After this comes the data in the form of a single `list`,
+`map`, or `table` in which all the values are stored. The data must be
+present even if it is merely an empty list (as here), an empty map (e.g.,
+`{}`), or an empty table. Since ``list``s, ``map``s, and ``table``s can be
+nested inside each other, the UXF format is extremely flexible.
 
 ### Built-in Types
 
@@ -80,8 +80,8 @@ Map keys (i.e., _ktype_) may only be of types `bytes`, `date`, `datetime`,
 `int`, and `str`.
 
 List, map, and table values may be of _any_ type (including nested ``map``s,
-``list``s, and ``table``s), unless restricted to a specific type. If
-restricted to a specific _vtype_, the _vtype_ may be any built-in type (as
+``list``s, and ``table``s), unless constrained to a specific type. If
+constrained to a specific _vtype_, the _vtype_ may be any built-in type (as
 listed above, except `null`), or any user-defined _ttype_, and the
 corresponding value or values must be any valid value for the specified
 type, or `?` (null).
@@ -231,8 +231,8 @@ The most _appropriate_ UXF equivalent is to use a UXF `table`:
     )
 
 When one or more tables are used each one's _ttype_ (table type) must be
-defined at the start of the `.uxf` file. A ttype definition begins with an
-`=` sign followed by the ttype (i.e., the table name), followed by one or
+defined at the start of the `.uxf` file. A _ttype_ definition begins with an
+`=` sign followed by the _ttype_ (i.e., the table name), followed by one or
 more fields. A field consists of a name optionally followed by a `:` and
 then a type (here only names are given).
 
@@ -254,6 +254,11 @@ many values go into each row based on the number of field names. In this
 example, the UXF processor will treat every five values as a single record
 (row) since the _ttype_ has five fields.
 
+This is already an improvement on `.csv`—we know the table's name and field
+names, and could easily store two or more tables (as we'll see later).
+Although the UXF processor will correctly determine the field types, what if
+we want to constrain each field's value to a particular type?
+
     uxf 1.0 Price List
     =PriceList Date:date Price:real Quantity:int ID:str Description:str
     (PriceList
@@ -272,7 +277,7 @@ indicate _any_ valid table type.
     =PriceList Date:date Price:real Quantity:int ID:str Description:str
     (PriceList)
 
-Just for completeness, here's an example of an empty table.
+Just for completeness, here's an example of an empty price list table.
 
 ### INI to UXF
 
@@ -345,7 +350,7 @@ stages.
       )
     }
 
-UXF accepts `no` for `bool` `false` and `yes` for `bool` `true`. (`0` and
+UXF accepts `no` and `yes` for `bool` false and true repectively. (`0` and
 `1` cannot be used as ``bool``s since the UXF processor would interpret them
 as ``int``s.)
 
@@ -395,10 +400,10 @@ _height_ into "pos" and "size" tables. Notice that for each of these tables
 we've defined their _ttype_ to include both field names and types.
 
 We've also added some example comments to two of the ``map``s. A comment is
-a `#` immediately followed by a `str`. A comment may only be placed at the
-start of a list before the optional _vtype_ or the first value, or at the
-start of a map before the optional _ktype_ or the first key, or at the start
-of a table before the _ttype_ name.
+a `#` immediately followed by a `str`. In the data, a comment may only be
+placed at the start of a list before the optional _vtype_ or the first
+value, or at the start of a map before the optional _ktype_ or the first
+key, or at the start of a table before the _ttype_ name.
 
     uxf 1.0 MyApp 1.2.0 Config
     =pos x:int y:int
@@ -446,10 +451,10 @@ _ttype_).
       )
     }
 
-For this final variation we've gathered all the window data into a single
-table type and laid it out for human readability. We could, of course, have
-just written it as `(Geometry 615 252 592 636 1.1 28 42 140 81 1.0 57 98 89
-22 0.5)`.
+For this variation we've gathered all the window data into a single table
+type and laid it out for human readability. We could, of course, have just
+written it as `(Geometry 615 252 592 636 1.1 28 42 140 81 1.0 57 98 89 22
+0.5)`.
 
 ### Database to UXF
 
@@ -552,7 +557,6 @@ the container, something like:
     uxf 1.0
     =Pair First Second
     =Triple First Second Third
-    =Parts column
     [#<Nested tables>
       (Pair (Pair 17 21) (Pair 98 65))
       (Triple
@@ -577,11 +581,11 @@ _Implementations in additional languages are planned._
 ## Imports
 
 UXF files are normally completely self-contained. However, in some cases it
-may be desirable to share a set of _ttype_ definitions amongst a bunch of
-UXF files.
+may be desirable to share a set of _ttype_ definitions amongst many UXF
+files.
 
-The _disadvantages_ of doing this are first that the relevant UXF files
-become dependent on one or more external dependencies and second it is
+The _disadvantages_ of doing this are: first, that the relevant UXF files
+become dependent on one or more external dependencies, and second, it is
 possible to have import conflicts (i.e., two _ttypes_ with the same name but
 different definitions. (However, the first disadvantage doesn't apply if all
 the dependencies are provided by the UXF processor itself, i.e., are system
@@ -607,7 +611,7 @@ defintion of the same name.
 |----------|---------|
 |`! complex`|These imports are provided by the UXF processor itself|
 |`! fraction`|These imports are provided by the UXF processor itself|
-|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the current folder (or from a folder in the `UXF_PATH`)|
+|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the importing `.uxf` file's folder, or from current folder, or from a folder in the `UXF_PATH`|
 |`! /path/to/shared.uxf`|Import the _ttypes_ from the given file|
 |`! http://www.qtrac.eu/ttype-eg.uxf`|Import from the given URL|
 

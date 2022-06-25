@@ -1605,15 +1605,16 @@ class _Parser:
 
 
     def _get_fullname(self, filename):
-        path = '.'
+        '''Searches in order: filename's path, cwd, UXF_PATHs'''
+        paths = []
         if self.filename and self.filename != '-':
-            path = os.path.dirname(self.filename) or '.'
-        paths = os.environ.get('UXF_PATH')
-        if paths:
-            paths = [path] + paths.split(
+            paths.append(os.path.dirname(self.filename))
+        if paths and paths[0] != '.':
+            paths.append('.')
+        uxf_paths = os.environ.get('UXF_PATH')
+        if uxf_paths:
+            paths += uxf_paths.split(
                 ';' if sys.platform.startswith('win') else ':')
-        else:
-            paths = [path]
         for path in paths:
             fullname = _full_filename(filename, path)
             if fullname in self.imported:
