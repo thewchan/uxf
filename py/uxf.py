@@ -2116,10 +2116,10 @@ def _is_uxf_collection(value):
     return isinstance(value, (List, Map, Table))
 
 
-def _full_filename(filename, path=None):
+def _full_filename(filename, path='.'):
     if os.path.isabs(filename):
         return filename
-    return os.path.abspath(os.path.join(path or '.', filename))
+    return os.path.abspath(os.path.join(path, filename))
 
 
 class _AlreadyImported(Exception):
