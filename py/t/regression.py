@@ -35,6 +35,7 @@ try:
     TEST_INCLUDE = os.path.join(PATH, '../t/test_include.py')
     TEST_EDITABLETUPLE = os.path.join(PATH, '../t/test_editabletuple.py')
     TEST_TLM = os.path.join(PATH, '../t/test_tlm.py')
+    TEST_COMPARE = os.path.join(PATH, '../t/test_compare.py')
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -73,8 +74,8 @@ def main():
             (('A', TEST_TABLE), ('B', TEST_SQLITE), ('C', TEST_ERRORS),
              ('D', TEST_LINTS), ('E', TEST_IMPORTS), ('F', TEST_MERGE),
              ('G', TEST_INCLUDE), ('H', TEST_EDITABLETUPLE),
-             ('T', TEST_TLM)), total, ok, verbose=verbose,
-            max_total=max_total)
+             ('I', TEST_TLM), ('J', TEST_COMPARE)), total, ok,
+            verbose=verbose, max_total=max_total)
     if ok == total and os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)
         for c in ('\b', ' ', '\b'):
