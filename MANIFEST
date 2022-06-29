@@ -1,4 +1,8 @@
-# TODO update py/eg/README.md re Slides
+# TODO create test_compare.py & compare t13.uxf orig vs act; ditto
+# t63.uxf with & without -e
+# TODO create test_visit.py: the visitor function should output
+# everything visited to actual/vN.txt # (N=13 63 for t13.uxf t63.uxf)
+# and then regression test against expected/vN.txt
 # TODO create py/t/genuxf.py [magnitude (default 1)] [outfile]
 # use random with a fixed seed to generate a uxt spanning all 11
 # datatypes and proportional in size to magnitude
@@ -26,9 +30,6 @@
 #
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
-# TODO create test_visit.py: the visitor function should output
-# everything visited to actual/vN.txt # (N=13 63 for t13.uxf t63.uxf)
-# and then regression test against expected/vN.txt
 # TODO review & improve README.md, py/README.md, and py/eg/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
@@ -61,6 +62,7 @@ py/t/test_editabletuple.py
 py/t/test_tlm.py
 py/t/eq.py
 py/eg/README.md
+py/eg/compare.py
 py/eg/visit.py
 py/eg/slides1.py
 py/eg/slides2.py

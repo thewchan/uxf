@@ -6,8 +6,8 @@
 - [merge.py](#merge-py)
 - [Slides](#slides)
     - [slides1.py](#slides1-py)
-        - [visit.py](#visit-py)
     - [slides2.py](#slides2-py)
+- [compare.py](#compare-py)
 
 
 ## Config.py
@@ -75,10 +75,27 @@ the [include.py](#include-py) example.
 
 ## Slides
 
+The `py/eg/slides.sld` file is a UXF format file which defines some custom
+_ttypes_ and includes some example slides using this format.
+
+Two examples can read files of this format and output HTML pages as
+“slides”; their key difference being the way they handle the UXF `.sld`
+file.
+
 ### slides1.py
 
-#### visit.py
+This example uses `Uxf.load()` and then uses the `visit.py` module's
+`visit()` function to iterate over the returned `Uxf` object's data to
+produce HTML output.
 
 ### slides2.py
+
+This example uses `Uxf.load()` and then manually iterates over the returned
+`Uxf` object's data to produce HTML output.
+
+## compare.py
+
+This example can be used stand-alone or as an import. It is used to compare
+two UXF files for equality—or for equivalence.
 
 ---

@@ -179,6 +179,10 @@ functions, [load()](#load-def) or [loads()](#loads-def). Of course, you can
 also create ``Uxf``s programatically (as shown in many of the examples and
 tests).
 
+##### Constructor
+
+**`Uxf(value=None, *, custom='', tclasses=None, comment=None)`**
+
 The `Uxf` constructor takes an optional `value` (a `list`, `List`, `tuple`,
 `dict`, `Map`, or `Table`) and optional (by keyword arguments) `custom`
 string, `tclasses` (a `dict` whose names are _ttypes_ and whose values are
@@ -255,6 +259,16 @@ A class used to represent a UXF list. It is a `collections.UserList`
 subclass which holds its list in the `.data` attribute and that also has
 `.comment` and `.vtype` attributes.
 
+##### Constructor
+
+**`List(seq=None, *, vtype=None, comment=None)`**
+
+The `seq` can be a `list`, `tuple`, or any iterable acceptable to the
+built-in `list()` type. The _vtype_ is a `str` signifying the type of value
+this list may hold; `None` means values may be of _any_ UXF-compatible type
+(see [Python UXF Types](#python-uxf-types)). A `str` may be passed as the
+`comment`.
+
 See [Python UXF Types](#python-uxf-types) for more about _vtypes_.
 
 <a name="map-class"></a>
@@ -264,6 +278,18 @@ A class used to represent a UXF map. It is a `collections.UserDict` subclass
 that holds its dict in the `.data` attribute and that also has `.comment`,
 `.ktype`, and `.vtype` attributes.
 
+##### Constructor
+
+**`Map(d=None, *, ktype=None, vtype=None, comment=None)`**
+
+The `d` can be a `dict` or any single value acceptable to the built-in
+`dict()` type. The _ktype_ is a `str` signifying the type of key that must
+be used; `None` means that any valid _ktype_, i.e., `'bytes'`, `'date'`,
+`'datetime'`, `'int'`, or `'str'`. The _vtype_ is a `str` signifying the
+type of value this `Map` may hold; `None` means values may be of _any_
+UXF-compatible type (see [Python UXF Types](#python-uxf-types)). A `str` may
+be passed as the `comment`.
+
 See [Python UXF Types](#python-uxf-types) for more about _ktypes_ and
 _vtypes_.
 
@@ -272,11 +298,14 @@ _vtypes_.
 
 A class used to store UXF Tables.
 
+##### Constructor
+
+**`Table(tclass=None, *, records=None, comment=None)`**
+
 A `Table` can be created using the constructor, passing a
-[TClass](#tclass-class), and optionally (using keyword arguments), records
-(a list of lists), and a comment (a `str`). Alternativvely, use the
-[table()](#table-def) convenience function which takes a _ttype_ (a `str`),
-and fields.
+[TClass](#tclass-class), and optionally, records (a list of lists), and a
+comment (a `str`). Alternativvely, use the [table()](#table-def) convenience
+function which takes a _ttype_ (a `str`), and fields.
 
 See [Python UXF Types](#python-uxf-types) for more about _ktypes_ and
 _ttypes_.
@@ -406,10 +435,20 @@ This function is a convenience for `.tclass.fields[column]`.
 This class is used to store a [Table](#table-class)'s _ttype_ (i.e., its
 name) and fields.
 
-The `.ttype` attribute holds the ``TClass``'s name (equivalent to a _vtype_
-or _ktype_ name); it may not be the same as a built-in type name or
-constant. The `.fields` attribute holds a list of fields of type
-[Field](#field-class). The `.comment` holds an optional `str`.
+##### Constructor
+
+**`TClass(ttype, fields=None, *, comment=None)`**
+
+The `ttype` must be a `str` that holds the ``TClass``'s name (equivalent to
+a _vtype_ or _ktype_ name); it may not be the same as a built-in type name
+or constant. Leave `fields` as `None` for a fieldless table; otherwise pass
+a sequence of field names (``str``'s) or ``Field``'s (which have field names
+and optionally types). The `.comment` may be passed a `str`.
+
+
+The `.ttype` attribute holds the ``TClass``'s name. The `.fields` attribute
+holds a list of fields of type [Field](#field-class). The `.comment` holds
+an optional `str`.
 
 The `.isfieldless` property returns `True` if there are no fields (which is
 valid for a fieldless table); otherwise returns `False`.
@@ -418,11 +457,19 @@ valid for a fieldless table); otherwise returns `False`.
 #### Field
 
 This class is used to store a [TClass](#tclass-class)'s fields, i.e., the
-fields for a [Table](#table-class). The `.name` must start with a letter and
-be followed by `0-uxf.MAX_IDENTIFIER_LEN-1` letters, digits, or underscores;
-it may not be the same as a built-in type name or constant. A _vtype_ must
-be one of these ``str``s: `bool`, `int`, `real`, `date`, `datetime`, `str`,
-`bytes`, or `None` (which means accept any valid type), or a _ttype_ name.
+fields for a [Table](#table-class).
+
+##### Constructor
+
+**`Field(name, vtype=None)`**
+
+The `name` must start with a letter and be followed by
+`0-uxf.MAX_IDENTIFIER_LEN-1` letters, digits, or underscores; it may not be
+the same as a built-in type name or constant. A _vtype_ of `None` means that
+the field may hold any valid UXF type (see [Python UXF
+Types](#python-uxf-types)); otherwise it must be one of these ``str``s:
+`bool`, `bytes`, `int`, `real`, `date`, `datetime`, `list`, `map`, `str`, or
+`table`; or a _ttype_ name.
 
 <a name="format-class"></a>
 #### Format
@@ -431,12 +478,15 @@ This class is used to specify aspects of the output format for the
 [dump()](#dump-def) and [dumps()](#dumps-def) functions (and the equivalent
 methods).
 
-The [dump()](#dump-def) and [dumps()](#dumps-def) functions use a default
-`Format` which has an indent of two spaces, a wrap width of 96 characters, a
-maximum of 10 values per line for lists, a maximum of 5 fields per line for
-tables, and defines a “short length” as 32 characters. These are the
-canonical values for UXF files. However, by creating and passing your own
-`Format` object, you can change these to suit your needs.
+##### Constructor
+
+**`Format(indent='  ', wrap_width=96, max_list_in_line=10,
+max_fields_in_line=5, max_short_len=32)`**
+
+The [dump()](#dump-def) and [dumps()](#dumps-def) functions use the default
+`Format()` which uses the defaults shown (indent is two spaces). However, by
+creating and passing your own `Format` object, you can change these to suit
+your needs.
 
 <a name="error-class"></a>
 #### Error
