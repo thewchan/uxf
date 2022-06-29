@@ -1,35 +1,84 @@
 # Python UXF Library Examples
 
 - [Config.py](#config-py)
-- [tlm\_uxf.py](#tlm-uxf-py)
+- [Tlm.py](#tlm-py)
 - [include.py](#include-py)
 - [merge.py](#merge-py)
-- [slides1.py](#slides1-py)
-    - [visit.py](#visit-py)
-- [slides2.py](#slides2-py)
+- [Slides](#slides)
+    - [slides1.py](#slides1-py)
+        - [visit.py](#visit-py)
+    - [slides2.py](#slides2-py)
 
 
 ## Config.py
 
-This examples shows UXF being used both as an external storage format _and_
-as the application's internal data store.
+This example shows a practical use case of saving and loading application
+configuration data, preserving comments, providing defaults, and validating.
 
-## tlm\_uxf.py
+The UXF file format used here is very short but also quite complex. It
+includes an enumeration with two valid values, and three other custom
+_ttypes_. The data is held in a `map` with `str` keys, with one value being
+an `int`, another a `list` of ``table``s, and another a `map` with `str`
+keys and values.
 
-This example shows UXF being used as an exchange format. The program might
-normally use a different form of external storage (e.g., a database), but
-supports importing and exporting in UXF. This is useful because once
-exported, the UXF data can be processed by generice UXF-handling tools, and
-then reimported.
+The `Config` class hides the complexity to present a very simple
+property-based API. (Of course there's no free lunch—the API's simplicity is
+won at the cost of the `Config` class itself being quite large.)
+
+## Tlm.py
+
+This example shows UXF being used as both a “native” format and an exchange
+format for importing and exporting. The main class, `Tlm` holds a track list
+and a list of history strings. The `Tlm` can load and save in its own TLM
+format, and also seamlessly, a TLM UXF format.
+
+Code-wise, loading needs ~60 lines for TLM and ~23 lines for TLM UXF. This
+is because the uxf module does most of the parsing. Saving needs ~18 lines
+for TLM and for TLM UXF.
 
 ## include.py
 
+This example shows how you might implement an “include” facility in a UXF
+file. For example, given:
+
+    uxf 1.0 UXF Include
+    #<This is main.uxf>
+    =include filename:str
+    (include
+    <file1.uxf>
+    <file2.uxf>
+    <file3.uxf>
+    )
+
+if you run `include.py main.uxf outfile.uxf` the `outfile.uxf` will have as
+its data a list of three values, the first containing ``file1.uxf``'s data,
+and so on.
+
+This example imports the [merge.py](#merge-py) example.
+
 ## merge.py
 
-## slides1.py
+This example is a little utility for merging two or more UXF files into a
+single UXF file.
 
-### visit.py
+`usage: merge.py [-l|--list] [-|[-o|--outfile] <outfile>] <infile1> <infile2> [... <infileN>]`
 
-## slides2.py
+If `-l` or `--list` is specified, the `outfile` will contain a list where
+each value is the corresponding ``infile``'s data. The default is for the
+`outfile` to contain a `map` where each key is the name of an `infile` and
+each value the corresponding ``infile``'s data. The `outfile` will be in UXF
+format. If no `outfile` is specified, output is to `stdout`. Regardless of
+suffix, all infiles are assumed to be UXF format.
+
+This module can be imported and its `merge()` function used; this is done by
+the [include.py](#include-py) example.
+
+## Slides
+
+### slides1.py
+
+#### visit.py
+
+### slides2.py
 
 ---

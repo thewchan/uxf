@@ -26,11 +26,11 @@ def main():
 [-l|--list] [-|[-o|--outfile] <outfile>] \
 <infile1> <infile2> [... <infileN>]
 If -l or --list is specified, the outfile will contain a list where each
-value is the contents of an infile. The default is for the outfile to
-contain a map where each key is the name of an infile and each value the
-contents of the corresponding infile.
-The outfile will be in UXF format. If none is specified will output to \
-stdout.
+value is the correspoding infile's data. The default is for the outfile to
+contain a map where each key is the name of an infile and each value the the
+corresponding infile's data.
+The outfile will be in UXF format. If no outfile is specified, output is \
+to stdout.
 Regardless of suffix, all infiles are assumed to be UXF format.''')
     asmap, outfile, infiles = get_config()
     try:

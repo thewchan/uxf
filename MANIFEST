@@ -1,4 +1,4 @@
-# TODO update py/eg/README.md re py/eg/Config.py & py/eg/Tlm.py etc.
+# TODO update py/eg/README.md re Slides
 # TODO create py/t/genuxf.py [magnitude (default 1)] [outfile]
 # use random with a fixed seed to generate a uxt spanning all 11
 # datatypes and proportional in size to magnitude
@@ -81,7 +81,6 @@ st.sh
 
 # NOTE IDEAS:
 # - Documentation:
-#   . Shorter README.md with shorter & pithier egs
 #   . Complete manual with egs and use cases
 #   . Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Verification suite: create files (valid & invalid UXF etc) &
