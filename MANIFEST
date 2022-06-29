@@ -1,3 +1,4 @@
+# TODO update py/eg/README.md re py/eg/Config.py & py/eg/Tlm.py etc.
 # TODO create py/t/genuxf.py [magnitude (default 1)] [outfile]
 # use random with a fixed seed to generate a uxt spanning all 11
 # datatypes and proportional in size to magnitude
@@ -23,10 +24,6 @@
 # Add to regression.py but with a smaller size so its target total time
 # is 1-2 sec
 #
-# TODO update Py API docs to cover the Format class
-# TODO review existing API docs to make sure they're accurate (e.g.,
-# indent and wrap width, etc.)
-# TODO update docs to mention py/eg/Config.py & py/eg/Tlm.py?
 # TODO py/t/test_errors.py: go through all the error codes again to ensure
 # all that are testable have tests
 # TODO create test_visit.py: the visitor function should output

@@ -1013,8 +1013,8 @@ class Table:
 
 
     def append(self, record):
-        '''Add a record (either a RecordClass tuple or a sequence of fields)
-        to the table'''
+        '''Appends a record (either a RecordClass tuple or a sequence of
+        field values) to the table'''
         if self.RecordClass is None:
             self._make_record_class()
         if not isinstance(record, self.RecordClass):
@@ -1023,6 +1023,8 @@ class Table:
 
 
     def insert(self, index, record):
+        '''Inserts a record (either a RecordClass tuple or a sequence of
+        field values) into the table at the given index position'''
         if self.RecordClass is None:
             self._make_record_class()
         if not isinstance(record, self.RecordClass):
@@ -1083,10 +1085,13 @@ class Table:
 
 
     def delete_record(self, row):
+        '''Deletes the table's row-th record'''
         del self.records[row]
 
 
     def get_field(self, row, name_or_index):
+        '''Returns the table's row-th record's name_or_index-th field (if
+        name_or_index is an int or the field whose name is name_or_index'''
         record = self._customize(row)
         if isinstance(name_or_index, int):
             return record[name_or_index]
@@ -1094,6 +1099,9 @@ class Table:
 
 
     def set_field(self, row, name_or_index, value):
+        '''Sets the table's row-th record's name_or_index-th field (if
+        name_or_index is an int or the field whose name is name_or_index to
+        the given value'''
         record = self._customize(row)
         if isinstance(name_or_index, int):
             record[name_or_index] = value
