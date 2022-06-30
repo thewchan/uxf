@@ -30,26 +30,39 @@ def main():
             scale = int(sys.argv[1])
     print(f'scale={scale} ', end='', flush=True)
 
-    uxt1 = gen.generate(scale=scale)
+    uxt1s = []
+    for _ in range(scale):
+        uxt1s.append(gen.generate(scale=scale))
+    mean_bytes = round(statistics.fmean(len(x.encode()) for x in uxt1s) //
+                       1000)
+    print(f'~{mean_bytes:,} KB ', end='', flush=True)
+    mean_lines = round(statistics.fmean(len(x.splitlines()) for x in uxt1s))
+    print(f'~{mean_lines:,} lines ', end='', flush=True)
 
     t = time.monotonic()
-    for _ in range(scale):
-        uxo1 = uxf.loads(uxt1)
+    uxos = []
+    for uxt1 in uxt1s:
+        uxos.append(uxf.loads(uxt1))
     load_t = time.monotonic() - t
     print(f'load={load_t:.03f}s ', end='', flush=True)
 
     t = time.monotonic()
-    for _ in range(scale):
-        uxt2 = uxo1.dumps()
+    uxt2s = []
+    for uxo in uxos:
+        uxt2s.append(uxo.dumps())
     dump_t = time.monotonic() - t
 
     total = load_t + dump_t
     print(f'dump={dump_t:0.03f}s (total={total:0.03f}s', end='')
 
     d = dict(drop_unused=True, replace_imports=True)
-    uxo1 = uxf.loads(uxt1, **d)
-    uxo2 = uxf.loads(uxt2, **d)
-    if eq.eq(uxo1, uxo2):
+    ok = 0
+    for i in range(scale):
+        uxo1 = uxf.loads(uxt1s[i], **d)
+        uxo2 = uxf.loads(uxt2s[i], **d)
+        if eq.eq(uxo1, uxo2):
+            ok += 1
+    if ok == scale:
         filename, uxo = get_timings()
         print(f' timings={len(uxo.value):,}) OK')
         record = (scale, load_t, dump_t, datetime.datetime.now())
