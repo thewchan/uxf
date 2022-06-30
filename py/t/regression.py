@@ -71,10 +71,10 @@ def main():
         print('7', end='', flush=True)
     if total < max_total:
         total, ok = test_externals(
-            (('A', TEST_TABLE), ('B', TEST_SQLITE), ('C', TEST_ERRORS),
-             ('D', TEST_LINTS), ('E', TEST_IMPORTS), ('F', TEST_MERGE),
-             ('G', TEST_INCLUDE), ('H', TEST_EDITABLETUPLE),
-             ('I', TEST_TLM), ('J', TEST_COMPARE)), total, ok,
+            (('A', TEST_TABLE), ('B', TEST_SQLITE), ('C', TEST_LINTS),
+             ('D', TEST_IMPORTS), ('E', TEST_MERGE), ('F', TEST_INCLUDE),
+             ('G', TEST_EDITABLETUPLE), ('H', TEST_TLM),
+             ('I', TEST_COMPARE), ('Z', TEST_ERRORS)), total, ok,
             verbose=verbose, max_total=max_total)
     if ok == total and os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)
