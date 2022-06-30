@@ -44,27 +44,30 @@ def main():
     dump_t = time.monotonic() - t
 
     total = load_t + dump_t
-    print(f'dump={dump_t:0.03f}s (total={total:0.03f}s) ', end='')
+    print(f'dump={dump_t:0.03f}s (total={total:0.03f}s', end='')
 
     d = dict(drop_unused=True, replace_imports=True)
     uxo1 = uxf.loads(uxt1, **d)
     uxo2 = uxf.loads(uxt2, **d)
     if eq.eq(uxo1, uxo2):
-        print('OK')
+        filename, uxo = get_timings()
+        print(f' timings={len(uxo.value):,}) OK')
         record = (scale, load_t, dump_t, datetime.datetime.now())
-        post_process_result(scale, record)
+        post_process_result(filename, uxo, scale, record)
     else:
-        print('uxo1 != uxo2') # we don't save bad results
+        print(') uxo1 != uxo2') # we don't save bad results
 
 
-def post_process_result(scale, record):
+def get_timings():
     filename = os.path.abspath('../py/t/benchmark.uxf.gz')
     try:
-        uxo = uxf.load(filename)
+        return filename, uxf.load(filename)
     except uxf.Error:
-        uxo = uxf.loads('''uxf 1.0 benchmark.py timings
+        return filename, uxf.loads('''uxf 1.0 benchmark.py timings
 =Result scale:int load:real dump:real when:datetime\n(Result)\n''')
 
+
+def post_process_result(filename, uxo, scale, record):
     record = uxo.value.RecordClass(*record)
     load_times = []
     dump_times = []
