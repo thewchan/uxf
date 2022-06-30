@@ -1,14 +1,3 @@
-# TODO create py/t/genuxf.py [magnitude (default 1)] [outfile]
-# use random with a fixed seed to generate a uxt spanning all 11
-# datatypes and proportional in size to magnitude
-#   def generate(magnitude, seed=None):
-#	if seed is not None:
-#	    random.seed(seed) # for reproducible tests
-#	...
-#	return uxt
-#   def save(uxt, outfile):
-#	...
-#	
 # TODO create py/t/benchmark.py [magnitude]
 #   import genuxf
 #   uxt1 = genuxf.generate(magnitude) # make big enough to make > 1MB uxt
@@ -61,6 +50,7 @@ py/t/test_editabletuple.py
 py/t/test_compare.py
 py/t/test_tlm.py
 py/t/eq.py
+py/t/gen.py
 py/eg/README.md
 py/eg/compare.py
 py/eg/visit.py
