@@ -21,13 +21,13 @@ finally:
 
 
 def main():
-    magnitude = 7 # Approx 1MB
+    scale = 7 # Approx 1MB
     if len(sys.argv) > 1:
         if sys.argv[1] in {'-h', '--help'}:
             raise SystemExit(
-                'usage: gen.py [magnitude]\ndefault magnitude is 7 → ~1MB')
-        magnitude = int(sys.argv[1])
-    uxt = generate(magnitude=magnitude)
+                'usage: gen.py [scale]\ndefault scale is 7 → ~1MB')
+        scale = int(sys.argv[1])
+    uxt = generate(scale=scale)
     with tempfile.NamedTemporaryFile('wt', encoding='utf-8', prefix='gen-',
                                      suffix='.uxf', delete=False) as file:
         n = file.write(uxt)
@@ -35,7 +35,7 @@ def main():
     print(f'wrote {name} of {n:,} bytes')
 
 
-def generate(*, magnitude=7, seed=104297):
+def generate(*, scale=7, seed=104297):
     random.seed(seed)
     uxt = ['uxf 1.0']
     imports = ['!fraction', '! complex']
@@ -52,10 +52,10 @@ def generate(*, magnitude=7, seed=104297):
     text = uxo.dumps()
     i = text.find('[')
     j = text.rfind(']')
-    for _ in range(magnitude):
+    for _ in range(scale):
         uxt.append(text[i:j])
     uxt.append('{<Color values> [')
-    for _ in range(magnitude ** 3):
+    for _ in range(scale ** 3):
         r = random.randrange(0, 256)
         g = random.randrange(0, 256)
         b = random.randrange(0, 256)
@@ -63,19 +63,19 @@ def generate(*, magnitude=7, seed=104297):
         uxt.append(f'    (rgba {r} {g} {b} {a})')
     uxt.append(']')
     uxt.append('<Fractions> [')
-    for _ in range(magnitude ** 2):
+    for _ in range(scale ** 2):
         a = random.randrange(0, 1000000)
         b = random.randrange(1, 1000000)
         uxt.append(f'    (Fraction {a} {b})')
     uxt.append(']')
     uxt.append('<Complex numbers> [')
-    for _ in range(magnitude ** 2):
+    for _ in range(scale ** 2):
         r = random.random() * 1000000
         i = random.random() * 1000000
         uxt.append(f'    (Complex {r} {i})')
     uxt.append(']')
     uxt.append('<3D Points> [')
-    for _ in range(magnitude ** 3):
+    for _ in range(scale ** 3):
         x1 = random.randrange(-1000, 1000)
         y1 = random.randrange(-1000, 1000)
         z1 = random.randrange(-1000, 1000)

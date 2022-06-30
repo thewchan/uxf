@@ -64,6 +64,8 @@ def _validate_format(name, value): # If invalid we return the valid default
     if name == 'wrap_width':
         return value if (value is None or value == 0 or
                          40 <= value <= 240) else 96
+    if name == 'realdp':
+        return value if (value is None or 0 <= value <= 15) else None
     if name == 'max_list_in_line':
         return value if 1 <= value <= 120 else 10
     if name == 'max_fields_in_line':
@@ -73,9 +75,20 @@ def _validate_format(name, value): # If invalid we return the valid default
 
 
 Format = editabletuple.editableobject(
-    'Format', 'indent', 'wrap_width', 'max_list_in_line',
-    'max_fields_in_line', 'max_short_len', defaults=('  ', 96, 10, 5, 32),
-    validator=_validate_format)
+    'Format', 'indent', 'wrap_width', 'realdp', 'max_list_in_line',
+    'max_fields_in_line', 'max_short_len',
+    defaults=('  ', 96, None, 10, 5, 32), validator=_validate_format,
+    doc='''Specifies various aspects of how a UXF file is dumped to file or
+to a string.
+`indent` defaults to 2 spaces and may be an empty string or up to 32 spaces
+`wrap_width` defaults to 96 characters and may be None (use the default) \
+or 40<=240
+`realdp` defaults to None which means use however many digits after the
+decimal place are needed to represent the given `real` (i.e., Python
+`float`); if not None specify an int 0<=15
+`max_list_in_line` defaults to 10 and must be 1<=120
+`max_fields_in_line` defaults to 5 and must be 1<=120
+`max_short_len` defaults to 32 and must be 24<=60''')
 
 
 class Uxf:
@@ -1954,6 +1967,8 @@ class _Writer:
         elif isinstance(item, int):
             self._write_one(str(item))
         elif isinstance(item, float):
+            if self.format.realdp is not None:
+                item = round(item, self.format.realdp)
             text = str(item)
             if '.' not in text and 'e' not in text and 'E' not in text:
                 text += '.0'

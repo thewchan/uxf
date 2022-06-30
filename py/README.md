@@ -480,13 +480,15 @@ methods).
 
 ##### Constructor
 
-**`Format(indent='  ', wrap_width=96, max_list_in_line=10,
+**`Format(indent='  ', wrap_width=96, realdp=None, max_list_in_line=10,
 max_fields_in_line=5, max_short_len=32)`**
 
 The [dump()](#dump-def) and [dumps()](#dumps-def) functions use the default
 `Format()` which uses the defaults shown (indent is two spaces). However, by
 creating and passing your own `Format` object, you can change these to suit
-your needs.
+your needs. For `realdp`, `None` signifies use however many digits after the
+decimal point are needed for UXF ``real``'s (i.e., for Python ``float``'s);
+otherwise specif a value 0-15.
 
 <a name="error-class"></a>
 #### Error
