@@ -24,7 +24,6 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] in {'-r', '--regression'}:
         regression = True
     total = ok = 0
-
     on_error = functools.partial(uxf.on_error, verbose=False)
 
     # Two files with the equivalent UXF content; but different actual
@@ -33,53 +32,57 @@ def main():
     filename2 = os.path.join(tempfile.gettempdir(), '63.uxf')
     uxo = uxf.load(filename1, drop_unused=True, replace_imports=True)
     uxo.dump(filename2, on_error=on_error)
+    total, ok = test(total, ok, regression, 1, filename1, filename2,
+                     False, False, True)
 
-    total += 1
-    if not filecmp.cmp(filename1, filename2, shallow=False):
-        ok += 1
-    elif not regression:
-        print('1 filecmp.cmp() • FAIL files compared unexpectedly the same')
-
-    total += 1
-    if not compare.compare(filename1, filename2, on_error=on_error):
-        ok += 1
-    elif not regression:
-        print('2 compare() • FAIL files compared unexpectedly equal')
-
-    total += 1
-    if compare.compare(filename1, filename2, equivalent=True,
-                       on_error=on_error):
-        ok += 1
-    elif not regression:
-        print(
-            '3 compare() • FAIL files compared unexpectedly nonequivalent')
-
-    # Two files with the equivalent UXF content; but different actual
-    # content (whitespace only)
     filename1 = 't13.uxf'
     filename2 = 'expected/t13.uxf'
+    total, ok = test(total, ok, regression, 2, filename1, filename2,
+                     False, True, True)
+
+    # Compare with self
+    filename2 = 't13.uxf'
+    total, ok = test(total, ok, regression, 3, filename1, filename2,
+                     True, True, True)
+
+    filename1 = filename2 = 't12.uxf'
+    total, ok = test(total, ok, regression, 4, filename1, filename2,
+                     True, True, True)
+
+    # Compare with different
+    filename2 = 't11.uxf'
+    total, ok = test(total, ok, regression, 5, filename1, filename2,
+                     False, False, False)
+
+    print(f'total={total} ok={ok}')
+
+
+def test(total, ok, regression, n, filename1, filename2, expected1,
+         expected2, expected3):
+    on_error = functools.partial(uxf.on_error, verbose=False)
 
     total += 1
-    if not filecmp.cmp(filename1, filename2, shallow=False):
+    if filecmp.cmp(filename1, filename2, shallow=False) == expected1:
         ok += 1
     elif not regression:
-        print('4 filecmp.cmp() • FAIL files compared unexpectedly the same')
+        print(f'{n}.1 filecmp.cmp() • FAIL files compared unexpectedly the '
+              'same')
 
     total += 1
-    if compare.compare(filename1, filename2, on_error=on_error):
+    if compare.compare(filename1, filename2,
+                       on_error=on_error) == expected2:
         ok += 1
     elif not regression:
-        print('5 compare() • FAIL files compared unexpectedly unequal')
+        print(f'{n}.2 compare() • FAIL files compared unexpectedly unequal')
 
     total += 1
     if compare.compare(filename1, filename2, equivalent=True,
-                       on_error=on_error):
+                       on_error=on_error) == expected3:
         ok += 1
     elif not regression:
-        print(
-            '6 compare() • FAIL files compared unexpectedly nonequivalent')
-
-    print(f'total={total} ok={ok}')
+        print(f'{n}.3 compare() • FAIL files compared unexpectedly '
+              'nonequivalent')
+    return total, ok
 
 
 if __name__ == '__main__':
