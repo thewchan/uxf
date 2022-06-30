@@ -19,11 +19,6 @@ except ImportError: # needed for development
     sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
     import uxf
 
-try:
-    from dateutil.parser import isoparse
-except ImportError:
-    isoparse = None
-
 
 UTF8 = 'utf-8'
 MAX_IDENTIFIER_LEN = 60

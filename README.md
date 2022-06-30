@@ -36,7 +36,7 @@ UXF supports the following eleven built-in datatypes.
 |`bool`     |`no` `yes`|Use `no` for false and `yes` for true.|
 |`bytes`    |`(:20AC 65 66 48:)`|There must be an even number of case-insensitive hex digits; whitespace optional.|
 |`date`     |`2022-04-01`|Basic ISO8601 YYYY-MM-DD format.|
-|`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH:MM:SS format (timezone support is library dependent).|
+|`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH[:MM[:SS]] format; 1-sec resolution no timezone support.|
 |`int`      |`-192` `+234` `7891409`||
 |`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific notation.|
 |`str`      |`<Some text which may include newlines>`|For &, <, >, use \&amp;, \&lt;, \&gt; respectively.|
@@ -653,7 +653,7 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
     INT          ::= /[-+]?\d+/
     REAL         ::= # standard or scientific notation
     DATE         ::= /\d\d\d\d-\d\d-\d\d/ # basic ISO8601 YYYY-MM-DD format
-    DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
+    DATETIME     ::= /\d\d\d\d-\d\d-\d\dT\d\d(:\d\d(:\d\d)?)?/ # see note below
     STR          ::= /[<][^<>]*?[>]/ # newlines allowed, and &amp; &lt; &gt; supported i.e., XML
     BYTES        ::= '(:' (OWS [A-Fa-f0-9]{2})* OWS ':)'
     IDENFIFIER   ::= /[_\p{L}]\w{0,59}/ # Must start with a letter or underscore; may not be a built-in typename or constant
@@ -691,11 +691,12 @@ possible, correct) any mistyped values. UXF readers and writers are expected
 to preserve map items in the original reading order (first to last, i.e.,
 in insertion order).
 
-For ``datetime``s, support may vary across different UXF libraries and
-might _not_ include timezone support. For example, the Python library
-only supports timezones as time offsets; for `Z` etc, the `dateutil`
-module must be installed, but even that doesn't necessarily support the full
-ISO8601 specification.
+For ``datetime``'s only 1-second resolution is supported and no timezones.
+If microsecond resolution or timezones are required, consider using custom
+_ttypes_, e.g.,
+
+    =Timestamp when:datetime microseconds:real
+    =DateTime when:datetime zone:str
 
 Note that a UXF reader (writer) _must_ be able to read (write) a plain text
 `.uxf` file containing UTF-8 encoded text, and _ought_ to be able to read

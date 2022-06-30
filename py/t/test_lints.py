@@ -123,6 +123,8 @@ def check_all(total, ok, regression):
             with open(filename, 'rt', encoding='utf-8') as file:
                 expected = file.read().strip()
         else:
+            if not regression:
+                print(f'{cmd} • (all) FAIL to find expected/{ALL_LINTS}')
             return total, ok
         ok += 1 # read expected
         total += 1

@@ -18,11 +18,6 @@ from xml.sax.saxutils import escape, unescape
 
 import editabletuple
 
-try:
-    from dateutil.parser import isoparse
-except ImportError:
-    isoparse = None
-
 
 __version__ = '0.45.0' # uxf module version
 VERSION = 1.0 # uxf file format version
@@ -473,8 +468,6 @@ class _Lexer:
                                                       hyphens, text)
         try:
             value = convert(text)
-            if token is _Kind.DATE and isoparse is not None:
-                value = value.date()
             self.add_token(token, value)
         except ValueError as err:
             if is_datetime and len(text) > 19:
@@ -487,12 +480,12 @@ class _Lexer:
     def read_number_or_date_chars(self, c):
         is_real = is_datetime = False
         hyphens = 0
-        while not self.at_end() and (c in '-+.:eETZ' or isasciidigit(c)):
+        while not self.at_end() and (c in '-+.:eET' or isasciidigit(c)):
             if c in '.eE':
                 is_real = True
             elif c == '-':
                 hyphens += 1
-            elif c in ':TZ':
+            elif c in ':T':
                 is_datetime = True
             c = self.text[self.pos]
             self.pos += 1
@@ -502,26 +495,12 @@ class _Lexer:
 
     def get_converter_and_token(self, is_real, is_datetime, hyphens, text):
         if is_datetime:
-            return self.read_datetime(text)
+            return datetime.datetime.fromisoformat, _Kind.DATE_TIME
         if hyphens == 2:
-            convert = (datetime.date.fromisoformat if isoparse is None
-                       else isoparse)
-            return convert, _Kind.DATE
+            return datetime.date.fromisoformat, _Kind.DATE
         if is_real:
             return float, _Kind.REAL
         return int, _Kind.INT
-
-
-    def read_datetime(self, text):
-        if isoparse is None:
-            convert = datetime.datetime.fromisoformat
-            if text.endswith('Z'):
-                text = text[:-1] # Py std lib can't handle UTC 'Z'
-        else:
-            convert = isoparse
-        convert = (datetime.datetime.fromisoformat if isoparse is None
-                   else isoparse)
-        return convert, _Kind.DATE_TIME
 
 
     def reread_datetime(self, text, convert):
@@ -1974,7 +1953,7 @@ class _Writer:
                 text += '.0'
             self._write_one(text)
         elif isinstance(item, (datetime.date, datetime.datetime)):
-            self._write_one(item.isoformat())
+            self._write_one(isoformat(item)) # 1-second resolution
         elif isinstance(item, str):
             self._write_one(f'<{escape(item)}>')
         elif isinstance(item, (bytes, bytearray)):
@@ -2179,12 +2158,8 @@ def naturalize(s):
         except ValueError:
             try:
                 if 'T' in s:
-                    if isoparse is not None:
-                        return isoparse(s)
                     return datetime.datetime.fromisoformat(s)
                 else:
-                    if isoparse is not None:
-                        return isoparse(s).date()
                     return datetime.date.fromisoformat(s)
             except ValueError:
                 return s
@@ -2221,6 +2196,12 @@ canonicalize.count = 1 # noqa: E305
 def isasciidigit(s):
     '''Returns True if s matches /^[0-9]+$/.'''
     return s.isascii() and s.isdigit()
+
+
+def isoformat(dt):
+    '''Returns ISO8601 str representing the given date or datetime; in the
+    latter case limited to 1-second resolution.'''
+    return dt.isoformat()[:19]
 
 
 _ComplexTClass = TClass('Complex', (Field('Real', 'real'),

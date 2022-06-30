@@ -236,9 +236,9 @@ class _JsonEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
-            return {JSON_DATETIME: obj.isoformat()}
+            return {JSON_DATETIME: uxf.isoformat(obj)}
         if isinstance(obj, datetime.date):
-            return {JSON_DATE: obj.isoformat()}
+            return {JSON_DATE: uxf.isoformat(obj)}
         if isinstance(obj, (bytes, bytearray)):
             return {JSON_BYTES: obj.hex().upper()}
         if isinstance(obj, (list, uxf.List)):
@@ -276,7 +276,7 @@ def _json_encode_map(obj):
     itypes = {}
     for key, value in obj.items():
         if isinstance(key, (datetime.date, datetime.datetime)):
-            skey = key.isoformat()
+            skey = uxf.isoformat(key)
             itypes[skey] = UXF
         elif isinstance(key, int):
             skey = str(key)
@@ -396,8 +396,8 @@ def uxf_to_sqlite(infile, outfile, *, verbose=True, replace_imports=False,
 
 def _uxf_to_sqlite(filename, tables):
     sqlite3.register_adapter(bool, lambda b: 'TRUE' if b else 'FALSE')
-    sqlite3.register_adapter(datetime.date, lambda d: d.isoformat())
-    sqlite3.register_adapter(datetime.datetime, lambda d: d.isoformat())
+    sqlite3.register_adapter(datetime.date, lambda d: uxf.isoformat(d))
+    sqlite3.register_adapter(datetime.datetime, lambda d: uxf.isoformat(d))
     db = None
     try:
         db = sqlite3.connect(filename)
@@ -607,10 +607,10 @@ def _xml_add_scalar(tree, root, value):
         element.setAttribute('v', str(value))
     elif isinstance(value, datetime.datetime):
         element = tree.createElement('datetime')
-        element.setAttribute('v', value.isoformat())
+        element.setAttribute('v', uxf.isoformat(value))
     elif isinstance(value, datetime.date):
         element = tree.createElement('date')
-        element.setAttribute('v', value.isoformat())
+        element.setAttribute('v', uxf.isoformat(value))
     elif isinstance(value, str):
         element = tree.createElement('str')
         if '\n' in value and ']]>' not in value:

@@ -48,12 +48,12 @@ uxflint.py:l58.uxf:20:#488:expected real, got str one
 uxflint.py:l58.uxf:22:#500:expected date, got int 1990
 uxflint.py:l58.uxf:22:#500:expected date, got float 1980.5
 uxflint.py:l58.uxf:22:#486:converted str '1906' to date 1906
-uxflint.py:l58.uxf:22:#486:converted str '1907-05' to date 1907-05
+uxflint.py:l58.uxf:22:#488:expected date, got str 1907-05
 uxflint.py:l58.uxf:22:#486:converted str '1909-08-18' to date 1909-08-18
 uxflint.py:l58.uxf:24:#500:expected datetime, got int 1990
 uxflint.py:l58.uxf:24:#500:expected datetime, got float 1980.5
 uxflint.py:l58.uxf:24:#486:converted str '1906' to datetime 1906
-uxflint.py:l58.uxf:24:#486:converted str '1907-05' to datetime 1907-05
+uxflint.py:l58.uxf:24:#488:expected datetime, got str 1907-05
 uxflint.py:l58.uxf:24:#486:converted str '1909-08-18' to datetime 1909-08-18
 uxflint.py:l58.uxf:25:#486:converted str '1911-11-13T04' to datetime 1911-11-13T04
 uxflint.py:l58.uxf:25:#486:converted str '1913-12-01T05:19' to datetime 1913-12-01T05:19

@@ -22,9 +22,7 @@ Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
 
 The Python `uxf` library works out of the box with the standard library and
 one dependency,
-[editabletuple](https://github.com/mark-summerfield/editabletuple). And it
-will use [dateutil](https://pypi.org/project/python-dateutil/) if it's
-available.
+[editabletuple](https://github.com/mark-summerfield/editabletuple).
 
 - Install: `python3 -m pip install uxf` (or download the wheel `.whl`
   files and do `python -m pip install uxf....whl
@@ -506,6 +504,7 @@ ordered links:
 [canonicalize()](#canonicalize-def),
 [dump()](#dump-def),
 [dumps()](#dumps-def),
+[isoformat()](#isoformat-def),
 [isasciidigit()](#isasciidigit-def),
 [is\_scalar()](#is_scalar-def),
 [load()](#load-def),
@@ -638,6 +637,13 @@ use.
 Returns `True` if `s` matches ``/^[0-9]+$/``. (Python's `str.isdigit()` and
 `str.isdecimal()` both match additional digit characters which is why we
 use `isasciidigit()`.)
+
+<a name="isoformat-def"></a>
+**`isoformat(dt)`**
+
+If `dt` is a `date`, returns the corresponding `str` with format
+`"YYYY-MM-DD"`; if `dt` is a `datetime`, returns the corresponding `str`
+with format `"YYYY-MM-DDTHH:MM:SS"`.
 
 ### Constants
 
