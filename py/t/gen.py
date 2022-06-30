@@ -51,9 +51,17 @@ def generate(*, scale=7):
     text = uxo.dumps()
     i = text.find('[')
     j = text.rfind(']')
-    for _ in range(scale):
-        uxt.append(text[i:j])
-    uxt.append('{<Color values> [')
+    text1 = text[i:j + 1]
+    for table in uxo.value:
+        table.records.reverse()
+    text = uxo.dumps()
+    i = text.find('[')
+    j = text.rfind(']')
+    text2 = text[i:j + 1]
+    n = 1
+    uxt.append(f'{{<Music #{n}>')
+    uxt.append(random.choice((text1, text2)))
+    uxt.append('<Color values> [')
     scale3 = scale ** 3
     for _ in range(random.randrange(scale3 - 19, scale3 + 19)):
         r = random.randrange(0, 256)
@@ -62,6 +70,10 @@ def generate(*, scale=7):
         a = random.randrange(0, 256)
         uxt.append(f'    (rgba {r} {g} {b} {a})')
     uxt.append(']')
+    if n < scale:
+        uxt.append(f'<Music #{n + 1}> ')
+        uxt.append(random.choice((text1, text2)))
+        n += 1
     uxt.append('<Fractions> [')
     scale2 = scale ** 2
     for _ in range(random.randrange(scale2 - 3, scale2 + 3)):
@@ -69,12 +81,20 @@ def generate(*, scale=7):
         b = random.randrange(1, 1000000 + scale3)
         uxt.append(f'    (Fraction {a} {b})')
     uxt.append(']')
+    if n < scale:
+        uxt.append(f'<Music #{n + 1}> ')
+        uxt.append(random.choice((text1, text2)))
+        n += 1
     uxt.append('<Complex numbers> [')
     for _ in range(random.randrange(scale2 - 3, scale2 + 3)):
         r = random.random() * (1000000 + scale3)
         i = random.random() * (1000000 + scale3)
         uxt.append(f'    (Complex {r} {i})')
     uxt.append(']')
+    if n < scale:
+        uxt.append(f'<Music #{n + 1}> ')
+        uxt.append(random.choice((text1, text2)))
+        n += 1
     uxt.append('<3D Points> [')
     for _ in range(random.randrange(scale3 - 19, scale3 + 19)):
         x1 = random.randrange(-9999, 10000)
@@ -88,8 +108,12 @@ def generate(*, scale=7):
         z3 = random.randrange(-9999, 10000)
         uxt.append(
             f'    (point3d {x1} {y1} {z1} {x2} {y2} {z2} {x3} {y3} {z3})')
-    uxt.append(']\n}')
-    uxt.append(']\n')
+    uxt.append(']')
+    while n < scale:
+        uxt.append(f'<Music #{n + 1}> ')
+        uxt.append(random.choice((text1, text2)))
+        n += 1
+    uxt.append('\n}')
     return '\n'.join(uxt)
 
 

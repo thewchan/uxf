@@ -1423,6 +1423,7 @@ class _Parser:
         if not self.stack:
             self.error(510, f'unexpected {token} suggests unmatched map, '
                        'list, or table start/end pair')
+            return
         parent = self.stack[-1]
         if token.kind is _Kind.LIST_END:
             Class = List
