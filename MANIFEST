@@ -1,16 +1,5 @@
-# TODO create py/t/benchmark.py [magnitude]
-#   import genuxf
-#   uxt1 = genuxf.generate(magnitude) # make big enough to make > 1MB uxt
-#   # loads time #1:
-#   uxo1 = uxf.loads(uxt1)
-#   # dumps time #2:
-#   uxt2 = uxo1.dumps()
-#   # verify
-#   uxo2 = uxf.loads(uxt2)
-#   if not eq.eq(uxo1, uxo2): ...
-#   print(loads time and dumps time) # to provide a speed baseline
-# Add to regression.py but with a smaller size so its target total time
-# is 1-2 sec
+# TODO py/t/benchmark.py
+# compare with prev result(s) if any
 #
 # TODO create test_visit.py: the visitor function should output
 # everything visited to actual/vN.txt # (N=13 63 for t13.uxf t63.uxf)
