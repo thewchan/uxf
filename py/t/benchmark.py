@@ -3,6 +3,7 @@
 # License: GPLv3
 
 import datetime
+import math
 import os
 import statistics
 import sys
@@ -117,6 +118,8 @@ def char_for(this, min, mean, max):
         return '✖✖'
     if this > mean:
         return '✖'
+    if math.isclose(this, mean):
+        return '='
     return '~'
 
 
