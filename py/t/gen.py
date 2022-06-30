@@ -21,7 +21,7 @@ finally:
 
 
 def main():
-    scale = 7 # Approx 1MB
+    scale = 7 # Approx 1 MB
     if len(sys.argv) > 1:
         if sys.argv[1] in {'-h', '--help'}:
             raise SystemExit(
@@ -35,8 +35,7 @@ def main():
     print(f'wrote {name} of {n:,} bytes')
 
 
-def generate(*, scale=7, seed=104297):
-    random.seed(seed)
+def generate(*, scale=7):
     uxt = ['uxf 1.0']
     imports = ['!fraction', '! complex']
     random.shuffle(imports)
@@ -55,7 +54,8 @@ def generate(*, scale=7, seed=104297):
     for _ in range(scale):
         uxt.append(text[i:j])
     uxt.append('{<Color values> [')
-    for _ in range(scale ** 3):
+    scale3 = scale ** 3
+    for _ in range(random.randrange(scale3 - 19, scale3 + 19)):
         r = random.randrange(0, 256)
         g = random.randrange(0, 256)
         b = random.randrange(0, 256)
@@ -63,28 +63,29 @@ def generate(*, scale=7, seed=104297):
         uxt.append(f'    (rgba {r} {g} {b} {a})')
     uxt.append(']')
     uxt.append('<Fractions> [')
-    for _ in range(scale ** 2):
-        a = random.randrange(0, 1000000)
-        b = random.randrange(1, 1000000)
+    scale2 = scale ** 2
+    for _ in range(random.randrange(scale2 - 3, scale2 + 3)):
+        a = random.randrange(0, 1000000 + scale3)
+        b = random.randrange(1, 1000000 + scale3)
         uxt.append(f'    (Fraction {a} {b})')
     uxt.append(']')
     uxt.append('<Complex numbers> [')
-    for _ in range(scale ** 2):
-        r = random.random() * 1000000
-        i = random.random() * 1000000
+    for _ in range(random.randrange(scale2 - 3, scale2 + 3)):
+        r = random.random() * (1000000 + scale3)
+        i = random.random() * (1000000 + scale3)
         uxt.append(f'    (Complex {r} {i})')
     uxt.append(']')
     uxt.append('<3D Points> [')
-    for _ in range(scale ** 3):
-        x1 = random.randrange(-1000, 1000)
-        y1 = random.randrange(-1000, 1000)
-        z1 = random.randrange(-1000, 1000)
-        x2 = random.randrange(-1000, 1000)
-        y2 = random.randrange(-1000, 1000)
-        z2 = random.randrange(-1000, 1000)
-        x3 = random.randrange(-1000, 1000)
-        y3 = random.randrange(-1000, 1000)
-        z3 = random.randrange(-1000, 1000)
+    for _ in range(random.randrange(scale3 - 19, scale3 + 19)):
+        x1 = random.randrange(-9999, 10000)
+        y1 = random.randrange(-9999, 10000)
+        z1 = random.randrange(-9999, 10000)
+        x2 = random.randrange(-9999, 10000)
+        y2 = random.randrange(-9999, 10000)
+        z2 = random.randrange(-9999, 10000)
+        x3 = random.randrange(-9999, 10000)
+        y3 = random.randrange(-9999, 10000)
+        z3 = random.randrange(-9999, 10000)
         uxt.append(
             f'    (point3d {x1} {y1} {z1} {x2} {y2} {z2} {x3} {y3} {z3})')
     uxt.append(']\n}')
