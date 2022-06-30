@@ -642,8 +642,8 @@ use `isasciidigit()`.)
 **`isoformat(dt)`**
 
 If `dt` is a `date`, returns the corresponding `str` with format
-`"YYYY-MM-DD"`; if `dt` is a `datetime`, returns the corresponding `str`
-with format `"YYYY-MM-DDTHH:MM:SS"`.
+`'YYYY-MM-DD'`; if `dt` is a `datetime`, returns the corresponding `str`
+with format `'YYYY-MM-DDTHH:MM:SS'`.
 
 ### Constants
 
