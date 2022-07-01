@@ -3,7 +3,7 @@
 # TODO review & improve README.md, py/README.md, and py/eg/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
-# TODO py/uxfparser.py
+# TODO py/uxfparser.py for speed
 # TODO UXF libraries:
 #   - for .js use Dart or TypeScript or similar that can output JS?
 #   - uxf.rs (including .tlm eg)
