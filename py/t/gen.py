@@ -8,6 +8,7 @@ Generates a mock UXF files in memory or on disk for benchmarking purposes.
 
 import os
 import random
+import secrets
 import sys
 import tempfile
 
@@ -48,19 +49,9 @@ def generate(*, scale=7):
     random.shuffle(ttypes)
     uxt += ttypes
     uxo = uxf.load('t5.uxf')
-    text = uxo.dumps()
-    i = text.find('[')
-    j = text.rfind(']')
-    text1 = text[i:j + 1]
-    for table in uxo.value:
-        table.records.reverse()
-    text = uxo.dumps()
-    i = text.find('[')
-    j = text.rfind(']')
-    text2 = text[i:j + 1]
     n = 1
     uxt.append(f'{{<Music #{n}>')
-    uxt.append(random.choice((text1, text2)))
+    uxt.append(get_randomized_uxo_text(uxo))
     uxt.append('<Color values> [')
     scale3 = scale ** 3
     for _ in range(random.randrange(scale3 - 19, scale3 + 19)):
@@ -72,7 +63,7 @@ def generate(*, scale=7):
     uxt.append(']')
     if n < scale:
         uxt.append(f'<Music #{n + 1}> ')
-        uxt.append(random.choice((text1, text2)))
+        uxt.append(get_randomized_uxo_text(uxo))
         n += 1
     uxt.append('<Fractions> [')
     scale2 = scale ** 2
@@ -83,7 +74,7 @@ def generate(*, scale=7):
     uxt.append(']')
     if n < scale:
         uxt.append(f'<Music #{n + 1}> ')
-        uxt.append(random.choice((text1, text2)))
+        uxt.append(get_randomized_uxo_text(uxo))
         n += 1
     uxt.append('<Complex numbers> [')
     for _ in range(random.randrange(scale2 - 3, scale2 + 3)):
@@ -93,7 +84,7 @@ def generate(*, scale=7):
     uxt.append(']')
     if n < scale:
         uxt.append(f'<Music #{n + 1}> ')
-        uxt.append(random.choice((text1, text2)))
+        uxt.append(get_randomized_uxo_text(uxo))
         n += 1
     uxt.append('<3D Points> [')
     for _ in range(random.randrange(scale3 - 19, scale3 + 19)):
@@ -109,12 +100,28 @@ def generate(*, scale=7):
         uxt.append(
             f'    (point3d {x1} {y1} {z1} {x2} {y2} {z2} {x3} {y3} {z3})')
     uxt.append(']')
+    if n < scale:
+        uxt.append(f'<Music #{n + 1}> ')
+        uxt.append(get_randomized_uxo_text(uxo))
+        n += 1
+    uxt.append('<Raw bytes> (:')
+    uxt.append(secrets.token_bytes(random.randrange(scale3)).hex())
+    uxt.append(':)')
     while n < scale:
         uxt.append(f'<Music #{n + 1}> ')
-        uxt.append(random.choice((text1, text2)))
+        uxt.append(get_randomized_uxo_text(uxo))
         n += 1
     uxt.append('\n}')
     return '\n'.join(uxt)
+
+
+def get_randomized_uxo_text(uxo):
+    for table in uxo.value:
+        random.shuffle(table.records)
+    text = uxo.dumps()
+    i = text.find('[')
+    j = text.rfind(']')
+    return text[i:j + 1]
 
 
 if __name__ == '__main__':
