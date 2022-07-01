@@ -63,6 +63,7 @@ def main():
         uxo2 = uxf.loads(uxt2s[i], **d)
         if eq.eq(uxo1, uxo2):
             ok += 1
+
     if ok == scale:
         filename, uxo = get_timings()
         print(f' timings={len(uxo.value):,}) OK')
@@ -93,20 +94,18 @@ def post_process_result(filename, uxo, scale, record):
     while len(uxo.value.records) > 2000:
         uxo.value.records.pop(0)
     uxo.dump(filename, format=uxf.Format(realdp=3))
-
     if load_times:
-        load_mean = statistics.fmean(load_times)
-        load_min = min(load_times)
-        load_max = max(load_times)
-        c = char_for(record.load, load_min, load_mean, load_max)
-        print(f'load min={load_min:.03f}s mean={load_mean:.03f}s '
-              f'max={load_max:.03f}s this={record.load:.03f}s {c}')
-        dump_mean = statistics.fmean(dump_times)
-        dump_min = min(dump_times)
-        dump_max = max(dump_times)
-        c = char_for(record.dump, dump_min, dump_mean, dump_max)
-        print(f'dump min={dump_min:.03f}s mean={dump_mean:.03f}s '
-              f'max={dump_max:.03f}s this={record.dump:.03f}s {c}')
+        show_results('load', record.load, load_times)
+        show_results('dump', record.dump, dump_times)
+
+
+def show_results(what, this, times):
+    the_mean = statistics.fmean(times)
+    the_min = min(times)
+    the_max = max(times)
+    c = char_for(this, the_min, the_mean, the_max)
+    print(f'{what} min={the_min:.03f}s mean={the_mean:.03f}s '
+          f'max={the_max:.03f}s this={this:.03f}s {c}')
 
 
 def char_for(this, min, mean, max):
@@ -121,7 +120,6 @@ def char_for(this, min, mean, max):
     if math.isclose(this, mean):
         return '='
     return '~'
-
 
 
 if __name__ == '__main__':
