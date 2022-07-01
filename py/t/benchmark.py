@@ -82,14 +82,14 @@ def get_timings():
 
 
 def post_process_result(filename, uxo, scale, record):
-    record = uxo.value.RecordClass(*record)
     load_times = []
     dump_times = []
     for result in uxo.value:
         if result.scale == scale:
             load_times.append(result.load)
             dump_times.append(result.dump)
-    uxo.value.append(record)
+    uxo.value.append(record) # in as a tuple
+    record = uxo.value.last  # out as an editabletuple
     while len(uxo.value.records) > 2000:
         uxo.value.records.pop(0)
     uxo.dump(filename, format=uxf.Format(realdp=3))
