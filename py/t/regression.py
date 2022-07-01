@@ -76,6 +76,7 @@ def main():
              ('G', TEST_EDITABLETUPLE), ('H', TEST_TLM),
              ('I', TEST_COMPARE), ('Z', TEST_ERRORS)), total, ok,
             verbose=verbose, max_total=max_total)
+        time.sleep(0.2) # allow Z to be visible
     if ok == total and os.isatty(sys.stdout.fileno()):
         span = min(1000, total // 10)
         for c in ('\b', ' ', '\b'):
