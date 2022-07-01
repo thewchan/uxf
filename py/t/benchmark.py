@@ -3,6 +3,7 @@
 # License: GPLv3
 
 import datetime
+import functools
 import math
 import os
 import statistics
@@ -29,6 +30,7 @@ def main():
                 'usage: benchmark.py [scale] default scale is 7 → ~1MB')
         else:
             scale = int(sys.argv[1])
+    on_error = functools.partial(uxf.on_error, verbose=False)
     print(f'scale={scale} ', end='', flush=True)
 
     uxt1s = []
@@ -43,7 +45,7 @@ def main():
     t = time.monotonic()
     uxos = []
     for uxt1 in uxt1s:
-        uxos.append(uxf.loads(uxt1))
+        uxos.append(uxf.loads(uxt1, on_error=on_error))
     load_t = time.monotonic() - t
     print(f'load={load_t:.03f}s ', end='', flush=True)
 
@@ -56,7 +58,7 @@ def main():
     total = load_t + dump_t
     print(f'dump={dump_t:0.03f}s (total={total:0.03f}s', end='')
 
-    d = dict(drop_unused=True, replace_imports=True)
+    d = dict(drop_unused=True, replace_imports=True, on_error=on_error)
     ok = 0
     for i in range(scale):
         uxo1 = uxf.loads(uxt1s[i], **d)
