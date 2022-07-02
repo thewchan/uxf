@@ -49,6 +49,7 @@ README.md
 
 misc/epd2uxf.py
 misc/md2html.sh
+misc/stats.py
 
 uxf.vim
 

@@ -93,21 +93,22 @@ def post_process_result(filename, uxo, scale, record):
             dump_times.append(result.dump)
     uxo.value.append(record) # in as a tuple
     record = uxo.value.last  # out as an editabletuple
-    while len(uxo.value.records) > 2000:
+    while len(uxo.value.records) > 10000:
         uxo.value.records.pop(0)
     uxo.dump(filename, format=uxf.Format(realdp=3))
     if load_times:
-        show_results('load', record.load, load_times)
-        show_results('dump', record.dump, dump_times)
+        show_results('load', scale, record.load, load_times)
+        show_results('dump', scale, record.dump, dump_times)
 
 
-def show_results(what, this, times):
+def show_results(what, scale, this, times):
     the_mean = statistics.fmean(times)
     the_min = min(times)
     the_max = max(times)
     c = char_for(this, the_min, the_mean, the_max)
     print(f'{what} min={the_min:.03f}s mean={the_mean:.03f}s '
-          f'max={the_max:.03f}s this={this:.03f}s {c}')
+          f'max={the_max:.03f}s this={this:.03f}s '
+          f'this/{scale}={this/scale:.03f}s {c}')
 
 
 def char_for(this, min, mean, max):

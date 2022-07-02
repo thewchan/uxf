@@ -503,6 +503,14 @@ def main():
 
     try:
         total += 1
+        e = 484
+        uxf.loads('uxf 1.0\n(int 1)', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
         e = 486
         uxf.loads('''uxf 1.0
 =p x:int y:int
@@ -552,6 +560,15 @@ def main():
 
     try:
         total += 1
+        e = 510
+        uxo = uxf.loads('uxf 1.0\n{1 2 3 4}]', on_error=on_error)
+        print(uxo.dumps(on_error=on_error))
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
         e = 512
         uxo = uxf.loads('uxf 1.0\n[1 2 3}', on_error=on_error)
         print(uxo.dumps(on_error=on_error))
@@ -569,8 +586,34 @@ def main():
 
     try:
         total += 1
+        e = 522
+        uxf.loads('uxf 1.0\nA b c\n(A 1 2)', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 528
+        uxf.loads('uxf 1.0\n!complex\n=Complex a b\n(Complex 1 2)',
+                  on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
         e = 524
         uxf.loads('uxf 1.0\nint', on_error=on_error)
+        fail(f'test_errors • #{e} FAIL', regression)
+    except uxf.Error as err:
+        ok += got_error(e, err, regression)
+
+    try:
+        total += 1
+        e = 530
+        uxf.loads('uxf 1.0\n!http://www.qtrac.eu/robots.txt\n[]',
+                  on_error=on_error)
         fail(f'test_errors • #{e} FAIL', regression)
     except uxf.Error as err:
         ok += got_error(e, err, regression)

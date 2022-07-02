@@ -47,3 +47,4 @@ dist/
 py/uxf.egg-info/
 testdata/actual
 benchmark.uxf.gz
+stats.py
