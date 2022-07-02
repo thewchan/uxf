@@ -1,9 +1,6 @@
-# TODO py/t/test_errors.py: go through all the error codes again to ensure
-# all that are testable have tests #484
 # TODO review & improve README.md, py/README.md, and py/eg/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
-# TODO py/uxfparser.py for speed
 # TODO UXF libraries:
 #   - for .js use Dart or TypeScript or similar that can output JS?
 #   - uxf.rs (including .tlm eg)
@@ -15,7 +12,6 @@
 py/uxf.py
 py/uxfconvert.py
 py/uxflint.py
-py/uxfparser.py
 py/README.md
 py/setup.py
 py/pypi.sh

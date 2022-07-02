@@ -108,7 +108,7 @@ def show_results(what, scale, this, times):
     c = char_for(this, the_min, the_mean, the_max)
     print(f'{what} min={the_min:.03f}s mean={the_mean:.03f}s '
           f'max={the_max:.03f}s this={this:.03f}s '
-          f'this/{scale}={this/scale:.03f}s {c}')
+          f'each={this/scale:.03f}s {c}')
 
 
 def char_for(this, min, mean, max):
