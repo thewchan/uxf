@@ -24,12 +24,15 @@ finally:
 
 def main():
     scale = 7
-    if len(sys.argv) > 1:
-        if sys.argv[1] in {'-h', '--help'}:
-            raise SystemExit(
-                'usage: benchmark.py [scale] default scale is 7 → ~1MB')
-        else:
-            scale = int(sys.argv[1])
+    verbose = True
+    for arg in sys.argv[1:]:
+        if arg in {'-h', '--help'}:
+            raise SystemExit('usage: benchmark.py [-q|--quiet] [scale]\n'
+                             'default scale is 7 → ~1MB')
+        if arg in {'-q', '--quiet'}:
+            verbose = False
+        elif uxf.isasciidigit(arg):
+            scale = int(arg)
     on_error = functools.partial(uxf.on_error, verbose=False)
     print(f'scale={scale} ', end='', flush=True)
 
@@ -70,7 +73,7 @@ def main():
         filename, uxo = get_timings()
         print(f' timings={len(uxo.value):,}) OK')
         record = (scale, load_t, dump_t, datetime.datetime.now())
-        post_process_result(filename, uxo, scale, record)
+        post_process_result(filename, uxo, scale, record, verbose)
     else:
         print(') uxo1 != uxo2') # we don't save bad results
 
@@ -84,7 +87,7 @@ def get_timings():
 =Result scale:int load:real dump:real when:datetime\n(Result)\n''')
 
 
-def post_process_result(filename, uxo, scale, record):
+def post_process_result(filename, uxo, scale, record, verbose):
     load_times = []
     dump_times = []
     for result in uxo.value:
@@ -96,7 +99,7 @@ def post_process_result(filename, uxo, scale, record):
     while len(uxo.value.records) > 10000:
         uxo.value.records.pop(0)
     uxo.dump(filename, format=uxf.Format(realdp=3))
-    if load_times:
+    if verbose and load_times:
         show_results('load', scale, record.load, load_times)
         show_results('dump', scale, record.dump, dump_times)
 
@@ -107,8 +110,11 @@ def show_results(what, scale, this, times):
     the_max = max(times)
     c = char_for(this, the_min, the_mean, the_max)
     print(f'{what} min={the_min:.03f}s mean={the_mean:.03f}s '
-          f'max={the_max:.03f}s this={this:.03f}s '
-          f'each={this/scale:.03f}s {c}')
+          f'max={the_max:.03f}s ', end='')
+    if scale == 1:
+        print(f'this=each={this:.03f}s {c}')
+    else:
+        print(f'this={this:.03f}s each={this/scale:.03f}s {c}')
 
 
 def char_for(this, min, mean, max):

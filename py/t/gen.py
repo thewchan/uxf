@@ -23,17 +23,28 @@ finally:
 
 def main():
     scale = 7 # Approx 1 MB
-    if len(sys.argv) > 1:
-        if sys.argv[1] in {'-h', '--help'}:
-            raise SystemExit(
-                'usage: gen.py [scale]\ndefault scale is 7 → ~1MB')
-        scale = int(sys.argv[1])
+    outfile = None
+    for arg in sys.argv[1:]:
+        if arg in {'-h', '--help'}:
+            raise SystemExit('usage: gen.py [scale] [outfile]\n'
+                             'default scale is 7 → ~1MB')
+        if uxf.isasciidigit(arg):
+            scale = int(arg)
+        elif outfile is None:
+            outfile = arg
     uxt = generate(scale=scale)
-    with tempfile.NamedTemporaryFile('wt', encoding='utf-8', prefix='gen-',
-                                     suffix='.uxf', delete=False) as file:
-        n = file.write(uxt)
-        name = file.name
-    print(f'wrote {name} of {n:,} bytes')
+    if not uxt.endswith('\n'):
+        uxt += '\n'
+    if outfile is not None:
+        with open(outfile, 'wt', encoding='utf-8') as file:
+            n = file.write(uxt)
+    else:
+        with tempfile.NamedTemporaryFile(
+                'wt', encoding='utf-8', prefix='gen-', suffix='.uxf',
+                delete=False) as file:
+            n = file.write(uxt)
+            outfile = file.name
+    print(f'wrote {outfile} of {n:,} bytes')
 
 
 def generate(*, scale=7):

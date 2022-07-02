@@ -36,6 +36,7 @@ try:
     TEST_EDITABLETUPLE = os.path.join(PATH, '../t/test_editabletuple.py')
     TEST_TLM = os.path.join(PATH, '../t/test_tlm.py')
     TEST_COMPARE = os.path.join(PATH, '../t/test_compare.py')
+    BENCHMARK = os.path.join(PATH, '../t/benchmark.py')
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -84,6 +85,7 @@ def main():
     t = time.monotonic() - t
     if total == ok:
         print(f'{ok}/{total} All OK ({t:.3f} sec)')
+        subprocess.run([BENCHMARK, '--quiet', '1'])
         cleanup()
     else:
         print(f': {ok}/{total} • FAIL ({t:.3f} sec)')
