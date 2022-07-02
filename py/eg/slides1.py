@@ -3,7 +3,7 @@
 # License: GPLv3
 
 '''
-This reads slides.uxf and outputs slides/index.html and slides/N.html where
+This reads slides.sld and outputs slides/index.html and slides/N.html where
 N is a slide number.
 
 This program is just an illustration of the flexibility of the UXF format.
@@ -26,7 +26,10 @@ try:
 except ImportError: # needed for development
     sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/..'))
     import uxf
+try:
     import visit
+except ImportError: # needed for development
+    sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 
 def main():

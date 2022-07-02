@@ -85,7 +85,8 @@ def main():
     t = time.monotonic() - t
     if total == ok:
         print(f'{ok}/{total} All OK ({t:.3f} sec)')
-        subprocess.run([BENCHMARK, '--quiet', '1'])
+        cmd = prep_cmd([BENCHMARK, '--quiet', '1'])
+        subprocess.run(cmd)
         cleanup()
     else:
         print(f': {ok}/{total} • FAIL ({t:.3f} sec)')
@@ -114,7 +115,7 @@ def test_uxf_files(uxffiles, *, verbose, max_total):
         expected = f'expected/{name}'
         if expected.endswith('.gz'):
             expected = expected[:-3]
-        cmd = [UXF_EXE, name, actual]
+        cmd = prep_cmd([UXF_EXE, name, actual])
         reply = subprocess.run(cmd, capture_output=True, text=True)
         cmd = ' '.join(cmd)
         if reply.returncode != 0:
@@ -230,8 +231,9 @@ def test_uxfconvert(uxffiles, total, ok, *, verbose, max_total):
         if total > max_total:
             return total - 1, ok
         actual = f'actual/{outfile}'
-        cmd = ([UXFCONVERT_EXE, '-f', infile, actual]
-               if roundtrip == NF else [UXFCONVERT_EXE, infile, actual])
+        cmd = prep_cmd([UXFCONVERT_EXE, '-f', infile, actual]
+                       if roundtrip == NF else
+                       [UXFCONVERT_EXE, infile, actual])
         reply = subprocess.run(cmd, capture_output=True, text=True)
         cmd = ' '.join(cmd)
         if reply.returncode != 0:
@@ -247,9 +249,10 @@ def test_uxfconvert(uxffiles, total, ok, *, verbose, max_total):
                 if roundtrip in (Y, YR):
                     total += 1
                     new_actual = tempfile.gettempdir() + f'/{infile}'
-                    cmd = ([UXFCONVERT_EXE, '-f', expected, new_actual]
-                           if roundtrip == YR else
-                           [UXFCONVERT_EXE, expected, new_actual])
+                    cmd = prep_cmd(
+                        [UXFCONVERT_EXE, '-f', expected, new_actual]
+                        if roundtrip == YR else
+                        [UXFCONVERT_EXE, expected, new_actual])
                     reply = subprocess.run(cmd, capture_output=True,
                                            text=True)
                     cmd = ' '.join(cmd)
@@ -272,7 +275,7 @@ def test_uxfconvert(uxffiles, total, ok, *, verbose, max_total):
     total += 1
     actual = 'actual/1-2-csv.uxf'
     infile = '1.csv 2.csv'
-    cmd = [UXFCONVERT_EXE, '-f', '1.csv', '2.csv', actual]
+    cmd = prep_cmd([UXFCONVERT_EXE, '-f', '1.csv', '2.csv', actual])
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0:
@@ -303,7 +306,7 @@ def test_table_is_scalar(total, ok, *, verbose):
 
 def test_slides(slides_py, total, ok, *, verbose):
     num = 1 if slides_py.endswith('1.py') else 2
-    cmd = [slides_py, SLIDES_SLD, f'actual/slides{num}']
+    cmd = prep_cmd([slides_py, SLIDES_SLD, f'actual/slides{num}'])
     total += 1
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
@@ -336,7 +339,7 @@ def test_externals(cmds, total, ok, *, verbose, max_total):
 
 
 def test_external(cmd, total, ok, *, verbose):
-    reply = subprocess.run(cmd, capture_output=True, text=True)
+    reply = subprocess.run(prep_cmd(cmd), capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0:
         total += 1 # whole cmd failed
@@ -382,8 +385,10 @@ def compare(cmd, infile, actual, expected, *, verbose,
         with open(expected, 'rb') as file:
             edata = re.sub(rb'\s+', b'', file.read(), flags=flags)
         if adata == edata:
-            if infile.endswith('.xml'): # UXF ↔ XML doesn't round-trip
-                return 1                # due to ws normalization
+            if sys.platform.startswith('win'):
+                return 1 # UXF ↔ UXF may have whitespace differences on Win
+            elif infile.endswith('.xml'): # UXF ↔ XML doesn't round-trip
+                return 1                  # due to ws normalization
             print(
                 f'{cmd} • FAIL (compare whitespace) {actual} != {expected}')
         else:
@@ -415,6 +420,11 @@ def isasciidigit(s):
     '''Returns True if s matches /^[0-9]+$/.'''
     return s.isascii() and s.isdigit()
 
+
+def prep_cmd(cmd):
+    if sys.platform.startswith('win'):
+        cmd = ['py.bat'] + cmd
+    return cmd
 
 
 if __name__ == '__main__':

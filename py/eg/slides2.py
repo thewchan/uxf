@@ -3,7 +3,7 @@
 # License: GPLv3
 
 '''
-This reads slides.uxf and outputs slides/index.html and slides/N.html where
+This reads slides.sld and outputs slides/index.html and slides/N.html where
 N is a slide number.
 
 This program is just an illustration of the flexibility of the UXF format.
