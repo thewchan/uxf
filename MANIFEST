@@ -1,13 +1,6 @@
 # TODO review & improve README.md, py/README.md, and py/eg/README.md
 # TODO code review & improvement
 # TODO release py 1.0.0
-# TODO UXF libraries:
-#   - for .js use Dart or TypeScript or similar that can output JS?
-#   - uxf.rs (including .tlm eg)
-#   - uxf.cpp uxf.java uxf.rb ... ?
-#   - if I do an ANSI C implementation I'd need an insertion-ordered
-#     hashtable algorithm:
-#     https://troydhanson.github.io/uthash/userguide.html
 
 py/uxf.py
 py/uxfconvert.py
@@ -52,6 +45,13 @@ uxf.vim
 st.sh
 
 # NOTE IDEAS:
+# - UXF libraries:
+#   . for .js use Dart or TypeScript or similar that can output JS?
+#   . uxf.rs (including .tlm eg)
+#   . uxf.cpp uxf.java uxf.rb ... ?
+#   . if I do an ANSI C implementation I'd need an insertion-ordered
+#     hashtable algorithm:
+#     https://troydhanson.github.io/uthash/userguide.html
 # - Documentation:
 #   . Complete manual with egs and use cases
 #   . Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
