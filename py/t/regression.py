@@ -379,16 +379,20 @@ def compare(cmd, infile, actual, expected, *, verbose,
                     if verbose:
                         print(f'{cmd} • {infile} → {actual} (roundtrip) OK')
                     return 1
-        flags = re.DOTALL | re.MULTILINE
         with open(actual, 'rb') as file:
-            adata = re.sub(rb'\s+', b'', file.read(), flags=flags)
+            adata = file.read()
         with open(expected, 'rb') as file:
-            edata = re.sub(rb'\s+', b'', file.read(), flags=flags)
+            edata = file.read()
+        adata = adata.replace(b'\r', b'')
+        edata = edata.replace(b'\r', b'')
         if adata == edata:
-            if sys.platform.startswith('win'):
-                return 1 # UXF ↔ UXF may have whitespace differences on Win
-            elif infile.endswith('.xml'): # UXF ↔ XML doesn't round-trip
-                return 1                  # due to ws normalization
+            return 1 # UXF ↔ UXF may have \r\n vs \n differences Win vs Unix
+        flags = re.DOTALL | re.MULTILINE
+        adata = re.sub(rb'\s+', b'', adata, flags=flags)
+        edata = re.sub(rb'\s+', b'', edata, flags=flags)
+        if adata == edata:
+            if infile.endswith('.xml'): # UXF ↔ XML doesn't round-trip
+                return 1                # due to ws normalization
             print(
                 f'{cmd} • FAIL (compare whitespace) {actual} != {expected}')
         else:
@@ -423,7 +427,7 @@ def isasciidigit(s):
 
 def prep_cmd(cmd):
     if sys.platform.startswith('win'):
-        cmd = ['py.bat'] + cmd
+        cmd = ['py'] + cmd
     return cmd
 
 

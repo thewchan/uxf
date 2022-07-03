@@ -71,8 +71,11 @@ def main():
 
     if ok == scale:
         filename, uxo = get_timings()
-        print(f' timings={len(uxo.value):,}) OK')
-        record = (scale, load_t, dump_t, datetime.datetime.now())
+        unix = not sys.platform.startswith('win')
+        timings = sum(1 for result in uxo.value if result.scale == scale and
+                      result.unix == unix)
+        print(f' timings={timings:,}) OK')
+        record = (scale, load_t, dump_t, datetime.datetime.now(), unix)
         post_process_result(filename, uxo, scale, record, verbose)
     else:
         print(') uxo1 != uxo2') # we don't save bad results
@@ -84,14 +87,16 @@ def get_timings():
         return filename, uxf.load(filename)
     except uxf.Error:
         return filename, uxf.loads('''uxf 1.0 benchmark.py timings
-=Result scale:int load:real dump:real when:datetime\n(Result)\n''')
+=Result scale:int load:real dump:real when:datetime unix:bool
+(Result)
+''')
 
 
 def post_process_result(filename, uxo, scale, record, verbose):
     load_times = []
     dump_times = []
     for result in uxo.value:
-        if result.scale == scale:
+        if result.scale == scale and result.unix == record[-1]:
             load_times.append(result.load)
             dump_times.append(result.dump)
     uxo.value.append(record) # in as a tuple
