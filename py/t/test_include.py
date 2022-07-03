@@ -36,7 +36,7 @@ def main():
 
 def check(cmd, regression, expected):
     if sys.platform.startswith('win'):
-        cmd = ['py'] + cmd
+        cmd = ['py.bat'] + cmd
     reply = subprocess.run(cmd, capture_output=True, text=True)
     cmd = ' '.join(cmd)
     if reply.returncode != 0:

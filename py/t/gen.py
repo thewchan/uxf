@@ -26,8 +26,11 @@ def main():
     outfile = None
     for arg in sys.argv[1:]:
         if arg in {'-h', '--help'}:
-            raise SystemExit('usage: gen.py [scale] [outfile]\n'
-                             'default scale is 7 → ~1MB')
+            raise SystemExit('''usage: gen.py [scale] [outfile]
+The default scale is 7 → ~1MB.
+If outfile is not specified an outfile will be generated (starting gen- and
+with suffix .uxf) in the system's temp folder.
+''')
         if uxf.isasciidigit(arg):
             scale = int(arg)
         elif outfile is None:

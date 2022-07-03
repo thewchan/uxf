@@ -427,7 +427,7 @@ def isasciidigit(s):
 
 def prep_cmd(cmd):
     if sys.platform.startswith('win'):
-        cmd = ['py'] + cmd
+        cmd = ['py.bat'] + cmd
     return cmd
 
 

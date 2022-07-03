@@ -170,9 +170,10 @@ def main():
     if on_error.errors == EXPECTED_ERRORS:
         ok += 1
     elif not regression:
-        for err in on_error.errors:
-            print(err)
-
+        for e, a in zip(EXPECTED_ERRORS, on_error.errors):
+            if e != a:
+                print('-', e)
+                print('+', a)
     if not regression:
         result = 'OK' if total == ok else 'FAIL'
         print(f'{ok}/{total} {result}')
@@ -204,7 +205,7 @@ def test(total, ok, actual_uxo, expected_uxo, expected_imports, filename,
 
 
 def on_error(lino, code, message, *, filename, fail=False, verbose=True):
-    text = f'uxf.py:{filename}:{lino}:#{code}:{message}'
+    text = f'uxf.py:{filename}:{lino}:#{code}:{strip_path(message)}'
     on_error.errors.append(text)
     if fail:
         raise uxf.Error(text)
@@ -224,6 +225,11 @@ def got_error(code, err, regression):
 def fail(message, regression):
     if not regression:
         print(message)
+
+
+def strip_path(text):
+    return (text.replace('/home/mark/app/uxf/', '')
+            .replace('R:\\\\uxf\\\\testdata\\\\', 'testdata/'))
 
 
 EXPECTED_UXT63 = '''uxf 1.0
@@ -270,7 +276,7 @@ EXPECTED_IMPORTS63 = {
     'cmyk': 't63.uxt',
     'point2d': 't63.uxt'}
 
-EXPECTED_ERRORS = '''\
+EXPECTED_ERRORS = strip_path('''\
 uxf.py:t63.uxf:14:#422:unused ttype: 'dob'
 uxf.py:t63.uxf:14:#422:unused ttype: 'dob'
 uxf.py:t63r.uxf:29:#422:unused ttype: 'dob'
@@ -287,7 +293,7 @@ uxf.py:t72.uxi:12:#422:unused ttypes: 'dob', 'point3d'
 uxf.py:t72l.uxf:12:#422:unused ttypes: 'dob', 'point3d'
 uxf.py:t72.uxi:12:#422:unused ttypes: 'dob', 'point3d'
 uxf.py:t72r.uxf:12:#422:unused ttypes: 'dob', 'point3d'
-'''.splitlines()
+''').splitlines()
 
 
 if __name__ == '__main__':
