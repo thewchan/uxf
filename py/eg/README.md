@@ -9,9 +9,8 @@
     - [slides2.py](#slides2-py)
 - [compare.py](#compare-py)
 - [t/ Files](#t--files)
-    - [benchmark.py](#benchmark-py)
-    - [eq.py](#eq-py)
     - [gen.py](#gen-py)
+    - [benchmark.py](#benchmark-py)
 
 
 ## Config.py
@@ -107,20 +106,16 @@ two UXF files for equality—or for equivalence.
 These files are in the `t` (test) folder but might be interesting or useful
 as examples.
 
-### benchmark.py
-
-This does some load/dump benchmarks and saves previous results in UXF format
-in `py/t/benchmark.uxf.gz`.
-
-### eq.py
-
-This is used by some tests to compare two UXF values. See also
-[compare.py](#compare-py).
-
 ## gen.py
 
 This is used to generate a mock UXF file of a size proportional to a given
 scale. The default scale of 7 produces a file of around 1 MB. This is
-imported by [benchmarks.py](#benchmark-py) but can also be used stand-alone.
+imported by [benchmarks.py](#benchmark-py) but can also be used stand-alone
+to create test files for performance testing.
+
+### benchmark.py
+
+This does some load/dump benchmarks and saves previous results in UXF format
+in `py/t/benchmark.uxf.gz`.
 
 ---
