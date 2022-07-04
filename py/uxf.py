@@ -900,15 +900,16 @@ class Table:
         of lists with each sublist being len(fields) long), or a list of
         lists in which case each list is _assumed_ to be len(fields) i.e.,
         len(tclass.fields), long
-        .RecordClass is a dynamically created custom class that is used when
-        accessing a single record via [] or when iterating a table's
-        records.
 
         comment is an optional str.
 
+        .RecordClass is a read-only property holding a dynamically created
+        custom class that is used when accessing a single record via [] or
+        when iterating a table's records.
+
         See also the table() convenience function.
         '''
-        self.RecordClass = None
+        self._RecordClass = None
         self.tclass = tclass
         self.records = []
         self.comment = comment
@@ -919,12 +920,17 @@ class Table:
             elif not tclass.ttype:
                 raise Error('#330:can\'t create an unnamed nonempty table')
             if isinstance(records, (list, List)):
-                if self.RecordClass is None:
-                    self._make_record_class()
                 self.records = list(records)
             else:
                 for value in records:
                     self._append(value)
+
+
+    @property
+    def RecordClass(self):
+        if self._RecordClass is None:
+            self._make_RecordClass()
+        return self._RecordClass
 
 
     @property
@@ -962,8 +968,6 @@ class Table:
         new record (row)'''
         if not self.fields:
             raise Error('#334:can\'t append to a fieldless table')
-        if self.RecordClass is None:
-            self._make_record_class()
         if not self.records or len(self.records[-1]) >= len(self.tclass):
             self.records.append([])
         self.records[-1].append(value)
@@ -985,42 +989,39 @@ class Table:
         return True
 
 
-    def _make_record_class(self):
+    def _make_RecordClass(self):
         if not self.ttype:
             raise Error('#340:can\'t use an unnamed table')
         if not self.fields:
             raise Error('#350:can\'t create a table with no fields')
-        self.RecordClass = editabletuple.editabletuple(
+        self._RecordClass = editabletuple.editabletuple(
             f'UXF_{self.ttype}', # prefix avoids name clashes
             *[field.name for field in self.fields])
 
 
     def _customize(self, row):
-        if self.RecordClass is None:
-            self._make_record_class()
         record = self.records[row]
-        if not isinstance(record, self.RecordClass):
-            record = self.records[row] = self.RecordClass(*record)
+        RecordClass = self.RecordClass
+        if not isinstance(record, RecordClass):
+            record = self.records[row] = RecordClass(*record)
         return record
 
 
     def append(self, record):
         '''Appends a record (either a RecordClass tuple or a sequence of
         field values) to the table'''
-        if self.RecordClass is None:
-            self._make_record_class()
-        if not isinstance(record, self.RecordClass):
-            record = self.RecordClass(*record)
+        RecordClass = self.RecordClass
+        if not isinstance(record, RecordClass):
+            record = RecordClass(*record)
         self.records.append(record)
 
 
     def insert(self, index, record):
         '''Inserts a record (either a RecordClass tuple or a sequence of
         field values) into the table at the given index position'''
-        if self.RecordClass is None:
-            self._make_record_class()
-        if not isinstance(record, self.RecordClass):
-            record = self.RecordClass(*record)
+        RecordClass = self.RecordClass
+        if not isinstance(record, RecordClass):
+            record = RecordClass(*record)
         self.records.insert(index, record)
 
 
@@ -1071,8 +1072,9 @@ class Table:
 
     def set_record(self, row, record):
         '''Replace the row-th record as a custom class'''
-        if not isinstance(record, self.RecordClass):
-            record = self.RecordClass(*record)
+        RecordClass = self.RecordClass
+        if not isinstance(record, RecordClass):
+            record = RecordClass(*record)
         self.records[row] = record
 
 
@@ -1104,12 +1106,11 @@ class Table:
     def __iter__(self):
         if not self.records:
             return
-        if self.RecordClass is None:
-            self._make_record_class()
+        RecordClass = self.RecordClass
         for i in range(len(self.records)):
             record = self.records[i]
-            if not isinstance(record, self.RecordClass):
-                record = self.records[i] = self.RecordClass(*record)
+            if not isinstance(record, RecordClass):
+                record = self.records[i] = RecordClass(*record)
             yield record
 
 

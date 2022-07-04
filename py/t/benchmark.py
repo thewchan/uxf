@@ -75,7 +75,8 @@ def main():
         timings = sum(1 for result in uxo.value if result.scale == scale and
                       result.unix == unix)
         print(f' timings={timings:,}) OK')
-        record = (scale, load_t, dump_t, datetime.datetime.now(), unix)
+        record = uxo.value.RecordClass(scale, load_t, dump_t,
+                                       datetime.datetime.now(), unix)
         post_process_result(filename, uxo, scale, record, verbose)
     else:
         print(') uxo1 != uxo2') # we don't save bad results
@@ -96,11 +97,10 @@ def post_process_result(filename, uxo, scale, record, verbose):
     load_times = []
     dump_times = []
     for result in uxo.value:
-        if result.scale == scale and result.unix == record[-1]:
+        if result.scale == scale and result.unix == record.unix:
             load_times.append(result.load)
             dump_times.append(result.dump)
     uxo.value.append(record) # in as a tuple
-    record = uxo.value.last  # out as an editabletuple
     while len(uxo.value.records) > 10000:
         uxo.value.records.pop(0)
     uxo.dump(filename, format=uxf.Format(realdp=3))

@@ -330,8 +330,10 @@ same number of values as the number of `.tclass` fields (i.e.,
 The table's record class, an
 [editabletuple](https://github.com/mark-summerfield/editabletuple), which
 can be used to create a single record by calling it with each of the
-record's values. When a table record is accessed (e.g., when one row of the
-table's list is returned), it is returned as an editabletuple of this class.
+record's fields' values (or with `*sequence` where `len(sequence)` equals
+the number of fields). When a table record is accessed (e.g., when one row
+of the table's list is returned), it is returned as an editabletuple of this
+class.
 
 **`.fields`**
 
