@@ -37,12 +37,13 @@ def main():
     # insert
     t.insert(1, (-2, 19))
     total += 1
-    p = t.get_record(3)
+    p = t[3]
     if p.x == -4 and p.y == 8:
         ok += 1
     elif not regression:
         print('fail #1')
-    t.set_record(1, (-20, 191))
+    # __setitem__
+    t[1] = (-20, 191)
     total += 1
     # __getitem__
     p = t[1]
@@ -56,7 +57,8 @@ def main():
         ok += 1
     elif not regression:
         print('fail #3')
-    t.delete_record(3)
+    # __delitem__
+    del t[3]
     total += 1
     if len(t) == 4:
         ok += 1
@@ -111,6 +113,29 @@ def main():
         ok += 1
     elif not regression:
         print('fail #12')
+
+    total += 1
+    if t.second.x == -20 and t.second.y == 191:
+        ok += 1
+    elif not regression:
+        print('fail #13')
+
+    # editing row refs
+    total += 1
+    t.second.x = abs(t.second.x)
+    t[1].y -= 100
+    if t.second.x == 20 and t.second.y == 91:
+        ok += 1
+    elif not regression:
+        print('fail #14', t.second)
+
+    total += 1
+    t[3].x *= 2
+    t[3].y -= 5
+    if tuple(t[3]) == (10, 12):
+        ok += 1
+    elif not regression:
+        print('fail #15')
 
     # errors (see test_errors.py for 320 340
     try:

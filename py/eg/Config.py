@@ -55,10 +55,8 @@ object loaded from file, e.g.,
 
     uxo['colors']['bg1'] = 'red'
     uxo['general']['numbers'].first.game = 19
-    # -or- any of these
+    # -or-
     # uxo['general']['numbers'][0].game = 19
-    # uxo['general']['numbers'].set_field(0, 'game') = 19
-    # uxo['general']['numbers'].set_field(0, 1) = 19
 
 Providing a wrapper class (like Config), allows for a well-structured UXF
 file and at the same time easy access to the loaded data.

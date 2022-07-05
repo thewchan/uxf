@@ -100,7 +100,7 @@ def post_process_result(filename, uxo, scale, record, verbose):
         if result.scale == scale and result.unix == record.unix:
             load_times.append(result.load)
             dump_times.append(result.dump)
-    uxo.value.append(record) # in as a tuple
+    uxo.value.append(record)
     while len(uxo.value.records) > 10000:
         uxo.value.records.pop(0)
     uxo.dump(filename, format=uxf.Format(realdp=3))

@@ -1,0 +1,63 @@
+{
+  "UXF^imports": [
+    "numeric"
+  ],
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Complex",
+        "fields": {
+          "Real": "real",
+          "Imag": "real"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Fraction",
+        "fields": {
+          "numerator": "int",
+          "denominator": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "UXF^table": {
+        "name": "Complex",
+        "comment": null,
+        "fields": {
+          "Real": "real",
+          "Imag": "real"
+        },
+        "records": [
+          [
+            3.9,
+            -1.4
+          ],
+          [
+            -170.0,
+            2e-05
+          ]
+        ]
+      }
+    },
+    {
+      "UXF^table": {
+        "name": "Fraction",
+        "comment": null,
+        "fields": {
+          "numerator": "int",
+          "denominator": "int"
+        },
+        "records": [
+          [
+            22,
+            7
+          ]
+        ]
+      }
+    }
+  ]
+}

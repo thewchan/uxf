@@ -22,8 +22,9 @@ UXF-based formats are very easy to adapt to future requirements
 - [Libraries](#libraries) ([Python](py/README.md))
 - [Imports](#imports)
 - [BNF](#bnf)
-- [Vim Support](#vim-support)
-- [UXF Logo](#uxf-logo)
+- [Supplementary](#supplementary)
+    - [Vim Support](#vim-support)
+    - [UXF Logo](#uxf-logo)
 
 ## Datatypes
 
@@ -34,10 +35,10 @@ UXF supports the following eleven built-in datatypes.
 |-----------|----------------------|--|
 |`null`     |`?`|`?` is the UXF _null_ type's literal representation.|
 |`bool`     |`no` `yes`|Use `no` for false and `yes` for true.|
-|`bytes`    |`(:20AC 65 66 48:)`|There must be an even number of case-insensitive hex digits; whitespace optional.|
+|`bytes`    |`(:20AC 65 66 48:)`|There must be an even number of case-insensitive hex digits; whitespace (spaces, newlines, etc.) optional.|
 |`date`     |`2022-04-01`|Basic ISO8601 YYYY-MM-DD format.|
-|`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH[:MM[:SS]] format; 1-sec resolution no timezone support.|
-|`int`      |`-192` `+234` `7891409`||
+|`datetime` |`2022-04-01T16:11:51`|ISO8601 YYYY-MM-DDTHH[:MM[:SS]] format; 1-sec resolution no timezone support (see also [Custom Types](#custom-types)).|
+|`int`      |`-192` `+234` `7891409`|Standard integers with optional sign.|
 |`real`     |`0.15` `0.7e-9` `2245.389`|Standard and scientific notation.|
 |`str`      |`<Some text which may include newlines>`|For &, <, >, use \&amp;, \&lt;, \&gt; respectively.|
 |`list`     |`[value1 value2 ... valueN]`|A list of values of any type.|
@@ -47,8 +48,7 @@ UXF supports the following eleven built-in datatypes.
 |`map`      |`{ktype vtype key1 value1 key2 value2 ... keyN valueN}`|A map with keys of type _ktype_ and values of type _vtype_.|
 |`table`    |`(ttype <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N>)`|A table of values. Each value's type must be of the corresponding type specified in the _ttype_, or any value type where no type has been specified.|
 
-Note that it is also possible to represent [custom data
-types](#custom-types).
+Note that it is also possible to represent [Custom Types](#custom-types).
 
 ### Terminology
 
@@ -58,7 +58,7 @@ types](#custom-types).
 - A “multi-” valued type (`list`, `map`, `table`) is called a _collection_.
 - A `list`, `map`, or `table` which contains only scalar values is called a
   scalar `list`, scalar `map`, or scalar `table`, respectively.
-- A `ttype` is the name of a table's user-defined type.
+- A _`ttype`_ is the name of a table's user-defined type.
 
 ### Minimal empty UXF
 
@@ -94,7 +94,7 @@ _ttype_.
 
 Lists, maps, tables, and _ttype_ definitions may begin with a comment. And
 lists, maps, and tables may optionally by typed as indicated above. (See
-also the examples below and the BNF at the end).
+also the examples below and the BNF near the end).
 
 Strings may not include `&`, `<` or `>`, so if they are needed, they must be
 replaced by the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
@@ -103,7 +103,7 @@ Where whitespace is allowed (or required) it may consist of one or more
 spaces, tabs, or newlines in any combination.
 
 If you don't want to be committed to a particular UXF type, just use a `str`
-and do whatever conversion you want, or use a [custom type](#custom-types).
+and do whatever conversion you want, or use a [Custom Type](#custom-types).
 
 ### Custom Types
 
@@ -121,9 +121,9 @@ point and an enumeration.
     ]
 
 This first approach shows three points, each represented by a `map` with a
-`str` indicating the type and using ``list``s of two ``real``s for the _x_
-and _y_ coordinates. The example also shows a traffic light enumeration each
-represented by a `str`.
+`str` indicating the custom type (“Point”), and using ``list``s of two
+``real``s for the _x_ and _y_ coordinates. The example also shows a traffic
+light enumeration each represented by a `str`.
 
     uxf 1.0
     [
@@ -131,9 +131,9 @@ represented by a `str`.
       <TrafficLightGreen> <TrafficLightAmber> <TrafficLightRed>
     ]
 
-Since we have multiple points we've changed to a `map` with a `list` of
-point values. This is more compact but assumes that the reading application
-knows that points come in pairs.
+Since we have multiple points we've changed to a single `map` with a `list`
+of point values. This is more compact but assumes that the reading
+application knows that points come in pairs.
 
 A UXF processor has no knowledge of these representations of points or
 enumerations, but will handle both seamlessly since they are both
@@ -148,19 +148,20 @@ representations to and from the actual types.
     =TrafficLightRed
     [
       (Point 1.4 9.8 -0.7 3.0 2.1 -6.3)
-      (TrafficLightRed) (TrafficLightGreen) (TrafficLightAmber)
+      (TrafficLightGreen) (TrafficLightAmber) (TrafficLightRed)
     ]
 
-This second approach uses four _ttypes_. For the Point we specify it as
-having two real fields (so the processor now knows that Point values come in
-twos). And for the enumeration we used three separate fieldless tables.
+This second approach uses four _ttypes_ (custom table types). For the Point
+we specify it as having two real fields (so the processor now knows that
+Points have two `real` values). And for the enumeration we used three
+separate fieldless tables.
 
 Using tables has the advantage that we can represent any number of values of
 a particular _ttype_ in a single table (including just one, or even none),
-thus cutting down on repetitive text. And some UXF processor libraries will
-be able to return table values as custom types. (For example, the [Python
-UXF library](py/README.md) would return these as custom class instances—as
-“editable tuples”.)
+thus cutting down on repetitive text. Here, the Point table has three Points
+(rows). And some UXF processor libraries will be able to return table values
+as custom types. (For example, the [Python UXF library](py/README.md) would
+return these as custom class instances—as “editable tuples”.)
 
 If many applications need to use the same _ttypes_, it _may_ make sense to
 create some shared _ttype_ definitions. See [Imports](#imports) for how to
@@ -193,6 +194,12 @@ tables, the second of which itself contains a nested pair.
 
 ### CSV to UXF
 
+Although widely used, the CSV format is not standardized and has a number of
+problems. UXF is a standardized alternative that can distinguish fieldnames
+from data rows, can handle multiline text (including text with commas and
+quotes) without formality, and can store one—or more—tables in a single UXF
+file.
+
 #### CSV
 
     Date,Price,Quantity,ID,Description
@@ -218,7 +225,7 @@ always obvious, for example, if all the values are strings.) Not to mention
 the fact that we have to use a nested `list` of ``list``s. Nonetheless it is
 an improvement, since unlike the `.csv` representation, every value has a
 concrete type (all ``str``s for the first row, and `date`, `real`, `int`,
-`str`, `str`, for the rest).
+`str`, `str`, for the subsequent rows).
 
 The most _appropriate_ UXF equivalent is to use a UXF `table`:
 
@@ -242,12 +249,12 @@ field name may be the same as any built-in type name, so no table or field
 can be called `bool`, `bytes`, `date`, `datetime`, `int`, `list`, `map`,
 `null`, `real`, `str`, or `table`. (But `Date`, `DateTime`, and `Real` or
 `real_` are fine, since names are case-sensitive and none of the built-in
-types contains an underscore.) If whitespace is wanted one convention is to
-use underscores in their place.
+types contains an underscore or uses uppercase letters.) If whitespace is
+wanted one convention is to use underscores in their place.
 
 Once we have defined a _ttype_ we can use it.
 
-Here, we've created a single table whose _ttype_ is "PriceList". There's no
+Here, we've created a single table whose _ttype_ is “PriceList”. There's no
 need to group rows into lines as we've done here (although doing so is
 common and easier for human readability), since the UXF processor knows how
 many values go into each row based on the number of field names. In this
@@ -280,6 +287,10 @@ indicate _any_ valid table type.
 Just for completeness, here's an example of an empty price list table.
 
 ### INI to UXF
+
+Windows `.ini` format (and Unix's often similar `.conf` format) are commonly
+used but unstandardized formats. UXF can be used as a more reliable and
+easier to use alternative.
 
 #### INI
 
@@ -396,7 +407,7 @@ Here, we've laid out the _General_ and _Window_ maps more compactly. We've
 also moved the _Files_ into _General_ and changed the _Files_ from a `table`
 to a two-item `map` with the second item's value being a `list` of
 filenames. We've also changed the _x_, _y_ coordinates and the _width_ and
-_height_ into "pos" and "size" tables. Notice that for each of these tables
+_height_ into “pos” and “size” tables. Notice that for each of these tables
 we've defined their _ttype_ to include both field names and types.
 
 We've also added some example comments to two of the ``map``s. A comment is
@@ -410,9 +421,9 @@ key, or at the start of a table before the _ttype_ name.
     =size width:int height:int
     {#<We want str keys and map values> str map
       <General> {#<We want str keys and any values> str
-        <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> { str
+        <shapename> <Hexagon> <zoom> 150 <showtoolbar> no <Files> {str
           <current> <test1.uxf>
-          <recent> [ #<From most to least recent> str
+          <recent> [#<From most to least recent> str
           </tmp/test2.uxf> <C:\Users\mark\test3.uxf>]
         }
       }
@@ -429,8 +440,8 @@ Here we've added some types. The outermost map must have `str` keys and
 value types, or just the key type, or neither. We've also specified that the
 _recent_ files ``list``'s values must be ``str``s.
 
-Notice that instead of individual "Windows" entries we've just used one.
-Since "pos" and "size" are tables they can have as many rows as we like, in
+Notice that instead of individual “Windows” entries we've just used one.
+Since “pos” and “size” are tables they can have as many rows as we like, in
 this case three (since each row has two fields based on each table's
 _ttype_).
 
@@ -458,8 +469,14 @@ written it as `(Geometry 615 252 592 636 1.1 28 42 140 81 1.0 57 98 89 22
 
 ### Database to UXF
 
-A database normally consists of one or more tables. A UXF equivalent using
-a `list` of ``table``s is easily made.
+Database files aren't normally human readable and usually require
+specialized tools to read and modify their contents. Yet many databases are
+relatively small (both in size and number of tables), and would be more
+convenient to work with if human readable. For these, UXF format provides a
+viable alternative.
+
+A UXF equivalent to a database of tables can easily be created using a
+`list` of ``table``s:
 
     uxf 1.0 MyApp Data
     =Customers CID Company Address Contact Email
@@ -515,11 +532,13 @@ It is conventional in a database to have IDs and foreign keys. But these can
 often be avoided by using hierarchical data. For example:
 
     uxf 1.0 MyApp Data
+    #<There is a 1:M relationship between the Invoices and Items tables>
+    =Database customers:Customers invoices:Invoices
     =Customers CID:int Company:str Address:str Contact:str Email:str
     =Invoices INUM:int CID:int Raised_Date:date Due_Date:date Paid:bool
     Description:str Items:Items
     =Items IID:int Delivery_Date:date Unit_Price:real Quantity:int Description:str
-    [#<There is a 1:M relationship between the Invoices and Items tables>
+    (Database
         (Customers
         50 <Best People> <123 Somewhere> <John Doe> <j@doe.com> 
         19 <Supersuppliers> ? <Jane Doe> <jane@super.com> 
@@ -533,30 +552,27 @@ often be avoided by using hierarchical data. For example:
             1620 2022-01-19 11.5 1 <Washers (1-in)> 
             )
         )
-    ]
+    )
 
 Notice that Items no longer need an INUM to identify the Invoice they belong
 to because they are nested inside their Invoice. However, the relational
 approach has been retained for Customers since more than one Invoice could
 be for the same Customer.
 
-What if we wanted to add some extra configuration data to the database? One
-solution would be to make the first item in the `list` a `map`, with the
-remainder ``table``s, as now. Another solution would be to use a `map` for
-the container, something like:
+In addition, rather than using a simple `list` of tables, we've created a
+“Database” _ttype_ and specified it as containing two tables.
 
-    {
-        <config> { #<Key-value configuration data goes here> }
-        <tables> [ #<The list of tables as above follows here>
-            
-        ]
-    }
+What if we wanted to add some extra configuration data to the database? One
+solution would be to add a third field to the “Database” _ttype_ (e.g., 
+`=Database customers:Customers invoices:Invoices config:map`). Or we could
+go further and specify a “Config” _ttype_ and specify the third field as
+`config:Config`.
 
 ### Additional Examples
 
 See the `testdata` folder for more examples of `.uxf` files (some with other
-suffixes). See also the `t` folder in each language-specific library (e.g.,
-`py/t`) for additional examples.
+suffixes). See also the `t` and `eg` folders in each language-specific
+library (e.g., `py/t` and `py/eg`) for additional examples.
 
 ## Libraries
 
@@ -573,11 +589,12 @@ may be desirable to share a set of _ttype_ definitions amongst many UXF
 files.
 
 The _disadvantages_ of doing this are: first, that the relevant UXF files
-become dependent on one or more external dependencies, and second, it is
+become dependent on one or more external dependencies; second, it is
 possible to have import conflicts (i.e., two _ttypes_ with the same name but
-different definitions. (However, the first disadvantage doesn't apply if all
-the dependencies are provided by the UXF processor itself, i.e., are system
-imports.)
+different definitions; and third, if URL imports are used, load times will
+be affected by network availability and latency. (However, the first and
+third disadvantages don't apply if all the dependencies are provided by the
+UXF processor itself, i.e., are system imports.)
 
 The _advantage_ of importing _ttype_ definitions is that for UXF's that have
 lots of _ttypes_, only the import(s) and the data need be in the file,
@@ -597,15 +614,20 @@ defintion of the same name.
 
 |**Import**|**Notes**|
 |----------|---------|
-|`! complex`|Imports with no suffix are provided by the UXF processor itself|
-|`! fraction`||
-|`! mydefs.uxf`|Import the _ttypes_ from `mydefs.uxf` in the importing `.uxf` file's folder, or from the current folder, or from a folder in the `UXF_PATH`|
+|`! complex`|System import of _ttype_ `Complex`|
+|`! fraction`|System import of _ttype_ `Fraction`|
+|`! numeric`|System import of _ttypes_ `Complex` and `Fraction`|
+|`! mydefs.uxi`|Import the _ttypes_ from `mydefs.uxi` in the importing `.uxf` file's folder, or from the current folder, or from a folder in the `UXF_PATH`|
 |`! /path/to/shared.uxf`|Import the _ttypes_ from the given file|
 |`! http://www.qtrac.eu/ttype-eg.uxf`|Import from the given URL|
 
+Imports with no suffix (e.g., `complex`, `fraction`, `numeric`), are
+provided by the UXF processor itself.
+
 The imported file must be a valid UXF file. It need not have a `.uxf` suffix
-(e.g., you might prefer `.uxt` or `.uxi`), but must have a `.gz` suffix if
-gzip compressed. Any custom string, comments, or data the imported file may
+(e.g., you might prefer `.uxt` or `.uxi`), but must have _a_ suffix (to
+distinguish it from a system import), and must have a `.gz` suffix if gzip
+compressed. Any custom string, comments, or data the imported file may
 contain are ignored: only the _ttype_ definitions are used.
 
     uxf 1.0
@@ -619,20 +641,29 @@ explicitly. The data represented is a list consisting of three Complex
 numbers each holding two ``real``s each, a `str`, and two Fractions holding
 two ``int``s each.
 
+    uxf 1.0
+    !numeric
+    [(Complex 5.1 7.2 8e-2 -9.1e6 0.1 -11.2) <a string> (Fraction 22 7 355 113)]
+
+This is the same as the previous example, but using the system convenience
+`numeric` import to pull in both the `Complex` and `Fraction` _ttypes_.
+
 If you choose to use imports we recommed that UXF files intended for import
 _either_ contain a single _ttype_ definition _or_ two or more imports.
 
-We recommend avoiding imports and using stand-alone `.uxf` files wherever
+We recommend avoiding imports and using stand-alone UXF files wherever
 possible. Some UXF processors can do UXF to UXF conversions that will
-replace imports with (actually used) _ttype_ definitions.
+replace imports with (actually used) _ttype_ definitions. (For example, the
+[Python UXF library](py/README.md)'s `uxf.py` module can do this.)
 
 ## BNF
 
-A `.uxf` file consists of a mandatory header followed by an optional
-file-level comment, optional imports, optional _ttype_ definitions, and then
-a single mandatory `list`, `map`, or `table` (which may be empty).
+A UXF file consists of a mandatory header followed by an optional file-level
+comment, optional imports, optional _ttype_ definitions, and then a single
+mandatory `list`, `map`, or `table` (which may be empty).
 
-    UXF          ::= 'uxf' RWS REAL CUSTOM? '\n' CONTENT
+    UXF          ::= 'uxf' RWS VERSION CUSTOM? '\n' CONTENT
+    VERSION      ::= /\d+\.\d+/
     CUSTOM       ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     CONTENT      ::= COMMENT? IMPORT* TTYPEDEF* (MAP | LIST | TABLE)
     IMPORT       ::= '!' /\s*/ IMPORT_FILE '\n' # See below for IMPORT_FILE
@@ -640,13 +671,13 @@ a single mandatory `list`, `map`, or `table` (which may be empty).
     FIELD        ::= IDENFIFIER (OWS ':' OWS VALUETYPE)? # IDENFIFIER is the field name
     MAP          ::= '{' COMMENT? MAPTYPES? OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     MAPTYPES     ::= OWS KEYTYPE (RWS VALUETYPE)?
-    KEYTYPE      ::= 'int' | 'date' | 'datetime' | 'str' | 'bytes'
+    KEYTYPE      ::=  'bytes' | 'date' | 'datetime' | 'int' | 'str'
     VALUETYPE    ::= KEYTYPE | 'bool' | 'real' | 'list' | 'map' | 'table' | IDENFIFIER # IDENFIFIER is table name
     LIST         ::= '[' COMMENT? LISTTYPE? OWS VALUE? (RWS VALUE)* OWS ']'
     LISTTYPE     ::= OWS VALUETYPE
     TABLE        ::= '(' COMMENT? OWS IDENFIFIER (RWS VALUE)* ')' # IDENFIFIER is the ttype (i.e., the table name)
     COMMENT      ::= OWS '#' STR
-    KEY          ::= INT | DATE | DATETIME | STR | BYTES
+    KEY          ::= BYTES | DATE | DATETIME | INT | STR
     VALUE        ::= KEY | NULL | BOOL | REAL | LIST | MAP | TABLE
     NULL         ::= '?'
     BOOL         ::= 'no' | 'yes'
@@ -665,13 +696,12 @@ it is empty.
 
 An `IMPORT_FILE` may be a filename which does _not_  have a file suffix, in
 which case it is assumed to be a “system” UXF provided by the UXF processor
-itself. (Currently there are just two system UXFs, `complex` and
-`fraction`.) Or it may be a filename with an absolute or relative path. In
-the latter case the import is searched for in the importing `.uxf` file's
-folder, or the currend folder, or a folder in the `UXF_PATH` until it is
-found—or not). Or it may be a URL referring to an external UXF file. For
-non-system files a suffix is required, but any suffix is acceptable (e.g.,
-`.uxf`, `.uxt`, `.uxi`, `.mysuffix`).
+itself. (Currently there are just three system UXFs: `complex`, `fraction`,
+and `numeric`.) Or it may be a filename with an absolute or relative path.
+In the latter case the import is searched for in the importing `.uxf` file's
+folder, or the current folder, or a folder in the `UXF_PATH` until it is
+found—or not). Or it may be a URL referring to an external UXF file. (See
+[Imports](#imports).)
 
 To indicate any type valid for the context, simply omit the type name.
 
@@ -683,7 +713,7 @@ is the table's _ttype_. This is followed by the table's values. There's no
 need to distinguish between one row and the next (although it is common to
 start new rows on new lines) since the number of fields indicate how many
 values each row has. It is possible to create tables that have no fields;
-these might be used for representing enumerations.
+these might be used for representing enumerations or states.
 
 If a list value, map key, or table value's type is specified, then the UXF
 processor is expected to be able to check for (and if requested and
@@ -691,7 +721,7 @@ possible, correct) any mistyped values. UXF readers and writers are expected
 to preserve map items in the original reading order (first to last, i.e.,
 in insertion order).
 
-For ``datetime``'s only 1-second resolution is supported and no timezones.
+For ``datetime``'s, only 1-second resolution is supported and no timezones.
 If microsecond resolution or timezones are required, consider using custom
 _ttypes_, e.g.,
 
@@ -706,7 +736,9 @@ Note also that UXF readers and writers should not care about the actual file
 extension (apart from the `.gz` needed for gzipped files), since users are
 free to use their own. For example, `data.myapp` and `data.myapp.gz`.
 
-## Vim Support
+## Supplementary
+
+### Vim Support
 
 If you use the vim editor, simple color syntax highlighting is available.
 Copy `uxf.vim` into your `$VIM/syntax/` folder and add these lines (or
@@ -715,6 +747,8 @@ similar) to your `.vimrc` or `.gvimrc` file:
     au BufRead,BufNewFile,BufEnter * if getline(1) =~ '^uxf ' | setlocal ft=uxf | endif
     au BufRead,BufNewFile,BufEnter *.uxf set ft=uxf|set expandtab|set tabstop=2|set softtabstop=2|set shiftwidth=2
 
-## UXF Logo
+### UXF Logo
 
 ![uxf logo](uxf.svg)
+
+---

@@ -3,7 +3,7 @@
 " Author:          Mark Summerfield <mark@qtrac.eu>
 " URL:             https://github.com/mark-summerfield/uxf
 " Licence:         Public Domain
-" Latest Revision: 2022-04-21
+" Latest Revision: 2022-07-05
 
 if exists("b:current_syntax")
   finish
@@ -28,27 +28,15 @@ syn match uxfDateTime /\<\d\d\d\d-\d\d-\d\d\(T\d\d\(:\d\d\(:\d\d\)\=\)\=\)\=\>/
 syn match uxfHeader /^uxf\s*\d\+.\d\+.*$/
 
 " See https://sashamaps.net/docs/resources/20-colors/
-" yellow
-hi uxfTodo guibg=#FFE119 term=italic cterm=italic gui=italic
-" navy
-hi uxfConst guifg=#000075
-" red
-hi uxfNull guifg=#E6194B
-" purple
-hi uxfType guifg=#911EB4
-" magenta
-hi uxfPunctuation guifg=#F032E6 term=bold   cterm=bold   gui=bold
-" olive
-hi uxfComment	guifg=#808000 term=italic cterm=italic gui=italic
-" teal
-hi uxfStr  guifg=#469990
-" orange
-hi uxfBytes  guifg=#F58231
-" blue
-hi uxfNumber  guifg=#4363D8
-" cyan
-hi uxfDateTime guifg=#42D4F4
-" brown
-hi uxfIdentifier guifg=#9A6324
-" beige
-hi uxfHeader  guifg=navy guibg=#FFFAC8
+hi uxfIdentifier guifg=#9A6324 "brown
+hi uxfComment	guifg=#808000 term=italic cterm=italic gui=italic "olive
+hi uxfStr  guifg=#469990 "teal
+hi uxfConst guifg=#000075 "navy
+hi uxfNull guifg=#E6194B "red
+hi uxfBytes  guifg=#F58231 "orange
+hi uxfTodo guibg=#FFE119 term=italic cterm=italic gui=italic "yellow
+hi uxfDateTime guifg=#297B33 "green
+hi uxfNumber  guifg=#4363D8 "blue
+hi uxfType guifg=#911EB4 "purple
+hi uxfPunctuation guifg=#F032E6 term=bold   cterm=bold   gui=bold "magenta
+hi uxfHeader  guifg=navy guibg=#FFFAC8 "beige

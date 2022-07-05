@@ -22,49 +22,51 @@ Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
 
 The Python `uxf` library works out of the box with the standard library and
 one dependency,
-[editabletuple](https://github.com/mark-summerfield/editabletuple).
+[editabletuple](https://github.com/mark-summerfield/editabletuple). It
+requires Python 3.8 or later.
 
 - Install: `python3 -m pip install uxf` (or download the wheel `.whl`
   files and do `python -m pip install uxf....whl
   editabletuple...whl` where ... varies)
 - Run: `python3 -m uxf -h` _# this shows the command line help_
-- Use: `import uxf` _# see the `uxf.py` module docs for the API_
+- Use: `import uxf` _# see the `uxf.py` module docs and [API](#api) for the API_
 
 Using `uxf` as an executable (e.g., `python3 -m uxf ...`) provides a means
 of doing `.uxf` to `.uxf` conversions (e.g., compress or uncompress or to
 use the standard pretty print format). The executable can also be used for
-linting and for replacing imports to ensure that UXF files are stand-alone.
+linting, for deleting unused _ttypes_, and for replacing imports to ensure
+that UXF files are stand-alone.
 
-Installed alongside `uxf.py` are `uxflint.py`, and `uxfconvert.py` which
+Installed alongside `uxf.py` are `uxflint.py` and `uxfconvert.py` which
 might prove useful to see how to use `uxf`. For example, `uxfconvert.py` can
 losslessly convert `.uxf` to `.json` or `.xml` and back. It can also do some
 simple conversions to and from `.csv`, to `.ini`, and to and from `.sqlite`,
-but these are really to illustrate use of the uxf APIs. And also see the UXF
-test files in the `../testdata` folder, the Python examples in the `eg`
-folder, and the Python tests in the `t` folder.
+but these are really to illustrate use of the `uxf.py` APIs. And also see
+the UXF test files in the `../testdata` folder, the Python examples in the
+`py/eg` folder, and the Python tests in the `py/t` folder.
 
 If you just want to create a small standalone `.pyz`, you could simply copy
-`py/uxf.py` as `uxf.py` into your project folder and include it in your
-`.pyz` file.
+`uxf.py` and `editabletuple.py` into your project folder and include them in
+your `.pyz` file.
 
 ## Python UXF Types
 
 Most Python types convert losslessly to and from UXF types. In particular:
 
-|**Python Type**     |**UXF type**|
-|--------------------|------------|
-|`None`              | `null`     |
-|`bool`              | `bool`     |
-|`bytes`             | `bytes`    |
-|`bytearray`         | `bytes`    |
-|`datetime.date`     | `date`     |
-|`datetime.datetime` | `datetime` |
-|`int`               | `int`      |
-|`float`             | `real`     |
-|`str`               | `str`      |
-|`uxf.List`          | `list`     |
-|`uxf.Map`           | `map`      |
-|`uxf.Table`         | `table    `|
+|**Python Type**     |**UXF type**|**Notes**|
+|--------------------|------------|---------|
+|`None`              | `null`     ||
+|`bool`              | `bool`     ||
+|`bytes`             | `bytes`    ||
+|`bytearray`         | `bytes`    |Lossless conversion but type changes to Python `bytes`|
+|`datetime.date`     | `date`     ||
+|`datetime.datetime` | `datetime` |Loses any timezone and only preserves to the nearest 1-second|
+|`int`               | `int`      ||
+|`float`             | `real`     ||
+|`str`               | `str`      ||
+|`uxf.List`          | `list`     ||
+|`uxf.Map`           | `map`      ||
+|`uxf.Table`         | `table    `||
 
 A [List](#list-class) is a Python `collections.UserList` subclass with
 `.data` (the list)`, .comment` and `.vtype` attributes. A `.vtype` holds a
@@ -106,7 +108,9 @@ strings or files.
 
 The [load()](#load-def) function reads UXF data from a file or file-like
 object, and the [loads()](#loads-def) function reads UXF data from a string.
-The returned `uxo` (UXF object) is of type [Uxf](#uxf-class).
+These functions take several optional arguments; see [load()](#load-def) and
+[loads()](#loads-def). The returned `uxo` (UXF object) is of type
+[Uxf](#uxf-class).
 
     dump(filename_or_filelike, data)
     dumps(data) -> uxt
@@ -114,13 +118,16 @@ The returned `uxo` (UXF object) is of type [Uxf](#uxf-class).
 The [dump()](#dump-def) function writes the data in UXF format to a file or
 file-like object, and the [dumps()](#dumps-def) function writes the data
 into a string that's then returned (here called `uxt` to indicate UXF text).
-The data can be a [Uxf](#uxfclass) object or a single `list`,
-[List](#list-class), `dict`, [Map](#map-class), or [Table](#table-class).
+These functions take several optional arguments; see [dump()](#dump-def) and
+[dumps()](#dumps-def). The data can be a [Uxf](#uxfclass) object or a single
+`list`, [List](#list-class), `dict`, [Map](#map-class), or
+[Table](#table-class).
 
 If the data contains values of types that aren't supported by UXF, they
 could be transformed in advance (e.g., to a custom table type, a _ttype_).
 
-See also the examples in the `eg` folder and the tests in the `t` folder.
+See also the examples in the `py/eg` folder and the tests in the `py/t`
+folder.
 
 ### API Notes
 
@@ -128,12 +135,11 @@ A [UXF](#uxf-class) object (called a `uxo` in these docs) has a `.value`
 attribute that is always a [List](#list-class) or [Map](#map-class) or
 [Table](#table-class). The first two have essentially the same APIs as
 `list` and `dict` respectively. The [Table](#table-class) API is a little
-similar to a `list`. Individual records can be accessed using `[]`, but to
-work with records or fields the API provides `get_record()`, `set_record()`,
-`get_field()`, `set_field()`, amongst others. For small tables, records can
-be accessed with the `first`, `second`, `third`, or `fourth` properties. The
-best way to append new records is to use the [Table](#table-class)'s
-`append()` method.
+similar to a `list`. Individual records can be accessed (read _and_ updated)
+using `table[row]`, and individual files using `table[row][column]` or
+`table[row].fieldname`. For small tables, records can be accessed with the
+`first`, `second`, `third`, or `fourth` properties. The best way to append
+new records is to use the [Table](#table-class)'s `append()` method.
 
 The `uxf` module distinguishes between a _ttype_ (the name of a user-defined
 table) and a [TClass](#tclass-class) (the Python class which represents a
@@ -156,7 +162,7 @@ module can read (and the UXF version that it writes).
 
 ### Classes
 
-The classes are documented in importance order. Here are alphabetically
+The classes are documented in convenience order. Here are alphabetically
 ordered links:
 [Error](#error-class),
 [Field](#field-class),
@@ -194,6 +200,11 @@ optionally, some _ttypes_.
     point_ttype = uxf.TClass('point', (uxf.Field('x', 'real'), uxf.Field('y', 'real')))
     uxo = uxf.Uxf(value, tclasses={point_ttype.ttype: point_ttype})
 
+An alternative is to do this:
+
+    uxo = uxf.loads('uxf 1.0\n=point x:real y:real\n[]')
+    uxo.value = value
+
 ##### Properties
 
 **`.value`**
@@ -223,8 +234,8 @@ a `str` holding that type's import text.
 
 **`.import_filenames`**
 
-A utility useful for some UXF processors. It yields all the unique import
-filenames.
+A utility property useful for some UXF processors. It yields all the unique
+import filenames.
 
 ##### Methods
 
@@ -301,12 +312,12 @@ A class used to store UXF Tables.
 **`Table(tclass=None, *, records=None, comment=None)`**
 
 A `Table` can be created using the constructor, passing a
-[TClass](#tclass-class), and optionally, records (a list of lists), and a
-comment (a `str`). Alternativvely, use the [table()](#table-def) convenience
-function which takes a _ttype_ (a `str`), and fields.
+[TClass](#tclass-class), and optionally, records (a list of lists, where
+each sublist has `len(tclass.fields)` values), and a comment (a `str`).
+Alternativvely, use the [table()](#table-def) convenience function which
+takes a _ttype_ (a `str`), and fields.
 
-See [Python UXF Types](#python-uxf-types) for more about _ktypes_ and
-_ttypes_.
+See [Python UXF Types](#python-uxf-types) for more about and _ttypes_.
 
 ##### Properties
 
@@ -321,18 +332,19 @@ A convenience for `.tclass.ttype`.
 
 **`.records`**
 
-The table's data: a list of lists of values with each sublist having the
-same number of values as the number of `.tclass` fields (i.e.,
-`len(table.fields)`)
+The table's data: a list of values where each value is either a list with
+`len(table.fields)` values, or an
+[editabletuple](https://github.com/mark-summerfield/editabletuple) of type
+`.RecordClass`.
 
 **`.RecordClass`**
 
-The table's record class, an
+The table's record class, a dynamically created
 [editabletuple](https://github.com/mark-summerfield/editabletuple), which
 can be used to create a single record by calling it with each of the
 record's fields' values (or with `*sequence` where `len(sequence)` equals
 the number of fields). When a table record is accessed (e.g., when one row
-of the table's list is returned), it is returned as an editabletuple of this
+of the table's list is returned), it is returned as an instance of this
 class.
 
 **`.fields`**
@@ -372,8 +384,15 @@ for the [dump()](#dump-def) and [dumps()](#dumps-def) functions.
 **`table[row]`**
 
 The table's `row`-th record as a `RecordClass`
-[editabletuple](https://github.com/mark-summerfield/editabletuple).
-(The same as `.get_record(row)`; ses also `.set_record(row, record)`.)
+[editabletuple](https://github.com/mark-summerfield/editabletuple). The
+returned record is editable, so to get or set a field use
+`table[row][column]` or `table[row].fieldname`.
+
+To replace an entire record, use `table[row] = record` where `record` is a
+sequence (e.g., a `tuple` of length `len(table.fields)`), or a
+`table.RecordClass` instance. (See also `append()` below.)
+
+To delete an entire record, use `del table[row]`.
 
 **`iter(table)`**
 
@@ -396,38 +415,12 @@ as a sequence of field values (which will then be converted to the table's
 
 **`.insert(index, record)`**
 
-Inserts the given record (or sequence of field values) into the table at the
-given `index` position.
-
-**`.get_record(row)`**
-
-The table's `row`-th record as a `RecordClass`
-[editabletuple](https://github.com/mark-summerfield/editabletuple).
-(The same as `table[row]`.)
-
-**`.set_record(row, record)`**
-
-Replaces the table's `row`-th record with the given record.
-
-**`.delete_record(row)`**
-
-Deletes the table's `row`-th record.
-
-**`.get_field(row, name_or_index)`**
-
-Returns the table's `row`-th record's ``name_or_index``-th field (if
-`name_or_index` is an `int` or the field whose name is ``name_or_index``.
-
-**`.set_field(row, name_or_index, value)`**
-
-Sets the table's `row`-th record's ``name_or_index``-th field (if
-`name_or_index` is an `int` or the field whose name is ``name_or_index``, to
-the given `value`.
+Inserts the given record (or sequence of field values which is converted to
+a `RecordClass` instance) into the table at the given `index` position.
 
 **`.field(column)`**
 
 This function is a convenience for `.tclass.fields[column]`.
-
 
 <a name="tclass-class"></a>
 #### TClass
@@ -468,8 +461,8 @@ The `name` must start with a letter and be followed by
 the same as a built-in type name or constant. A _vtype_ of `None` means that
 the field may hold any valid UXF type (see [Python UXF
 Types](#python-uxf-types)); otherwise it must be one of these ``str``s:
-`bool`, `bytes`, `int`, `real`, `date`, `datetime`, `list`, `map`, `str`, or
-`table`; or a _ttype_ name.
+`'bool'`, `'bytes'`, `'date'`, `'datetime'`, `'int'`, `'real'`, `'list'`,
+`'map'`, `'str'`, or `'table'`; or a _ttype_ name.
 
 <a name="format-class"></a>
 #### Format
@@ -488,7 +481,12 @@ The [dump()](#dump-def) and [dumps()](#dumps-def) functions use the default
 creating and passing your own `Format` object, you can change these to suit
 your needs. For `realdp`, `None` signifies use however many digits after the
 decimal point are needed for UXF ``real``'s (i.e., for Python ``float``'s);
-otherwise specif a value 0-15.
+otherwise specify a value 0-15.
+
+For example, if you had a UXF that held a table with, say, ten fields and
+you wanted the output to be one record per line, with ``real``s output with
+3 decimal places, you could pass a format of `Format(wrap_width=None,
+realdp=3, max_fields_in_line=10)`.
 
 <a name="error-class"></a>
 #### Error
@@ -500,7 +498,7 @@ subclass then it is probably a bug that should be reported.)
 
 ### Functions
 
-The functions are documented in importance order. Here are alphabetically
+The functions are documented in convenience order. Here are alphabetically
 ordered links:
 [append\_to\_parent()](#append_to_parent-def),
 [canonicalize()](#canonicalize-def),
@@ -580,19 +578,7 @@ For more on the other arguments see [dump()](#dump-def).
 Convenience function for creating empty tables with a new
 [TClass](#tclass-class).
 
-See also the [Table](#table-class).
-
-<a name="naturalize-def"></a>
-**`naturalize(s)`**
-
-Given `str` `s` returns `True` if the `str` is 't', 'true', 'y', 'yes', or
-`False` if the `str` is 'f', 'false', 'n', 'no' (case-insensitive); or
-returns an `int` if `s` holds a parsable int, or a `float` if `s` holds a
-parsable `float`, or a `datetime.datetime` if `s` holds a parsable ISO8601
-datetime `str`, or a `datetime.date` if `s` holds a parsable ISO8601 date
-`str`, or failing these returns the original ``str``, ``s``, unchanged.
-
-This is provided as a helper function (e.g., it is used by `uxfconvert.py`).
+See also the [Table](#table-class) constructor.
 
 <a name="on_error-def"></a>
 **`on_error(lino, code, message, *, filename, fail=False, verbose=True)`**
@@ -608,18 +594,51 @@ unrecoverable, so the normal action would be to raise. If verbose is `True`
 the normal action is to print a textual version of the error data to
 `stderr`.
 
-For examples of custom `on_error()` functions, see `t/test_errors.py`,
-`t/test_imports.py` `t/test_include.py`, `t/test_merge.py`, and
-`t/test_sqlite.py`.
+To make `on_error()` quieter:
+
+    on_error = functools.partial(uxf.on_error, verbose=False)
+
+To make all errors fatal:
+
+    on_error = functools.partial(uxf.on_error, fail=True, verbose=False)
+
+For further examples of custom `on_error()` functions, see
+`t/test_errors.py`, `t/test_imports.py` `t/test_include.py`,
+`t/test_merge.py`, and `t/test_sqlite.py`.
+
+<a name="isasciidigit-def"></a>
+**`isasciidigit(s)`**
+
+Returns `True` if `s` matches ``/^[0-9]+$/``. (Python's `str.isdigit()` and
+`str.isdecimal()` both match additional Unicode digit characters which is
+why we use `isasciidigit()`.)
+
+<a name="isoformat-def"></a>
+**`isoformat(dt)`**
+
+If `dt` is a `date`, returns the corresponding `str` with format
+`'YYYY-MM-DD'`; if `dt` is a `datetime`, returns the corresponding `str`
+with format `'YYYY-MM-DDTHH:MM:SS'`.
+
+<a name="naturalize-def"></a>
+**`naturalize(s)`**
+
+Given `str` `s` returns `True` if the `str` is 't', 'true', 'y', 'yes', or
+`False` if the `str` is 'f', 'false', 'n', 'no' (case-insensitive); or
+returns an `int` if `s` holds a parsable int, or a `float` if `s` holds a
+parsable `float`, or a `datetime.datetime` if `s` holds a parsable ISO8601
+datetime, or a `datetime.date` if `s` holds a parsable ISO8601 date, or
+failing these returns the original ``str``, ``s``, unchanged.
+
+This is provided as a helper function (e.g., it is used by `uxfconvert.py`).
 
 <a name="is_scalar-def"></a>
 **`is_scalar(x)`**
 
-Returns `True` if `x` is `None` or a `bool`, `int`, `float`,
-`datetime.date`, `datetime.datetime`, `str`, `bytes`, or `bytearray`;
-otherwise returns `False`. Its main use is as a helper
-for the [dump()](#dump-def) and [dumps()](#dumps-def) functions.
-
+Returns `True` if `x` is `None` or a `bool`, `bytes`, `bytearray`,
+`datetime.date`, `datetime.datetime`, `int`, `float`, or `str`; otherwise
+returns `False`. Its main use is as a helper for the [dump()](#dump-def) and
+[dumps()](#dumps-def) functions.
 
 <a name="canonicalize-def"></a>
 **`canonicalize(name, is_table_name)`**
@@ -633,27 +652,13 @@ table or field name. See `uxfconvert.py` for uses.
 Utility for UXF processors; see `uxf.py` and `uxfconvert.py` for examples of
 use.
 
-<a name="isasciidigit-def"></a>
-**`isasciidigit(s)`**
-
-Returns `True` if `s` matches ``/^[0-9]+$/``. (Python's `str.isdigit()` and
-`str.isdecimal()` both match additional digit characters which is why we
-use `isasciidigit()`.)
-
-<a name="isoformat-def"></a>
-**`isoformat(dt)`**
-
-If `dt` is a `date`, returns the corresponding `str` with format
-`'YYYY-MM-DD'`; if `dt` is a `datetime`, returns the corresponding `str`
-with format `'YYYY-MM-DDTHH:MM:SS'`.
-
 ### Constants
 
 |**Constant**|**Description**|
 |------------|---------------|
-|`VERSION`|The UXF file format version|
-|`RESERVED_WORDS`|A set of names that cannot be used for table or field names|
-|`UTF8`|The string `'utf-8'`|
+|`VERSION`|The UXF file format version.|
+|`RESERVED_WORDS`|A set of names that cannot be used for table or field names.|
+|`UTF8`|The string `'utf-8'`.|
 
 ### Command Line Usage
 

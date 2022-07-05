@@ -99,8 +99,7 @@ class Uxf:
         self.value = value
         self.custom = custom
         self.comment = comment
-        # tclasses key=ttype value=TClass
-        self._tclasses = {}
+        self._tclasses = {} # tclasses key=ttype value=TClass
         self.tclasses = tclasses if tclasses is not None else {}
         self.imports = {} # key=ttype value=import text
         self.on_error = functools.partial(on_error, filename='')
@@ -140,11 +139,13 @@ class Uxf:
 
     @property
     def value(self):
+        '''The List, Map, or Table that holds all the Uxf's data.'''
         return self._value
 
 
     @value.setter
     def value(self, value):
+        '''Replaces all the Uxf's data with the given collection.'''
         if value is None:
             value = List()
         elif isinstance(value, list):
@@ -999,7 +1000,7 @@ class Table:
             *[field.name for field in self.fields])
 
 
-    def _customize(self, row):
+    def _classify(self, row):
         record = self.records[row]
         RecordClass = self.RecordClass
         if not isinstance(record, RecordClass):
@@ -1061,16 +1062,14 @@ class Table:
 
 
     def __getitem__(self, row):
-        '''Return the row-th record as a custom class'''
-        return self._customize(row)
+        '''Return the row-th record as a custom class.
+
+        The returned record is an object reference to an editabletuple so
+        any changes made to its fields will be reflected in the table.'''
+        return self._classify(row)
 
 
-    def get_record(self, row):
-        '''Return the row-th record as a custom class'''
-        return self._customize(row)
-
-
-    def set_record(self, row, record):
+    def __setitem__(self, row, record):
         '''Replace the row-th record as a custom class'''
         RecordClass = self.RecordClass
         if not isinstance(record, RecordClass):
@@ -1078,29 +1077,9 @@ class Table:
         self.records[row] = record
 
 
-    def delete_record(self, row):
+    def __delitem__(self, row):
         '''Deletes the table's row-th record'''
         del self.records[row]
-
-
-    def get_field(self, row, name_or_index):
-        '''Returns the table's row-th record's name_or_index-th field (if
-        name_or_index is an int or the field whose name is name_or_index'''
-        record = self._customize(row)
-        if isinstance(name_or_index, int):
-            return record[name_or_index]
-        return getattr(record, name_or_index)
-
-
-    def set_field(self, row, name_or_index, value):
-        '''Sets the table's row-th record's name_or_index-th field (if
-        name_or_index is an int or the field whose name is name_or_index to
-        the given value'''
-        record = self._customize(row)
-        if isinstance(name_or_index, int):
-            record[name_or_index] = value
-        else:
-            setattr(record, name_or_index, value)
 
 
     def __iter__(self):
@@ -1572,9 +1551,9 @@ class _Parser:
             self._system_import_tclass(_ComplexTClass, value)
         elif value == 'fraction':
             self._system_import_tclass(_FractionTClass, value)
-        # elif value == 'numeric': # Don't use: just to see how to do multis
-        #    self._system_import_tclass(_ComplexTClass, value)
-        #    self._system_import_tclass(_FractionTClass, value)
+        elif value == 'numeric':
+            self._system_import_tclass(_ComplexTClass, value)
+            self._system_import_tclass(_FractionTClass, value)
         else:
             self.error(560,
                        f'there is no system ttype import called {value!r}')

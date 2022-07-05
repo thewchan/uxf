@@ -1,0 +1,194 @@
+{
+  "UXF^custom": "MyApp Data",
+  "UXF^comment": "A hierarchical alternative to some foreign key IDs.\nWe've kept Customers as-is because different invoices may be for the same\ncustomer.",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Customers",
+        "fields": {
+          "CID": "int",
+          "Company": "str",
+          "Address": "str",
+          "Contact": "str",
+          "Email": "str"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Database",
+        "fields": {
+          "customers": "Customers",
+          "invoices": "Invoices"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Invoices",
+        "fields": {
+          "INUM": "int",
+          "CID": "int",
+          "Raised_Date": "date",
+          "Due_Date": "date",
+          "Paid": "bool",
+          "Description": "str",
+          "Items": "Items"
+        }
+      }
+    },
+    {
+      "UXF^ttype": {
+        "name": "Items",
+        "fields": {
+          "IID": "int",
+          "Delivery_Date": "date",
+          "Unit_Price": "real",
+          "Quantity": "int",
+          "Description": "str"
+        }
+      }
+    }
+  ],
+  "UXF^data": {
+    "UXF^table": {
+      "name": "Database",
+      "comment": "There is a 1:M relationship between the Invoices and Items tables",
+      "fields": {
+        "customers": "Customers",
+        "invoices": "Invoices"
+      },
+      "records": [
+        [
+          {
+            "UXF^table": {
+              "name": "Customers",
+              "comment": null,
+              "fields": {
+                "CID": "int",
+                "Company": "str",
+                "Address": "str",
+                "Contact": "str",
+                "Email": "str"
+              },
+              "records": [
+                [
+                  50,
+                  "Best People",
+                  "123 Somewhere",
+                  "John Doe",
+                  "j@doe.com"
+                ],
+                [
+                  19,
+                  "Supersuppliers",
+                  null,
+                  "Jane Doe",
+                  "jane@super.com"
+                ]
+              ]
+            }
+          },
+          {
+            "UXF^table": {
+              "name": "Invoices",
+              "comment": null,
+              "fields": {
+                "INUM": "int",
+                "CID": "int",
+                "Raised_Date": "date",
+                "Due_Date": "date",
+                "Paid": "bool",
+                "Description": "str",
+                "Items": "Items"
+              },
+              "records": [
+                [
+                  152,
+                  50,
+                  {
+                    "UXF^date": "2022-01-17"
+                  },
+                  {
+                    "UXF^date": "2022-02-17"
+                  },
+                  false,
+                  "COD",
+                  {
+                    "UXF^table": {
+                      "name": "Items",
+                      "comment": null,
+                      "fields": {
+                        "IID": "int",
+                        "Delivery_Date": "date",
+                        "Unit_Price": "real",
+                        "Quantity": "int",
+                        "Description": "str"
+                      },
+                      "records": [
+                        [
+                          1839,
+                          {
+                            "UXF^date": "2022-01-16"
+                          },
+                          29.99,
+                          2,
+                          "Bales of hay"
+                        ],
+                        [
+                          1840,
+                          {
+                            "UXF^date": "2022-01-16"
+                          },
+                          5.98,
+                          3,
+                          "Straps"
+                        ]
+                      ]
+                    }
+                  }
+                ],
+                [
+                  153,
+                  19,
+                  {
+                    "UXF^date": "2022-01-19"
+                  },
+                  {
+                    "UXF^date": "2022-02-19"
+                  },
+                  true,
+                  "",
+                  {
+                    "UXF^table": {
+                      "name": "Items",
+                      "comment": null,
+                      "fields": {
+                        "IID": "int",
+                        "Delivery_Date": "date",
+                        "Unit_Price": "real",
+                        "Quantity": "int",
+                        "Description": "str"
+                      },
+                      "records": [
+                        [
+                          1620,
+                          {
+                            "UXF^date": "2022-01-19"
+                          },
+                          11.5,
+                          1,
+                          "Washers (1-in)"
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  }
+}

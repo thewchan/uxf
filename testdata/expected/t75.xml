@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<uxf version="1.0">
+  <imports>
+    <import filename="numeric"/>
+  </imports>
+  <ttypes>
+    <ttype name="Complex">
+      <field name="Real" vtype="real"/>
+      <field name="Imag" vtype="real"/>
+    </ttype>
+    <ttype name="Fraction">
+      <field name="numerator" vtype="int"/>
+      <field name="denominator" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="Complex">
+      <row>
+        <real v="3.9"/>
+        <real v="-1.4"/>
+      </row>
+      <row>
+        <real v="-170.0"/>
+        <real v="2e-05"/>
+      </row>
+    </table>
+    <table name="Fraction">
+      <row>
+        <int v="22"/>
+        <int v="7"/>
+      </row>
+    </table>
+  </list>
+</uxf>
