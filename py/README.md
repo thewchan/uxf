@@ -17,6 +17,7 @@ Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
     - [Functions](#functions)
     - [Constants](#constants)
     - [Command Line Usage](#command-line-usage)
+- [Changes](#changes)
 
 ## Introduction
 
@@ -670,5 +671,11 @@ run:
 or
 
     path/to/uxf.py -h
+
+## Changes
+
+- 1.0.1 Bug fix: when `dump()` and `dumps()` output _ttype_ definitions,
+  they now respect the format's `wrap_width` and `indent` settings.
+- 1.0.0 First stable release.
 
 ---

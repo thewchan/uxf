@@ -2,7 +2,7 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
-'''The full API documentation is in the accompanying README.md file.'''
+'''The API documentation is in the accompanying README.md file.'''
 
 import collections
 import datetime
@@ -19,8 +19,8 @@ from xml.sax.saxutils import escape, unescape
 import editabletuple
 
 
-__version__ = '1.0.0' # uxf module version
-VERSION = 1.0 # uxf file format version
+__version__ = '1.0.1' # uxf module version
+VERSION = 1.0 # UXF file format version
 
 UTF8 = 'utf-8'
 _MAX_IDENTIFIER_LEN = 60
@@ -1271,51 +1271,63 @@ class _Parser:
             (self.tokens[i - 2].kind is _Kind.MAP_BEGIN or
                 (self.tokens[i - 2].kind is _Kind.COMMENT and
                  self.tokens[i - 3].kind is _Kind.MAP_BEGIN))):
-            tclass = self.tclasses.get(token.value)
-            if tclass is None:
-                self.error(442, f'expected map vtype, got {token}')
-            elif tclass.ttype is None:
-                self.error(444, f'tclass without a ttype, got {token}')
-            else:
-                parent.vtype = tclass.ttype
-                self.used_tclasses.add(tclass.ttype)
+            self._handle_type_identifier(parent, token)
         elif self.tokens[i - 1].kind is _Kind.LIST_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.LIST_BEGIN):
-            tclass = self.tclasses.get(token.value)
-            if tclass is None:
-                self.error(446, f'expected list vtype, got {token}')
-            else:
-                parent.vtype = tclass.ttype
-                self.used_tclasses.add(tclass.ttype)
+            self._handle_vtype_identifier(parent, token)
         elif self.tokens[i - 1].kind is _Kind.TABLE_BEGIN or (
                 self.tokens[i - 1].kind is _Kind.COMMENT and
                 self.tokens[i - 2].kind is _Kind.TABLE_BEGIN):
-            tclass = self.tclasses.get(token.value)
-            if tclass is None:
-                self.error(450, f'expected table ttype, got {token}',
-                           fail=True) # A table with no tclass is invalid
-                return # in case user on_error doesn't raise
-            else:
-                parent.tclass = tclass
-                self.used_tclasses.add(tclass.ttype)
-                if len(self.stack) > 1:
-                    grand_parent = self.stack[-2]
-                    # map or list:
-                    vtype = getattr(grand_parent, 'vtype', None)
-                    if (vtype is not None and vtype != 'table' and
-                            vtype != tclass.ttype):
-                        self.error(
-                            456, (f'expected table value of type {vtype}, '
-                                  f'got value of type {tclass.ttype}'))
+            self._handle_ttype_identifier(parent, token)
         else:
-            if token.value.upper() in {'TRUE', 'FALSE'}:
-                self.error(458,
-                           'boolean values are represented by yes or no')
-            else:
-                self.error(
-                    460, 'ttypes may only appear at the start of a '
-                    f'map (as the value type), list, or table, {token}')
+            self._handle_incorrect_identifier(token)
+
+
+    def _handle_type_identifier(self, parent, token):
+        tclass = self.tclasses.get(token.value)
+        if tclass is None:
+            self.error(442, f'expected map vtype, got {token}')
+        elif tclass.ttype is None:
+            self.error(444, f'tclass without a ttype, got {token}')
+        else:
+            parent.vtype = tclass.ttype
+            self.used_tclasses.add(tclass.ttype)
+
+
+    def _handle_vtype_identifier(self, parent, token):
+        tclass = self.tclasses.get(token.value)
+        if tclass is None:
+            self.error(446, f'expected list vtype, got {token}')
+        else:
+            parent.vtype = tclass.ttype
+            self.used_tclasses.add(tclass.ttype)
+
+
+    def _handle_ttype_identifier(self, parent, token):
+        tclass = self.tclasses.get(token.value)
+        if tclass is None:
+            self.error(450, f'expected table ttype, got {token}',
+                       fail=True) # A table with no tclass is invalid
+        else:
+            parent.tclass = tclass
+            self.used_tclasses.add(tclass.ttype)
+            if len(self.stack) > 1:
+                grand_parent = self.stack[-2]
+                # map or list:
+                vtype = getattr(grand_parent, 'vtype', None)
+                if (vtype is not None and vtype != 'table' and
+                        vtype != tclass.ttype):
+                    self.error(456, f'expected table value of type {vtype},'
+                               f' got value of type {tclass.ttype}')
+
+
+    def _handle_incorrect_identifier(self, token):
+        if token.value.upper() in {'TRUE', 'FALSE'}:
+            self.error(458, 'boolean values are represented by yes or no')
+        else:
+            self.error(460, 'ttypes may only appear at the start of a '
+                       f'map (as the value type), list, or table, {token}')
 
 
     def _handle_type(self, i, token):
@@ -1455,47 +1467,69 @@ class _Parser:
         for index, token in enumerate(self.tokens):
             self.lino = token.lino
             if token.kind is _Kind.TCLASS_BEGIN:
-                if tclass is not None:
-                    if tclass.ttype is None:
-                        self.error(518, 'TClass without ttype', fail=True)
-                        return # in case user on_error doesn't raise
-                    _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
-                                     code=520, on_error=self.on_error)
-                    self.lino_for_tclass[tclass.ttype] = self.lino
-                tclass = TClass(None)
+                tclass, ok = self._handle_tclass_begin(tclass)
+                if not ok:
+                    return # in case on_error doesn't raise
             elif token.kind is _Kind.COMMENT:
                 tclass.comment = token.value
             elif token.kind is _Kind.IDENTIFIER:
-                if tclass is None:
-                    self.error(522, 'missing ttype; is an `=` missing?',
-                               fail=True)
+                if not self._handle_tclass_ttype(tclass, token.value):
                     return # in case user on_error doesn't raise
-                elif tclass.ttype is None:
-                    tclass.ttype = token.value
-                else:
-                    tclass.append(token.value)
             elif token.kind is _Kind.TYPE:
-                if not tclass:
-                    self.error(524, 'cannot use a built-in type name or '
-                               f'constant as a tclass name, got {token}',
-                               fail=True)
+                if not self._handle_tclass_vtype(tclass, token):
                     return # in case user on_error doesn't raise
-                else:
-                    vtype = token.value
-                    tclass.set_vtype(-1, vtype)
             elif token.kind is _Kind.TCLASS_END:
-                if tclass is not None:
-                    if tclass.ttype is None:
-                        self.error(526, 'TClass without ttype', fail=True)
-                        return # in case user on_error doesn't raise
-                    _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
-                                     code=528, on_error=self.on_error)
-                    if tclass.ttype not in self.lino_for_tclass:
-                        self.lino_for_tclass[tclass.ttype] = self.lino
+                if not self._handle_tclass_end(tclass):
+                    return # in case user on_error doesn't raise
                 offset = index + 1
             else:
                 break # no TClasses at all
         self.tokens = self.tokens[offset:]
+
+
+    def _handle_tclass_begin(self, tclass):
+        if tclass is not None:
+            if tclass.ttype is None:
+                self.error(518, 'TClass without ttype', fail=True)
+                return None, False # in case user on_error doesn't raise
+            _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
+                             code=520, on_error=self.on_error)
+            self.lino_for_tclass[tclass.ttype] = self.lino
+        return TClass(None), True
+
+
+    def _handle_tclass_ttype(self, tclass, value):
+        if tclass is None:
+            self.error(522, 'missing ttype; is an `=` missing?', fail=True)
+            return False # in case user on_error doesn't raise
+        elif tclass.ttype is None:
+            tclass.ttype = value
+        else:
+            tclass.append(value)
+        return True
+
+
+    def _handle_tclass_vtype(self, tclass, token):
+        if not tclass:
+            self.error(524, 'cannot use a built-in type name or '
+                       f'constant as a tclass name, got {token}', fail=True)
+            return False # in case user on_error doesn't raise
+        else:
+            vtype = token.value
+            tclass.set_vtype(-1, vtype)
+            return True
+
+
+    def _handle_tclass_end(self, tclass):
+        if tclass is not None:
+            if tclass.ttype is None:
+                self.error(526, 'TClass without ttype', fail=True)
+                return False # in case user on_error doesn't raise
+            _add_to_tclasses(self.tclasses, tclass, lino=self.lino,
+                             code=528, on_error=self.on_error)
+            if tclass.ttype not in self.lino_for_tclass:
+                self.lino_for_tclass[tclass.ttype] = self.lino
+        return True
 
 
     def _handle_import(self, value):
@@ -1510,12 +1544,7 @@ class _Parser:
             if filename is not None:
                 uxo = self._load_import(filename)
             elif text is not None:
-                try:
-                    uxo = loads(text, filename=value,
-                                on_error=self._on_import_error,
-                                _imported=self.imported, _is_import=True)
-                except Error as err:
-                    self.error(530, f'failed to import {value!r}: {err}')
+                uxo = self._parse_url_text(text, value)
             else:
                 self.error(540, 'there are no ttype definitions to import '
                            f'{value!r} ({filename!r})')
@@ -1544,6 +1573,15 @@ class _Parser:
             raise _AlreadyImported
         finally:
             self.imported.add(url) # don't want to retry
+
+
+    def _parse_url_text(self, text, filename):
+        try:
+            return loads(text, filename=filename,
+                         on_error=self._on_import_error,
+                         _imported=self.imported, _is_import=True)
+        except Error as err:
+            self.error(530, f'failed to import {filename!r}: {err}')
 
 
     def _system_import(self, value):
@@ -1750,36 +1788,48 @@ class _Writer:
 
 
     def write_tclasses(self, tclasses, imports):
-        column = 0
         for ttype, tclass in sorted(tclasses.items(),
                                     key=lambda t: t[0].upper()):
             if imports and ttype in imports:
                 continue # defined in an import
             self.file.write('=')
-            column += 1
-            if tclass.comment:
-                text = f'#<{escape(tclass.comment)}> '
-                column += len(text)
-                self.file.write(text)
-            text = f'{tclass.ttype}'
-            if column + len(text) > self.format.wrap_width:
-                self.file.write(f'\n{self.format.indent}')
-                column = len(self.format.indent)
-            else:
-                column += len(text)
-            self.file.write(text)
+            column = self._write_tclass_comment(1, tclass)
+            column = self._write_tclass_ttype(column, tclass)
             for field in tclass.fields:
-                text = f' {field.name}'
-                if field.vtype is not None:
-                    text += f':{field.vtype}'
-                if column + len(text) > self.format.wrap_width:
-                    self.file.write(f'\n{self.format.indent}')
-                    column = len(self.format.indent)
-                else:
-                    column += len(text)
-                self.file.write(text)
+                column = self._write_tclass_field(column, field)
             self.file.write('\n')
-            column = 0
+
+
+    def _write_tclass_comment(self, column, tclass):
+        if tclass.comment:
+            text = f'#<{escape(tclass.comment)}> '
+            column += len(text)
+            self.file.write(text)
+        return column
+
+
+    def _write_tclass_ttype(self, column, tclass):
+        text = f'{tclass.ttype}'
+        if column + len(text) > self.format.wrap_width:
+            self.file.write(f'\n{self.format.indent}')
+            column = len(self.format.indent)
+        else:
+            column += len(text)
+        self.file.write(text)
+        return column
+
+
+    def _write_tclass_field(self, column, field):
+        text = f' {field.name}'
+        if field.vtype is not None:
+            text += f':{field.vtype}'
+        if column + len(text) > self.format.wrap_width:
+            self.file.write(f'\n{self.format.indent}')
+            column = len(self.format.indent)
+        else:
+            column += len(text)
+        self.file.write(text)
+        return column
 
 
     def write_value(self, item):

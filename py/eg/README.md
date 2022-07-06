@@ -1,13 +1,13 @@
 # Python UXF Library Examples
 
 - [Tlm.py](#tlm-py)
-- [Config.py](#config-py)
 - [include.py](#include-py)
 - [merge.py](#merge-py)
 - [Slides](#slides)
     - [slides1.py](#slides1-py)
     - [slides2.py](#slides2-py)
 - [compare.py](#compare-py)
+- [Config.py](#config-py)
 - [t/ Files](#t--files)
     - [gen.py](#gen-py)
     - [benchmark.py](#benchmark-py)
@@ -23,21 +23,6 @@ format, and also seamlessly, a TLM UXF format.
 Code-wise, loading needs ~60 lines for TLM and ~23 lines for TLM UXF. This
 is because the uxf module does most of the parsing. Saving needs ~18 lines
 for TLM and for TLM UXF.
-
-## Config.py
-
-This example shows a practical use case of saving and loading application
-configuration data, preserving comments, providing defaults, and validating.
-
-The UXF file format used here is very short but also quite complex. It
-includes an enumeration with two valid values, and three other custom
-_ttypes_. The data is held in a `map` with `str` keys, with one value being
-an `int`, another a `list` of ``table``s, and another a `map` with `str`
-keys and values.
-
-The `Config` class hides the complexity to present a very simple
-property-based API. (Of course there's no free lunch—the API's simplicity is
-won at the cost of the `Config` class itself being quite large.)
 
 ## include.py
 
@@ -100,6 +85,21 @@ This example uses `Uxf.load()` and then manually iterates over the returned
 
 This example can be used stand-alone or as an import. It is used to compare
 two UXF files for equality—or for equivalence.
+
+## Config.py
+
+This example shows a practical use case of saving and loading application
+configuration data, preserving comments, providing defaults, and validating.
+
+The UXF file format used here is very short but also quite complex. It
+includes an enumeration with two valid values, and three other custom
+_ttypes_. The data is held in a `map` with `str` keys, with one value being
+an `int`, another a `list` of ``table``s, and another a `map` with `str`
+keys and values.
+
+The `Config` class hides the complexity to present a very simple
+property-based API. (Of course there's no free lunch—the API's simplicity is
+won at the cost of the `Config` class itself being quite large.)
 
 ## t/ Files
 
