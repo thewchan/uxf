@@ -1810,7 +1810,7 @@ class _Writer:
 
     def _write_tclass_ttype(self, column, tclass):
         text = f'{tclass.ttype}'
-        if self.format.wrap_width is not None:
+        if self.format.wrap_width:
             if column + len(text) > self.format.wrap_width:
                 self.file.write(f'\n{self.format.indent}')
                 column = len(self.format.indent)
@@ -1824,7 +1824,7 @@ class _Writer:
         text = f' {field.name}'
         if field.vtype is not None:
             text += f':{field.vtype}'
-        if self.format.wrap_width is not None:
+        if self.format.wrap_width:
             if column + len(text) > self.format.wrap_width:
                 self.file.write(f'\n{self.format.indent}')
                 column = len(self.format.indent)
