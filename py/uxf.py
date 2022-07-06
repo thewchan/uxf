@@ -19,7 +19,7 @@ from xml.sax.saxutils import escape, unescape
 import editabletuple
 
 
-__version__ = '1.0.1' # uxf module version
+__version__ = '1.0.2' # uxf module version
 VERSION = 1.0 # UXF file format version
 
 UTF8 = 'utf-8'
@@ -1810,11 +1810,12 @@ class _Writer:
 
     def _write_tclass_ttype(self, column, tclass):
         text = f'{tclass.ttype}'
-        if column + len(text) > self.format.wrap_width:
-            self.file.write(f'\n{self.format.indent}')
-            column = len(self.format.indent)
-        else:
-            column += len(text)
+        if self.format.wrap_width is not None:
+            if column + len(text) > self.format.wrap_width:
+                self.file.write(f'\n{self.format.indent}')
+                column = len(self.format.indent)
+            else:
+                column += len(text)
         self.file.write(text)
         return column
 
@@ -1823,11 +1824,12 @@ class _Writer:
         text = f' {field.name}'
         if field.vtype is not None:
             text += f':{field.vtype}'
-        if column + len(text) > self.format.wrap_width:
-            self.file.write(f'\n{self.format.indent}')
-            column = len(self.format.indent)
-        else:
-            column += len(text)
+        if self.format.wrap_width is not None:
+            if column + len(text) > self.format.wrap_width:
+                self.file.write(f'\n{self.format.indent}')
+                column = len(self.format.indent)
+            else:
+                column += len(text)
         self.file.write(text)
         return column
 

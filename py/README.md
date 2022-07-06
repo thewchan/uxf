@@ -674,6 +674,7 @@ or
 
 ## Changes
 
+- 1.0.2 Bug fix: I missed a corner case in the previous fix; now fixed.
 - 1.0.1 Bug fix: when `dump()` and `dumps()` output _ttype_ definitions,
   they now respect the format's `wrap_width` and `indent` settings.
 - 1.0.0 First stable release.
