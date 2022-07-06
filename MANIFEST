@@ -13,6 +13,7 @@ py/t/test_imports.py
 py/t/test_merge.py
 py/t/test_include.py
 py/t/test_use_config.py
+py/t/test_use_config2.py
 py/t/test_editabletuple.py
 py/t/test_compare.py
 py/t/test_tlm.py
@@ -28,6 +29,7 @@ py/eg/slides.sld
 py/eg/merge.py
 py/eg/include.py
 py/eg/Config.py
+py/eg/Config2.py
 py/eg/Tlm.py
 
 README.md

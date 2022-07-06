@@ -1750,19 +1750,36 @@ class _Writer:
 
 
     def write_tclasses(self, tclasses, imports):
+        column = 0
         for ttype, tclass in sorted(tclasses.items(),
                                     key=lambda t: t[0].upper()):
             if imports and ttype in imports:
                 continue # defined in an import
             self.file.write('=')
+            column += 1
             if tclass.comment:
-                self.file.write(f'#<{escape(tclass.comment)}> ')
-            self.file.write(f'{tclass.ttype}')
+                text = f'#<{escape(tclass.comment)}> '
+                column += len(text)
+                self.file.write(text)
+            text = f'{tclass.ttype}'
+            if column + len(text) > self.format.wrap_width:
+                self.file.write(f'\n{self.format.indent}')
+                column = len(self.format.indent)
+            else:
+                column += len(text)
+            self.file.write(text)
             for field in tclass.fields:
-                self.file.write(f' {field.name}')
+                text = f' {field.name}'
                 if field.vtype is not None:
-                    self.file.write(f':{field.vtype}')
+                    text += f':{field.vtype}'
+                if column + len(text) > self.format.wrap_width:
+                    self.file.write(f'\n{self.format.indent}')
+                    column = len(self.format.indent)
+                else:
+                    column += len(text)
+                self.file.write(text)
             self.file.write('\n')
+            column = 0
 
 
     def write_value(self, item):
