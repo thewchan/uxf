@@ -348,6 +348,9 @@ the number of fields). When a table record is accessed (e.g., when one row
 of the table's list is returned), it is returned as an instance of this
 class.
 
+(This is actually a convenience method that returns
+`table.tclass.RecordClass`.)
+
 **`.fields`**
 
 A convenience for `.tclass.fields`.
@@ -439,13 +442,18 @@ or constant. Leave `fields` as `None` for a fieldless table; otherwise pass
 a sequence of field names (``str``'s) or ``Field``'s (which have field names
 and optionally types). The `.comment` may be passed a `str`.
 
-
 The `.ttype` attribute holds the ``TClass``'s name. The `.fields` attribute
 holds a list of fields of type [Field](#field-class). The `.comment` holds
 an optional `str`.
 
 The `.isfieldless` property returns `True` if there are no fields (which is
 valid for a fieldless table); otherwise returns `False`.
+
+The `.RecordClass` property returns a dynamically created
+[editabletuple](https://github.com/mark-summerfield/editabletuple), which
+can be used to create a single record by calling it with each of the
+record's fields' values (or with `*sequence` where `len(sequence)` equals
+the number of fields).
 
 <a name="field-class"></a>
 #### Field
