@@ -50,7 +50,6 @@ st.sh
 #   . if I do an ANSI C implementation I'd need an insertion-ordered
 #     hashtable algorithm:
 #     https://troydhanson.github.io/uthash/userguide.html
-#   . uxf.py: make sure max_fields_in_line is respected
 # - Documentation:
 #   . Complete manual with egs and use cases
 #   . Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)

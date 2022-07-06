@@ -474,8 +474,7 @@ methods).
 
 ##### Constructor
 
-**`Format(indent='  ', wrap_width=96, realdp=None, max_list_in_line=10,
-max_fields_in_line=5, max_short_len=32)`**
+**`Format(indent='  ', wrap_width=96, realdp=None, max_short_len=32)`**
 
 The [dump()](#dump-def) and [dumps()](#dumps-def) functions use the default
 `Format()` which uses the defaults shown (indent is two spaces). However, by
@@ -484,10 +483,9 @@ your needs. For `realdp`, `None` signifies use however many digits after the
 decimal point are needed for UXF ``real``'s (i.e., for Python ``float``'s);
 otherwise specify a value 0-15.
 
-For example, if you had a UXF that held a table with, say, ten fields and
-you wanted the output to be one record per line, with ``real``s output with
-3 decimal places, you could pass a format of `Format(wrap_width=None,
-realdp=3, max_fields_in_line=10)`.
+For example, if you had a `Uxf` object with a table and wanted the output to
+be one record per line, with ``real``s output with 3 decimal places, you
+could pass a format of `Format(wrap_width=None, realdp=3)`.
 
 <a name="error-class"></a>
 #### Error
@@ -674,10 +672,9 @@ or
 
 ## Changes
 
-- 1.0.2
-    - Bug fix: I missed a corner case in the previous fix; now fixed.
-    - This revealed a subtle bug which means that the ``Format``'s
-      `max_fields_in_line` isn't always respected.
+- 1.1.0 Dropped ``Format``'s `max_fields_in_line` and `max_list_in_line`
+  settings since neither worked: use `wrap_width` instead.
+- 1.0.2 Bug fix: I missed a corner case in the previous fix; now fixed.
 - 1.0.1 Bug fix: when `dump()` and `dumps()` output _ttype_ definitions,
   they now respect the format's `wrap_width` and `indent` settings.
 - 1.0.0 First stable release.

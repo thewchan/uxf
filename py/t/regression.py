@@ -329,19 +329,25 @@ def test_slides(slides_py, total, ok, *, verbose):
 
 def test_format(total, ok, *, verbose):
     uxt_original = '''uxf 1.0
-=Test one:int two:bool three:datetime four:real five:map six:list \
-seven:str eight:date nine:table
-(Test 1 yes 1980-01-17T23:59:07 98.654321 {<key> <value>}
-[2 3 5 7 11 13] <A short string of text> 2022-07-29 (Test))
+=Test one:int two:bool three:datetime four:real five:date \
+six:bool seven:int eight:str nine ten eleven twelve
+(Test 1 yes 1980-01-17T23:59:07 98.654321 2022-07-29 no 2 \
+<A short string of text> 9 <ten> <eleven> 12.0)
 '''
     uxt_default_format = '''uxf 1.0
-=Test one:int two:bool three:datetime four:real five:map \
-six:list seven:str eight:date
-   nine:table
-(Test 1 yes 1980-01-17T23:59:07 98.654321 {<key> <value>}
-[2 3 5 7 11 13] <A short string of text> 2022-07-29 (Test))
+=Test one:int two:bool three:datetime four:real five:date \
+six:bool seven:int eight:str nine ten
+   eleven twelve
+(Test 1 yes 1980-01-17T23:59:07 98.654321 2022-07-29 no 2 \
+<A short string of text> 9 <ten>
+<eleven> 12.0)
 '''
-
+    uxt_custom_format = '''uxf 1.0
+=Test one:int two:bool three:datetime four:real five:date
+   six:bool seven:int eight:str nine ten eleven twelve
+(Test 1 yes 1980-01-17T23:59:07 98.654321 2022-07-29 no 2
+<A short string of text> 9 <ten> <eleven> 12.0)
+'''
     total += 1
     uxo = uxf.loads(uxt_original)
     uxt1 = uxo.dumps()
@@ -367,6 +373,14 @@ six:list seven:str eight:date
             print('original format #2 OK')
     elif verbose:
         print('original format #2 FAIL')
+    total += 1
+    uxt2 = uxo.dumps(format=uxf.Format(wrap_width=60))
+    if uxt2 == uxt_custom_format:
+        ok += 1
+        if verbose:
+            print('custom format #3 OK')
+    elif verbose:
+        print('custom format #3 FAIL')
     return total, ok
 
 
