@@ -417,14 +417,20 @@ Appends a new row to the table's list of lists as an
 as a sequence of field values (which will then be converted to the table's
 `RecordClass`).
 
-**`.insert(index, record)`**
+**`.insert(row, record)`**
 
 Inserts the given record (or sequence of field values which is converted to
-a `RecordClass` instance) into the table at the given `index` position.
+a `RecordClass` instance) into the table at the given `row` position.
 
 **`.field(column)`**
 
 This function is a convenience for `.tclass.fields[column]`.
+
+**`.get(row)`**
+
+Returns the table's `row`-th record as a `RecordClass`
+[editabletuple](https://github.com/mark-summerfield/editabletuple) _or_
+`None` if `row` is out of range. If a record is returned it is editable.
 
 <a name="tclass-class"></a>
 #### TClass

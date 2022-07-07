@@ -19,7 +19,7 @@ from xml.sax.saxutils import escape, unescape
 import editabletuple
 
 
-__version__ = '1.1.2' # uxf module version
+__version__ = '1.1.3' # uxf module version
 VERSION = 1.0 # UXF file format version
 
 UTF8 = 'utf-8'
@@ -1016,12 +1016,12 @@ class Table:
         self.records.append(record)
 
 
-    def insert(self, index, record):
+    def insert(self, row, record):
         '''Inserts a record (either a RecordClass tuple or a sequence of
-        field values) into the table at the given index position'''
+        field values) into the table at the given row position'''
         if not isinstance(record, self.RecordClass):
             record = self.RecordClass(*record)
-        self.records.insert(index, record)
+        self.records.insert(row, record)
 
 
     @property
@@ -1057,6 +1057,18 @@ class Table:
         if self.records:
             return self[-1]
         # else return None
+
+
+    def get(self, row):
+        '''Return the row-th record as a custom class or None if row is out
+        of range.
+
+        If a record is returned it is an object reference to an
+        editabletuple so any changes made to its fields will be reflected in
+        the table.'''
+        if 0 <= row < len(self.records):
+            return self._classify(row)
+        # else: return None
 
 
     def __getitem__(self, row):
