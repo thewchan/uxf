@@ -680,6 +680,7 @@ or
 
 ## Changes
 
+- 1.1.2 Additional tests.
 - 1.1.1 Internal improvements plus moved `.RecordClass` to `TClass` (without
   changing ``Table``'s API).
 - 1.1.0 Dropped ``Format``'s `max_fields_in_line` and `max_list_in_line`

@@ -1,0 +1,12 @@
+uxf 1.0
+#<typed empties>
+=Contact name:str phone:str id:int
+[
+  (#<empty table> Contact)
+  {#<empty map with ktype and vtype> int Contact}
+  {#<empty map with ktype and vtype> str datetime}
+  {#<empty map with ktype> date}
+  {#<empty map>}
+  [#<empty list with vtype> date]
+  [#<empty list>]
+]

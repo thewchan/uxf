@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<uxf version="1.0" comment="typed empties">
+  <ttypes>
+    <ttype name="Contact">
+      <field name="name" vtype="str"/>
+      <field name="phone" vtype="str"/>
+      <field name="id" vtype="int"/>
+    </ttype>
+  </ttypes>
+  <list>
+    <table name="Contact" comment="empty table"/>
+    <map ktype="int" vtype="Contact" comment="empty map with ktype and vtype"/>
+    <map ktype="str" vtype="datetime" comment="empty map with ktype and vtype"/>
+    <map ktype="date" comment="empty map with ktype"/>
+    <map comment="empty map"/>
+    <list vtype="date" comment="empty list with vtype"/>
+    <list comment="empty list"/>
+  </list>
+</uxf>

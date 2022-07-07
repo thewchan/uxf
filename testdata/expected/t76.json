@@ -1,0 +1,75 @@
+{
+  "UXF^comment": "typed empties",
+  "UXF^ttypes": [
+    {
+      "UXF^ttype": {
+        "name": "Contact",
+        "fields": {
+          "name": "str",
+          "phone": "str",
+          "id": "int"
+        }
+      }
+    }
+  ],
+  "UXF^data": [
+    {
+      "UXF^table": {
+        "name": "Contact",
+        "comment": "empty table",
+        "fields": {
+          "name": "str",
+          "phone": "str",
+          "id": "int"
+        },
+        "records": []
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": "empty map with ktype and vtype",
+        "ktype": "int",
+        "vtype": "Contact",
+        "map": {}
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": "empty map with ktype and vtype",
+        "ktype": "str",
+        "vtype": "datetime",
+        "map": {}
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": "empty map with ktype",
+        "ktype": "date",
+        "vtype": null,
+        "map": {}
+      }
+    },
+    {
+      "UXF^map": {
+        "comment": "empty map",
+        "ktype": null,
+        "vtype": null,
+        "map": {}
+      }
+    },
+    {
+      "UXF^list": {
+        "comment": "empty list with vtype",
+        "vtype": "date",
+        "list": []
+      }
+    },
+    {
+      "UXF^list": {
+        "comment": "empty list",
+        "vtype": null,
+        "list": []
+      }
+    }
+  ]
+}
