@@ -680,6 +680,8 @@ or
 
 ## Changes
 
+- 1.1.1 Internal improvements plus moved `.RecordClass` to `TClass` (without
+  changing ``Table``'s API).
 - 1.1.0 Dropped ``Format``'s `max_fields_in_line` and `max_list_in_line`
   settings since neither worked: use `wrap_width` instead.
 - 1.0.2 Bug fix: I missed a corner case in the previous fix; now fixed.
