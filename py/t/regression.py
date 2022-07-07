@@ -43,6 +43,7 @@ finally:
 
 
 def main():
+    print(f'testing uxf.py {uxf.__version__} (UXF {uxf.VERSION})')
     max_total, verbose = get_config()
     cleanup()
     t = time.monotonic()
