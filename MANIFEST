@@ -53,13 +53,21 @@ st.sh
 # - Money type (twelth type), e.g., MONEY ::= '$' REAL
 # - Documentation:
 #   . Complete manual with egs and use cases
+#	. Part I Preliminaries
+#	. Part II Practicalities
+#	    Scalars / Collections / Replacing CSV / Replacing INI /
+#	    Replacing JSON / Replacing SQLite / Creating Custom UXF Formats
+#	. Part III Technicalities
+#	    Railroad Diagrams / BNF / Limits (e.g., date/time/numeric;
+#	    str and bytes lengths; etc) / Lists / Maps / Tables /
+#	    Implementations // Python // Rust? // JS? // ???
 #   . Uniform eXchange Format - a 7"x9" PDF book? (see paper notes)
 # - Verification suite: create files (valid & invalid UXF etc) &
 #   language/library-neutral scripts for validating a UXF processor's
 #   conformance.
 # - Experiment with using UXF format to store various kinds of data,
-#   e.g., styled text (but see uxf2html notes), spreadsheet, graphics,
-#   etc., & equivalents to other formats, e.g., geojson, etc.
+#   e.g., spreadsheet, graphics, etc., & equivalents to other formats,
+#   e.g., geojson, etc.
 # - Language: allow '.' in identifiers (excl. first char)?
 # - Python: load(), loads(), etc., accept listclass=List, mapclass=Map,
 #   tableclass=Table, & uses these rather than List, Map, and Table, so
