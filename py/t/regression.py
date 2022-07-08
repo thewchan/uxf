@@ -88,12 +88,12 @@ def main():
             print(c * span, end='', flush=True)
     t = time.monotonic() - t
     if total == ok:
-        print(f'{ok}/{total} All OK ({t:.3f} sec)')
+        print(f'{ok:,}/{total:,} All OK ({t:.3f} sec)')
         cmd = prep_cmd([BENCHMARK, '--quiet', '1'])
         subprocess.run(cmd)
         cleanup()
     else:
-        print(f': {ok}/{total} • FAIL ({t:.3f} sec)')
+        print(f': {ok:,}/{total:,} • FAIL ({t:.3f} sec)')
 
 
 def get_config():
