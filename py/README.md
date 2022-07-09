@@ -288,6 +288,13 @@ A class used to represent a UXF map. It is a `collections.UserDict` subclass
 that holds its dict in the `.data` attribute and that also has `.comment`,
 `.ktype`, and `.vtype` attributes.
 
+Note that although Python ``dict``s are insertion-ordered, UXF ``Map``s are
+unordered. This means that while this Python UXF library will always load
+and dump ``Map`` items in the same order, other UXF libraries may not. (The
+`py/eg/compare.py` example correctly compares two UXF files regardless of
+`Map` key order; useful for comparing two UXFs with different texts and
+useful for regression testing.)
+
 ##### Constructor
 
 **`Map(d=None, *, ktype=None, vtype=None, comment=None)`**

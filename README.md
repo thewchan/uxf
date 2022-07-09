@@ -86,8 +86,9 @@ listed above, except `null`), or any user-defined _ttype_, and the
 corresponding value or values must be any valid value for the specified
 type, or `?` (null).
 
-Lists and tables are ordered, that is, they preserve their values' order.
-Maps are unordered, so they do not preserve their items' order.
+Lists and tables preserve the order in which values are appended. So the
+first value is at index/row 0, the second at index/row 1, etc. Maps are
+unordered.
 
 A `table` starts with a _ttype_. Next comes the table's values. The number
 of values in any given row is equal to the number of field names in the
