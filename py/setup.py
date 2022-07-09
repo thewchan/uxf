@@ -30,6 +30,6 @@ a plain text human readable optionally typed storage format.',
         'Topic :: Software Development :: Libraries'],
     package_dir={'': '.'},
     py_modules=['uxf'],
-    scripts=['uxfconvert.py'],
+    scripts=['uxfconvert.py', 'uxfcompare.py', 'uxflint.py'],
     python_requires='>=3.8',
     install_requires=['editabletuple'])

@@ -3,7 +3,6 @@
 # License: GPLv3
 
 import collections
-import datetime
 import math
 import pprint
 
@@ -18,14 +17,14 @@ finally:
 
 def eq(a, b, *, ignore_comments=False, ignore_custom=False,
        ignore_types=False, debug=False):
-    '''This function is provided primarily for use in automated testing.
-    Returns True if a and b are eq Uxf's, Tables, Lists, or Maps;
+    '''Returns True if a and b are eq Uxf's, Tables, Lists, or Maps;
     otherwise returns False. This function compares all the values (and
     comments) recursively, so is potentially expensive.
     Maps are compared by ktype and vtype and then by their dict data with
     items sorted by str(key). For example, although Python dicts are
     insertion-ordered, Maps are compared regardless of order:
 
+        >>> import datetime
         >>> when = datetime.date(2022, 9, 19)
         >>> later = when + datetime.timedelta(days=27)
         >>> ma = uxf.Map(dict(x=1, y=2, z=4), ktype='str', vtype='int')
@@ -53,15 +52,10 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
     def by_key(item):
         return str(item[0])
 
-    def eq_custom(s, t):
-        '''Returns True if s and t are both either empty or None or have the
+    def eq_text(a, b):
+        '''Returns True if a and b are both either empty or None or have the
         same nonempty text; otherwise False.'''
-        return (not bool(s) and not bool(t)) or s == t
-
-    def eq_comment(s, t):
-        '''Returns True if s and t are both either empty or None or have the
-        same nonempty text; otherwise False.'''
-        return (not bool(s) and not bool(t)) or s == t
+        return (not bool(a) and not bool(b)) or a == b
 
     kwargs = dict(ignore_comments=ignore_comments,
                   ignore_custom=ignore_custom, ignore_types=ignore_types,
@@ -77,11 +71,11 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             if debug:
                 _fail(f'Uxf can\'t be compared with {b.__class__.__name__}')
             return False
-        if not ignore_custom and not eq_custom(a.custom, b.custom):
+        if not ignore_custom and not eq_text(a.custom, b.custom):
             if debug:
                 _fail('custom', a.custom, b.custom)
             return False
-        if not ignore_comments and not eq_comment(a.comment, b.comment):
+        if not ignore_comments and not eq_text(a.comment, b.comment):
             if debug:
                 _fail('Uxf.comment', a.comment, b.comment)
             return False
@@ -105,7 +99,7 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                 _fail(
                     f'List can\'t be compared with {b.__class__.__name__}')
             return False
-        if not ignore_comments and not eq_comment(a.comment, b.comment):
+        if not ignore_comments and not eq_text(a.comment, b.comment):
             if debug:
                 _fail('List.comment', a.comment, b.comment)
             return False
@@ -123,7 +117,7 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             if debug:
                 _fail(f'Map can\'t be compared with {b.__class__.__name__}')
             return False
-        if not ignore_comments and not eq_comment(a.comment, b.comment):
+        if not ignore_comments and not eq_text(a.comment, b.comment):
             if debug:
                 _fail('Map.comment', a.comment, b.comment)
             return False
@@ -147,7 +141,7 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                 _fail('TClass can\'t be compared with '
                       f'{b.__class__.__name__}')
             return False
-        if not ignore_comments and not eq_comment(a.comment, b.comment):
+        if not ignore_comments and not eq_text(a.comment, b.comment):
             if debug:
                 _fail('TClass.comment', a.comment, b.comment)
             return False
@@ -175,7 +169,7 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                 _fail(
                     f'Table can\'t be compared with {b.__class__.__name__}')
             return False
-        if not ignore_comments and not eq_comment(a.comment, b.comment):
+        if not ignore_comments and not eq_text(a.comment, b.comment):
             if debug:
                 _fail('Table.comment', a.comment, b.comment)
             return False

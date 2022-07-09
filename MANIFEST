@@ -1,6 +1,7 @@
 py/uxf.py
 py/uxfconvert.py
 py/uxflint.py
+py/uxfcompare.py
 py/README.md
 py/setup.py
 py/pypi.sh

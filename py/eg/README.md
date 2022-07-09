@@ -86,13 +86,13 @@ This example uses `Uxf.load()` and then manually iterates over the returned
 
 This example can be used stand-alone or as an import. It is used to compare
 two UXF files for equality (or for equivalence) using the `py/eg/eq.py`
-module.
+module. (See also `py/uxfcompare.py`.)
 
 ## eq.py
 
 This module provides a single function `eq(a, b)` which compares two UXF
 values (i.e., two `Uxf` objects, or two ``List``s, ``Map``s, ``Table``'s or
-UXF scalars (``int``s, ``str``s, etc).
+UXF scalars (``int``s, ``str``s, etc). (See also `py/uxfcompare.py`.)
 
 ## Config.py
 

@@ -12,8 +12,9 @@ try:
     PATH = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(os.path.abspath(os.path.join(PATH, '../')))
     import uxf
+    import uxfcompare as compare1
     sys.path.append(os.path.abspath(os.path.join(PATH, '../eg/')))
-    import compare
+    import compare as compare2
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:
     pass
@@ -75,18 +76,34 @@ def test(total, ok, regression, n, filename1, filename2, *, different,
               'same')
 
     total += 1
-    if compare.compare(filename1, filename2, on_error=on_error) == equal:
+    if compare1.compare(filename1, filename2, on_error=on_error) == equal:
         ok += 1
     elif not regression:
-        print(f'{n}.2 compare() • FAIL files compared unexpectedly unequal')
+        print(f'{n}.2 uxfcompare.compare() • FAIL files compared '
+              'unexpectedly unequal')
 
     total += 1
-    if compare.compare(filename1, filename2, equivalent=True,
-                       on_error=on_error) == equivalent:
+    if compare2.compare(filename1, filename2, on_error=on_error) == equal:
         ok += 1
     elif not regression:
-        print(f'{n}.3 compare() • FAIL files compared unexpectedly '
-              'nonequivalent')
+        print(f'{n}.3 compare.compare() • FAIL files compared '
+              'unexpectedly unequal')
+
+    total += 1
+    if compare1.compare(filename1, filename2, equivalent=True,
+                        on_error=on_error) == equivalent:
+        ok += 1
+    elif not regression:
+        print(f'{n}.4 uxfcompare.compare() • FAIL files compared '
+              'unexpectedly nonequivalent')
+    total += 1
+    if compare2.compare(filename1, filename2, equivalent=True,
+                        on_error=on_error) == equivalent:
+        ok += 1
+    elif not regression:
+        print(f'{n}.5 compare.compare() • FAIL files compared '
+              'unexpectedly nonequivalent')
+
     return total, ok
 
 

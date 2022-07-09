@@ -38,13 +38,19 @@ use the standard pretty print format). The executable can also be used for
 linting, for deleting unused _ttypes_, and for replacing imports to ensure
 that UXF files are stand-alone.
 
-Installed alongside `uxf.py` are `uxflint.py` and `uxfconvert.py` which
-might prove useful to see how to use `uxf`. For example, `uxfconvert.py` can
-losslessly convert `.uxf` to `.json` or `.xml` and back. It can also do some
-simple conversions to and from `.csv`, to `.ini`, and to and from `.sqlite`,
-but these are really to illustrate use of the `uxf.py` APIs. And also see
-the UXF test files in the `../testdata` folder, the Python examples in the
-`py/eg` folder, and the Python tests in the `py/t` folder.
+Installed alongside `uxf.py` are: `uxfconvert.py`, `uxfcompare.py`, and
+`uxflint.py`. For example, `uxfconvert.py` can losslessly convert `.uxf` to
+`.json` or `.xml` and back. It can also do some simple conversions to and
+from `.csv`, to `.ini`, and to and from `.sqlite`, but these are really to
+illustrate use of the `uxf.py` APIs. `uxfcompare.py` can compare two UXF
+files, either for equality, i.e., they both contain the same data, with
+lists and tables compared value by value in order, and maps compared by
+item—regardless of order (since UXF Maps are unordered), or for equivalence.
+A UXF file can be linted using `python3 -m uxf -l file.uxf`; but to lint any
+number of files, use `uxflint.py`.
+
+Also see the UXF test files in the `../testdata` folder, the Python examples
+in the `py/eg` folder, and the Python tests in the `py/t` folder.
 
 If you just want to create a small standalone `.pyz`, you could simply copy
 `uxf.py` and `editabletuple.py` into your project folder and include them in
@@ -291,9 +297,9 @@ that holds its dict in the `.data` attribute and that also has `.comment`,
 Note that although Python ``dict``s are insertion-ordered, UXF ``Map``s are
 unordered. This means that while this Python UXF library will always load
 and dump ``Map`` items in the same order, other UXF libraries may not. (The
-`py/eg/compare.py` example correctly compares two UXF files regardless of
-`Map` key order; useful for comparing two UXFs with different texts and
-useful for regression testing.)
+`py/uxfcompare.py` utility and the `py/eg/compare.py` example both correctly
+compare two UXF files regardless of `Map` key order; useful for comparing
+two UXFs with different texts and useful for regression testing.)
 
 ##### Constructor
 
