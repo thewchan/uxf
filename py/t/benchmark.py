@@ -14,8 +14,9 @@ try:
     PATH = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(os.path.abspath(os.path.join(PATH, '../')))
     import uxf
-    sys.path.append(os.path.abspath(os.path.join(PATH, '../t/')))
+    sys.path.append(os.path.abspath(os.path.join(PATH, '../eg/')))
     import eq
+    sys.path.append(os.path.abspath(os.path.join(PATH, '../t/')))
     import gen
     os.chdir(os.path.join(PATH, '../../testdata')) # move to testdata
 finally:

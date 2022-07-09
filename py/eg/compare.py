@@ -6,6 +6,8 @@ import functools
 import os
 import sys
 
+import eq
+
 try:
     import uxf
 except ImportError: # needed for development
@@ -55,15 +57,7 @@ def compare(filename1: str, filename2: str, *, equivalent=False,
     except uxf.Error as err:
         print(f'compare.py failed on {filename2}: {err}')
         return False
-    return isequal(uxo1, uxo2)
-
-
-def isequal(uxo1: uxf.Uxf, uxo2: uxf.Uxf, *, on_error=uxf.on_error):
-    '''Returns True if uxo1 is the same as uxo2 (ignoring insignificant
-    whitespace; otherwise returns False.'''
-    uxt1 = uxo1.dumps(on_error=on_error).strip()
-    uxt2 = uxo2.dumps(on_error=on_error).strip()
-    return uxt1 == uxt2
+    return eq.eq(uxo1, uxo2)
 
 
 if __name__ == '__main__':

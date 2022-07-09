@@ -3,9 +3,9 @@
 # License: GPLv3
 
 import collections
+import datetime
 import math
 import pprint
-
 
 try:
     import os
@@ -22,9 +22,33 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
     Returns True if a and b are eq Uxf's, Tables, Lists, or Maps;
     otherwise returns False. This function compares all the values (and
     comments) recursively, so is potentially expensive.
+    Maps are compared by ktype and vtype and then by their dict data with
+    items sorted by str(key). For example, although Python dicts are
+    insertion-ordered, Maps are compared regardless of order:
+
+        >>> when = datetime.date(2022, 9, 19)
+        >>> later = when + datetime.timedelta(days=27)
+        >>> ma = uxf.Map(dict(x=1, y=2, z=4), ktype='str', vtype='int')
+        >>> lst1 = [later, 349.85, 'Pear Tree', ma]
+        >>> mb = uxf.Map(dict(z=4), ktype='str', vtype='int')
+        >>> mb['y'] = 2
+        >>> mb['x'] = 1
+        >>> lst2 = [later, 349.850, 'Pear ' + 'Tree', mb]
+        >>> m1 = uxf.Map({1: 'a', 2: when, 'three': lst1})
+        >>> m1
+        {1: 'a', 2: datetime.date(2022, 9, 19), 'three': \
+[datetime.date(2022, 10, 16), 349.85, 'Pear Tree', \
+{'x': 1, 'y': 2, 'z': 4}]}
+        >>> m2 = uxf.Map({'three': lst2, 1: 'a', 2: when})
+        >>> m2
+        {'three': [datetime.date(2022, 10, 16), 349.85, 'Pear Tree', \
+{'z': 4, 'y': 2, 'x': 1}], 1: 'a', 2: datetime.date(2022, 9, 19)}
+        >>> m1 == m2
+        True
+        >>> m1.data == m2.data
+        True
+
     This function requires that values in sets are sortable.
-    Note also that if custom types are stored they will compare as != unless
-    they have an __eq__ method.
     '''
     def by_key(item):
         return str(item[0])
@@ -112,7 +136,7 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
                 if debug:
                     _fail('Map.vtype', a.vtype, b.vtype)
                 return False
-        if not eq(a.data, b.data, **kwargs):
+        if not eq(a.data, b.data, **kwargs): # Compare's the dict data
             if debug:
                 _fail('Map.data', a.data, b.data)
             return False
@@ -196,8 +220,8 @@ def eq(a, b, *, ignore_comments=False, ignore_custom=False,
             if debug:
                 _fail('dict (len)', a, b)
             return False
-        for (akey, avalue), (bkey, bvalue) in zip(
-                sorted(a.items(), key=by_key),
+        for (akey, avalue), (bkey, bvalue) in zip( # Compares irrespective
+                sorted(a.items(), key=by_key),     # of original order
                 sorted(b.items(), key=by_key)):
             if akey != bkey:
                 if debug:
@@ -258,3 +282,8 @@ def _print_list(t):
     print('values:')
     for value in t:
         _pprint(value)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

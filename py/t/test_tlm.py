@@ -10,8 +10,8 @@ try:
     PATH = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(os.path.abspath(os.path.join(PATH, '../')))
     import uxf
-    import eq
     sys.path.append(os.path.abspath(os.path.join(PATH, '../eg/')))
+    import eq
     import Tlm
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data
 finally:

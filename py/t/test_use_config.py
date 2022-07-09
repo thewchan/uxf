@@ -16,7 +16,7 @@ import tempfile
 
 try:
     PATH = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(PATH + '/../t')
+    sys.path.append(PATH + '/../eg')
     import eq
     old = '/home/mark/bin/sudoku.pyw'
     new = os.path.join(tempfile.gettempdir(), 't/sudoku.py')

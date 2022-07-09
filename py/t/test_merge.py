@@ -10,6 +10,7 @@ try:
     PATH = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(os.path.abspath(os.path.join(PATH, '../')))
     import uxf
+    sys.path.append(os.path.abspath(os.path.join(PATH, '../eg/')))
     import eq
     MERGE_EXE = os.path.abspath(os.path.join(PATH, '../eg/merge.py'))
     os.chdir(os.path.join(PATH, '../../testdata')) # move to test data

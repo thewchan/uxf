@@ -17,11 +17,11 @@ py/t/test_use_config2.py
 py/t/test_editabletuple.py
 py/t/test_compare.py
 py/t/test_tlm.py
-py/t/eq.py
 py/t/gen.py
 py/t/benchmark.py
 py/eg/README.md
 py/eg/compare.py
+py/eg/eq.py
 py/eg/visit.py
 py/eg/slides1.py
 py/eg/slides2.py

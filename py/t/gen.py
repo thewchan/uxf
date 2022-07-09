@@ -121,6 +121,16 @@ def generate(*, scale=7):
     uxt.append('<Raw bytes> (:')
     uxt.append(secrets.token_bytes(random.randrange(scale3)).hex())
     uxt.append(':)')
+    if n < scale:
+        uxt.append(f'<Music #{n + 1}> ')
+        uxt.append(get_randomized_uxo_text(uxo))
+        n += 1
+    uxt.append('<Map with randomly ordered keys> {')
+    keys = list(range(100, 1000, 3))
+    random.shuffle(keys)
+    for key in keys:
+        uxt.append(f'    {key} <{key}>')
+    uxt.append('}')
     while n < scale:
         uxt.append(f'<Music #{n + 1}> ')
         uxt.append(get_randomized_uxo_text(uxo))

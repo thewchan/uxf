@@ -33,51 +33,56 @@ def main():
     uxo = uxf.load(filename1, drop_unused=True, replace_imports=True)
     uxo.dump(filename2, on_error=on_error)
     total, ok = test(total, ok, regression, 1, filename1, filename2,
-                     False, False, True)
+                     different=False, equal=False, equivalent=True)
 
     filename1 = 't13.uxf'
     filename2 = 'expected/t13.uxf'
     total, ok = test(total, ok, regression, 2, filename1, filename2,
-                     False, True, True)
+                     different=False, equal=True, equivalent=True)
 
     # Compare with self
     filename2 = 't13.uxf'
     total, ok = test(total, ok, regression, 3, filename1, filename2,
-                     True, True, True)
+                     different=True, equal=True, equivalent=True)
 
     filename1 = filename2 = 't12.uxf'
     total, ok = test(total, ok, regression, 4, filename1, filename2,
-                     True, True, True)
+                     different=True, equal=True, equivalent=True)
 
     # Compare with different
     filename2 = 't11.uxf'
     total, ok = test(total, ok, regression, 5, filename1, filename2,
-                     False, False, False)
+                     different=False, equal=False, equivalent=False)
+
+    # Compare with maps with completely different key orders
+    filename1 = 't77.uxf'
+    filename2 = 't78.uxf'
+    total, ok = test(total, ok, regression, 6, filename1, filename2,
+                     different=False, equal=True, equivalent=True)
 
     print(f'total={total} ok={ok}')
 
 
-def test(total, ok, regression, n, filename1, filename2, expected1,
-         expected2, expected3):
+def test(total, ok, regression, n, filename1, filename2, *, different,
+         equal, equivalent):
     on_error = functools.partial(uxf.on_error, verbose=False)
 
     total += 1
-    if filecmp.cmp(filename1, filename2, shallow=False) == expected1:
+    if filecmp.cmp(filename1, filename2, shallow=False) == different:
         ok += 1
     elif not regression:
         print(f'{n}.1 filecmp.cmp() • FAIL files compared unexpectedly the '
               'same')
 
     total += 1
-    if compare.compare(filename1, filename2,
-                       on_error=on_error) == expected2:
+    if compare.compare(filename1, filename2, on_error=on_error) == equal:
         ok += 1
     elif not regression:
         print(f'{n}.2 compare() • FAIL files compared unexpectedly unequal')
 
     total += 1
     if compare.compare(filename1, filename2, equivalent=True,
-                       on_error=on_error) == expected3:
+                       on_error=on_error) == equivalent:
         ok += 1
     elif not regression:
         print(f'{n}.3 compare() • FAIL files compared unexpectedly '

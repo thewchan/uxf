@@ -9,15 +9,14 @@ For another example of this file's merge() function see include.py.
 import os
 import sys
 
+import eq
+
 try:
     import uxf
-    import eq
 except ImportError: # needed for development
     PATH = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(PATH + '/..')
     import uxf
-    sys.path.append(PATH + '/../t')
-    import eq
 
 
 def main():
