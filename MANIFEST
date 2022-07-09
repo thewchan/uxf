@@ -47,10 +47,6 @@ st.sh
 #   . for .js use Dart or TypeScript or similar that can output JS?
 #   . uxf.rs (including .tlm eg)
 #   . uxf.cpp uxf.java uxf.rb ... ?
-#   . if I do an ANSI C implementation I'd need an insertion-ordered
-#     hashtable algorithm:
-#     https://troydhanson.github.io/uthash/userguide.html
-# - Money type (twelth type), e.g., MONEY ::= '$' REAL
 # - Documentation:
 #   . Complete manual with egs and use cases
 #	. Part I Preliminaries
@@ -75,5 +71,8 @@ st.sh
 # NOTE Rejected Ideas
 # - Replace yes and no bools with built-in fieldless tables, (Y) (N)
 # - Union types.
+# - Money type (twelth type), e.g., MONEY ::= '$' REAL; use, say
+#   =Money currency:str amount; or, =USD amount, or similar, (where
+#   amount could be str or int or real)
 
 # vim: syn=yaml
