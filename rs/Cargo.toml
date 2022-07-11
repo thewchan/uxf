@@ -9,7 +9,7 @@ description = "uxf supports the UXF plain text human readable optionally typed s
 documentation = "https://github.com/mark-summerfield/uxf"
 homepage = "https://github.com/mark-summerfield/uxf"
 readme = "README.md"
-keywords = [ "uniform exhange format", "plain text format", "format", "exchange", "uniform", "uxf", "config", "ini", "settings", "csv", "configuration", "yaml", "toml", "ini", "xml", "json", "database"]
+keywords = [ "cli", "api", "parser", "database", "uniform", "json", "text", "serialization", "settings", "csv", "configuration", "yaml", "toml", "ini", "xml", "json", "database", "uxf"]
 categories = [ "development-tools", "text-processing", "config", "parser-implementations", "encoding", "database"]
 license = "GPL-3.0"
 
