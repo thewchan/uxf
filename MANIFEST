@@ -1,3 +1,6 @@
+rs/src/lib.rs
+rs/Cargo.toml
+
 py/uxf.py
 py/uxfconvert.py
 py/uxflint.py
