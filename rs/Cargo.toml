@@ -10,7 +10,7 @@ documentation = "https://github.com/mark-summerfield/uxf"
 homepage = "https://github.com/mark-summerfield/uxf"
 readme = "README.md"
 keywords = ["parser", "database", "uxf", "serialization", "configuration"]
-categories = [ "development-tools", "text-processing", "config", "parser-implementations", "encoding", "database"]
+categories = [ "development-tools", "text-processing", "config", "parser-implementations", "database"]
 license = "GPL-3.0"
 
 [badges.maintenance]
