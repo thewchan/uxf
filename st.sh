@@ -1,4 +1,5 @@
 #!/bin/bash
+cd $HOME/app/uxf
 tokei -f -slines -tPython,Rust -esetup.py -etarget
 cd rs
 grep --color=auto --exclude-dir=target --include=*.rs -r format......,

@@ -1,5 +1,6 @@
 rs/src/lib.rs
 rs/Cargo.toml
+rs/README.md
 
 py/uxf.py
 py/uxfconvert.py
