@@ -1,5 +1,12 @@
-# TODO value.rs parser.rs output.rs
 rs/src/lib.rs
+rs/src/value.rs
+rs/src/list.rs # TODO new() & debug()
+rs/src/map.rs # TODO new() & debug()
+rs/src/table.rs
+rs/src/tclass.rs
+rs/src/parser.rs
+rs/src/output.rs
+rs/src/tests.rs # TODO tests for all value types incl. nested collections
 rs/Cargo.toml
 rs/README.md
 
