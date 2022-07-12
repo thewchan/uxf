@@ -7,5 +7,5 @@ use crate::value::Value;
 pub struct List {
     vtype: Option<String>,
     comment: Option<String>,
-    data: Vec<Value>,
+    data: Vec<Option<Value>>,
 }

@@ -11,7 +11,7 @@ pub struct Field {
 }
 
 impl Field {
-    pub fn maybe_new(name: &str, vtype: Option<&str>) -> Result<Self> {
+    pub fn new(name: &str, vtype: Option<&str>) -> Result<Self> {
         util::check_name(name)?;
         Ok(Field {
             name: name.to_string(),

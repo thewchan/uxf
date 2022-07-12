@@ -14,7 +14,6 @@ pub static ISO8601_DATETIME: &str = "%Y-%m-%dT%H:%M:%S";
 
 #[derive(Debug)]
 pub enum Value {
-    Null,
     Bool(bool),
     Bytes(Vec<u8>),
     Date(NaiveDate),
@@ -30,7 +29,6 @@ pub enum Value {
 impl From<Scalar> for Value {
     fn from(scalar: Scalar) -> Self {
         match scalar {
-            Scalar::Null => Value::Null,
             Scalar::Bool(b) => Value::Bool(b),
             Scalar::DateTime(dt) => Value::DateTime(dt),
             Scalar::Real(r) => Value::Real(r),
@@ -61,7 +59,6 @@ impl From<Collection> for Value {
 
 #[derive(Debug)]
 pub enum Scalar {
-    Null,
     Bool(bool),
     DateTime(NaiveDateTime),
     Real(f64),

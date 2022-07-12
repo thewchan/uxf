@@ -2,8 +2,6 @@
 // License: GPLv3
 
 use crate::field::Field;
-use crate::util;
-use anyhow::Result;
 
 #[derive(Debug)]
 pub struct TClass {

@@ -9,10 +9,10 @@ mod tests {
 
     #[test]
     fn single_values() {
-        let n = Value::Null;
-        assert_eq!(value_to_str(n), "?");
-        let b = Value::Bool(true);
-        assert_eq!(value_to_str(b), "yes");
+        let n = None;
+        assert_eq!(opt_value_to_str(n), "?");
+        let b = Some(Value::Bool(true));
+        assert_eq!(opt_value_to_str(b), "yes");
         let b = Value::Bool(false);
         assert_eq!(value_to_str(b), "no");
         let i = Value::Int(987123);
@@ -35,13 +35,23 @@ mod tests {
         let tclass = TClass::new("Point");
         let t = Table::new(tclass);
         let v = Value::Table(t);
-        assert_eq!(value_to_str(v), 
-                   "Table { tclass: TClass { ttype: \"Point\", comment: \
-                   None, fields: [] }, comment: None, records: [] }");
+        assert_eq!(
+            value_to_str(v),
+            "Table { tclass: TClass { ttype: \"Point\", comment: \
+                   None, fields: [] }, comment: None, records: [] }"
+        );
+    }
+
+    fn opt_value_to_str(v: Option<Value>) -> String {
+        match v {
+            None => "?".to_string(),
+            Some(v) => value_to_str(v),
+        }
     }
 
     fn value_to_str(v: Value) -> String {
         match v {
+            // TODO better output for List, Map, Table
             Value::Bool(true) => "yes".to_string(),
             Value::Bool(false) => "no".to_string(),
             Value::Bytes(b) => format!("{:?}", b),
@@ -50,7 +60,6 @@ mod tests {
             Value::Int(i) => format!("{}", i),
             Value::List(lst) => format!("{:?}", lst),
             Value::Map(m) => format!("{:?}", m),
-            Value::Null => "?".to_string(),
             Value::Real(r) => format!("{}", r),
             Value::Str(s) => s,
             Value::Table(t) => format!("{:?}", t),
