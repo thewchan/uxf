@@ -32,7 +32,7 @@ mod tests {
     #[test]
     fn table_values() {
         // TODO
-        let tclass = TClass::new("Point", None);
+        let tclass = TClass::new("Point");
         let t = Table::new(tclass);
         let v = Value::Table(t);
         assert_eq!(value_to_str(v), 

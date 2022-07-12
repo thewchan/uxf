@@ -1,9 +1,12 @@
 rs/src/lib.rs
-rs/src/value.rs
+rs/src/value.rs # TODO
 rs/src/list.rs # TODO new() & debug()
 rs/src/map.rs # TODO new() & debug()
-rs/src/table.rs
-rs/src/tclass.rs
+rs/src/table.rs # TODO
+rs/src/tclass.rs # TODO
+rs/src/field.rs # TODO impl Debug & rs equiv of ==
+rs/src/util.rs
+rs/src/constants.rs
 rs/src/parser.rs
 rs/src/output.rs
 rs/src/tests.rs # TODO tests for all value types incl. nested collections

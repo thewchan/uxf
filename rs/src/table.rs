@@ -8,7 +8,7 @@ use std::fmt;
 pub struct Table {
     tclass: TClass,
     comment: Option<String>,
-    records: Vec<Value>,
+    records: Vec<Vec<Value>>,
 }
 
 impl Table {

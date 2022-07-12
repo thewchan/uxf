@@ -1,8 +1,9 @@
 // Copyright © 2022 Mark Summerfield. All rights reserved.
 // License: GPLv3
 
-use crate::value::Value;
-use std::fmt;
+use crate::field::Field;
+use crate::util;
+use anyhow::Result;
 
 #[derive(Debug)]
 pub struct TClass {
@@ -12,17 +13,7 @@ pub struct TClass {
 }
 
 impl TClass {
-    pub fn new(ttype: &str, comment: Option<&str>) -> Self {
-        TClass {
-            ttype: ttype.to_string(),
-            comment: comment.map(|s| s.to_string()),
-            fields: vec![],
-        }
+    pub fn new(ttype: &str) -> Self {
+        TClass { ttype: ttype.to_string(), comment: None, fields: vec![] }
     }
-}
-
-#[derive(Debug)]
-pub struct Field {
-    name: String,
-    vtype: Option<String>,
 }
