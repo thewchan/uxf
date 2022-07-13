@@ -2,6 +2,7 @@
 // License: GPLv3
 
 use crate::constants::*;
+use crate::value::Value;
 use anyhow::{bail, Result};
 
 pub(crate) fn check_name(name: &str) -> Result<()> {

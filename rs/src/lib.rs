@@ -20,10 +20,21 @@ mod table;
 mod tclass;
 mod util;
 mod value;
-#[cfg(test)]
-mod tests;
+
 #[cfg(test)]
 mod test_field;
+#[cfg(test)]
+mod test_list;
+#[cfg(test)]
+mod test_map;
+#[cfg(test)]
+mod test_table;
+#[cfg(test)]
+mod test_tclass;
+#[cfg(test)]
+mod test_utils;
+#[cfg(test)]
+mod test_value;
 
 pub use crate::value::Value;
 // pub use crate::parser::parser; // etc
