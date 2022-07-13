@@ -14,10 +14,13 @@ pub struct Field {
 impl Field {
     pub fn new(name: &str, vtype: Option<&str>) -> Result<Self> {
         util::check_name(name)?;
-        Ok(Field {
-            name: name.to_string(),
-            vtype: vtype.map(|s| s.to_string()),
-        })
+        let vtype = if let Some(vtype) = vtype {
+            util::check_type_name(vtype)?;
+            Some(vtype.to_string())
+        } else {
+            None
+        };
+        Ok(Field { name: name.to_string(), vtype })
     }
 
     pub fn name(&self) -> &str {
