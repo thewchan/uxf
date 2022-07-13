@@ -9,9 +9,6 @@ use chrono::prelude::*;
 // See also Michael-F-Bryan's replies in
 // https://users.rust-lang.org/t/how-do-i-create-an-enum-that-subsumes-others/78232/8?u=mark
 
-pub static ISO8601_DATE: &str = "%Y-%m-%d";
-pub static ISO8601_DATETIME: &str = "%Y-%m-%dT%H:%M:%S";
-
 #[derive(Debug)]
 pub enum Value {
     Bool(bool),

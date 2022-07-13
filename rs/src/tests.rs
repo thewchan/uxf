@@ -3,9 +3,15 @@
 
 #[cfg(test)]
 mod tests {
+    use crate::constants::*;
     use crate::table::Table;
     use crate::tclass::TClass;
-    use crate::value::{Value, ISO8601_DATE, ISO8601_DATETIME};
+    use crate::value::Value;
+
+    #[test]
+    fn tclass_type() {
+        // TODO
+    }
 
     #[test]
     fn single_values() {
@@ -17,11 +23,6 @@ mod tests {
         assert_eq!(value_to_str(b), "no");
         let i = Value::Int(987123);
         assert_eq!(value_to_str(i), "987123");
-    }
-
-    #[test]
-    fn list_values() {
-        // TODO
     }
 
     #[test]

@@ -3,6 +3,9 @@
 
 pub(crate) const MAX_IDENTIFIER_LEN: usize = 60;
 
+pub static ISO8601_DATE: &str = "%Y-%m-%d";
+pub static ISO8601_DATETIME: &str = "%Y-%m-%dT%H:%M:%S";
+
 pub static VALUE_NAME_NULL: &str = "null";
 pub static VALUE_NAME_BOOL: &str = "bool";
 pub static VALUE_NAME_BYTES: &str = "bytes";

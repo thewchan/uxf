@@ -9,5 +9,5 @@ pub struct Map {
     ktype: Option<String>,
     vtype: Option<String>,
     comment: Option<String>,
-    data: HashMap<Key, Option<Value>>,
+    items: HashMap<Key, Option<Value>>,
 }

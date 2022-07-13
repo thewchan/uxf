@@ -3,6 +3,7 @@
 
 use crate::util;
 use anyhow::Result;
+use std::fmt;
 
 #[derive(Debug)]
 pub struct Field {
@@ -40,5 +41,11 @@ impl Field {
         util::check_type_name(vtype)?;
         self.vtype = Some(vtype.to_string());
         Ok(())
+    }
+}
+
+impl fmt::Display for Field {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Field::new({:?}, {:?})", self.name, self.vtype)
     }
 }

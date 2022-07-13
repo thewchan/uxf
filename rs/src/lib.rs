@@ -22,6 +22,8 @@ mod util;
 mod value;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod test_field;
 
 pub use crate::value::Value;
 // pub use crate::parser::parser; // etc

@@ -2,19 +2,21 @@
 # List, Map, Table need full set of operators & methods including []
 # accessors, .get(), iteration, etc.
 # List & Map should have new() & default(); Table just new()
+
 rs/src/lib.rs
 rs/src/value.rs # TODO
-rs/src/list.rs # TODO new() & debug()
-rs/src/map.rs # TODO new() & debug()
+rs/src/list.rs # TODO new()
+rs/src/map.rs # TODO new()
 rs/src/table.rs # TODO
 rs/src/tclass.rs # TODO
-rs/src/field.rs # TODO impl Debug & rs equiv of ==
+rs/src/field.rs # TODO rs equiv of ==
 rs/src/util.rs
 rs/src/constants.rs
 rs/src/parser.rs
 rs/src/output.rs
 # TODO refactor into test_value.rs test_field.rs etc.
 rs/src/tests.rs # TODO tests for all value types incl. nested collections
+rs/src/test_field.rs # TODO
 rs/Cargo.toml
 rs/README.md
 # TODO port tlm to use rust uxf
