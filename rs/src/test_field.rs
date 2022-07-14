@@ -8,7 +8,7 @@ mod tests {
     use crate::test_utils::check_error_code;
 
     #[test]
-    fn field() {
+    fn t_field() {
         // Tests new() new_anyvtype() name() vtype() == != clone()
         for (i, vtype) in [
             VTYPE_NAME_BOOL,
@@ -65,7 +65,7 @@ mod tests {
     }
 
     #[test]
-    fn field_new_invalid_name() {
+    fn t_field_new_invalid_name() {
         for (code, name) in [
             (304, VALUE_NAME_NULL),
             (304, VTYPE_NAME_BOOL),
@@ -108,7 +108,7 @@ mod tests {
     }
 
     #[test]
-    fn field_new_invalid_vtype() {
+    fn t_field_new_invalid_vtype() {
         for (code, vtype) in [
             (600, ""),
             (602, "*abc"),

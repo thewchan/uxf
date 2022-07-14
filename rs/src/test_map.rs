@@ -6,7 +6,7 @@ mod tests {
     use crate::map::Map;
 
     #[test]
-    fn test_map() {
+    fn t_map() {
         // TODO
     }
 }

@@ -6,7 +6,7 @@ mod tests {
     use crate::list::List;
 
     #[test]
-    fn test_list() {
+    fn t_list() {
         // TODO
     }
 }

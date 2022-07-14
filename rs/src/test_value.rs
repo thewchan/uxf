@@ -7,7 +7,7 @@ mod tests {
     use crate::value::Value;
 
     #[test]
-    fn test_single_value() {
+    fn t_single_value() {
         let n = None;
         assert_eq!(opt_value_to_str(n), "?");
         let b = Some(Value::Bool(true));

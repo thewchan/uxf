@@ -16,7 +16,8 @@ pub fn opt_value_to_str(v: Option<Value>) -> String {
 #[cfg(test)]
 pub fn value_to_str(v: Value) -> String {
     match v {
-        // TODO better output for List, Map, Table
+        // TODO better output for List, Map, Table: once I've implemented
+        // Display for them change "{:?}" to "{}".
         Value::Bool(true) => "yes".to_string(),
         Value::Bool(false) => "no".to_string(),
         Value::Bytes(b) => format!("{:?}", b),

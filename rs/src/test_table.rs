@@ -9,14 +9,14 @@ mod tests {
     use crate::value::Value;
 
     #[test]
-    fn test_table() {
-        let tclass = TClass::new("Point");
+    fn t_table() {
+        let tclass = TClass::new_fieldless("Point", None).unwrap();
         let t = Table::new(tclass);
         let v = Value::Table(t);
         assert_eq!(
             value_to_str(v),
-            "Table { tclass: TClass { ttype: \"Point\", comment: \
-                   None, fields: [] }, comment: None, records: [] }"
+            "Table { tclass: TClass { ttype: \"Point\", fields: [], \
+            comment: None }, comment: None, records: [] }"
         );
         // TODO lots more tests
     }
