@@ -4,7 +4,7 @@
 use crate::tclass::TClass;
 use crate::value::Value;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Table {
     tclass: TClass,
     comment: Option<String>,

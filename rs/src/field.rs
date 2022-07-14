@@ -9,7 +9,7 @@ use std::fmt;
 /// ``TClass``es.
 ///
 /// ``Field``s are immutable.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub struct Field {
     name: String,
     vtype: Option<String>,

@@ -4,7 +4,7 @@
 use crate::value::{Key, Value};
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Map {
     ktype: Option<String>,
     vtype: Option<String>,

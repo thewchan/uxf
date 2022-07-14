@@ -3,7 +3,7 @@
 
 use crate::value::Value;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct List {
     vtype: Option<String>,
     comment: Option<String>,

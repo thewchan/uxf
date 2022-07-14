@@ -9,7 +9,7 @@ use chrono::prelude::*;
 // See also Michael-F-Bryan's replies in
 // https://users.rust-lang.org/t/how-do-i-create-an-enum-that-subsumes-others/78232/8?u=mark
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Value {
     Bool(bool),
     Bytes(Vec<u8>),
@@ -61,7 +61,7 @@ pub enum Scalar {
     Real(f64),
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Key {
     Bytes(Vec<u8>),
     Date(NaiveDate),

@@ -19,7 +19,7 @@ from xml.sax.saxutils import escape, unescape
 import editabletuple
 
 
-__version__ = '1.2.1' # uxf module version
+__version__ = '1.2.2' # uxf module version
 VERSION = 1.0 # UXF file format version
 
 UTF8 = 'utf-8'
@@ -803,10 +803,6 @@ class TClass:
 
     def set_vtype(self, index, vtype):
         self.fields[index].vtype = vtype
-
-
-    def __hash__(self):
-        return hash(self.ttype)
 
 
     def __eq__(self, other):
