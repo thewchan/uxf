@@ -3,10 +3,10 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::map::Map;
+    use uxf::list::List;
 
     #[test]
-    fn t_map() {
+    fn t_list() {
         // TODO
     }
 }

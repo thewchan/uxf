@@ -3,9 +3,7 @@
 
 use crate::constants::*;
 use crate::value::Value;
-use anyhow::{bail, Result};
 
-#[cfg(test)]
 pub fn opt_value_to_str(v: Option<Value>) -> String {
     match v {
         None => "?".to_string(),
@@ -13,7 +11,6 @@ pub fn opt_value_to_str(v: Option<Value>) -> String {
     }
 }
 
-#[cfg(test)]
 pub fn value_to_str(v: Value) -> String {
     match v {
         // TODO better output for List, Map, Table: once I've implemented
@@ -32,7 +29,6 @@ pub fn value_to_str(v: Value) -> String {
     }
 }
 
-#[cfg(test)]
 pub fn check_error_code(error: &str, code: i32, name: &str) {
     match code {
         600 => assert_eq!(error, "#600:type names must be nonempty"),

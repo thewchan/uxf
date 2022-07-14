@@ -15,26 +15,12 @@ pub mod constants;
 pub mod field;
 pub mod list;
 pub mod map;
-mod parser;
+pub mod parser;
 pub mod table;
 pub mod tclass;
-mod util;
+pub mod test_utils;
+pub mod util;
 pub mod value;
-
-#[cfg(test)]
-mod test_field;
-#[cfg(test)]
-mod test_list;
-#[cfg(test)]
-mod test_map;
-#[cfg(test)]
-mod test_table;
-#[cfg(test)]
-mod test_tclass;
-#[cfg(test)]
-mod test_utils;
-#[cfg(test)]
-mod test_value;
 
 pub use crate::value::Value;
 // pub use crate::parser::parser; // etc

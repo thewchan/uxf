@@ -3,8 +3,8 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::test_utils::{opt_value_to_str, value_to_str};
-    use crate::value::Value;
+    use uxf::test_utils::{opt_value_to_str, value_to_str};
+    use uxf::value::Value;
 
     #[test]
     fn t_single_value() {

@@ -3,9 +3,9 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::*;
-    use crate::field::Field;
-    use crate::test_utils::check_error_code;
+    use uxf::constants::*;
+    use uxf::field::Field;
+    use uxf::test_utils::check_error_code;
 
     #[test]
     fn t_field() {

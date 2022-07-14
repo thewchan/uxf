@@ -3,10 +3,10 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::constants::*;
-    use crate::field::{make_fields, Field};
-    use crate::tclass::TClass;
-    use crate::test_utils::check_error_code;
+    use uxf::constants::*;
+    use uxf::field::{make_fields, Field};
+    use uxf::tclass::TClass;
+    use uxf::test_utils::check_error_code;
 
     // TODO new() new_fieldless() is_fieldless() ttype() comment() len()
     // record_of_nulls() == != < clone()

@@ -25,13 +25,13 @@ rs/src/util.rs
 rs/src/constants.rs
 rs/src/parser.rs
 rs/src/output.rs
-rs/src/test_field.rs
-rs/src/test_tclass.rs
-rs/src/test_value.rs
-rs/src/test_list.rs
-rs/src/test_map.rs
-rs/src/test_table.rs
 rs/src/test_utils.rs
+rs/tests/test_field.rs
+rs/tests/test_tclass.rs
+rs/tests/test_value.rs
+rs/tests/test_list.rs
+rs/tests/test_map.rs
+rs/tests/test_table.rs
 rs/Cargo.toml
 rs/README.md
 # TODO port tlm to use rust uxf

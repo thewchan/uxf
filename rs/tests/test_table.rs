@@ -3,10 +3,10 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::table::Table;
-    use crate::tclass::TClass;
-    use crate::test_utils::value_to_str;
-    use crate::value::Value;
+    use uxf::table::Table;
+    use uxf::tclass::TClass;
+    use uxf::test_utils::value_to_str;
+    use uxf::value::Value;
 
     #[test]
     fn t_table() {
