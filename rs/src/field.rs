@@ -3,13 +3,13 @@
 
 use crate::util;
 use anyhow::Result;
-use std::fmt;
+use std::{cmp::Ordering, fmt};
 
 /// Provides a definition of a field (`name` and `vtype`) for use in
 /// ``TClass``es.
 ///
 /// ``Field``s are immutable.
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq)]
 pub struct Field {
     name: String,
     vtype: Option<String>,
@@ -45,6 +45,32 @@ impl Field {
             None => None,
             Some(vtype) => Some(vtype),
         }
+    }
+}
+
+impl Ord for Field {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let aname = self.name.to_uppercase();
+        let bname = other.name.to_uppercase();
+        if aname != bname { // prefer case-insensitive ordering
+            aname.cmp(&bname)
+        } else if self.name != other.name {
+            self.name.cmp(&other.name)
+        } else { // identical names names so use vtype to tie-break
+            self.vtype.cmp(&other.vtype)
+        }
+    }
+}
+
+impl PartialOrd for Field {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Field {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name && self.vtype == other.vtype
     }
 }
 

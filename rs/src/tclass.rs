@@ -5,14 +5,14 @@ use crate::field::Field;
 use crate::util;
 use crate::value::Value;
 use anyhow::{bail, Result};
-use std::fmt;
 use std::fmt::Write as _;
+use std::{cmp::Ordering, fmt};
 
 /// Provides a definition of a tclass (`name`, `fields`, and `comment`)
 /// for use in ``Table``s.
 ///
 /// ``TClass``es are immutable.
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq)]
 pub struct TClass {
     ttype: String,
     fields: Vec<Field>,
@@ -86,6 +86,32 @@ impl TClass {
         let mut record = Vec::with_capacity(self.len());
         record.fill(None);
         Ok(record)
+    }
+}
+
+impl Ord for TClass {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let attype = self.ttype.to_uppercase();
+        let bttype = other.ttype.to_uppercase();
+        if attype != bttype { // prefer case-insensitive ordering
+            attype.cmp(&bttype)
+        } else if self.ttype != other.ttype {
+            self.ttype.cmp(&other.ttype)
+        } else { // identical names names so use fields to tie-break
+            self.fields.cmp(&other.fields)
+        }
+    }
+}
+
+impl PartialOrd for TClass {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for TClass {
+    fn eq(&self, other: &Self) -> bool {
+        self.ttype == other.ttype && self.fields == other.fields
     }
 }
 
