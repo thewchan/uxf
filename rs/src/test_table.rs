@@ -18,6 +18,6 @@ mod tests {
             "Table { tclass: TClass { ttype: \"Point\", comment: \
                    None, fields: [] }, comment: None, records: [] }"
         );
-        assert!(false, "TODO test_table"); // TODO
+        // TODO lots more tests
     }
 }

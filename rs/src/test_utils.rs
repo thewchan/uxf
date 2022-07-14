@@ -30,3 +30,53 @@ pub fn value_to_str(v: Value) -> String {
         Value::Table(t) => format!("{:?}", t),
     }
 }
+
+#[cfg(test)]
+pub fn check_error_code(error: &str, code: i32, name: &str) {
+    match code {
+        600 => assert_eq!(error, "#600:type names must be nonempty"),
+        602 => assert_eq!(
+            error,
+            format!(
+                "#602:type names must start \
+                                  with a letter or underscore, got {}",
+                name
+            )
+        ),
+        604 => assert_eq!(
+            error,
+            format!("#604:type names may not be yes or no got {}", name)
+        ),
+        606 => {
+            let n = name.len(); // byte count is fine: all ASCII
+            assert_eq!(
+                error,
+                format!(
+                    "#606:type names may be at most \
+                               {} characters long, got {} ({} characters)",
+                    MAX_IDENTIFIER_LEN, name, n
+                )
+            );
+        }
+        608 => assert_eq!(
+            error,
+            format!(
+                "#608:type names may only \
+                                  contain letters, digits, or \
+                                  underscores, got {}",
+                name
+            )
+        ),
+        _ => {
+            assert_eq!(code, 304, "code={} name={}", code, name);
+            assert_eq!(
+                error,
+                format!(
+                    "#304:names cannot be the same \
+                               as built-in type names or constants, got {}",
+                    name
+                )
+            );
+        }
+    }
+}

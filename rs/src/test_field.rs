@@ -5,9 +5,11 @@
 mod tests {
     use crate::constants::*;
     use crate::field::Field;
+    use crate::test_utils::check_error_code;
 
     #[test]
-    fn field_new_valid_name_valid_vtype() {
+    fn field() {
+        // Tests new() new_anyvtype() name() vtype() == !=
         for (i, vtype) in [
             VTYPE_NAME_BOOL,
             VTYPE_NAME_BYTES,
@@ -28,14 +30,31 @@ mod tests {
         .iter()
         .enumerate()
         {
+            // With Some vtype
             let name = format!("{}{}", vtype, i + 1);
-            let h = Field::new(&name, Some(vtype)).unwrap();
+            let f = Field::new(&name, vtype).unwrap();
+            assert_eq!(
+                f.to_string(),
+                format!("Field::new({:?}, {:?})", name, vtype)
+            );
+            assert_eq!(f.name(), name);
+            assert_eq!(&f.vtype().unwrap(), vtype);
+            let g = Field::new(&name, vtype).unwrap();
+            assert!(f == g);
+
+            // With vtype None
+            let name = format!("{}{}", vtype, i + 1);
+            let h = Field::new_anyvtype(&name).unwrap();
             assert_eq!(
                 h.to_string(),
-                format!("Field::new({:?}, Some({:?}))", name, vtype)
+                format!("Field::new_anyvtype({:?})", name)
             );
             assert_eq!(h.name(), name);
-            assert_eq!(&h.vtype().unwrap(), vtype);
+            assert!(&h.vtype().is_none());
+            let i = Field::new_anyvtype(&name).unwrap();
+            assert!(h == i);
+            assert!(f != h);
+            assert!(g != i);
         }
     }
 
@@ -67,9 +86,17 @@ mod tests {
             (608, "_almost#1"),
             (608, "f1:"),
         ] {
-            let g = Field::new(name, None);
-            assert!(g.is_err(), "expected err of #{} on {}", code, name);
-            let e = g.unwrap_err();
+            // With Some vtype
+            let f =
+                Field::new(name, if code == 304 { name } else { "str" });
+            assert!(f.is_err(), "expected err of #{} on {}", code, name);
+            let e = f.unwrap_err();
+            check_error_code(&e.to_string(), code, name);
+
+            // With vtype None
+            let f = Field::new_anyvtype(name);
+            assert!(f.is_err(), "expected err of #{} on {}", code, name);
+            let e = f.unwrap_err();
             check_error_code(&e.to_string(), code, name);
         }
     }
@@ -97,72 +124,10 @@ mod tests {
             (608, "e—"),
             (608, "f1:"),
         ] {
-            let g = Field::new("test", Some(vtype));
-            assert!(g.is_err(), "expected err of #{} on {}", code, vtype);
-            let e = g.unwrap_err();
+            let f = Field::new("test", vtype);
+            assert!(f.is_err(), "expected err of #{} on {}", code, vtype);
+            let e = f.unwrap_err();
             check_error_code(&e.to_string(), code, vtype);
-        }
-    }
-
-    #[test]
-    fn field_name() {
-        assert!(false, "TODO get/set field name with valid & invalid");
-    }
-
-    #[test]
-    fn field_vtype() {
-        assert!(false, "TODO get/set field vtype with valid & invalid");
-    }
-
-    fn check_error_code(error: &str, code: i32, name: &str) {
-        match code {
-            600 => assert_eq!(error, "#600:type names must be nonempty"),
-            602 => assert_eq!(
-                error,
-                format!(
-                    "#602:type names must start \
-                                  with a letter or underscore, got {}",
-                    name
-                )
-            ),
-            604 => assert_eq!(
-                error,
-                format!(
-                    "#604:type names may not be yes or no got {}",
-                    name
-                )
-            ),
-            606 => {
-                let n = name.len(); // byte count is fine: all ASCII
-                assert_eq!(
-                    error,
-                    format!(
-                        "#606:type names may be at most \
-                               {} characters long, got {} ({} characters)",
-                        MAX_IDENTIFIER_LEN, name, n
-                    )
-                );
-            }
-            608 => assert_eq!(
-                error,
-                format!(
-                    "#608:type names may only \
-                                  contain letters, digits, or \
-                                  underscores, got {}",
-                    name
-                )
-            ),
-            _ => {
-                assert_eq!(code, 304, "code={} name={}", code, name);
-                assert_eq!(
-                    error,
-                    format!(
-                        "#304:names cannot be the same \
-                               as built-in type names or constants, got {}",
-                        name
-                    )
-                );
-            }
         }
     }
 }

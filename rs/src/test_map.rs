@@ -7,6 +7,6 @@ mod tests {
 
     #[test]
     fn test_map() {
-        assert!(false, "TODO test_map"); // TODO
+        // TODO
     }
 }

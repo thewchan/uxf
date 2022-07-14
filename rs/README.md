@@ -27,7 +27,26 @@ Overview](https://github.com/mark-summerfield/uxf/blob/main/README.md).)
 The simplest part of the API loads and saves (dumps) UXF data from/to
 strings or files.
 
+See the rust docs for full API details.
+
 ### Reading and Writing UXF Data
+
+### Uxf Type
+
+### Value Type
+
+### List Type
+
+### Map Type
+
+### Table Type
+
+### TClass Type
+
+### Field Type
+
+Provides a definition of a field (`name` and `vtype`) for use in
+``TClass``es.
 
 ### Command Line Usage
 

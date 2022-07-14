@@ -7,6 +7,6 @@ mod tests {
 
     #[test]
     fn test_tclass() {
-        assert!(false, "TODO test_tclass"); // TODO
+        // TODO
     }
 }

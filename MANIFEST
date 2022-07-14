@@ -1,5 +1,4 @@
 # TODO
-# - TField: == & tests
 # - TClass
 # - List
 # - Map
@@ -9,20 +8,21 @@
 # List, Map, Table need full set of operators & methods including []
 # accessors, .get(), iteration, etc.
 # List & Map should have new() & default(); Table just new()
+# List, Map, Table are mutable; all other types are immutable
 # rs/README.md
 
 rs/src/lib.rs
-rs/src/value.rs # TODO
-rs/src/list.rs # TODO
-rs/src/map.rs # TODO
-rs/src/table.rs # TODO
-rs/src/tclass.rs # TODO
-rs/src/field.rs # TODO rs equiv of ==
+rs/src/value.rs
+rs/src/list.rs
+rs/src/map.rs
+rs/src/table.rs
+rs/src/tclass.rs
+rs/src/field.rs
 rs/src/util.rs
 rs/src/constants.rs
 rs/src/parser.rs
 rs/src/output.rs
-rs/src/test_field.rs # TODO XXX
+rs/src/test_field.rs
 rs/src/test_tclass.rs
 rs/src/test_value.rs
 rs/src/test_list.rs

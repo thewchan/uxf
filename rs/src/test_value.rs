@@ -16,6 +16,6 @@ mod tests {
         assert_eq!(value_to_str(b), "no");
         let i = Value::Int(987123);
         assert_eq!(value_to_str(i), "987123");
-        assert!(false, "TODO test_single_value"); // TODO
+        // TODO lots more tests
     }
 }
