@@ -11,15 +11,15 @@ TODO
 
 */
 
-mod constants;
-mod field;
-mod list;
-mod map;
+pub mod constants;
+pub mod field;
+pub mod list;
+pub mod map;
 mod parser;
-mod table;
-mod tclass;
+pub mod table;
+pub mod tclass;
 mod util;
-mod value;
+pub mod value;
 
 #[cfg(test)]
 mod test_field;

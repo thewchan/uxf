@@ -4,7 +4,7 @@
 #[cfg(test)]
 mod tests {
     use crate::constants::*;
-    use crate::field::Field;
+    use crate::field::{make_fields, Field};
     use crate::tclass::TClass;
     use crate::test_utils::check_error_code;
 
@@ -99,8 +99,7 @@ mod tests {
     }
 
     fn valid_fields() -> Vec<Field> {
-        let mut fields = vec![];
-        for (name, vtype) in [
+        make_fields(&[
             ("CID", "int"),
             ("title", "str"),
             ("selected", "bool"),
@@ -111,13 +110,7 @@ mod tests {
             ("Filename", ""),
             ("Categories", "Categories"),
             ("Extra", "Point"),
-        ] {
-            if vtype.is_empty() {
-                fields.push(Field::new_anyvtype(name).unwrap());
-            } else {
-                fields.push(Field::new(name, vtype).unwrap());
-            }
-        }
-        fields
+        ])
+        .unwrap()
     }
 }

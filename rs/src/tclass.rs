@@ -22,6 +22,8 @@ pub struct TClass {
 impl TClass {
     /// Creates a new `TClass` with the given `name`, `fields`, and
     /// `commment` _or_ returns an Err if the `name` is invalid.
+    /// See `Field::make_fields()` for a function that can generate a
+    /// suitable vector of fields.
     pub fn new(
         ttype: &str,
         fields: Vec<Field>,
@@ -93,11 +95,13 @@ impl Ord for TClass {
     fn cmp(&self, other: &Self) -> Ordering {
         let attype = self.ttype.to_uppercase();
         let bttype = other.ttype.to_uppercase();
-        if attype != bttype { // prefer case-insensitive ordering
+        if attype != bttype {
+            // prefer case-insensitive ordering
             attype.cmp(&bttype)
         } else if self.ttype != other.ttype {
             self.ttype.cmp(&other.ttype)
-        } else { // identical names names so use fields to tie-break
+        } else {
+            // identical names names so use fields to tie-break
             self.fields.cmp(&other.fields)
         }
     }

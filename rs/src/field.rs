@@ -5,6 +5,32 @@ use crate::util;
 use anyhow::Result;
 use std::{cmp::Ordering, fmt};
 
+/// Returns a vector of fields which when unwrapped is suitable for
+/// TClass::new(). Use an empty string for vtypes that should be None.
+///
+/// ```
+/// let fields = uxf::field::make_fields(&[("Data", ""), ("Date", "date"),
+///         ("Level", "real"), ("name", "str")]).unwrap();
+/// assert_eq!(fields.len(), 4);
+/// assert_eq!(format!("{}", fields[0]), "Field::new_anyvtype(\"Data\")");
+/// assert_eq!(format!("{}", fields[1]), "Field::new(\"Date\", \"date\")");
+/// assert_eq!(format!("{}", fields[2]), "Field::new(\"Level\", \"real\")");
+/// assert_eq!(format!("{}", fields[3]), "Field::new(\"name\", \"str\")");
+/// ```
+pub fn make_fields(
+    name_vtype_pairs: &[(&str, &str)],
+) -> Result<Vec<Field>> {
+    let mut fields = vec![];
+    for (name, vtype) in name_vtype_pairs {
+        fields.push(if vtype.is_empty() {
+            Field::new_anyvtype(name)?
+        } else {
+            Field::new(name, vtype)?
+        });
+    }
+    Ok(fields)
+}
+
 /// Provides a definition of a field (`name` and `vtype`) for use in
 /// ``TClass``es.
 ///
@@ -52,11 +78,13 @@ impl Ord for Field {
     fn cmp(&self, other: &Self) -> Ordering {
         let aname = self.name.to_uppercase();
         let bname = other.name.to_uppercase();
-        if aname != bname { // prefer case-insensitive ordering
+        if aname != bname {
+            // prefer case-insensitive ordering
             aname.cmp(&bname)
         } else if self.name != other.name {
             self.name.cmp(&other.name)
-        } else { // identical names names so use vtype to tie-break
+        } else {
+            // identical names names so use vtype to tie-break
             self.vtype.cmp(&other.vtype)
         }
     }
