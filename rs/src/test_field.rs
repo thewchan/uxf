@@ -9,7 +9,7 @@ mod tests {
 
     #[test]
     fn field() {
-        // Tests new() new_anyvtype() name() vtype() == !=
+        // Tests new() new_anyvtype() name() vtype() == != clone()
         for (i, vtype) in [
             VTYPE_NAME_BOOL,
             VTYPE_NAME_BYTES,
@@ -55,6 +55,12 @@ mod tests {
             assert!(h == i);
             assert!(f != h);
             assert!(g != i);
+            let j = f.clone();
+            assert!(j == f);
+            assert!(j != h);
+            let k = h.clone();
+            assert!(k == h);
+            assert!(k != g);
         }
     }
 
